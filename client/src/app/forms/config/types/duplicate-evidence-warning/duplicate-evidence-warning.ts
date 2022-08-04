@@ -1,6 +1,6 @@
 import {Component, OnInit } from '@angular/core';
-import { FieldType, FormlyFieldConfig } from '@ngx-formly/core';
-import {TypeOption} from "@ngx-formly/core/lib/services/formly.config";
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import {TypeOption} from "@ngx-formly/core/lib/models";
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -8,7 +8,7 @@ import { BehaviorSubject } from 'rxjs';
   templateUrl: './duplicate-evidence-warning.html',
   styleUrls: ['./duplicate-evidence-warning.less'],
 })
-export class DuplicateEvidenceWarningComponent extends FieldType implements OnInit {
+export class DuplicateEvidenceWarningComponent extends FieldType<FieldTypeConfig> implements OnInit {
   paramsFilled: boolean = false
   matchingEvidenceExists$ =  new BehaviorSubject<boolean>(false)
 

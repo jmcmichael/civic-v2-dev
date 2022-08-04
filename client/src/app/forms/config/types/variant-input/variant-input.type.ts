@@ -4,8 +4,8 @@ import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper';
 import { AddVariantGQL, AddVariantMutation, AddVariantMutationVariables, VariantSelectFieldsFragment, VariantSelectQuery, VariantSelectQueryVariables, VariantTypeaheadGQL } from '@app/generated/civic.apollo';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { FieldType, FormlyFieldConfig } from '@ngx-formly/core';
-import { TypeOption } from '@ngx-formly/core/lib/services/formly.config';
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { TypeOption } from '@ngx-formly/core/lib/models';
 import { QueryRef } from 'apollo-angular';
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';
@@ -24,11 +24,10 @@ interface VariantSelectOption {
   styleUrls: ['./variant-input.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VariantInputType extends FieldType implements OnInit, AfterViewInit, OnDestroy {
+export class VariantInputType extends FieldType<FieldTypeConfig> implements OnInit, AfterViewInit, OnDestroy {
   @Output() onVariantSelected = new EventEmitter<number>();
   callbackSub?: Subscription
 
-  formControl!: FormControl;
   private queryRef!: QueryRef<VariantSelectQuery, VariantSelectQueryVariables>;
   variants$?: Observable<VariantSelectOption[]>;
 

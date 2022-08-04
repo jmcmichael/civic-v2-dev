@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { formatSourceTypeEnum } from '@app/core/utilities/enum-formatters/format-source-type-enum';
 import { Maybe, SourceSource, SourceTypeaheadFieldsFragmentDoc } from '@app/generated/civic.apollo';
-import { FieldType, FormlyFieldConfig } from '@ngx-formly/core';
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
 import { Subscribable, Subscription } from 'rxjs';
 import { $enum } from 'ts-enum-util';
 
@@ -16,7 +16,7 @@ export interface SourceSelectModel {
   templateUrl: './source-select.type.html',
   styleUrls: ['./source-select.type.less']
 })
-export class SourceSelectType extends FieldType {
+export class SourceSelectType extends FieldType<FieldTypeConfig> {
   private updateSub!: Subscription;
 
   constructor() {

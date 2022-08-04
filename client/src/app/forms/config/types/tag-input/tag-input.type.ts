@@ -3,8 +3,8 @@ import {
   Component,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { FieldType } from '@ngx-formly/core';
-import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { TypeOption } from "@ngx-formly/core/lib/models";
 
 @Component({
   selector: 'cvc-tag-input-type',
@@ -12,8 +12,8 @@ import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
   styleUrls: ['./tag-input.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TagInputType extends FieldType {
-  formControl!: FormControl;
+export class TagInputType extends FieldType<FieldTypeConfig> {
+
 
   constructor() {
     super();

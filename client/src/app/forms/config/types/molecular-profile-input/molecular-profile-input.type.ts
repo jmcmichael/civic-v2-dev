@@ -3,17 +3,17 @@ import { FormControl } from '@angular/forms';
 import { CvcComplexMolecularProfileInputForm } from '@app/forms/complex-molecular-profile-input/complex-molecular-profile-input.form';
 import { FormMolecularProfile } from '@app/forms/forms.interfaces';
 import { SelectedVariant } from '@app/forms/variant-submit/variant-submit.form';
-import { FieldType} from '@ngx-formly/core';
-import {TypeOption} from "@ngx-formly/core/lib/services/formly.config";
+import { FieldType, FieldTypeConfig, FormlyFieldConfig} from '@ngx-formly/core';
+import {TypeOption} from "@ngx-formly/core/lib/models";
 
 @Component({
   selector: 'cvc-molecular-profile-input-type',
   templateUrl: './molecular-profile-input.type.html',
   styleUrls: ['./molecular-profile-input.type.less'],
 })
-export class MolecularProfileInputType extends FieldType {
+export class MolecularProfileInputType extends FieldType<FieldTypeConfig> {
   @ViewChild('complexMolecularProfileInputForm', { static: false}) complexMpForm?: CvcComplexMolecularProfileInputForm
-  formControl!: FormControl;
+
   mpId?: number;
 
   onVariantSelected(v: SelectedVariant): void {

@@ -2,8 +2,8 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component } 
 import { FormControl } from '@angular/forms';
 import { CitationTypeaheadGQL } from '@app/generated/civic.apollo';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { FieldType } from '@ngx-formly/core';
-import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { TypeOption } from "@ngx-formly/core/lib/models";
 import { isNonNulled } from 'rxjs-etc';
 import { filter, map } from 'rxjs/operators';
 
@@ -14,8 +14,8 @@ import { filter, map } from 'rxjs/operators';
   styleUrls: ['./source-selector-typeahead.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SourceSelectorTypeaheadType extends FieldType implements AfterViewInit {
-  formControl!: FormControl;
+export class SourceSelectorTypeaheadType extends FieldType<FieldTypeConfig> implements AfterViewInit {
+
   selectedValue = null;
   nzFilterOption = () => true;
 
@@ -53,7 +53,7 @@ export class SourceSelectorTypeaheadType extends FieldType implements AfterViewI
         // update form model with selected source's id & citation
         const { source } = this.to.optionList.find((opt: any) => opt.value === +e);
         if (source) {
-          this.form.patchValue({ citation: source.citation ? source.citation : source.name, id: source.id });
+          this.form.patchValue([{ citation: source.citation ? source.citation : source.name, id: source.id }]);
         } else {
           console.error('Could not find selected citation in list?');
         }

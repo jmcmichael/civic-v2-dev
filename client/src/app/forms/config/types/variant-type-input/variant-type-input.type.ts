@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { VariantTypeTypeaheadGQL, VariantTypeTypeaheadQuery, VariantTypeTypeaheadQueryVariables } from '@app/generated/civic.apollo';
-import { FieldType } from '@ngx-formly/core';
-import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { TypeOption } from "@ngx-formly/core/lib/models";
 import { QueryRef } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';
@@ -19,8 +19,7 @@ interface VariantTypeTypeahead {
   templateUrl: './variant-type-input.type.html',
   styleUrls: ['./variant-type-input.type.less'],
 })
-export class VariantTypeInputType extends FieldType implements OnInit, AfterViewInit {
-  formControl!: FormControl;
+export class VariantTypeInputType extends FieldType<FieldTypeConfig> implements OnInit, AfterViewInit {
 
   private queryRef?: QueryRef<VariantTypeTypeaheadQuery, VariantTypeTypeaheadQueryVariables>
 

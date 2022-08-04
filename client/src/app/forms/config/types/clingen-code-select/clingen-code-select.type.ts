@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { ClingenCode, ClingenCodeTypeaheadGQL, ClingenCodeTypeaheadQuery, ClingenCodeTypeaheadQueryVariables } from '@app/generated/civic.apollo';
-import { FieldType } from '@ngx-formly/core';
-import { TypeOption } from '@ngx-formly/core/lib/services/formly.config';
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { TypeOption } from '@ngx-formly/core/lib/models';
 import { QueryRef } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';
@@ -13,8 +12,8 @@ import { filter, map } from 'rxjs/operators';
   templateUrl: './clingen-code-select.type.html',
   styleUrls: ['./clingen-code-select.type.less'],
 })
-export class ClingenCodeInputType extends FieldType implements OnInit {
-  formControl!: FormControl;
+export class ClingenCodeInputType extends FieldType<FieldTypeConfig> implements OnInit {
+
 
   searchVal = ''
 

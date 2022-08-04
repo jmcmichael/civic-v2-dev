@@ -1,8 +1,6 @@
-import { EvidenceType, Maybe } from '@app/generated/civic.apollo';
+import { Maybe } from '@app/generated/civic.apollo';
 import { FormlyFieldConfig, FormlyTemplateOptions } from '@ngx-formly/core';
-import { FormlyValueChangeEvent } from '@ngx-formly/core/lib/components/formly.field.config';
-import { TypeOption } from '@ngx-formly/core/lib/services/formly.config';
-import { Subject } from 'rxjs';
+import { TypeOption } from '@ngx-formly/core/lib/models';
 import { EntityState } from '../../states/entity.state';
 
 const optionText: { [option: string]: string } = {

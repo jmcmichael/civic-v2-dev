@@ -15,7 +15,7 @@ import {
   SourceTypeaheadQuery,
   SourceTypeaheadQueryVariables
 } from '@app/generated/civic.apollo';
-import { FieldType } from '@ngx-formly/core';
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
 import { QueryRef } from 'apollo-angular';
 import { Observable, Subject } from 'rxjs';
 import { map, pluck, takeUntil } from 'rxjs/operators';
@@ -35,8 +35,8 @@ interface CitationSelectOption {
   styleUrls: ['./citation-select.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CitationSelectType extends FieldType implements OnInit, AfterViewInit {
-  formControl!: FormControl;
+export class CitationSelectType extends FieldType<FieldTypeConfig> implements OnInit, AfterViewInit {
+
   private queryRef!: QueryRef<SourceTypeaheadQuery, SourceTypeaheadQueryVariables>;
   sources$?: Observable<CitationSelectOption[]>;
   onAddCitation: (e: any) => void

@@ -4,8 +4,8 @@ import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper';
 import { AddDiseaseGQL, AddDiseaseMutation, AddDiseaseMutationVariables, DiseaseTypeaheadGQL, DiseaseTypeaheadQuery, DiseaseTypeaheadQueryVariables } from '@app/generated/civic.apollo';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { FieldType } from '@ngx-formly/core';
-import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { TypeOption } from "@ngx-formly/core/lib/models";
 import { QueryRef } from 'apollo-angular';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';
@@ -31,8 +31,8 @@ interface DiseaseTypeaheadOption {
   templateUrl: './disease-input.type.html',
   styleUrls: ['./disease-input.type.less'],
 })
-export class DiseaseInputType extends FieldType implements AfterViewInit, OnInit {
-  formControl!: FormControl;
+export class DiseaseInputType extends FieldType<FieldTypeConfig> implements AfterViewInit, OnInit {
+
   private queryRef!: QueryRef<DiseaseTypeaheadQuery, DiseaseTypeaheadQueryVariables>
   diseases$?: Observable<DiseaseTypeaheadOption[]>
 

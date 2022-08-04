@@ -1,29 +1,15 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import {
-  DrugInteraction,
-  EvidenceClinicalSignificance,
-  EvidenceDirection,
-  EvidenceFieldsFromSourceSuggestionGQL,
-  EvidenceLevel,
-  EvidenceType,
-  Maybe,
-  Organization,
-  SubmitEvidenceItemGQL,
-  SubmitEvidenceItemInput,
-  SubmitEvidenceItemMutation,
-  SubmitEvidenceItemMutationVariables,
-  VariantOrigin,
-} from '@app/generated/civic.apollo';
-import * as fmt from '@app/forms/config/utilities/input-formatters';
-import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { Subject } from 'rxjs';
-import { EvidenceState } from '@app/forms/config/states/evidence.state';
+import { ActivatedRoute } from '@angular/router';
 import { NetworkErrorsService } from '@app/core/services/network-errors.service';
 import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper';
+import { EvidenceState } from '@app/forms/config/states/evidence.state';
+import * as fmt from '@app/forms/config/utilities/input-formatters';
+import { DrugInteraction, EvidenceClinicalSignificance, EvidenceDirection, EvidenceFieldsFromSourceSuggestionGQL, EvidenceLevel, EvidenceType, Maybe, Organization, SubmitEvidenceItemGQL, SubmitEvidenceItemInput, SubmitEvidenceItemMutation, SubmitEvidenceItemMutationVariables, VariantOrigin } from '@app/generated/civic.apollo';
+import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormDisease, FormDrug, FormMolecularProfile, FormPhenotype, FormSource } from '../forms.interfaces';
-import { ActivatedRoute } from '@angular/router';
 
 interface FormModel {
   fields: {
@@ -81,7 +67,7 @@ export class EvidenceSubmitForm implements AfterViewInit, OnDestroy {
     private sourceSuggestionGQL: EvidenceFieldsFromSourceSuggestionGQL,
     private networkErrorService: NetworkErrorsService,
     private route: ActivatedRoute
-    ) {
+  ) {
 
     this.submitEvidenceMutator = new MutatorWithState(networkErrorService);
 
@@ -93,139 +79,139 @@ export class EvidenceSubmitForm implements AfterViewInit, OnDestroy {
           label: 'Add Evidence Item Form',
         },
         fieldGroup: [
-          {
-            key: 'molecularProfile',
-            type: 'molecular-profile-input',
-            templateOptions: {
-              label: 'Molecular Profile',
-              helpText: 'lorem ipsum',
-              required: true,
-              allowCreate: true,
-            },
-          },
-          {
-            key: 'source',
-            type: 'multi-field',
-            wrappers: ['form-field'],
-            templateOptions: {
-              label: 'Source',
-              helpText:
-                'CIViC accepts PubMed or ASCO Abstracts sources. Please provide the source of the support for your evidence here.',
-              addText: 'Specify a Source',
-              maxCount: 1,
-              required: true,
-            },
-            fieldArray: {
-              type: 'source-input',
-              templateOptions: {
-                hideLabel: true,
-                required: true,
-              },
-            },
-          },
-          {
-            key: 'duplicate-evidence-warning',
-            type: 'duplicate-evidence-warning',
-          },
-          {
-            key: 'description',
-            type: 'cvc-textarea',
-            templateOptions: {
-              label: 'Evidence Statement',
-              helpText:
-                'Your original description of evidence from published literature detailing the association or lack of association between a variant and its predictive, prognostic, diagnostic, predisposing, functional or oncogenic value. Data constituting personal or identifying information should not be entered (e.g. <a href="https://www.hipaajournal.com/what-is-protected-health-information/" target="_blank">protected health information (PHI) as defined by HIPAA</a> in the U.S. and/or comparable laws in your jurisdiction).',
-              placeholder: 'No description provided',
-              required: true,
-            },
-          },
-          {
-            key: 'variantOrigin',
-            type: 'variant-origin-select',
-            templateOptions: {
-              required: true,
-            },
-          },
-          {
-            key: 'evidenceType',
-            type: 'evidence-type-select',
-            templateOptions: {
-              required: true,
-            },
-          },
-          {
-            key: 'evidenceDirection',
-            type: 'evidence-direction-select',
-            templateOptions: {
-              required: true,
-            },
-          },
-          {
-            key: 'clinicalSignificance',
-            type: 'clinical-significance-select',
-            templateOptions: {
-              required: true,
-            },
-          },
-          {
-            key: 'disease',
-            type: 'disease-array',
-            templateOptions: {
-              maxCount: 1,
-            },
-          },
-          {
-            key: 'evidenceLevel',
-            type: 'evidence-level-select',
-            templateOptions: {
-              required: true,
-            },
-          },
-          {
-            key: 'drugs',
-            type: 'drug-array',
-          },
-          {
-            key: 'drugInteractionType',
-            type: 'drug-interaction-select',
-          },
-          {
-            key: 'phenotypes',
-            type: 'phenotype-array',
-          },
-          {
-            key: 'evidenceRating',
-            type: 'rating-input',
-            templateOptions: {
-              required: true,
-              label: 'Rating',
-              helpText:
-                'Please rate your evidence on a scale of one to five stars. Use the star rating descriptions for guidance.',
-            },
-          },
-          {
-            key: 'comment',
-            type: 'comment-textarea',
-            templateOptions: {
-              label: 'Comment',
-              helpText:
-                "Please provide any additional comments you wish to make about this evidence item. This comment will appear as the first comment in this item's comment thread.",
-              placeholder: 'Please enter a comment describing your revision.',
-              required: false,
-              minLength: 10,
-            },
-          },
-          {
-            key: 'cancel',
-            type: 'cancel-button',
-          },
-          {
-            key: 'organization',
-            type: 'org-submit-button',
-            templateOptions: {
-              submitLabel: 'Submit Evidence Item',
-              submitSize: 'large',
-            },
-          },
+          // {
+          //   key: 'molecularProfile',
+          //   type: 'molecular-profile-input',
+          //   templateOptions: {
+          //     label: 'Molecular Profile',
+          //     helpText: 'lorem ipsum',
+          //     required: true,
+          //     allowCreate: true,
+          //   },
+          // },
+          // {
+          //   key: 'source',
+          //   type: 'multi-field',
+          //   wrappers: ['form-field'],
+          //   templateOptions: {
+          //     label: 'Source',
+          //     helpText:
+          //       'CIViC accepts PubMed or ASCO Abstracts sources. Please provide the source of the support for your evidence here.',
+          //     addText: 'Specify a Source',
+          //     maxCount: 1,
+          //     required: true,
+          //   },
+          //   fieldArray: {
+          //     type: 'source-input',
+          //     templateOptions: {
+          //       hideLabel: true,
+          //       required: true,
+          //     },
+          //   },
+          // },
+          // {
+          //   key: 'duplicate-evidence-warning',
+          //   type: 'duplicate-evidence-warning',
+          // },
+          // {
+          //   key: 'description',
+          //   type: 'cvc-textarea',
+          //   templateOptions: {
+          //     label: 'Evidence Statement',
+          //     helpText:
+          //       'Your original description of evidence from published literature detailing the association or lack of association between a variant and its predictive, prognostic, diagnostic, predisposing, functional or oncogenic value. Data constituting personal or identifying information should not be entered (e.g. <a href="https://www.hipaajournal.com/what-is-protected-health-information/" target="_blank">protected health information (PHI) as defined by HIPAA</a> in the U.S. and/or comparable laws in your jurisdiction).',
+          //     placeholder: 'No description provided',
+          //     required: true,
+          //   },
+          // },
+          // {
+          //   key: 'variantOrigin',
+          //   type: 'variant-origin-select',
+          //   templateOptions: {
+          //     required: true,
+          //   },
+          // },
+          // {
+          //   key: 'evidenceType',
+          //   type: 'evidence-type-select',
+          //   templateOptions: {
+          //     required: true,
+          //   },
+          // },
+          // {
+          //   key: 'evidenceDirection',
+          //   type: 'evidence-direction-select',
+          //   templateOptions: {
+          //     required: true,
+          //   },
+          // },
+          // {
+          //   key: 'clinicalSignificance',
+          //   type: 'clinical-significance-select',
+          //   templateOptions: {
+          //     required: true,
+          //   },
+          // },
+          // {
+          //   key: 'disease',
+          //   type: 'disease-array',
+          //   templateOptions: {
+          //     maxCount: 1,
+          //   },
+          // },
+          // {
+          //   key: 'evidenceLevel',
+          //   type: 'evidence-level-select',
+          //   templateOptions: {
+          //     required: true,
+          //   },
+          // },
+          // {
+          //   key: 'drugs',
+          //   type: 'drug-array',
+          // },
+          // {
+          //   key: 'drugInteractionType',
+          //   type: 'drug-interaction-select',
+          // },
+          // {
+          //   key: 'phenotypes',
+          //   type: 'phenotype-array',
+          // },
+          // {
+          //   key: 'evidenceRating',
+          //   type: 'rating-input',
+          //   templateOptions: {
+          //     required: true,
+          //     label: 'Rating',
+          //     helpText:
+          //       'Please rate your evidence on a scale of one to five stars. Use the star rating descriptions for guidance.',
+          //   },
+          // },
+          // {
+          //   key: 'comment',
+          //   type: 'comment-textarea',
+          //   templateOptions: {
+          //     label: 'Comment',
+          //     helpText:
+          //       "Please provide any additional comments you wish to make about this evidence item. This comment will appear as the first comment in this item's comment thread.",
+          //     placeholder: 'Please enter a comment describing your revision.',
+          //     required: false,
+          //     minLength: 10,
+          //   },
+          // },
+          // {
+          //   key: 'cancel',
+          //   type: 'cancel-button',
+          // },
+          // {
+          //   key: 'organization',
+          //   type: 'org-submit-button',
+          //   templateOptions: {
+          //     submitLabel: 'Submit Evidence Item',
+          //     submitSize: 'large',
+          //   },
+          // },
         ],
       },
     ];
@@ -247,27 +233,27 @@ export class EvidenceSubmitForm implements AfterViewInit, OnDestroy {
         this.submittedDiseaseId = +params.diseaseId
       }
 
-      if(shouldPopulate) {
+      if (shouldPopulate) {
         // TODO update source suggestions to use molecular profiles
         this.sourceSuggestionGQL.fetch({
           molecularProfileId: this.submittedMpId,
           diseaseId: this.submittedDiseaseId,
           sourceId: this.submittedSourceId,
         }).subscribe(
-          ({data: { sourceSuggestionValues}, loading}) => {
+          ({ data: { sourceSuggestionValues }, loading }) => {
             this.loading = loading
-            let newModel: any = {fields: {}}
-            if(sourceSuggestionValues.molecularProfile) {
+            let newModel: any = { fields: {} }
+            if (sourceSuggestionValues.molecularProfile) {
               newModel.fields.molecularProfile = [sourceSuggestionValues.molecularProfile]
             }
-            if(sourceSuggestionValues.disease) {
+            if (sourceSuggestionValues.disease) {
               newModel.fields.disease = [sourceSuggestionValues.disease]
             }
-            if(sourceSuggestionValues.source) {
+            if (sourceSuggestionValues.source) {
               newModel.fields.source = [sourceSuggestionValues.source]
             }
 
-            if(this.formModel.fields?.organization) {
+            if (this.formModel.fields?.organization) {
               newModel.fields.organization = this.formModel.fields?.organization
             }
 
@@ -294,18 +280,18 @@ export class EvidenceSubmitForm implements AfterViewInit, OnDestroy {
       let state = this.submitEvidenceMutator.mutate(this.submitEvidenceGQL, {
         input: input
       }, {},
-      (data) => {
-        this.newId = data.submitEvidence.evidenceItem.id;
-      })
+        (data) => {
+          this.newId = data.submitEvidence.evidenceItem.id;
+        })
 
       state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if(res) {
+        if (res) {
           this.success = true
         }
       })
 
       state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((errs) => {
-        if(errs) {
+        if (errs) {
           this.errorMessages = errs
           this.success = false
         }

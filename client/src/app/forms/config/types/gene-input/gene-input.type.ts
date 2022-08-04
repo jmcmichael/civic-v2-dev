@@ -6,11 +6,11 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { GeneTypeaheadFieldsFragment, GeneTypeaheadGQL, GeneTypeaheadQuery, GeneTypeaheadQueryVariables } from '@app/generated/civic.apollo';
-import { FieldType } from '@ngx-formly/core';
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
 import { QueryRef } from 'apollo-angular';
 import { Observable, Subject } from 'rxjs';
 import { filter, map, pluck, takeUntil } from 'rxjs/operators';
-import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
+import { TypeOption } from "@ngx-formly/core/lib/models";
 import { isNonNulled } from 'rxjs-etc';
 import { UntilDestroy } from '@ngneat/until-destroy';
 
@@ -26,8 +26,8 @@ interface GeneTypeaheadOption {
   templateUrl: './gene-input.type.html',
   styleUrls: ['./gene-input.type.less'],
 })
-export class GeneInputType extends FieldType implements AfterViewInit, OnInit {
-  formControl!: FormControl;
+export class GeneInputType extends FieldType<FieldTypeConfig> implements AfterViewInit, OnInit {
+
 
   defaultOptions = {
     templateOptions: {

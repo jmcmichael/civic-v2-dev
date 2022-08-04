@@ -2,6 +2,7 @@
   <nz-select nzShowSearch
     nzServerSearch
     autofocus="click"
+  formControl!: FormControl;
     [formControl]="formControl"
     [formlyAttributes]="field"
     [nzPlaceHolder]="!to.placeholder ? null : to.placeholder"
