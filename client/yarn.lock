@@ -2449,10 +2449,10 @@
   dependencies:
     tslib "^2.3.0"
 
-"@ngrx/component@^12.5.1":
-  version "12.5.1"
-  resolved "https://registry.yarnpkg.com/@ngrx/component/-/component-12.5.1.tgz#72935cab7b99ee16635c8e8e43c0eee41caf5f8f"
-  integrity sha512-uMy1yQ/ceI8fF73PaUCKwvOu3wEMc2VDauCQom1nS7+X49SDiqwAsy3kvWdkGyaDAgOGvYs1mZlTAbCI8cM8Dg==
+"@ngrx/component@^13.2.0":
+  version "13.2.0"
+  resolved "https://registry.yarnpkg.com/@ngrx/component/-/component-13.2.0.tgz#760b1411bed6897b5c27cd55ae1414e60ca55bb2"
+  integrity sha512-TOGFMpNs9fG2HAooNvQc4BKsLSkYNnP/+ivIkkxcNunifoY5ZnZC+e+8qOKqeba2gsMxXeqban0ioE9voTbWow==
   dependencies:
     tslib "^2.0.0"
 

@@ -22,9 +22,9 @@ export interface SourceWithDisplayName {
 
 export interface SourceWithCitation {
   id: number,
-  citation: string;
+  citation?: string;
   sourceType: SourceSource;
-  link: string
+  link?: string
 }
 
 type SourceTagInput = SourceWithDisplayName | SourceWithCitation;

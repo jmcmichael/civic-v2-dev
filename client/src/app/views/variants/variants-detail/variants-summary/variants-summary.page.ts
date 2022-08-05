@@ -11,8 +11,10 @@ import {
   MyVariantInfoFieldsFragment,
 } from '@app/generated/civic.apollo';
 import { QueryRef } from 'apollo-angular';
-import { pluck, startWith } from 'rxjs/operators';
+import { pluck, startWith, map, filter, distinctUntilChanged } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { isNonNulled } from 'rxjs-etc';
+import { ApolloQueryResult } from '@apollo/client';
 
 @Component({
   selector: 'cvc-variants-summary',
@@ -23,8 +25,10 @@ export class VariantsSummaryPage {
   @Input() variantId: Maybe<number>;
 
   queryRef: QueryRef<VariantSummaryQuery, VariantSummaryQueryVariables>;
+  result$: Observable<ApolloQueryResult<VariantSummaryQuery>>
   loading$: Observable<boolean>;
-  variant$: Observable<Maybe<VariantSummaryFieldsFragment>>;
+  data$: Observable<VariantSummaryQuery>;
+  variant$: Observable<VariantSummaryFieldsFragment>;
   variantInfo$: Observable<Maybe<MyVariantInfoFieldsFragment>>;
 
   subscribable: SubscribableInput;
@@ -42,18 +46,25 @@ export class VariantsSummaryPage {
         'Must pass in a variant ID as an input or via the route.'
       );
     }
+    this.queryRef = this.gql.watch({ variantId: queryVariantId })
+    this.result$ = this.queryRef.valueChanges
 
-    this.queryRef = this.gql.watch({ variantId: queryVariantId });
+    this.loading$ = this.result$
+      .pipe(map(r => r.loading),
+        filter(isNonNulled),
+        distinctUntilChanged());
 
-    let observable = this.queryRef.valueChanges;
+    this.data$ = this.result$
+      .pipe(map(r => r.data),
+        filter(isNonNulled));
 
-    this.loading$ = observable.pipe(pluck('loading'), startWith(true));
+    this.variant$ = this.data$
+      .pipe(map(r => r.variant),
+        filter(isNonNulled));
 
-    this.variant$ = observable.pipe(pluck('data', 'variant'));
-
-    this.variantInfo$ = observable.pipe(
-      pluck('data', 'variant', 'myVariantInfo')
-    );
+    this.variantInfo$ = this.variant$
+      .pipe(map(v => v.myVariantInfo),
+        filter(isNonNulled));
 
     this.subscribable = {
       entityType: SubscribableEntities.Variant,

@@ -12,12 +12,16 @@ import {
   Viewer,
   ViewerService,
 } from '@app/core/services/viewer/viewer.service';
+import { ApolloQueryResult } from '@apollo/client';
 import { QueryRef } from 'apollo-angular';
 import { VariantDetailQuery } from '@app/generated/civic.apollo';
-import { pluck, startWith, takeUntil } from 'rxjs/operators';
+import { pluck, startWith, map, takeUntil, filter, distinctUntilChanged } from 'rxjs/operators';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigation.component';
+import { isNonNulled } from 'rxjs-etc';
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 
+@UntilDestroy()
 @Component({
   selector: 'variants-detail',
   templateUrl: './variants-detail.view.html',
@@ -26,11 +30,13 @@ import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigati
 export class VariantsDetailView implements OnDestroy {
   queryRef?: QueryRef<VariantDetailQuery, VariantDetailQueryVariables>;
 
-  variant$?: Observable<Maybe<VariantDetailFieldsFragment>>;
-  loading$?: Observable<boolean>;
-  commentsTotal$?: Observable<number>;
-  flagsTotal$?: Observable<number>;
-  viewer$?: Observable<Viewer>;
+  result$!: Observable<ApolloQueryResult<VariantDetailQuery>>
+  loading$!: Observable<boolean>;
+  data$!: Observable<VariantDetailQuery>;
+  variant$!: Observable<VariantDetailFieldsFragment>;
+  commentsTotal$!: Observable<number>;
+  flagsTotal$!: Observable<number>;
+  viewer$!: Observable<Viewer>;
 
   routeSub: Subscription;
   subscribable?: SubscribableInput;
@@ -38,32 +44,32 @@ export class VariantsDetailView implements OnDestroy {
   tabs$: BehaviorSubject<RouteableTab[]>;
   destroy$ = new Subject<void>();
   defaultTabs: RouteableTab[] = [
-      {
-        routeName: 'summary',
-        iconName: 'pic-left',
-        tabLabel: 'Summary'
-      },
-      {
-        routeName: 'comments',
-        iconName: 'civic-comment',
-        tabLabel: 'Comments'
-      },
-      {
-        routeName: 'revisions',
-        iconName: 'civic-revision',
-        tabLabel: 'Revisions'
-      },
-      {
-        routeName: 'flags',
-        iconName: 'civic-flag',
-        tabLabel: 'Flags'
-      },
-      {
-        routeName: 'events',
-        iconName: 'civic-event',
-        tabLabel: 'Events'
-      }
-    ]
+    {
+      routeName: 'summary',
+      iconName: 'pic-left',
+      tabLabel: 'Summary'
+    },
+    {
+      routeName: 'comments',
+      iconName: 'civic-comment',
+      tabLabel: 'Comments'
+    },
+    {
+      routeName: 'revisions',
+      iconName: 'civic-revision',
+      tabLabel: 'Revisions'
+    },
+    {
+      routeName: 'flags',
+      iconName: 'civic-flag',
+      tabLabel: 'Flags'
+    },
+    {
+      routeName: 'events',
+      iconName: 'civic-event',
+      tabLabel: 'Events'
+    }
+  ]
 
   constructor(
     private gql: VariantDetailGQL,
@@ -75,19 +81,30 @@ export class VariantsDetailView implements OnDestroy {
     this.routeSub = this.route.params.subscribe((params) => {
       this.queryRef = this.gql.watch({ variantId: +params.variantId });
 
-      let observable = this.queryRef.valueChanges;
+      this.result$ = this.queryRef.valueChanges
 
-      this.loading$ = observable.pipe(pluck('loading'), startWith(true));
+      this.data$ = this.result$
+        .pipe(map(r => r.data),
+          filter(isNonNulled));
 
-      this.variant$ = observable.pipe(pluck('data', 'variant'));
+      this.loading$ = this.result$
+        .pipe(map(r => r.loading),
+          filter(isNonNulled),
+          distinctUntilChanged());
 
-      this.commentsTotal$ = this.variant$.pipe(pluck('comments', 'totalCount'));
+      this.variant$ = this.data$
+        .pipe(map(r => r.variant),
+          filter(isNonNulled));
 
-      this.flagsTotal$ = this.variant$.pipe(pluck('flags', 'totalCount'));
+      this.commentsTotal$ = this.variant$
+        .pipe(map(v => v!.comments.totalCount));
+
+      this.flagsTotal$ = this.variant$
+        .pipe(map(v => v!.flags.totalCount));
 
       this.variant$.pipe(
-        pluck('revisions', 'totalCount'),
-        takeUntil(this.destroy$)
+        map(v => v!.revisions.totalCount),
+        untilDestroyed(this)
       ).subscribe({
         next: (count) => {
           this.tabs$.next(
@@ -102,7 +119,7 @@ export class VariantsDetailView implements OnDestroy {
                 return tab
               }
             }
-          ))
+            ))
         }
       })
 
