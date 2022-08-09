@@ -20,10 +20,14 @@
         nzType="civic-source"></i> {{ source.citation }}
     </nz-page-header-title>
     <nz-page-header-extra>
-      <cvc-link-tag [href]="source.sourceUrl"
+      <cvc-link-tag *nfIf="source.sourceUrl as url; else noUrlTag"
+        [href]="url"
         [tooltip]="'View on ' + source.displayType">
         {{ source.displayType + ':' + source.citationId }}
       </cvc-link-tag>
+      <ng-template #noUrlTag>
+        <nz-tag> {{ source.displayType + ':' + source.citationId }} </nz-tag>
+      </ng-template>
     </nz-page-header-extra>
     <nz-page-header-content>
       <cvc-tab-navigation [tabs]="this.tabs"></cvc-tab-navigation>

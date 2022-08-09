@@ -11,7 +11,8 @@ import {
 } from '@app/generated/civic.apollo';
 import { QueryRef } from 'apollo-angular';
 import { Observable, Subscription } from 'rxjs';
-import { pluck, startWith } from "rxjs/operators";
+import { isNonNulled } from 'rxjs-etc';
+import { filter, pluck, startWith } from "rxjs/operators";
 
 @Component({
   selector: 'cvc-sources-detail',
@@ -27,7 +28,7 @@ export class SourcesDetailView implements OnDestroy {
   queryRef?: QueryRef<SourceDetailQuery, SourceDetailQueryVariables>
 
   loading$?: Observable<boolean>;
-  source$?: Observable<Maybe<SourceDetailFieldsFragment>>
+  source$!: Observable<SourceDetailFieldsFragment>
 
   tabs: RouteableTab[]
 
@@ -50,7 +51,7 @@ export class SourcesDetailView implements OnDestroy {
         startWith(true));
 
       this.source$ = observable.pipe(
-          pluck('data', 'source'));
+          pluck('data', 'source'), filter(isNonNulled));
     });
 
     this.tabs = [

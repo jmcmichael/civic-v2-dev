@@ -74,8 +74,9 @@
           <div class="content">
             <nz-card nzTitle="Browse All Data Releases">
               <nz-table #releasesTable
+                *ngIf="releases$ | ngrxPush as releases"
                 nzSize="small"
-                [nzData]="releases$ | ngrxPush"
+                [nzData]="releases"
                 [nzLoading]="loading$ | ngrxPush"
                 [nzFrontPagination]="true"
                 [nzShowPagination]="true"
