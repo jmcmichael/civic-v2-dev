@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, Output, EventEmitter, OnDestroy} from '@angular/core';
-import { AcceptRevisionGQL, AcceptRevisionMutation, AcceptRevisionMutationVariables, Maybe, Organization, RejectRevisionGQL, RejectRevisionMutation, RejectRevisionMutationVariables, Revision, ValidateRevisionsForAcceptanceGQL, ValidateRevisionsForAcceptanceQuery, ValidateRevisionsForAcceptanceQueryVariables, ValidationErrorFragment, VariantDetailGQL } from '@app/generated/civic.apollo';
+import { AcceptRevisionGQL, AcceptRevisionMutation, AcceptRevisionMutationVariables, Maybe, Organization, RejectRevisionGQL, RejectRevisionMutation, RejectRevisionMutationVariables, Revision, RevisionFragment, ValidateRevisionsForAcceptanceGQL, ValidateRevisionsForAcceptanceQuery, ValidateRevisionsForAcceptanceQueryVariables, ValidationErrorFragment, VariantDetailGQL } from '@app/generated/civic.apollo';
 import { Observable, Subject } from 'rxjs';
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service';
 import { MutationState, MutatorWithState } from '@app/core/utilities/mutation-state-wrapper';
@@ -16,7 +16,7 @@ type SuccessType = false | 'accepted' | 'rejected'
   styleUrls: ['./revision-list.component.less'],
 })
 export class RevisionListComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() revisions?: Revision[];
+  @Input() revisions?: Revision[] | RevisionFragment[];
   @Input() refetchQueries: InternalRefetchQueryDescriptor[] = []
 
   mostRecentOrg!: Maybe<Organization>;

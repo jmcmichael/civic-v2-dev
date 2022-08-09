@@ -1,10 +1,11 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { RevisionsGQL, RevisionsQuery, RevisionsQueryVariables, Maybe, RevisionFragment, ModeratedEntities, RevisionStatus, PageInfo, VariantDetailGQL, AssertionDetailGQL, GeneDetailGQL, EvidenceDetailGQL, VariantGroupDetailGQL, VariantSummaryGQL, VariantGroupsSummaryGQL, AssertionSummaryGQL, GenesSummaryGQL, EvidenceSummaryGQL, MolecularProfileDetailGQL, MolecularProfileSummaryGQL} from '@app/generated/civic.apollo';
+import { RevisionsGQL, RevisionsQuery, RevisionsQueryVariables, Maybe, RevisionFragment, ModeratedEntities, RevisionStatus, PageInfo, VariantDetailGQL, AssertionDetailGQL, GeneDetailGQL, EvidenceDetailGQL, VariantGroupDetailGQL, VariantSummaryGQL, VariantGroupsSummaryGQL, AssertionSummaryGQL, GenesSummaryGQL, EvidenceSummaryGQL, MolecularProfileDetailGQL, MolecularProfileSummaryGQL } from '@app/generated/civic.apollo';
 import { Observable, Subscription } from 'rxjs';
 import { QueryRef } from 'apollo-angular';
-import { map, pluck, startWith } from 'rxjs/operators';
+import { filter, map, pluck, startWith } from 'rxjs/operators';
 import { InternalRefetchQueryDescriptor } from '@apollo/client/core/types';
+import { isNonNulled } from 'rxjs-etc';
 
 export interface SelectableFieldName {
   id: number
@@ -33,13 +34,13 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
   @Input() id!: number
   @Input() entityType!: ModeratedEntities
 
-  revisions$?: Observable<Maybe<RevisionFragment>[]>
-  pageInfo$?: Observable<Maybe<PageInfo>>
-  revisionFields$: Maybe<Observable<Maybe<SelectableFieldName[]>>>;
-  uniqueRevisors$: Maybe<Observable<Maybe<UniqueUsers[]>>>
-  uniqueResolvers$: Maybe<Observable<Maybe<UniqueUsers[]>>>
-  unfilteredCount$: Maybe<Observable<Maybe<number>>>
-  isLoading$: Maybe<Observable<boolean>>;
+  revisions$!: Observable<RevisionFragment[]>
+  pageInfo$!: Observable<Maybe<PageInfo>>
+  revisionFields$!: Observable<Maybe<SelectableFieldName[]>>;
+  uniqueRevisors$!: Observable<UniqueUsers[]>
+  uniqueResolvers$!: Observable<Maybe<UniqueUsers[]>>
+  unfilteredCount$!: Observable<Maybe<number>>
+  isLoading$!: Observable<boolean>;
 
   filteredSet: undefined | string = undefined
 
@@ -48,10 +49,10 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
   routeSub?: Subscription
 
   selectableStatuses: SelectableRevisionStatus[] = [
-    {id: 4, displayName: 'New', value: RevisionStatus.New},
-    {id: 1, displayName: 'Accepted', value: RevisionStatus.Accepted},
-    {id: 2, displayName: 'Rejected', value: RevisionStatus.Rejected},
-    {id: 3, displayName: 'Superseded', value: RevisionStatus.Superseded},
+    { id: 4, displayName: 'New', value: RevisionStatus.New },
+    { id: 1, displayName: 'Accepted', value: RevisionStatus.Accepted },
+    { id: 2, displayName: 'Rejected', value: RevisionStatus.Rejected },
+    { id: 3, displayName: 'Superseded', value: RevisionStatus.Superseded },
   ]
 
   private defaultPageSize = 10
@@ -80,7 +81,7 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
     this.routeSub = this.route.params.subscribe((params) => {
       this.queryRef = this.gql.watch({
         first: this.defaultPageSize,
-        subject: {id: this.id, entityType: this.entityType},
+        subject: { id: this.id, entityType: this.entityType },
         status: RevisionStatus.New
       })
       let observable = this.queryRef.valueChanges
@@ -88,33 +89,32 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
       this.revisions$ = observable.pipe(
         pluck('data', 'revisions', 'edges'),
         map((edges) => {
-          return edges.map((e) => e.node)
-        })
-      );
+          return edges.map((e) => e.node as RevisionFragment)
+        }),
+        filter(isNonNulled))
 
       this.isLoading$ = observable.pipe(
-        map((res) =>  res.loading),
-        startWith(true)
-      )
+        map((res) => res.loading));
 
       this.pageInfo$ = observable.pipe(
         pluck('data', 'revisions', 'pageInfo')
       );
 
-      this.uniqueRevisors$ = observable.pipe(
-        map(({data}) => { return data.revisions?.uniqueRevisors })
-      );
+      this.uniqueRevisors$ = observable
+        .pipe(
+          map(({ data }) => { return data.revisions?.uniqueRevisors }),
+          filter(isNonNulled))
 
       this.uniqueResolvers$ = observable.pipe(
-        map(({data}) => { return data.revisions?.uniqueResolvers })
+        map(({ data }) => { return data.revisions?.uniqueResolvers })
       );
-  
+
       this.revisionFields$ = observable.pipe(
         map(({ data }) => {
           return data.revisions?.revisedFieldNames.map((f, i) => {
-            return { 
+            return {
               ...f,
-              id: i 
+              id: i
             };
           });
         })
@@ -126,7 +126,7 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
     });
 
     switch (this.entityType) {
-      case ModeratedEntities.Variant: 
+      case ModeratedEntities.Variant:
         this.refetchQueries.push({
           query: this.variantDetailGql.document,
           variables: { variantId: this.id }
@@ -195,28 +195,28 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
 
   onFieldNameSelected(field: SelectableFieldName) {
     this.queryRef.refetch({
-      subject: {id: this.id, entityType: this.entityType},
+      subject: { id: this.id, entityType: this.entityType },
       fieldName: field ? field.name : undefined
     })
   }
 
   onRevisorSelected(user: UniqueUsers) {
     this.queryRef.refetch({
-      subject: {id: this.id, entityType: this.entityType},
+      subject: { id: this.id, entityType: this.entityType },
       originatingUserId: user ? user.id : undefined
     })
   }
 
   onResolverSelected(user: UniqueUsers) {
     this.queryRef.refetch({
-      subject: {id: this.id, entityType: this.entityType},
+      subject: { id: this.id, entityType: this.entityType },
       resolvingUserId: user ? user.id : undefined
     })
   }
 
   onStatusSelected(status: Maybe<SelectableRevisionStatus>) {
     this.queryRef.refetch({
-      subject: {id: this.id, entityType: this.entityType},
+      subject: { id: this.id, entityType: this.entityType },
       status: status ? status.value : undefined
     })
   }
@@ -224,7 +224,7 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
   onRevisionSetSelected(revisionsetId: string) {
     this.filteredSet = revisionsetId
     this.queryRef.refetch({
-      subject: {id: this.id, entityType: this.entityType},
+      subject: { id: this.id, entityType: this.entityType },
       revisionsetId: revisionsetId ? revisionsetId : undefined
     })
   }
@@ -232,7 +232,7 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
   onSetFilterClearClicked() {
     this.filteredSet = undefined
     this.queryRef.refetch({
-      subject: {id: this.id, entityType: this.entityType},
+      subject: { id: this.id, entityType: this.entityType },
       revisionsetId: undefined
     })
   }
@@ -241,7 +241,7 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
     this.queryRef.refetch()
   }
 
-  loadMore(afterCursor: Maybe<string>):void {
+  loadMore(afterCursor: Maybe<string>): void {
     this.queryRef?.fetchMore({
       variables: {
         first: this.defaultPageSize,

@@ -1,12 +1,11 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
-import { ServerError, ServerParseError } from "@apollo/client/core";
 
 @Injectable({ providedIn: 'root' })
 export class NetworkErrorsService {
-  public networkError$: BehaviorSubject<Error | ServerError | ServerParseError | undefined>;
+  public networkError$: BehaviorSubject<any>;
   constructor() {
-    this.networkError$ = new BehaviorSubject<Error | ServerError | ServerParseError | undefined>(undefined);
+    this.networkError$ = new BehaviorSubject<any>(undefined);
   }
 
   clearErrors(): void {

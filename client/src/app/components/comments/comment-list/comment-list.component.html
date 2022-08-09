@@ -36,7 +36,7 @@
     </nz-col>
     <nz-col nzSpan="6">
       <cvc-participant-list listTitle="Commenters"
-        [participantList]="commenters$ | ngrxPush"
+        [participantList]="(commenters$ | ngrxPush)!"
         (participantSelectedEvent)="onCommenterSelected($event)">
         <ng-template #itemTemplate
           let-user>
@@ -52,7 +52,7 @@
         </ng-template>
       </cvc-participant-list>
       <cvc-participant-list listTitle="Mentioned Users"
-        [participantList]="mentionedUsers$ | ngrxPush"
+        [participantList]="(mentionedUsers$ | ngrxPush)!"
         (participantSelectedEvent)="onMentionedUserSelected($event)">
         <ng-template #itemTemplate
           let-user>
@@ -68,7 +68,7 @@
         </ng-template>
       </cvc-participant-list>
       <cvc-participant-list listTitle="Mentioned Roles"
-        [participantList]="mentionedRoles$ | ngrxPush"
+        [participantList]="(mentionedRoles$ | ngrxPush)!"
         (participantSelectedEvent)="onMentionedRoleSelected($event)">
         <ng-template #itemTemplate
           let-role>
@@ -78,7 +78,7 @@
         </ng-template>
       </cvc-participant-list>
       <cvc-participant-list listTitle="Mentioned Entities"
-        [participantList]="mentionedEntities$ | ngrxPush"
+        [participantList]="(mentionedEntities$ | ngrxPush)!"
         (participantSelectedEvent)="onMentionedEntitySelected($event)">
         <ng-template #itemTemplate
           let-entity>

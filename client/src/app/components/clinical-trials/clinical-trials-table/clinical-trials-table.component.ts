@@ -150,8 +150,8 @@ export class CvcClinicalTrialsTableComponent implements OnInit {
     this.cdr.detectChanges()
   }
 
-  trackByIndex(_: number, data: BrowseClinicalTrialsRowFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<BrowseClinicalTrialsRowFieldsFragment>): number {
+    return data?.id ? data.id : index
   }
 
 }

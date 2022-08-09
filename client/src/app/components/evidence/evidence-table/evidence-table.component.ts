@@ -275,7 +275,7 @@ export class CvcEvidenceTableComponent implements OnInit {
     this.selectedEids.emit(Array.from(this.selectedEvidenceIds.values()));
   }
 
-  trackByIndex(_: number, data: EvidenceGridFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<EvidenceGridFieldsFragment>): number {
+    return data?.id ? data.id : index
   }
 }

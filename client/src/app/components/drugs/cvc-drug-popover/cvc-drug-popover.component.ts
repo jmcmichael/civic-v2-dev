@@ -12,7 +12,7 @@ import { isNonNulled } from "rxjs-etc";
 export class CvcDrugPopoverComponent implements OnInit {
   @Input() drugId!: number;
 
-  drug$?: Observable<Maybe<DrugPopover>>
+  drug$!: Observable<Maybe<DrugPopover>>
 
   constructor(private gql: DrugPopoverGQL) { }
 

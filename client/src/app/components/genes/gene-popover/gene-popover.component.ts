@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
 export class CvcGenePopoverComponent implements OnInit {
   @Input() geneId!: number;
 
-  gene$?: Observable<Maybe<GenePopoverFragment>>
+  gene$!: Observable<Maybe<GenePopoverFragment>>
 
   constructor(private gql: GenePopoverGQL) { }
 

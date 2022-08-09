@@ -1,11 +1,11 @@
 import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ApolloQueryResult } from '@apollo/client';
-import { Maybe, VariantType, VariantTypeDetailGQL, VariantTypeDetailQuery, VariantTypeDetailQueryVariables } from '@app/generated/civic.apollo';
+import { ApolloQueryResult } from '@apollo/client/core';
+import { VariantType, VariantTypeDetailGQL, VariantTypeDetailQuery, VariantTypeDetailQueryVariables } from '@app/generated/civic.apollo';
 import { QueryRef } from 'apollo-angular';
 import { Observable, Subscription } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';
-import { pluck, startWith, filter, map, distinctUntilChanged } from "rxjs/operators"
+import { distinctUntilChanged, filter, map } from "rxjs/operators";
 
 @Component({
   selector: 'cvc-variant-types-detail',

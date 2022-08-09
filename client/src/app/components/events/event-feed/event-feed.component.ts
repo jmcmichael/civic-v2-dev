@@ -50,13 +50,13 @@ export class CvcEventFeedComponent implements OnInit, OnDestroy {
 
   private initialQueryVars?: EventFeedQueryVariables;
 
-  events$?: Observable<Maybe<EventFeedNodeFragment>[]>;
-  pageInfo$?: Observable<PageInfo>;
-  participants$?: Observable<Maybe<TagLinkableUser[]>>;
-  organizations$?: Observable<Maybe<TagLinkableOrganization[]>>;
-  actions$?: Observable<SelectableAction[]>
-  unfilteredCount$?: Observable<number>
-  loading$?: Observable<boolean>
+  events$!: Observable<EventFeedNodeFragment[]>;
+  pageInfo$!: Observable<PageInfo>;
+  participants$!: Observable<Maybe<TagLinkableUser[]>>;
+  organizations$!: Observable<Maybe<TagLinkableOrganization[]>>;
+  actions$!: Observable<SelectableAction[]>
+  unfilteredCount$!: Observable<number>
+  loading$!: Observable<boolean>
 
   newEventCount$?: Observable<number>;
   originalEventCount?: number;
@@ -96,7 +96,8 @@ export class CvcEventFeedComponent implements OnInit, OnDestroy {
     this.pageInfo$ = this.results$.pipe(
       map(({ data }) => data.events.pageInfo)
     )
-
+    // TODO: get this working w/o ts-ignore - nothing worked to get cvc-event-timeline happy with [events] input
+    // @ts-ignore
     this.events$ = this.results$
       .pipe(map(r => r.data),
         // tag('event-feed events$'),

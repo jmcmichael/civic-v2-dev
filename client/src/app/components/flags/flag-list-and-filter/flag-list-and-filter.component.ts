@@ -37,11 +37,11 @@ export class CvcFlagListAndFilterComponent implements OnInit {
   private queryRef!: QueryRef<FlagListQuery, FlagListQueryVariables>;
   private results$!: Observable<ApolloQueryResult<FlagListQuery>>;
   private defaultPageSize = 5
-  flags$?: Observable<Maybe<FlagFragment>[]>
+  flags$!: Observable<Maybe<FlagFragment>[]>
   pageInfo$?: Observable<Maybe<PageInfo>>
-  uniqueFlaggingUsers$: Maybe<Observable<Maybe<UniqueFlaggingUsers[]>>>
-  uniqueResolvingUsers$: Maybe<Observable<Maybe<UniqueFlaggingUsers[]>>>
-  unfilteredCount$: Maybe<Observable<Maybe<number>>>
+  uniqueFlaggingUsers$!: Observable<Maybe<UniqueFlaggingUsers>[]>
+  uniqueResolvingUsers$!: Observable<Maybe<UniqueFlaggingUsers>[]>
+  unfilteredCount$!: Observable<Maybe<number>>
 
   selectableStates: SelectableFlagState[] = [
     {id: 1, displayName: 'Open', value: FlagState.Open},
@@ -91,7 +91,10 @@ export class CvcFlagListAndFilterComponent implements OnInit {
     );
 
     this.uniqueResolvingUsers$ = this.results$.pipe(
-      map(({data}) => { return data.flags?.uniqueResolvingUsers })
+      map(({data}) => {
+        const u = data.flags.uniqueResolvingUsers
+        return u ? u : [] // return empty array if no resolving users
+      })
     );
   }
 

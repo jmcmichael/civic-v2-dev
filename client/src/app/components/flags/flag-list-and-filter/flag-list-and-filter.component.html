@@ -2,7 +2,7 @@
   <nz-row [nzGutter]="16">
     <nz-col nzSpan="18">
       <nz-space nzDirection="vertical">
-        <cvc-flag-list [flags]="flags$ | ngrxPush"
+        <cvc-flag-list [flags]="(flags$ | ngrxPush)!"
           [flagResolvedCallback]="refresh"
           *nzSpaceItem></cvc-flag-list>
         <ng-container *ngrxLet="pageInfo$ as pageInfo">
@@ -30,7 +30,7 @@
         </ng-template>
       </cvc-participant-list>
       <cvc-participant-list listTitle="Flagging Users"
-        [participantList]="uniqueFlaggingUsers$ | ngrxPush"
+        [participantList]="(uniqueFlaggingUsers$ | ngrxPush)!"
         (participantSelectedEvent)="onFlaggingUsersSelected($event)">
         <ng-template #itemTemplate
           let-user>
@@ -46,7 +46,7 @@
         </ng-template>
       </cvc-participant-list>
       <cvc-participant-list listTitle="Resolving Users"
-        [participantList]="uniqueResolvingUsers$ | ngrxPush"
+        [participantList]="(uniqueResolvingUsers$ | ngrxPush)!"
         (participantSelectedEvent)="onResolvingUsersSelected($event)">
         <ng-template #itemTemplate
           let-user>

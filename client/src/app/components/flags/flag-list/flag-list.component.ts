@@ -13,7 +13,7 @@ type SuccessType = false | 'accepted' | 'rejected'
   styleUrls: ['./flag-list.component.less'],
 })
 export class FlagListComponent implements OnInit, OnDestroy {
-  @Input() flags?: FlagFragment[];
+  @Input() flags: Maybe<FlagFragment>[] = []
   @Input() flagResolvedCallback?: () => void
 
   mostRecentOrg!: Maybe<Organization>;

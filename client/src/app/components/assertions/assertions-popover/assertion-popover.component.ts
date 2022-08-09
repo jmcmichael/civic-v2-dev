@@ -13,7 +13,7 @@ import { AssertionState } from "@app/forms/config/states/assertion.state";
 export class CvcAssertionPopoverComponent implements OnInit {
   @Input() assertionId!: number;
 
-  assertion$?: Observable<Maybe<AssertionPopoverFragment>>
+  assertion$!: Observable<Maybe<AssertionPopoverFragment>>
 
   assertionRules = new AssertionState()
 

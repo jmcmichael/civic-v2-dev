@@ -24,14 +24,14 @@ interface CommentTagSegmentWithId {
 export class CvcCommentListComponent implements OnInit {
   @Input() commentable!: CommentableInput;
 
-  loading$?: Observable<boolean>;
-  pageInfo$?: Observable<PageInfo>;
-  comments$?: Observable<Maybe<CommentListNodeFragment>[]>;
-  commenters$?: Observable<TagLinkableUser[]>
-  mentionedUsers$?: Observable<TagLinkableUser[]>
-  mentionedRoles$?: Observable<CommentTagSegmentWithId[]>
-  mentionedEntities$?: Observable<CommentTagSegmentWithId[]>
-  unfilteredCount$: Maybe<Observable<Maybe<number>>>
+  loading$!: Observable<boolean>;
+  pageInfo$!: Observable<PageInfo>;
+  comments$!: Observable<Maybe<CommentListNodeFragment>[]>;
+  commenters$!: Observable<TagLinkableUser[]>
+  mentionedUsers$!: Observable<TagLinkableUser[]>
+  mentionedRoles$!: Observable<CommentTagSegmentWithId[]>
+  mentionedEntities$!: Observable<CommentTagSegmentWithId[]>
+  unfilteredCount$!: Observable<Maybe<number>>
 
   private queryRef$!: QueryRef<CommentListQuery, CommentListQueryVariables>;
 

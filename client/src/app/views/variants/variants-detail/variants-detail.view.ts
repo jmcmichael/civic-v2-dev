@@ -12,7 +12,7 @@ import {
   Viewer,
   ViewerService,
 } from '@app/core/services/viewer/viewer.service';
-import { ApolloQueryResult } from '@apollo/client';
+import { ApolloQueryResult } from '@apollo/client/core';
 import { QueryRef } from 'apollo-angular';
 import { VariantDetailQuery } from '@app/generated/civic.apollo';
 import { pluck, startWith, map, takeUntil, filter, distinctUntilChanged } from 'rxjs/operators';

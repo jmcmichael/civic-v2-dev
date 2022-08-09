@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 export class CvcCommentPopoverComponent implements OnInit {
   @Input() commentId!: number;
 
-  comment$?: Observable<Maybe<CommentPopoverFragment>>
+  comment$!: Observable<Maybe<CommentPopoverFragment>>
 
   constructor(private gql: CommentPopoverGQL) { }
 

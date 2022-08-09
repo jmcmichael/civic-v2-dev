@@ -34,9 +34,9 @@ export class CvcHomepageEventFeedComponent implements OnInit {
 
   private initialQueryVars?: EventFeedQueryVariables;
 
-  events$?: Observable<Maybe<EventFeedNodeFragment>[]>;
-  pageInfo$?: Observable<PageInfo>;
-  unfilteredCount$?: Observable<number>
+  events$!: Observable<EventFeedNodeFragment[]>;
+  pageInfo$!: Observable<PageInfo>;
+  unfilteredCount$!: Observable<number>
 
   constructor(private gql: EventFeedGQL) {
   }
@@ -61,7 +61,8 @@ export class CvcHomepageEventFeedComponent implements OnInit {
         pluck('data'),
         filter(isNonNulled),
         map(({ events }) => events.pageInfo));
-
+    // TODO: get this working w/o ts-ignore - nothing worked to get cvc-event-timeline happy with [events] input
+    // @ts-ignore
     this.events$ = this.results$.pipe(
       pluck('data'),
       filter(isNonNulled),
@@ -70,6 +71,6 @@ export class CvcHomepageEventFeedComponent implements OnInit {
     this.unfilteredCount$ = this.results$.pipe(
       pluck('data'),
       filter(isNonNulled),
-      map(({ events }) => events.unfilteredCount ))
+      map(({ events }) => events.unfilteredCount))
   }
 }

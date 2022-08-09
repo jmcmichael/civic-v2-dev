@@ -16,8 +16,8 @@ import { pluck } from 'rxjs/operators';
 export class CvcContributorAvatarsComponent implements OnInit {
   @Input() subscribable: Maybe<SubscribableInput>;
 
-  curators$?: Observable<Maybe<ContributorFieldsFragment[]>>;
-  editors$?: Observable<Maybe<ContributorFieldsFragment[]>>;
+  curators$!: Observable<Maybe<ContributorFieldsFragment[]>>;
+  editors$!: Observable<Maybe<ContributorFieldsFragment[]>>;
 
   constructor(private gql: ContributorAvatarsGQL) {}
 

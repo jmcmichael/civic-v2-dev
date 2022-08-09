@@ -13,6 +13,7 @@ fragment OrganizationGroupsFields on Organization {
   id
   name
   description
+  url
   profileImagePath(size: 12)
   orgStatsHash {
     comments
@@ -39,4 +40,4 @@ fragment OrganizationGroupsFields on Organization {
     name
     profileImagePath(size: 12)
   }
-} 
+}
