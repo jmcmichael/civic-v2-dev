@@ -10,14 +10,12 @@ import { startWith, pluck, map, filter } from 'rxjs/operators';
   templateUrl: './releases-main.component.html',
   styleUrls: ['./releases-main.component.less']
 })
-export class ReleasesMainComponent implements OnInit {
-  result$!: Observable<ApolloQueryResult<DataReleasesQuery>>
-  loading$!: Observable<boolean>;
-  releases$!: Observable<ReleaseFragment[]>
+export class ReleasesMainComponent {
+  result$: Observable<ApolloQueryResult<DataReleasesQuery>>
+  loading$: Observable<boolean>;
+  releases$: Observable<ReleaseFragment[]>
 
-  constructor(private gql: DataReleasesGQL) { }
-
-  ngOnInit(): void {
+  constructor(private gql: DataReleasesGQL) {
     let queryRef = this.gql.watch()
     this.result$ = queryRef.valueChanges
 
@@ -30,4 +28,5 @@ export class ReleasesMainComponent implements OnInit {
         map(r => r.data.dataReleases),
         filter(isNonNulled))
   }
+
 }

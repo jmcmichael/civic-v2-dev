@@ -7,7 +7,7 @@ import { OrganizationDetailFieldsFragment, OrganizationGroupsFieldsFragment } fr
   styleUrls: ['./organization-card.component.less']
 })
 export class CvcOrganizationCardComponent implements OnInit {
-  @Input() organization!: OrganizationDetailFieldsFragment;
+  @Input() organization!: OrganizationDetailFieldsFragment | OrganizationGroupsFieldsFragment;
   // @Input() organization!: OrganizationGroupsFieldsFragment;
   @Input() inCard: boolean = true
 

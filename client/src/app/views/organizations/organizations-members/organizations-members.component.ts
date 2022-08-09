@@ -3,8 +3,10 @@ import { ActivatedRoute } from "@angular/router";
 import { Maybe, OrganizationMembersQuery, OrganizationMembersFieldsFragment, OrganizationMembersGQL, OrganizationMembersQueryVariables, PageInfo } from "@app/generated/civic.apollo";
 import { Viewer, ViewerService } from "@app/core/services/viewer/viewer.service";
 import { QueryRef } from "apollo-angular";
-import { map, pluck, startWith } from "rxjs/operators";
+import { filter, map, pluck, startWith } from "rxjs/operators";
 import { Observable } from 'rxjs';
+import { isNonNulled } from "rxjs-etc";
+import { ApolloQueryResult } from "@apollo/client";
 
 @Component({
   selector: 'cvc-organizations-members',
@@ -14,45 +16,50 @@ import { Observable } from 'rxjs';
 export class OrganizationsMembersComponent {
   queryRef: QueryRef<OrganizationMembersQuery, OrganizationMembersQueryVariables>;
 
-  members$: Observable<Maybe<OrganizationMembersFieldsFragment>[]>;
-  loading$: Observable<boolean>;
-  viewer$: Observable<Viewer>;
+  result$: Observable<ApolloQueryResult<OrganizationMembersQuery>>
+  data$: Observable<OrganizationMembersQuery>
+  members$: Observable<Maybe<OrganizationMembersFieldsFragment>[]>
+  loading$: Observable<boolean>
+  viewer$: Observable<Viewer>
   pageInfo$?: Observable<PageInfo>
 
   initialPageSize = 20
 
   constructor(private gql: OrganizationMembersGQL, private viewerService: ViewerService, private route: ActivatedRoute) {
 
-      const organizationId: number = +this.route.snapshot.params['organizationId'];
+    const organizationId: number = +this.route.snapshot.params['organizationId'];
 
-      this.queryRef = this.gql.watch({
-        organizationId: organizationId,
-        first: this.initialPageSize,
-      });
+    this.queryRef = this.gql.watch({
+      organizationId: organizationId,
+      first: this.initialPageSize,
+    });
 
-      let observable = this.queryRef.valueChanges
+    this.result$ = this.queryRef.valueChanges
 
-      this.loading$ = observable.pipe(
-          pluck('loading'),
-          startWith(true));
+    this.loading$ = this.result$
+      .pipe(map(r => r.loading))
 
-      this.members$ = observable.pipe(
-        pluck('data', 'users', 'edges'),
-        map((edges) => {
-          return edges.map((e) => e.node)
-        })
+    this.data$ = this.result$
+      .pipe(map(r => r.data), filter(isNonNulled))
+
+    this.members$ = this.data$
+      .pipe(map(d => d.users.edges),
+        map(e => e.map((e) => e.node)),
+        filter(isNonNulled),
       );
 
-      this.pageInfo$ = observable.pipe(
-        pluck('data', 'users', 'pageInfo')
-      )
+    this.pageInfo$ = this.result$.pipe(
+      pluck('data', 'users', 'pageInfo')
+    )
 
-      this.viewer$ = this.viewerService.viewer$;
+    this.viewer$ = this.viewerService.viewer$;
   }
 
   loadMore(cursor: Maybe<string>) {
-    this.queryRef.fetchMore({variables: {
-      after: cursor
-    }})
+    this.queryRef.fetchMore({
+      variables: {
+        after: cursor
+      }
+    })
   }
 }

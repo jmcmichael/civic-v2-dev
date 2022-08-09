@@ -1,7 +1,15 @@
-<nz-space nzSize="middle" *ngIf="(members$ | ngrxPush) as members" nzDirection="vertical" class="space-align-block">
-  <div nz-row [nzGutter]="[16, 16]" *nzSpaceItem>
-    <div *ngFor="let member of members" nz-col [nzSpan]="6">
-      <cvc-user-card [user]="member"></cvc-user-card>
+<nz-space nzSize="middle"
+  *ngIf="(members$ | ngrxPush) as members"
+  nzDirection="vertical"
+  class="space-align-block">
+  <div nz-row
+    [nzGutter]="[16, 16]"
+    *nzSpaceItem>
+    <div *ngFor="let member of members"
+      nz-col
+      [nzSpan]="6">
+      <cvc-user-card *ngIf="member"
+        [user]="member"></cvc-user-card>
     </div>
   </div>
   <!-- Load More button row -->

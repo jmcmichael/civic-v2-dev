@@ -1,5 +1,9 @@
 <ng-container *ngIf="(organizations$ | ngrxPush) as organizations">
-  <nz-space *ngFor="let organization of organizations" nzDirection="vertical">
-    <cvc-organization-card *nzSpaceItem [organization]="organization" ></cvc-organization-card>
+  <nz-space *ngFor="let organization of organizations"
+    nzDirection="vertical">
+    <ng-container *ngIf="organization">
+      <cvc-organization-card *nzSpaceItem
+        [organization]="organization"></cvc-organization-card>
+    </ng-container>
   </nz-space>
 </ng-container>
