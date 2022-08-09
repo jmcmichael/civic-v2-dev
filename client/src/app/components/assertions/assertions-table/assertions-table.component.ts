@@ -229,8 +229,8 @@ export class CvcAssertionsTableComponent implements OnInit {
   }
 
   // virtual scroll helpers
-  trackByIndex(_: number, data: AssertionBrowseFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<AssertionBrowseFieldsFragment>): number {
+    return data?.id ? data.id : index
   }
 
   ngOnDestroy() {

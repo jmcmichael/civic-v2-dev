@@ -19,7 +19,7 @@ export class CvcEntitySubscriptionButtonComponent implements OnInit, OnDestroy {
 
   subscribable!: SubscribableInput
 
-  existingSubscription$?: Observable<Maybe<SubscriptionIdFragment>>
+  existingSubscription$!: Observable<Maybe<SubscriptionIdFragment>>
   queryRef?: QueryRef<SubscriptionForEntityQuery, SubscriptionForEntityQueryVariables>
   isSubmitting = false
 

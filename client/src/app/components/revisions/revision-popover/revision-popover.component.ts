@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
 export class CvcRevisionPopoverComponent implements OnInit {
   @Input() revisionId!: number;
 
-  revision$?: Observable<Maybe<RevisionPopoverFragment>>
+  revision$!: Observable<Maybe<RevisionPopoverFragment>>
 
   constructor(private gql: RevisionPopoverGQL) { }
 

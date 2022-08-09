@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
 export class CvcFlagPopoverComponent implements OnInit {
   @Input() flagId!: number;
 
-  flag$?: Observable<Maybe<FlagPopoverFragment>>
+  flag$!: Observable<Maybe<FlagPopoverFragment>>
 
   constructor(private gql: FlagPopoverGQL) { }
 

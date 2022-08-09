@@ -8,7 +8,7 @@ interface CommentBodyUserSegment {
     role: string
 }
 
-export type CommentSegment = CommentBodyUserSegment | CommentTagSegment | CommentTextSegment
+export type CommentSegment = CommentBodyUserSegment | CommentTagSegment | CommentTextSegment | PreviewCommentFragment
 
 @Component({
     selector: 'cvc-comment-body',
@@ -16,7 +16,7 @@ export type CommentSegment = CommentBodyUserSegment | CommentTagSegment | Commen
     styleUrls: ['./comment-body.component.less']
 })
 export class CvcCommentBodyComponent implements OnInit {
-    @Input() commentBodySegments!: CommentSegment[] | PreviewCommentFragment[]
+    @Input() commentBodySegments!: CommentSegment[]
 
     ngOnInit() {
         if(this.commentBodySegments === undefined) {

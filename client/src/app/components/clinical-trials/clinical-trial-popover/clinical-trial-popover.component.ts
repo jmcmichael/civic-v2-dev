@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
 export class CvcClinicalTrialPopoverComponent implements OnInit {
   @Input() clinicalTrialId!: number;
 
-  clinicalTrial$?: Observable<Maybe<ClinicalTrialPopoverFragment>>
+  clinicalTrial$!: Observable<Maybe<ClinicalTrialPopoverFragment>>
 
   constructor(private gql: ClinicalTrialPopoverGQL) { }
 

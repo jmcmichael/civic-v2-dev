@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
 export class CvcPhenotypePopoverComponent implements OnInit {
   @Input() phenotypeId!: number;
 
-  phenotype$?: Observable<Maybe<PhenotypePopover>>
+  phenotype$!: Observable<Maybe<PhenotypePopover>>
 
   constructor(private gql: PhenotypePopoverGQL) { }
 

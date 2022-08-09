@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApolloQueryResult } from '@apollo/client';
+import { ApolloQueryResult } from '@apollo/client/core';
 import { DataReleasesGQL, DataReleasesQuery, ReleaseFragment } from '@app/generated/civic.apollo';
 import { Observable } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';

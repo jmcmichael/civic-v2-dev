@@ -12,7 +12,7 @@ import { isNonNulled } from "rxjs-etc";
 export class CvcEvidencePopoverComponent implements OnInit {
   @Input() evidenceId!: number;
 
-  evidence$?: Observable<Maybe<EvidencePopoverFragment>>
+  evidence$!: Observable<Maybe<EvidencePopoverFragment>>
 
   constructor(private gql: EvidencePopoverGQL) { }
 

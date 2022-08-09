@@ -3,7 +3,7 @@
         <span [innerHtml]="c.text">
         </span>
     </ng-container>
-    <ng-container *ngIf="c.__typename == 'User'">
+   <ng-container *ngIf="c.__typename == 'User'">
         <cvc-user-tag [user]="c"></cvc-user-tag>
     </ng-container>
     <ng-container *ngIf="c.__typename == 'CommentTagSegment'">

@@ -170,8 +170,8 @@ export class CvcMolecularProfilesTableComponent implements OnInit {
   }
 
   // virtual scroll helpers
-  trackByIndex(_: number, data: BrowseMolecularProfilesFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<BrowseMolecularProfilesFieldsFragment>): number {
+    return data?.id ? data.id : index;
   }
 
 }

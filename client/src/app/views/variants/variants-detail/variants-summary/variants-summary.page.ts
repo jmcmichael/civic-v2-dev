@@ -14,7 +14,7 @@ import { QueryRef } from 'apollo-angular';
 import { pluck, startWith, map, filter, distinctUntilChanged } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';
-import { ApolloQueryResult } from '@apollo/client';
+import { ApolloQueryResult } from '@apollo/client/core';
 
 @Component({
   selector: 'cvc-variants-summary',

@@ -17,7 +17,7 @@ import { ActivatedRoute } from '@angular/router';
 import { pluck, startWith, takeUntil, map, filter } from 'rxjs/operators';
 import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigation.component';
 import { QueryRef } from 'apollo-angular';
-import { ApolloQueryResult } from '@apollo/client';
+import { ApolloQueryResult } from '@apollo/client/core';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { isNonNulled } from 'rxjs-etc';
 

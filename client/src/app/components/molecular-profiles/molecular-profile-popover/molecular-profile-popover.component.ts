@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
 export class CvcMolecularProfilePopoverComponent implements OnInit {
   @Input() molecularProfileId!: number
 
-  molecularProfile$?: Observable<Maybe<MolecularProfilePopoverFieldsFragment>>
+  molecularProfile$!: Observable<Maybe<MolecularProfilePopoverFieldsFragment>>
 
   constructor(private gql: MolecularProfilePopoverGQL) { }
 
