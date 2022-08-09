@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./variant-groups-add.view.less']
 })
 export class VariantGroupsAddView implements OnInit {
-  isSignedIn$?: Observable<boolean>;
+  isSignedIn$!: Observable<boolean>;
 
   constructor(private viewerService: ViewerService) { }
 

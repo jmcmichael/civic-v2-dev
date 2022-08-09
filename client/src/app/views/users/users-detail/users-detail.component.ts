@@ -3,9 +3,10 @@ import { ActivatedRoute } from "@angular/router";
 import { Maybe, UserDetailFieldsFragment, UserDetailGQL, UserDetailQuery, UserDetailQueryVariables } from "@app/generated/civic.apollo";
 import { Viewer, ViewerService } from "@app/core/services/viewer/viewer.service";
 import { QueryRef } from "apollo-angular";
-import { pluck, startWith } from "rxjs/operators";
+import { filter, pluck, startWith } from "rxjs/operators";
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { RouteableTab } from "@app/components/shared/tab-navigation/tab-navigation.component";
+import { isNonNulled } from "rxjs-etc";
 
 @Component({
   selector: 'users-detail',
@@ -14,7 +15,7 @@ import { RouteableTab } from "@app/components/shared/tab-navigation/tab-navigati
 })
 export class UsersDetailComponent implements OnDestroy {
   queryRef?: QueryRef<UserDetailQuery, UserDetailQueryVariables>;
-  user$?: Observable<Maybe<UserDetailFieldsFragment>>;
+  user$!: Observable<UserDetailFieldsFragment>;
   loading$?: Observable<boolean>;
   viewer$?: Observable<Viewer>;
   ownProfile$ = new BehaviorSubject<boolean>(false);
@@ -69,7 +70,9 @@ export class UsersDetailComponent implements OnDestroy {
       let observable = this.queryRef.valueChanges;
       this.loading$ = observable.pipe(pluck('loading'), startWith(true));
 
-      this.user$ = observable.pipe(pluck('data', 'user'));
+      this.user$ = observable
+        .pipe(pluck('data', 'user'),
+          filter(isNonNulled));
 
       this.viewerSub = this.viewerService.viewer$.subscribe((v) => {
         if (v.id === +params.userId) {

@@ -22,7 +22,7 @@ import {
   styleUrls: ['./variant-groups-summary.page.less']
 })
 export class VariantGroupsSummaryPage implements OnDestroy {
-  variantGroup$?: Observable<Maybe<VariantGroupSummaryFieldsFragment>>;
+  variantGroup$!: Observable<Maybe<VariantGroupSummaryFieldsFragment>>;
   loading$?: Observable<boolean>;
   myVariantGroupInfo$?: Observable<any>;
   viewer$?: Observable<Viewer>;

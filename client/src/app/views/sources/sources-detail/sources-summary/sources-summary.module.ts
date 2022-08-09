@@ -10,6 +10,7 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { SourcesSummaryPage } from './sources-summary.page';
 
@@ -25,6 +26,7 @@ import { SourcesSummaryPage } from './sources-summary.page';
     NzTypographyModule,
     NzIconModule,
     NzDescriptionsModule,
+    NzTagModule,
     CvcLinkTagModule,
     CvcAutoHeightDivModule,
     CvcEvidenceTableModule,

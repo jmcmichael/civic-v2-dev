@@ -2,8 +2,9 @@ import { Component, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { SourceSummaryGQL, Maybe, SourceSummaryQuery, SourceSummaryQueryVariables, SourceSummaryFieldsFragment } from "@app/generated/civic.apollo";
 import { QueryRef } from "apollo-angular";
-import { pluck, startWith } from "rxjs/operators";
+import { filter, pluck, startWith } from "rxjs/operators";
 import { Observable, Subscription } from 'rxjs';
+import { isNonNulled } from "rxjs-etc";
 
 @Component({
   selector: 'cvc-sources-summary',
@@ -17,7 +18,7 @@ export class SourcesSummaryPage implements OnDestroy {
   queryRef?: QueryRef<SourceSummaryQuery, SourceSummaryQueryVariables>
 
   loading$?: Observable<boolean>;
-  source$?: Observable<Maybe<SourceSummaryFieldsFragment>>
+  source$!: Observable<SourceSummaryFieldsFragment>
 
   constructor( private route: ActivatedRoute, private gql: SourceSummaryGQL) {
     this.routeSub = this.route.params.subscribe((params) => {
@@ -33,7 +34,7 @@ export class SourcesSummaryPage implements OnDestroy {
         startWith(true));
 
       this.source$ = observable.pipe(
-          pluck('data', 'source'));
+        pluck('data', 'source'), filter(isNonNulled));
     });
   }
   ngOnDestroy() {

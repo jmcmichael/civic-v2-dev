@@ -42,15 +42,15 @@ interface Checked { checked: boolean }
   notifications$?: Observable<Maybe<NotificationNodeFragment>[]>;
   notificationState = new Map<NotificationNodeFragment, Checked>()
   notificationStateObservable$?: Observable<Maybe<Map<NotificationNodeFragment, Checked>>>
-  pageInfo$?: Observable<PageInfo>;
+  pageInfo$!: Observable<PageInfo>;
 
   includeReadInput: boolean = false
 
-  notificationSubjects$?: Observable<SelectableNotificationSubject[]>
-  originatingUsers$?: Observable<NotificationOriginatingUsersFragment[]>
-  actions$?: Observable<SelectableAction[]>
-  organizations$?: Observable<NotificationOrganizationFragment[]>
-  isLoading$?: Observable<boolean>
+  notificationSubjects$!: Observable<SelectableNotificationSubject[]>
+  originatingUsers$!: Observable<NotificationOriginatingUsersFragment[]>
+  actions$!: Observable<SelectableAction[]>
+  organizations$!: Observable<NotificationOrganizationFragment[]>
+  isLoading$!: Observable<boolean>
 
   bulkMarkEnabled: boolean = false
   allChecked: boolean = false

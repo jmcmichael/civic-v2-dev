@@ -7,7 +7,7 @@
         nzLayout="vertical"
         [nzColumn]="1">
         <nz-descriptions-item nzTitle="Title">
-        <i>{{ source.title}}</i>
+          <i>{{ source.title}}</i>
         </nz-descriptions-item>
         <nz-descriptions-item nzTitle="Authors">
           {{source.authorString}}
@@ -38,10 +38,14 @@
         [nzColumn]="1">
         <nz-descriptions-item nzTitle="Published">{{ source.publicationDate }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="{{source.displayType}} ID">
-          <cvc-link-tag [href]="source.sourceUrl"
+          <cvc-link-tag *nfIf="source.sourceUrl as url; else noUrlTag"
+            [href]="url"
             [tooltip]="'View on ' + source.displayType">
             {{ source.displayType + ':' + source.citationId }}
           </cvc-link-tag>
+          <ng-template #noUrlTag>
+            <nz-tag> {{ source.displayType + ':' + source.citationId }} </nz-tag>
+          </ng-template>
         </nz-descriptions-item>
         <nz-descriptions-item nzTitle="Journal">{{ source.fullJournalTitle }}</nz-descriptions-item>
         <nz-descriptions-item nzTitle="PMC ID">

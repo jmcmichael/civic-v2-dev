@@ -13,7 +13,7 @@ import { pluck, startWith, map } from 'rxjs/operators';
 export class VariantGroupsReviseView implements OnInit {
   loading$?: Observable<boolean>;
   routeSub: Subscription;
-  isSignedIn$?: Observable<boolean>;
+  isSignedIn$!: Observable<boolean>;
   variantGroup$?: Observable<Maybe<VariantGroupDetailFieldsFragment>>;
 
   constructor(
