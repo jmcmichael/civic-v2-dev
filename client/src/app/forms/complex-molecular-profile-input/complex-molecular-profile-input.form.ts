@@ -62,11 +62,11 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
   private destroy$ = new Subject();
   private debouncedPreview = new Subject();
 
-  previewQueryRef?: QueryRef<PreviewMolecularProfileNameQuery, PreviewMolecularProfileNameQueryVariables>
+  previewQueryRef!: QueryRef<PreviewMolecularProfileNameQuery, PreviewMolecularProfileNameQueryVariables>
   typeaheadQueryRef?: QueryRef<QuicksearchQuery, QuicksearchQueryVariables>
 
-  previewMpName$?: Observable<PreviewMpNameFragment[]>
-  previewMpAlreadyExists$?: Observable<Maybe<LinkableMolecularProfile>>
+  previewMpName$!: Observable<PreviewMpNameFragment[]>
+  previewMpAlreadyExists$!: Observable<Maybe<LinkableMolecularProfile>>
 
   suggestions: WithDisplayNameAndValue[] = []
   loading: boolean = false

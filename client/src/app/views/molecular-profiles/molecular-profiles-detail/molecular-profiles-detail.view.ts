@@ -26,10 +26,10 @@ import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigati
 export class MolecularProfilesDetailView implements OnDestroy {
   queryRef?: QueryRef<MolecularProfileDetailQuery, MolecularProfileDetailQueryVariables>;
 
-  molecularProfile$?: Observable<Maybe<MolecularProfileDetailFieldsFragment>>;
+  molecularProfile$!: Observable<Maybe<MolecularProfileDetailFieldsFragment>>;
   loading$?: Observable<boolean>;
   commentsTotal$?: Observable<number>;
-  flagsTotal$?: Observable<number>;
+  flagsTotal$!: Observable<number>;
   viewer$?: Observable<Viewer>;
 
   routeSub: Subscription;

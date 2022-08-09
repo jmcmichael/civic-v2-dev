@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
 export class CvcVariantPopoverComponent implements OnInit {
   @Input() variantId!: number
 
-  variant$?: Observable<Maybe<VariantPopoverFieldsFragment>>
+  variant$!: Observable<Maybe<VariantPopoverFieldsFragment>>
 
   constructor(private gql: VariantPopoverGQL) { }
 

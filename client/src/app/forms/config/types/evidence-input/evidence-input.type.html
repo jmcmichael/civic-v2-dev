@@ -12,7 +12,7 @@
     <ng-container *ngIf="eid$ | ngrxPush as eid">
       <nz-option 
         nzCustomContent
-        [nzLabel]="eid.tooltip"
+        [nzLabel]="eid.label"
         [nzValue]="eid.eid">
           {{ eid.label }}
       </nz-option>

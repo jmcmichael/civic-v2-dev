@@ -8,10 +8,14 @@
         nzType="civic-disease"></i> {{ disease.name }}
     </nz-page-header-title>
     <nz-page-header-extra *ngIf="disease.doid">
-      <cvc-link-tag [href]="disease.diseaseUrl"
+      <cvc-link-tag *ngIf="disease.diseaseUrl"
+        [href]="disease.diseaseUrl"
         tooltip="View on disease-ontology.org">
         {{ "DOID:" + disease.doid }}
       </cvc-link-tag>
+      <ng-template #noUrl>
+        <nz-tag> {{ "DOID:" + disease.doid }} </nz-tag>
+      </ng-template>
     </nz-page-header-extra>
     <nz-page-header-content>
       <div class="content">

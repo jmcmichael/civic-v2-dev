@@ -30,10 +30,10 @@ export class CvcVariantsMenuComponent implements OnInit {
   @Input() geneId?: number;
   @Input() geneName?: string;
 
-  menuVariants$?: Observable<Maybe<MenuVariantFragment>[]>;
-  totalVariants$?: Observable<number>;
+  menuVariants$!: Observable<Maybe<MenuVariantFragment>[]>;
+  totalVariants$!: Observable<number>;
   queryRef$!: QueryRef<VariantsMenuQuery, VariantsMenuQueryVariables>;
-  pageInfo$?: Observable<PageInfo>;
+  pageInfo$!: Observable<PageInfo>;
 
   statusFilter: VariantDisplayFilter = VariantDisplayFilter.WithAcceptedOrSubmitted;
   sortBy: VariantMenuSortColumns = VariantMenuSortColumns.Name
@@ -67,7 +67,7 @@ export class CvcVariantsMenuComponent implements OnInit {
         filter(isNonNulled)) as Observable<VariantConnection>;
 
     this.pageInfo$ = this.connection$
-      .pipe(map(c => c.pageInfo),
+      .pipe(map(c => c.pageInfo as PageInfo),
         filter(isNonNulled));
 
     this.menuVariants$ = this.connection$

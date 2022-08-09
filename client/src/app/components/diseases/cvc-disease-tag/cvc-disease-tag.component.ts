@@ -17,7 +17,7 @@ export interface LinkableDisease {
 export class CvcDiseaseTagComponent extends BaseCloseableTag implements OnInit {
   _disease!: LinkableDisease;
   @Input()
-  set disease(d: LinkableDisease) {
+  set disease(d: Maybe<LinkableDisease>) {
     if (!d) { throw new Error('disease-tag disease Input requires LinkableDisease.') }
     this._disease = d;
   }

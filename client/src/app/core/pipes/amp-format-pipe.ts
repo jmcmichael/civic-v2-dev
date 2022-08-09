@@ -8,7 +8,7 @@ export type AmpDisplayFormat = 'verbose' | 'compact'
   pure: true
 })
 export class AmpFormatPipe implements PipeTransform {
-  transform(level: AmpLevel, format: AmpDisplayFormat) : string {
+  transform(level?: AmpLevel, format?: AmpDisplayFormat) : string {
     if (level) {
       if(format == 'verbose') {
         if(level === 'TIER_I_LEVEL_A') return 'Tier I - Level A'

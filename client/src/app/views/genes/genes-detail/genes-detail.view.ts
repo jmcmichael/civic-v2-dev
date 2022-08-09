@@ -25,7 +25,7 @@ export class GenesDetailView implements OnDestroy {
   gene$?: Observable<Maybe<GeneDetailFieldsFragment>>;
   viewer$?: Observable<Viewer>;
   commentsTotal$?: Observable<number>;
-  flagsTotal$?: Observable<number>;
+  flagsTotal$!: Observable<number>;
   routeSub: Subscription;
   subscribable?: SubscribableInput
 

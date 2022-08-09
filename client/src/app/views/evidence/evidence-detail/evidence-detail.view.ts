@@ -27,11 +27,11 @@ import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigati
 export class EvidenceDetailView implements OnDestroy {
   queryRef?: QueryRef<EvidenceDetailQuery, EvidenceDetailQueryVariables>;
 
-  evidence$?: Observable<Maybe<EvidenceDetailFieldsFragment>>;
-  loading$?: Observable<boolean>;
-  commentsTotal$?: Observable<number>;
-  flagsTotal$?: Observable<number>;
-  viewer$?: Observable<Viewer>;
+  evidence$!: Observable<Maybe<EvidenceDetailFieldsFragment>>;
+  loading$!: Observable<boolean>;
+  commentsTotal$!: Observable<number>;
+  flagsTotal$!: Observable<number>;
+  viewer$!: Observable<Viewer>;
 
   errors: string[] = []
   successMessage: Maybe<string>

@@ -16,7 +16,7 @@ export interface TagLinkableUser {
 export class CvcUserTagComponent {
   _user!: TagLinkableUser;
   @Input()
-  set user(u: TagLinkableUser) {
+  set user(u: Maybe<TagLinkableUser>) {
     if (!u) throw new Error('user-tag User input requires TagLinkableUser.')
     this._user = u;
     switch (u.role) {

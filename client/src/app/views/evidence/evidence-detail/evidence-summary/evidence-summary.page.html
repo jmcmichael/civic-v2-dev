@@ -1,5 +1,6 @@
 <ng-container *ngIf="(evidence$ | ngrxPush) as evidence">
   <nz-row [nzGutter]="[8,16]">
+
     <!-- LEFT COLUMN: evidence description, evidence attributes-->
     <nz-col [nzSpan]="12">
       <nz-row [nzGutter]="[8,8]">
@@ -86,7 +87,8 @@
             </nz-descriptions-item>
 
             <!-- clinical trials -->
-            <nz-descriptions-item [nzTitle]="evidence.source.clinicalTrials.length > 1 ? 'Clinical Trials' : 'Clinical Trial'">
+            <nz-descriptions-item *ngIf="evidence.source.clinicalTrials"
+              [nzTitle]="evidence.source.clinicalTrials.length > 1 ? 'Clinical Trials' : 'Clinical Trial'">
               <ng-container *ngIf="evidence.source.clinicalTrials.length > 0">
                 <ng-container *ngFor="let t of evidence.source.clinicalTrials">
                   <cvc-clinical-trial-tag [clinicalTrial]="t"></cvc-clinical-trial-tag>
@@ -138,25 +140,31 @@
                 <nz-descriptions-item *ngSwitchCase="true"
                   [nzTitle]="acceptedTitle">
                   by
-                  <cvc-user-tag [user]="evidence.acceptanceEvent.originatingUser"></cvc-user-tag>
+                  <cvc-user-tag *ngIf="evidence.acceptanceEvent"
+                    [user]="evidence.acceptanceEvent.originatingUser"></cvc-user-tag>
                 </nz-descriptions-item>
                 <ng-template #acceptedTitle>
                   Accepted
                   <span nz-typography
                     nzType="secondary">
-                ({{ evidence.acceptanceEvent.createdAt| timeago }})
+                <ng-container *ngIf="evidence.acceptanceEvent">
+                  ({{ evidence.acceptanceEvent.createdAt | timeago }})
+                </ng-container>
               </span>
                 </ng-template>
                 <nz-descriptions-item *ngSwitchCase="false"
                   nzTitle="Rejected">
                   by
-                  <cvc-user-tag [user]="evidence.rejectionEvent.originatingUser"></cvc-user-tag>
+                  <cvc-user-tag *ngIf="evidence.rejectionEvent"
+                    [user]="evidence.rejectionEvent.originatingUser"></cvc-user-tag>
                 </nz-descriptions-item>
                 <ng-template #rejectedTitle>
                   Rejected
                   <span nz-typography
                     nzType="secondary">
-                ({{ evidence.rejectionEvent.createdAt | timeago }})
+                <ng-container *ngIf="evidence.rejectionEvent">
+                  ({{ evidence.rejectionEvent.createdAt | timeago }})
+                </ng-container>
               </span>
                 </ng-template>
               </ng-container>
@@ -172,7 +180,8 @@
             [nzColumn]="{ xxl: 2, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }">
             <!-- molecular profile -->
             <nz-descriptions-item nzTitle="Molecular Profile">
-              <cvc-molecular-profile-tag [molecularProfile]="evidence.molecularProfile" [enablePopover]="false"></cvc-molecular-profile-tag>
+              <cvc-molecular-profile-tag [molecularProfile]="evidence.molecularProfile"
+                [enablePopover]="false"></cvc-molecular-profile-tag>
             </nz-descriptions-item>
 
             <!-- molecular profile expression -->

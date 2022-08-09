@@ -7,7 +7,10 @@ import { MolecularProfileSegment } from "@app/generated/civic.apollo";
     styleUrls: ['./molecular-profile-tag-name.component.less']
 })
 export class CvcMolecularProfileTagNameComponent implements OnInit {
-    @Input() nameSegments!: MolecularProfileSegment[]
+    // TODO: configure proper type for nameSegments - various template
+    // errors occur w/ new version of ngrxPush
+     @Input() nameSegments!: any[]
+    // @Input() nameSegments!: MolecularProfileSegment[]
     @Input() enablePopover: boolean = true
 
     ngOnInit() {

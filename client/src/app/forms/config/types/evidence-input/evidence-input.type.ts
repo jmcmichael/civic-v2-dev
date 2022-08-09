@@ -33,7 +33,7 @@ export class EvidenceInputType extends FieldType<FieldTypeConfig> implements Aft
 
 
   private queryRef!: QueryRef<EvidenceTypeaheadQuery, EvidenceTypeaheadQueryVariables>
-  eid$?: Observable<Maybe<EvidenceTypeaheadOption>>
+  eid$!: Observable<Maybe<EvidenceTypeaheadOption>>
 
   destroy$ = new Subject();
 

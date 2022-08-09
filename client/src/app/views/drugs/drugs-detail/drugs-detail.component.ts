@@ -16,7 +16,7 @@ export class DrugsDetailComponent implements OnDestroy {
   routeSub: Subscription
   queryRef?: QueryRef<DrugDetailQuery, DrugDetailQueryVariables>
   loading$?: Observable<boolean>
-  drug$?: Observable<Maybe<Drug>>
+  drug$!: Observable<Maybe<Drug>>
 
   constructor(private route: ActivatedRoute, private gql: DrugDetailGQL) {
 

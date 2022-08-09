@@ -26,7 +26,7 @@ export class TableScrollDirective implements AfterViewInit {
 
   // call viewport scrollToIndex with provided index value
   @Input()
-  set cvcTableScrollToIndex(n: number) {
+  set cvcTableScrollToIndex(n: Maybe<number>) {
     if (n !== undefined) this.scrollToIndex(n)
   }
 

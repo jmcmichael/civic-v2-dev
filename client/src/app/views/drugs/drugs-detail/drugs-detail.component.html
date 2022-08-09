@@ -8,10 +8,13 @@
         nzType="civic-intervention"></i> {{ drug.name }}
     </nz-page-header-title>
     <nz-page-header-extra *ngIf="drug.ncitId">
-      <cvc-link-tag [href]="drug.drugUrl"
+      <cvc-link-tag *ngIf="drug.drugUrl; else noUrl" [href]="drug.drugUrl"
         tooltip="View in the NCIthesaurus">
         {{ drug.ncitId }}
       </cvc-link-tag>
+      <ng-template #noUrl>
+        <nz-tag> {{ drug.ncitId }} </nz-tag>
+      </ng-template>
     </nz-page-header-extra>
     <nz-page-header-content>
       <div class="content">

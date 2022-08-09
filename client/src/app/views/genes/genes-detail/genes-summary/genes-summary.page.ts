@@ -22,9 +22,9 @@ import {
   styleUrls: ['./genes-summary.page.less'],
 })
 export class GenesSummaryPage implements OnDestroy {
-  gene$?: Observable<Maybe<GeneSummaryFieldsFragment>>;
+  gene$!: Observable<Maybe<GeneSummaryFieldsFragment>>;
   loading$?: Observable<boolean>;
-  myGeneInfo$?: Observable<any>;
+  myGeneInfo$!: Observable<any>;
   viewer$?: Observable<Viewer>;
 
   subscribableEntity?: SubscribableInput;

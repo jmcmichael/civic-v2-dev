@@ -9,6 +9,7 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { DiseasesDetailComponent } from './diseases-detail.component';
 
@@ -24,6 +25,7 @@ import { DiseasesDetailComponent } from './diseases-detail.component';
     NzPageHeaderModule,
     NzDescriptionsModule,
     NzSpaceModule,
+    NzTagModule,
 
     CvcLinkTagModule,
     CvcSectionNavigationModule,

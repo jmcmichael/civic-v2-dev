@@ -19,7 +19,7 @@ export class ClinicalTrialsSummaryComponent implements OnDestroy {
   queryRef?: QueryRef<ClinicalTrialSummaryQuery, ClinicalTrialSummaryQueryVariables>
 
   loading$?: Observable<boolean>;
-  clinicalTrial$?: Observable<Maybe<Partial<ClinicalTrial>>>
+  clinicalTrial$!: Observable<Maybe<Partial<ClinicalTrial>>>
 
   constructor(private route: ActivatedRoute,
     private gql: ClinicalTrialSummaryGQL) {

@@ -12,10 +12,10 @@ import { pluck, startWith } from 'rxjs/operators';
 })
 export class DiseasesSummaryComponent implements OnDestroy {
   routeSub: Subscription;
-  diseaseId?: number;
+  diseaseId!: number;
   loading$?: Observable<boolean>;
   queryRef?: QueryRef<DiseasesSummaryQuery, DiseasesSummaryQueryVariables>
-  disease$?: Observable<Maybe<DiseasesSummaryFieldsFragment>>
+  disease$!: Observable<Maybe<DiseasesSummaryFieldsFragment>>
 
   constructor(private route: ActivatedRoute, private gql: DiseaseDetailGQL) {
     this.routeSub = this.route.params.subscribe((params) => {

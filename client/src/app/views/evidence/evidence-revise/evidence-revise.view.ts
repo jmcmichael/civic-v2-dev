@@ -17,7 +17,7 @@ export class EvidenceReviseView implements OnInit, OnDestroy {
   revisionsTotal$?: Observable<number>;
   flagsTotal$?: Observable<number>;
   routeSub: Subscription;
-  isSignedIn$?: Observable<boolean>;
+  isSignedIn$!: Observable<boolean>;
 
   constructor(
     private gql: EvidenceDetailGQL,

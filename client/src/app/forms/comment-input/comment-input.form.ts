@@ -49,8 +49,8 @@ export class CvcCommentInputForm implements OnDestroy, OnChanges {
   
   private destroy$ = new Subject();
 
-  previewComment$?: Observable<PreviewCommentFragment[]>
-  previewLoading$?: Observable<boolean>
+  previewComment$!: Observable<PreviewCommentFragment[]>
+  previewLoading$!: Observable<boolean>
 
   suggestions: WithDisplayNameAndValue[] = [];
   roleSuggestions = [{displayName: 'admins', value: 'admins'}, {displayName: 'editors', value: 'editors'}]

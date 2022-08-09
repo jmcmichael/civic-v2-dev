@@ -4,7 +4,7 @@ import { Maybe } from '@app/generated/civic.apollo';
 export interface LinkableClinicalTrial {
   id: number,
   nctId: string,
-  link: string,
+  link?: string,
 }
 
 @Component({

@@ -2,8 +2,9 @@ import { Component, Input } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { EvidenceSummaryGQL, Maybe, EvidenceSummaryQuery, EvidenceSummaryQueryVariables, EvidenceSummaryFieldsFragment, SubscribableInput, SubscribableEntities } from "@app/generated/civic.apollo";
 import { QueryRef } from "apollo-angular";
-import { pluck, startWith } from "rxjs/operators";
+import { filter, pluck, startWith } from "rxjs/operators";
 import { Observable } from "rxjs";
+import { isNonNulled } from "rxjs-etc";
 
 @Component({
   selector: 'cvc-evidence-summary',
@@ -15,7 +16,7 @@ export class EvidenceSummaryPage {
 
   queryRef: QueryRef<EvidenceSummaryQuery, EvidenceSummaryQueryVariables>
   loading$: Observable<boolean>
-  evidence$: Observable<Maybe<EvidenceSummaryFieldsFragment>>
+  evidence$: Observable<EvidenceSummaryFieldsFragment>
 
   subscribable: SubscribableInput
 
@@ -44,8 +45,8 @@ export class EvidenceSummaryPage {
     )
 
     this.evidence$ = observable.pipe(
-      pluck('data', 'evidenceItem')
-    )
+      pluck('data', 'evidenceItem'),
+      filter(isNonNulled))
 
     this.subscribable = {
       entityType: SubscribableEntities.EvidenceItem,

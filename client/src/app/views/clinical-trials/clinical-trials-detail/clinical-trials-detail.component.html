@@ -8,10 +8,13 @@
         nzType="civic-clinicaltrial"></i> {{ trial.nctId }}
     </nz-page-header-title>
     <nz-page-header-extra>
-      <cvc-link-tag [href]="trial.url"
+      <cvc-link-tag *ngIf="trial.url; else noUrl" [href]="trial.url"
         tooltip="View on clinicaltrials.gov">
         {{ trial.nctId }}
       </cvc-link-tag>
+      <ng-template #noUrl>
+        {{ trial.nctId }}
+      </ng-template>
     </nz-page-header-extra>
     <nz-page-header-content>
       <router-outlet></router-outlet>

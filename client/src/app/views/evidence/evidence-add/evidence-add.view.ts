@@ -8,13 +8,11 @@ import { map } from 'rxjs/operators';
   templateUrl: './evidence-add.view.html',
   styleUrls: ['./evidence-add.view.less']
 })
-export class EvidenceAddView implements OnInit {
+export class EvidenceAddView {
 
-  isSignedIn$?: Observable<boolean>;
+  isSignedIn$: Observable<boolean>;
 
-  constructor(private viewerService: ViewerService) { }
-
-  ngOnInit(): void {
+  constructor(private viewerService: ViewerService) {
     this.isSignedIn$ = this.viewerService.viewer$.pipe(map((v) => v.signedIn))
   }
 

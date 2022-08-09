@@ -39,7 +39,8 @@ export class CvcSourceTagComponent extends BaseCloseableTag implements OnInit {
   _source!: SourceTagInput;
 
   @Input()
-  set source(src: SourceTagInput) {
+  // TODO: type this source Input properly, causes errors in some templates w/ ngrxPush update
+  set source(src: any) {
     if (!src) { throw new Error('source-tag source input requires SourceWithDisplayName or SourceWithCitation.') }
     this._source = src;
     if ('displayName' in this.source) {

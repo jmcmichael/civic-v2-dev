@@ -149,26 +149,26 @@
                 <nz-descriptions-item *ngSwitchCase="true"
                   [nzTitle]="acceptedTitle">
                   by
-                  <cvc-user-tag [user]="assertion.acceptanceEvent.originatingUser"></cvc-user-tag>
+                  <cvc-user-tag [user]="assertion.acceptanceEvent?.originatingUser"></cvc-user-tag>
                 </nz-descriptions-item>
                 <ng-template #acceptedTitle>
                   Accepted
                   <span nz-typography
                     nzType="secondary">
-                    ({{ assertion.acceptanceEvent.createdAt| timeago }})
+                    ({{ assertion.acceptanceEvent?.createdAt | timeago }})
                 </span>
                 </ng-template>
 
                 <nz-descriptions-item *ngSwitchCase="false"
                   [nzTitle]="rejectedTitle">
-                  by {{ assertion.rejectionEvent.createdAt | timeago }} by
-                  <cvc-user-tag [user]="assertion.rejectionEvent.originatingUser"></cvc-user-tag>
+                  by {{ assertion.rejectionEvent?.createdAt | timeago }} by
+                  <cvc-user-tag [user]="assertion.rejectionEvent?.originatingUser"></cvc-user-tag>
                 </nz-descriptions-item>
                 <ng-template #rejectedTitle>
                   Rejected
                   <span nz-typography
                     nzType="secondary">
-                ({{ assertion.rejectionEvent.createdAt | timeago }})
+                ({{ assertion.rejectionEvent?.createdAt | timeago }})
               </span>
                 </ng-template>
               </ng-container>
@@ -185,7 +185,8 @@
 
             <!-- molecular profile -->
             <nz-descriptions-item nzTitle="Molecular Profile">
-              <cvc-molecular-profile-tag [molecularProfile]="assertion.molecularProfile" [enablePopover]="false"></cvc-molecular-profile-tag>
+              <cvc-molecular-profile-tag [molecularProfile]="assertion.molecularProfile"
+                [enablePopover]="false"></cvc-molecular-profile-tag>
             </nz-descriptions-item>
 
             <!-- molecular profile expression -->
@@ -195,10 +196,10 @@
 
             <!-- disease -->
             <nz-descriptions-item nzTitle="Disease">
-              <ng-container *ngIf="assertion.disease.name">
+              <ng-container *ngIf="assertion.disease?.name">
                 <cvc-disease-tag [disease]="assertion.disease"></cvc-disease-tag>
               </ng-container>
-              <span *ngIf="!assertion.disease.name"
+              <span *ngIf="!assertion.disease?.name"
                 nz-typography
                 nzType="secondary">Not applicable</span>
             </nz-descriptions-item>

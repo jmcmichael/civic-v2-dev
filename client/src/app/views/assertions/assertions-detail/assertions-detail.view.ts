@@ -27,10 +27,10 @@ import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigati
 export class AssertionsDetailView implements OnDestroy {
   queryRef?: QueryRef<AssertionDetailQuery, AssertionDetailQueryVariables>;
 
-  assertion$?: Observable<Maybe<AssertionDetailFieldsFragment>>;
+  assertion$!: Observable<Maybe<AssertionDetailFieldsFragment>>;
   loading$?: Observable<boolean>;
   commentsTotal$?: Observable<number>;
-  flagsTotal$?: Observable<number>;
+  flagsTotal$!: Observable<number>;
   viewer$?: Observable<Viewer>;
 
   paramsSub: Subscription;

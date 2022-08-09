@@ -29,7 +29,7 @@ export class VariantInputType extends FieldType<FieldTypeConfig> implements OnIn
   callbackSub?: Subscription
 
   private queryRef!: QueryRef<VariantSelectQuery, VariantSelectQueryVariables>;
-  variants$?: Observable<VariantSelectOption[]>;
+  variants$!: Observable<VariantSelectOption[]>;
 
   success: boolean = false
   errorMessages: string[] = []

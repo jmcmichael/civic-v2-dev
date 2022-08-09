@@ -14,7 +14,7 @@ export class AssertionsReviseView implements OnInit, OnDestroy {
   loading$?: Observable<boolean>;
   assertion$?: Observable<Maybe<AssertionDetailFieldsFragment>>;
   routeSub: Subscription;
-  isSignedIn$?: Observable<boolean>;
+  isSignedIn$!: Observable<boolean>;
 
   constructor(
     private gql: AssertionDetailGQL,

@@ -5793,7 +5793,7 @@ export type VariantSelectQueryVariables = Exact<{
 
 export type VariantSelectQuery = { __typename: 'Query', variants: { __typename: 'VariantConnection', nodes: Array<{ __typename: 'Variant', id: number, name: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } }> } };
 
-export type VariantSelectFieldsFragment = { __typename: 'Variant', id: number, name: string, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
+export type VariantSelectFieldsFragment = { __typename: 'Variant', id: number, name: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
 
 export type VariantTypeTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
@@ -7509,6 +7509,7 @@ export const VariantSelectFieldsFragmentDoc = gql`
     fragment VariantSelectFields on Variant {
   id
   name
+  variantAliases
   singleVariantMolecularProfileId
   singleVariantMolecularProfile {
     id

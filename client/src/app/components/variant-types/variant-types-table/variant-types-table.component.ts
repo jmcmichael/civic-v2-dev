@@ -155,8 +155,8 @@ export class CvcVariantTypesTableComponent implements OnInit {
     this.cdr.detectChanges()
   }
 
-  trackByIndex(_: number, data: VariantTypeBrowseTableRowFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<VariantTypeBrowseTableRowFieldsFragment>): number {
+    return data?.id ? data.id : index;
   }
 
 }
