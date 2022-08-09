@@ -11,7 +11,7 @@
           nzTwotoneColor="#F9BA45"></i> {{ s.displayType }}:&nbsp;{{ s.citation }}
       </ng-template>
       <ng-template #linkout>
-        <cvc-link-tag [href]="s.sourceUrl"
+        <cvc-link-tag [href]="s.sourceUrl!"
           [tooltip]="'View on ' + s.displayType">
           {{ s.displayType + ':' + s.citationId }}
         </cvc-link-tag>
@@ -33,7 +33,7 @@
 
         <nz-descriptions-item nzTitle="Clinical Trials:"
           nzSpan="2">
-          <ng-container *ngIf="s.clinicalTrials.length > 0; else noTrials">
+          <ng-container *ngIf="s.clinicalTrials!.length > 0; else noTrials">
             <cvc-tag-list>
               <cvc-clinical-trial-tag *ngFor="let t of s.clinicalTrials"
                 [clinicalTrial]="t"

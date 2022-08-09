@@ -168,8 +168,8 @@ export class CvcSourcesTableComponent implements OnInit {
     this.cdr.detectChanges()
   }
 
-  trackByIndex(_: number, data: BrowseSourceRowFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<BrowseSourceRowFieldsFragment>): number {
+    return data?.id ? data.id : index;
   }
 
 }

@@ -14,7 +14,7 @@ export class CvcUserPopoverComponent implements OnInit {
 
   @ContentChild('additionalMetadata') metadataTemplateRef?: TemplateRef<any>
 
-  user$?: Observable<Maybe<PopoverUserFragment>>
+  user$!: Observable<Maybe<PopoverUserFragment>>
 
   constructor(private gql: UserPopoverGQL) { }
 

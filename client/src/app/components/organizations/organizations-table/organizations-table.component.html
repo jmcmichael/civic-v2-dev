@@ -25,7 +25,7 @@
 <ng-template #table>
   <nz-table #virtualTable
     nzSize="small"
-    [nzData]="row$ | ngrxPush"
+    [nzData]="(row$ | ngrxPush)!"
     [nzLoading]="initialLoading$ | ngrxPush"
     [cvcAutoHeightTable]="25"
     [nzVirtualItemSize]="29"
@@ -132,5 +132,5 @@
       nzSpin></i>
     <span>Loading…</span>
   </nz-tag>
-  <cvc-no-more-rows [cvcShowTag]="noMoreRows$ | ngrxPush"></cvc-no-more-rows>
+  <cvc-no-more-rows [cvcShowTag]="(noMoreRows$ | ngrxPush)!"></cvc-no-more-rows>
 </ng-template>

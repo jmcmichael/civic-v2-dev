@@ -167,8 +167,8 @@ export class CvcUsersTableComponent implements OnInit {
   }
 
   // virtual scroll helpers
-  trackByIndex(_: number, data: UserBrowseTableRowFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<UserBrowseTableRowFieldsFragment>): number {
+    return data?.id ? data.id : index;
   }
 
 }

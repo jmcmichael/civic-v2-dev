@@ -23,7 +23,7 @@
           <cvc-tag-list>
             <cvc-variant-tag *ngFor="let variant of variantGroup.variants.edges"
               [enablePopover]="false"
-              [variant]="variant.node"></cvc-variant-tag>
+              [variant]="variant.node!"></cvc-variant-tag>
           </cvc-tag-list>
         </nz-descriptions-item>
 

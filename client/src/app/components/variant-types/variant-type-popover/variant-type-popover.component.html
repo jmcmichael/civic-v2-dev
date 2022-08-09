@@ -14,7 +14,7 @@
       </ng-template>
       <ng-template #linkout>
         <cvc-link-tag *ngIf="vt.soid != 'N/A'"
-          [href]="vt.url"
+          [href]="vt.url!"
           tooltip="View on SequenceOntology.org">
           {{ vt.soid }}
         </cvc-link-tag>

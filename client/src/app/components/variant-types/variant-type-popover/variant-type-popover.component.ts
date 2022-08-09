@@ -12,7 +12,7 @@ import { isNonNulled } from "rxjs-etc";
 export class CvcVariantTypePopoverComponent implements OnInit {
   @Input() variantTypeId!: number;
 
-  variantType$?: Observable<Maybe<VariantTypePopoverFragment>>
+  variantType$!: Observable<Maybe<VariantTypePopoverFragment>>
 
   constructor(private gql: VariantTypePopoverGQL) { }
 

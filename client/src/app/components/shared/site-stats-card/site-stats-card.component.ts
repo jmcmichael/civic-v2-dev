@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApolloQueryResult } from '@apollo/client/core';
-import { CivicStatsGQL, CivicStatsQuery, CivicTimepointStats } from '@app/generated/civic.apollo';
+import { CivicStatsGQL, CivicStatsQuery, CivicTimepointStats, TimePointCounts } from '@app/generated/civic.apollo';
 import { QueryRef } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { isNonNulled } from 'rxjs-etc';
@@ -18,7 +18,7 @@ export class CvcSiteStatsCardComponent implements OnInit {
   isLoading$!: Observable<boolean>;
   stats$!: Observable<CivicTimepointStats>;
   statsType: string;
-  statsTypes: { [index: string]: string };
+  statsTypes: {[key: string]: keyof TimePointCounts};
 
   constructor(private statsGql: CivicStatsGQL) {
     this.statsTypes = {

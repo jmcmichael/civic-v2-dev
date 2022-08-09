@@ -12,7 +12,7 @@ import { filter, map } from 'rxjs/operators';
 export class CvcSourcePopoverComponent implements OnInit {
   @Input() sourceId!: number;
 
-  source$?: Observable<Maybe<SourcePopoverFragment>>
+  source$!: Observable<Maybe<SourcePopoverFragment>>
 
   constructor(private gql: SourcePopoverGQL) { }
 

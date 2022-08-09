@@ -157,7 +157,7 @@ export class CvcVariantGroupsTableComponent implements OnInit {
   }
 
   // virtual scroll helpers
-  trackByIndex(_: number, data: BrowseVariantGroupRowFieldsFragment): number {
-    return data.id;
+  trackByIndex(index: number, data: Maybe<BrowseVariantGroupRowFieldsFragment>): number {
+    return data?.id ? data.id : index;
   }
 }
