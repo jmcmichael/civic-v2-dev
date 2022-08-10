@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { FieldType, FormlyFieldConfig } from "@ngx-formly/core";
-import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
+import { TypeOption } from "@ngx-formly/core/lib/models";
 
 @Component({
   selector: 'cvc-gene-search-condition-input',
@@ -9,7 +9,6 @@ import { TypeOption } from "@ngx-formly/core/lib/services/formly.config";
   styleUrls: ['./gene-search-condition-input.type.less'],
 })
 export class GeneSearchConditionInputType extends FieldType {
-  formControl!: FormControl;
   selectedField?: string
   selectedFieldFormControl?: FormControl
   selectedFieldFormConfig?: FormlyFieldConfig
