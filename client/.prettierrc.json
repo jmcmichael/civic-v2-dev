@@ -4,5 +4,7 @@
   "printWidth": 120,
   "semi": true,
   "trailingComma": "all",
-  "singleAttributePerLine": true
+  "singleAttributePerLine": true,
+  "bracketSameLine": true,
+  "htmlWhitespaceSensitivity": "css"
 }

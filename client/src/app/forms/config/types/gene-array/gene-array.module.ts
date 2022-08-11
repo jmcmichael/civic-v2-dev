@@ -5,7 +5,6 @@ import { FormlyModule } from '@ngx-formly/core';
 import { FormlySelectModule } from '@ngx-formly/core/select';
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field';
 import { NzSelectModule } from 'ng-zorro-antd/select';
-import { CvcFormCardModule } from '../../wrappers/form-card/form-card.module';
 import { CvcGeneInputTypeModule } from '../gene-input/gene-input.module';
 import { CvcMultiFieldTypeModule } from '../multi-field/multi-field.module';
 import { geneArrayTypeOption } from './gene-array.type';
@@ -21,7 +20,6 @@ import { geneArrayTypeOption } from './gene-array.type';
     FormlyModule.forChild({types: [geneArrayTypeOption]}),
     CvcGeneInputTypeModule,
     CvcMultiFieldTypeModule,
-    CvcFormCardModule,
   ]
 })
 export class CvcGeneArrayTypeModule { }
