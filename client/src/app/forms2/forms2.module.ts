@@ -1,28 +1,30 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ReactiveComponentModule } from '@ngrx/component';
+import { ReactiveFormsModule } from '@angular/forms';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
-import { CvcFormlyConfig2 } from './forms2.config';
+import { environment } from 'environments/environment';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { CvcFormWrappersModule } from './wrappers/wrappers.module';
 
 @NgModule({
   declarations: [],
   imports: [
-    CommonModule,
-    FormsModule,
+    FormlyModule,
     ReactiveFormsModule,
-    ReactiveComponentModule,
-    FormlyModule.forRoot(CvcFormlyConfig2),
+    NzFormModule,
     FormlyNgZorroAntdModule,
     CvcFormWrappersModule,
+    NgxJsonViewerModule,
+    ...environment.devModules
   ],
   exports: [
-    FormsModule,
     ReactiveFormsModule,
     FormlyModule,
     FormlyNgZorroAntdModule,
-  ]
+    CvcFormWrappersModule,
+    NgxJsonViewerModule,
+    ...environment.devModules
+  ],
 })
-export class CvcForms2Module { }
+export class CvcForms2Module {}

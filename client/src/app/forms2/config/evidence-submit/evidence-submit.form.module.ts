@@ -1,8 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
-import { CvcFormWrappersModule } from "@app/forms2/wrappers/wrappers.module";
-import { FormlyModule } from "@ngx-formly/core";
+import { CvcForms2Module } from "@app/forms2/forms2.module";
 import { NzFormModule } from "ng-zorro-antd/form";
 import { CvcEvidenceSubmitForm } from "./evidence-submit.form";
 
@@ -10,10 +8,8 @@ import { CvcEvidenceSubmitForm } from "./evidence-submit.form";
   declarations: [CvcEvidenceSubmitForm],
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    FormlyModule,
-    CvcFormWrappersModule,
     NzFormModule,
+    CvcForms2Module,
   ],
   exports: [CvcEvidenceSubmitForm]
 })

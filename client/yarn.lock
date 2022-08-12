@@ -8864,7 +8864,7 @@ ngx-cookie-service@^13.1.2:
   dependencies:
     tslib "^2.0.0"
 
-ngx-json-viewer@^3.0.2:
+ngx-json-viewer@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/ngx-json-viewer/-/ngx-json-viewer-3.1.0.tgz#af8404b930f3a7850f96b7ad16ad2ab7bc541334"
   integrity sha512-+m90gQ/5TJNusqUgRlXU4e7ZwAKfK5jUV/zvvZYv4uiO/yQDM37cKTQ+YPgK/bC3a+03xDssCSpi0y+DrgUUpg==
@@ -10668,13 +10668,6 @@ run-parallel@^1.1.9:
   integrity sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==
   dependencies:
     queue-microtask "^1.2.2"
-
-rxjs-debug@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/rxjs-debug/-/rxjs-debug-1.3.0.tgz#2af654e8301dd7712ce92863f2901b5d33666bc4"
-  integrity sha512-wVk4L5BqZXEkGzfJtvtUS+2gGMFj0+Pjx3MJ/yWJttUvfJTwdv6mcQXcY0PPFNIOYrZclY8+OjAADYG72qhm0g==
-  dependencies:
-    tslib "^2.0.0"
 
 rxjs-etc@^10.6.2:
   version "10.6.2"

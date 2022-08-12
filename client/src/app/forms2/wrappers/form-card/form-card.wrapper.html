@@ -1,4 +1,43 @@
  <nz-card
-   [nzTitle]="props.title" [nzBordered]="false">
+   [nzTitle]="props.title"
+   [nzSize]="props.cardSize"
+   [nzBordered]="props.bordered"
+   [nzActions]="[footerActions]"
+   [nzExtra]="headerActions">
    <ng-container #fieldComponent> </ng-container>
  </nz-card>
+ <p>
+   CARD MODEL:
+   <ngx-json-viewer [json]="field.model"></ngx-json-viewer>
+ </p>
+ <ng-template #footerActions>
+   <cvc-org-selector-btn-group
+     #orgButton
+     [nzSize]="props.submitSize">
+     <button
+       type="submit"
+       nz-button
+       cvcOrgSelectorBtn
+       nzType="primary"
+       [disabled]="!form.valid">
+       {{ props.submitLabel }}
+     </button>
+   </cvc-org-selector-btn-group>
+ </ng-template>
+ <ng-template #headerActions>
+   <nz-tag
+     nzColor="blue"
+     class="debug-btn"
+     nz-popover
+     nzPopoverPlacement="leftTop"
+     nzPopoverTrigger="click"
+     [nzPopoverContent]="debugPopover">
+     <i
+       nz-icon
+       nzType="bug"
+       nzTheme="outline"></i>
+   </nz-tag>
+   <ng-template #debugPopover>
+     <cvc-form-debug-panel></cvc-form-debug-panel>
+   </ng-template>
+ </ng-template>

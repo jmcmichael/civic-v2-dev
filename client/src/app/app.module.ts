@@ -7,6 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GraphQLModule } from '@app/graphql/graphql.module';
 import { civicIcons } from '@app/icons-provider.module';
 import { ReactiveComponentModule } from '@ngrx/component';
+import { FormlyModule } from '@ngx-formly/core';
 import { en_US, NZ_I18N } from 'ng-zorro-antd/i18n';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { CookieService } from 'ngx-cookie-service';
@@ -17,6 +18,7 @@ import { AppComponent } from './app.component';
 import { CvcNetworkErrorAlertModule } from './components/app/network-error-alert/network-error-alert.module';
 import { AppLoadErrorHandler } from './core/utilities/app-reload-handler';
 import { CivicTimeagoFormatter } from './core/utilities/timeago-formatter';
+import { CvcFormlyConfig2 } from './forms2/forms2.config';
 import { CvcForms2Module } from './forms2/forms2.module';
 
 registerLocaleData(en);
@@ -38,9 +40,9 @@ function initializeApiFactory(httpClient: HttpClient): () => Observable<any> {
     HttpClientXsrfModule,
     HttpClientJsonpModule,
     NzIconModule.forRoot(civicIcons),
+    FormlyModule.forRoot(CvcFormlyConfig2),
     ReactiveComponentModule,
     TimeagoModule.forRoot({formatter: { provide: TimeagoFormatter, useClass: CivicTimeagoFormatter }}),
-    CvcForms2Module,
     CvcNetworkErrorAlertModule,
   ],
   providers: [

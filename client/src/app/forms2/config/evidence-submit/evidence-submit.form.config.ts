@@ -7,7 +7,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Object } from 'ts-toolbelt';
 
 // Form model type created by setting all its SubmitInput fields optional -
-// required fields will be specified using formly fields' templateOptions
+// required fields will be specified using fieldConfig props
 type OptionalFormFields = Object.Partial<EvidenceItemFields>
 export type EvidenceSubmitFormModel =
   Object.Assign<SubmitEvidenceItemInput, [{ fields: OptionalFormFields }]>
@@ -17,17 +17,26 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
   {
     key: 'fields',
     wrappers: ['form-card'],
-    props: {
-      title: 'Submit Evidence',
-    } as CvcFormCardWrapperProps,
+    props: <CvcFormCardWrapperProps>{
+      title: 'New Evidence Item',
+    },
     fieldGroup: [
       {
         key: 'geneId',
         type: 'input',
+        defaultValue: null,
         templateOptions: {
           label: 'Gene',
+          required: true
         },
       },
     ],
   },
+  {
+    key: 'comment',
+    type: 'textarea',
+    props: {
+      label: 'Comment'
+    }
+  }
 ]
