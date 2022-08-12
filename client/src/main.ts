@@ -1,4 +1,5 @@
-import { enableProdMode } from '@angular/core';
+import { ApplicationRef, enableProdMode } from '@angular/core';
+import { enableDebugTools } from '@angular/platform-browser';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { create, CyclePlugin } from 'rxjs-spy';
 
@@ -20,8 +21,18 @@ if (environment.production) {
   // unused variable usage (a convention)
   spy.show();
   // log everything, provide tag name to focus log on a single observable
-  spy.log()
+  spy.log();
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+platformBrowserDynamic()
+  .bootstrapModule(AppModule)
+  .then((moduleRef) => {
+    // activate ng.profiler
+    // Usage: in the devtools console, enter 'ng.profiler.timeChangeDetection({ record: true })' to change detection cycle report. Use Angular DevTools' profiler tab to record a change detection session, and get a breakdown of components' detection cycle times. The 'record: true' option supposedly works with Chrome's profiler but I didn't see how.
+    if (!environment.production) {
+      const applicationRef = moduleRef.injector.get(ApplicationRef)
+      const componentRef = applicationRef.components[0]
+      enableDebugTools(componentRef)
+    }
+  })
+  .catch((err) => console.error(err));
