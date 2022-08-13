@@ -38,7 +38,7 @@
     "ngx-cookie-service": "^13.1.2",
     "ngx-logger": "^5.0.7",
     "ngx-timeago": "^2.0.0",
-    "rxjs": "^6.5.3",
+    "rxjs": "^7.5.2",
     "rxjs-etc": "^10.6.2",
     "rxjs-spy": "^7.5.3",
     "ts-enum-util": "^4.0.2",
