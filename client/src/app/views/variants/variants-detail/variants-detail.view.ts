@@ -134,7 +134,7 @@ export class VariantsDetailView implements OnDestroy {
 
   ngOnDestroy() {
     this.routeSub.unsubscribe();
-    this.destroy$.next();
+    this.destroy$.next(void 0);
     this.destroy$.unsubscribe();
   }
 }

@@ -87,7 +87,7 @@ export class CvcEntitySubscriptionButtonComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next()
+    this.destroy$.next(void 0)
     this.destroy$.complete()
   }
 }

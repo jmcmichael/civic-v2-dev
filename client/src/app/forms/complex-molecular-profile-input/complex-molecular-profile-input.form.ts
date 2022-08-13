@@ -159,7 +159,7 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
+    this.destroy$.next(void 0);
     this.destroy$.complete();
   }
 
@@ -170,7 +170,7 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
   }
 
   onMpNameChanged(e: string): void {
-    this.debouncedPreview.next();
+    this.debouncedPreview.next(e);
   }
 
   refresh() {

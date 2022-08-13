@@ -6,7 +6,6 @@ import {
   AddVariantMutationVariables,
   Maybe,
 } from '@app/generated/civic.apollo';
-import * as fmt from '@app/forms/config/utilities/input-formatters';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
 import { EvidenceState } from '@app/forms/config/states/evidence.state';
@@ -148,7 +147,7 @@ export class VariantSubmitForm implements OnDestroy, OnInit {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
+    this.destroy$.next(void 0);
     this.destroy$.complete();
   }
 }

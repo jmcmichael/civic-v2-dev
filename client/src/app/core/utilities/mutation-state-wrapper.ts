@@ -23,7 +23,7 @@ export class MutatorWithState<M extends Mutation<T, V>, T extends {}, V extends 
       isSubmitting$: new BehaviorSubject<boolean>(false),
       submitSuccess$: new BehaviorSubject<boolean>(false),
       submitError$: new BehaviorSubject<string[]>([]),
-      cleanup: () => { destroy$.next(); destroy$.complete() }
+      cleanup: () => { destroy$.next(void 0); destroy$.complete() }
     }
 
   stateVals.isSubmitting$.next(true)

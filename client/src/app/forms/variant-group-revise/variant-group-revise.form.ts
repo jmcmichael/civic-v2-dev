@@ -237,7 +237,7 @@ export class VariantGroupReviseForm implements OnDestroy, AfterViewInit{
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
+    this.destroy$.next(void 0);
     this.destroy$.complete();
   }
 }

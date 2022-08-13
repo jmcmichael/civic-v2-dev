@@ -87,7 +87,7 @@ export class EvidenceInputType extends FieldType<FieldTypeConfig> implements Aft
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
+    this.destroy$.next(void 0);
     this.destroy$.complete();
   }
 }

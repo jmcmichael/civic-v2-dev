@@ -14,9 +14,10 @@ import {
   ViewerService,
 } from '@app/core/services/viewer/viewer.service';
 import { QueryRef } from 'apollo-angular';
-import { pluck, startWith, takeUntil } from 'rxjs/operators';
+import { startWith, takeUntil } from 'rxjs/operators';
 import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs';
 import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigation.component';
+import { pluck } from 'rxjs-etc/dist/esm/operators';
 
 @Component({
   selector: 'molecular-profiles-detail',
@@ -117,7 +118,7 @@ export class MolecularProfilesDetailView implements OnDestroy {
 
   ngOnDestroy() {
     this.routeSub.unsubscribe();
-    this.destroy$.next();
+    this.destroy$.next(void 0);
     this.destroy$.unsubscribe();
   }
 }

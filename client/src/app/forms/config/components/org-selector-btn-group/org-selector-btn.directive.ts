@@ -57,7 +57,7 @@ export class CvcOrgSelectorBtnDirective implements OnDestroy {
 
   ngOnDestroy(): void {
     this.changes.disconnect();
-    this.destroy$.next()
+    this.destroy$.next(void 0)
     this.destroy$.unsubscribe()
   }
 }
