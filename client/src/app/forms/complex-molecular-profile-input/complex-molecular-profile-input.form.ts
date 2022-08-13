@@ -31,7 +31,7 @@ import {
 } from '@app/generated/civic.apollo';
 
 import { MentionOnSearchTypes } from 'ng-zorro-antd/mention';
-import { map, takeUntil, debounceTime, filter, pluck } from 'rxjs/operators';
+import { map, takeUntil, debounceTime, filter } from 'rxjs/operators';
 import {QueryRef } from 'apollo-angular';
 import { parseMolecularProfile } from '@app/core/utilities/molecular-profile-parser';
 import { isNonNulled } from 'rxjs-etc';
@@ -39,9 +39,10 @@ import { SelectedVariant } from '../variant-submit/variant-submit.form';
 import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper';
 import { NetworkErrorsService } from '@app/core/services/network-errors.service';
 import { LinkableMolecularProfile } from '@app/components/molecular-profiles/molecular-profile-tag/molecular-profile-tag.component';
-import { tag } from 'rxjs-spy/cjs/operators';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FormMolecularProfile } from '../forms.interfaces';
+import { tag } from 'rxjs-spy/operators';
+import { pluck } from 'rxjs-etc/dist/esm/operators';
 
 interface WithDisplayNameAndValue {
   displayName: string
