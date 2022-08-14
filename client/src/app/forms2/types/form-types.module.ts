@@ -5,4 +5,4 @@ import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-but
 @NgModule({
   imports: [CommonModule, CvcOrgSubmitButtonTypeModule],
 })
-export class CvcFormWrappersModule {}
+export class CvcFormTypesModule {}

@@ -1,17 +1,23 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Maybe, Organization } from '@app/generated/civic.apollo';
-import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
-import { TypeOption } from "@ngx-formly/core/lib/models";
+import { FieldType, FieldTypeConfig, FormlyFieldProps } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
+export interface CvcOrgSubmitButtonTypeProps extends FormlyFieldProps {
+  submitLabel: string
+}
+
+const defaultProps = {
+  submitLabel: 'Submit'
+}
 @Component({
   selector: 'cvc-org-submit-button-type',
   templateUrl: './org-submit-button.type.html',
   styleUrls: ['./org-submit-button.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OrgSubmitButtonComponent extends FieldType<FieldTypeConfig> implements AfterViewInit, OnDestroy {
+export class CvcOrgSubmitButtonComponent extends FieldType<FieldTypeConfig> implements OnInit {
   _selectedOrg: Maybe<Organization> = undefined;
   get selectedOrg(): Maybe<Organization> {
     return this._selectedOrg;
@@ -22,36 +28,8 @@ export class OrgSubmitButtonComponent extends FieldType<FieldTypeConfig> impleme
     this.formControl.setValue(org);
   }
 
-  private destroy$ = new Subject()
-
-  constructor(private cdr: ChangeDetectorRef) {
-    super()
-
-    this.defaultOptions = {
-      templateOptions: {
-        submitLabel: 'Submit',
-        submitSize: 'small'
-      }
-    }
+  ngOnInit(): void {
+    this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel
   }
 
-  ngAfterViewInit() {
-    // NOTE: this subscription forces the field to update on
-    // form.statusChanges. Even given that this type uses OnPush,
-    // it doesn't seem like this should be required.
-    this.form.statusChanges
-      .pipe(distinctUntilChanged(),
-        takeUntil(this.destroy$))
-      .subscribe(() => this.cdr.detectChanges())
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(void 0);
-    this.destroy$.unsubscribe();
-  }
-}
-
-export const OrgSubmitButtonTypeOption: TypeOption = {
-  name: 'org-submit-button',
-  component: OrgSubmitButtonComponent
 }

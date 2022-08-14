@@ -29,14 +29,14 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
     wrappers: ['form-layout'],
     props: <CvcFormLayoutWrapperProps>{
       submitLabel: 'Submit Evidence Item',
-      showFormStatus: true
+      showFormStatus: true,
     },
     fieldGroup: [
       {
         key: 'fields',
         wrappers: ['fields-layout'],
         props: <CvcFieldsLayoutWrapperProps>{
-          title: 'New Evidence Item'
+          title: 'New Evidence Item',
         },
         fieldGroup: [
           {
@@ -60,12 +60,17 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
         },
       },
       {
-        key: 'organizationId',
-        type: 'input',
-        defaultValue: null,
-        props: {
-          label: 'Organization ID',
-        },
+        wrappers: ['form-footer'],
+        fieldGroup: [
+          {
+            key: 'organizationId',
+            type: 'org-submit-button',
+            defaultValue: null,
+            props: {
+              submitLabel: 'Submit Evidence Item',
+            },
+          },
+        ],
       },
     ],
   },

@@ -1,20 +1,23 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { OrgSubmitButtonComponent, OrgSubmitButtonTypeOption } from './org-submit-button.type';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { FormlyModule } from '@ngx-formly/core';
+import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CvcOrgSelectorBtnGroupModule } from '@app/forms/config/components/org-selector-btn-group/org-selector-btn-group.module';
+import { FormlyModule } from '@ngx-formly/core';
+import { ConfigOption } from '@ngx-formly/core/lib/models';
+import { CvcOrgSubmitButtonComponent } from './org-submit-button.type';
+
+const typeConfig: ConfigOption = {
+  types: [{name: 'org-submit-button', component: CvcOrgSubmitButtonComponent}]
+}
 
 @NgModule({
-  declarations: [OrgSubmitButtonComponent],
+  declarations: [CvcOrgSubmitButtonComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormlyModule.forChild({ types: [OrgSubmitButtonTypeOption] }),
-    NzButtonModule,
+    FormlyModule.forChild(typeConfig),
     CvcOrgSelectorBtnGroupModule,
   ],
-  exports: [OrgSubmitButtonComponent]
+  exports: [CvcOrgSubmitButtonComponent],
 })
-export class CvcOrgSubmitButtonTypeModule { }
+export class CvcOrgSubmitButtonTypeModule {}

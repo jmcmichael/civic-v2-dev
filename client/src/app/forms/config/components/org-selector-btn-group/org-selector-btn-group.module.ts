@@ -18,6 +18,6 @@ import { ReactiveComponentModule } from '@ngrx/component';
     NzDropDownModule,
     NzSpaceModule,
   ],
-  exports: [CvcOrgSelectorBtnDirective, CvcOrgSelectorBtnGroupComponent]
+  exports: [NzButtonModule, CvcOrgSelectorBtnDirective, CvcOrgSelectorBtnGroupComponent]
 })
 export class CvcOrgSelectorBtnGroupModule { }
