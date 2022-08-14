@@ -61,7 +61,7 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
       },
       {
         key: 'organizationId',
-        type: 'number',
+        type: 'input',
         defaultValue: null,
         props: {
           label: 'Organization ID',

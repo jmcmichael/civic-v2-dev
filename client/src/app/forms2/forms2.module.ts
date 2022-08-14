@@ -5,7 +5,7 @@ import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd';
 import { environment } from 'environments/environment';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
-import { CvcFormWrappersModule } from './wrappers/wrappers.module';
+import { CvcFormWrappersModule } from './wrappers/form-wrappers.module';
 
 @NgModule({
   declarations: [],
