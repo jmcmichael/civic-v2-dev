@@ -8,22 +8,10 @@ import { Maybe } from '@app/generated/civic.apollo';
   styleUrls: ['./form-debug.component.less']
 })
 export class CvcFormDebugComponent implements OnInit {
-  _cvcFormControl: Maybe<AbstractControl>
-  formControl: Maybe<FormGroup>
   @Input() cvcModel: any
-  // TODO: accept FormArray
-  @Input()
-  set cvcFormControl(fc: Maybe<AbstractControl>) {
-    if(!fc) throw new Error(`cvc-form-debug requires valid cvcFormControl Input.`)
-    this._cvcFormControl = fc
-    this.formControl = fc as FormGroup
-  }
-  get cvcFormControl(): Maybe<AbstractControl> {
-    return this._cvcFormControl
-  }
+  @Input() cvcForm: Maybe<AbstractControl>
 
   selectedIndex = 0
-  constructor() { }
 
   ngOnInit(): void {
     console.log('form-debug-panel onInit() called.')

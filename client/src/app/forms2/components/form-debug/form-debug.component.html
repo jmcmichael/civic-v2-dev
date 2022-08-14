@@ -1,5 +1,5 @@
 <nz-card
-  nzTitle="Form Status"
+  [nzTitle]="cardTitle"
   nzBordered="true">
   <nz-card-tab>
     <nz-tabset
@@ -15,15 +15,21 @@
       <ngx-json-viewer [json]="cvcModel"></ngx-json-viewer>
     </ng-container>
     <ng-container *ngSwitchCase="1">
-      <nz-list *ngIf="formControl as fc; else noFormControl">
-        <nz-list-item *ngFor="let ctrl of fc.controls | keyvalue">
-          {{ ctrl.key }}: {{ ctrl.value.value  }}
-        </nz-list-item>
-      </nz-list>
-      <ng-template #noFormControl>
-        No AbstractFormControl provided.
-      </ng-template>
+      <cvc-form-debug-field-list [cvcAbstractControl]="cvcForm"></cvc-form-debug-field-list>
     </ng-container>
     <ng-container *ngSwitchCase="2"> State Content </ng-container>
   </ng-container>
 </nz-card>
+<ng-template #cardTitle>
+  <nz-row>
+    <nz-col nzFlex="2"> Form Details </nz-col>
+    <nz-col nzFlex="3" class="form-status-col">
+      <nz-tag [nzColor]="cvcForm?.valid ? 'success' : 'warning'">
+        {{ cvcForm?.valid ? 'valid' : 'invalid' }}
+      </nz-tag>
+      <nz-tag [nzColor]="cvcForm?.touched ? 'warning' : 'default'">
+        {{ cvcForm?.touched ? 'touched' : 'untouched' }}
+      </nz-tag>
+    </nz-col>
+  </nz-row>
+</ng-template>

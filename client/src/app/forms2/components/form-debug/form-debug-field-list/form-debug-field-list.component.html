@@ -1,0 +1,4 @@
+<nz-list *ngIf="formControl as fc; else noFormControl">
+  <nz-list-item *ngFor="let ctrl of fc.controls | keyvalue"> {{ ctrl.key }}: {{ ctrl.value.value }} </nz-list-item>
+</nz-list>
+<ng-template #noFormControl> No AbstractFormControl provided. </ng-template>
