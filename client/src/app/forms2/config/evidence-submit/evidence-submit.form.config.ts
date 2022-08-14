@@ -1,3 +1,4 @@
+import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper';
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper';
 import { EvidenceItemFields, Maybe, SubmitEvidenceItemInput } from '@app/generated/civic.apollo';
 import { FormlyFieldConfig } from '@ngx-formly/core';
@@ -27,36 +28,45 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
   {
     wrappers: ['form-layout'],
     props: <CvcFormLayoutWrapperProps>{
-      title: 'New Evidence Item',
-      observeParentModel: true,
+      submitLabel: 'Submit Evidence Item',
+      showFormStatus: true
     },
     fieldGroup: [
       {
-        key: 'fields.geneId',
-        type: 'input',
+        key: 'fields',
+        wrappers: ['fields-layout'],
+        props: <CvcFieldsLayoutWrapperProps>{
+          title: 'New Evidence Item'
+        },
+        fieldGroup: [
+          {
+            key: 'geneId',
+            type: 'input',
+            defaultValue: null,
+            props: {
+              label: 'Gene',
+              required: true,
+            },
+          },
+        ],
+      },
+      {
+        key: 'comment',
+        type: 'textarea',
         defaultValue: null,
         props: {
-          label: 'Gene',
+          label: 'Comment',
           required: true,
         },
       },
+      {
+        key: 'organizationId',
+        type: 'number',
+        defaultValue: null,
+        props: {
+          label: 'Organization ID',
+        },
+      },
     ],
-  },
-  {
-    key: 'comment',
-    type: 'textarea',
-    defaultValue: null,
-    props: {
-      label: 'Comment',
-      required: true,
-    },
-  },
-  {
-    key: 'organizationId',
-    type: 'number',
-    defaultValue: null,
-    props: {
-      label: 'Organization ID',
-    },
   },
 ];

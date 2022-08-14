@@ -1,38 +1,12 @@
- <nz-card
-   [nzTitle]="props.title"
-   [nzSize]="props.cardSize"
-   [nzBordered]="props.bordered"
-   [nzExtra]="headerActions">
-   <nz-row [nzGutter]="[8, 8]">
-     <nz-col nzSpan="16">
-       <ng-container #fieldComponent> </ng-container>
-     </nz-col>
-     <nz-col nzSpan="8">
-       <cvc-form-debug
-         [cvcFieldTitle]="props.title"
-         [cvcModel]="props.observeParentModel ? field.parent!.model : field.model"
-         [cvcFormControl]="field.formControl"></cvc-form-debug>
-     </nz-col>
-   </nz-row>
- </nz-card>
- <ng-template #headerActions>
-   <nz-tag
-     nzColor="blue"
-     class="debug-btn"
-     nz-popover
-     nzPopoverPlacement="leftTop"
-     nzPopoverTrigger="click"
-     [nzPopoverBackdrop]="false"
-     [nzPopoverContent]="debugPopover">
-     <i
-       nz-icon
-       nzType="bug"
-       nzTheme="outline"></i>
-   </nz-tag>
-   <ng-template #debugPopover>
-     <cvc-form-debug
-       [cvcFieldTitle]="props.title"
-       [cvcModel]="props.observeParentModel ? field.parent!.model : field.model"
-       [cvcFormControl]="field.formControl"></cvc-form-debug>
-   </ng-template>
- </ng-template>
+<nz-row [nzGutter]="[8, 8]">
+  <!-- FORM COL -->
+  <nz-col [nzSpan]="props.showFormStatus ? 16 : 24">
+    <ng-container #fieldComponent> </ng-container>
+  </nz-col>
+  <!-- DEBUG PANEL COL -->
+  <nz-col *ngIf="props.showFormStatus" [nzSpan]="8">
+    <cvc-form-debug
+      [cvcModel]="field.model"
+      [cvcFormControl]="field.formControl"></cvc-form-debug>
+  </nz-col>
+</nz-row>

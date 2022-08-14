@@ -10,7 +10,6 @@ import { Maybe } from '@app/generated/civic.apollo';
 export class CvcFormDebugComponent implements OnInit {
   _cvcFormControl: Maybe<AbstractControl>
   formControl: Maybe<FormGroup>
-  @Input() cvcFieldTitle!: string
   @Input() cvcModel: any
   // TODO: accept FormArray
   @Input()

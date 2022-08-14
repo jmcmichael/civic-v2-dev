@@ -4,13 +4,16 @@ import { NzButtonGroupSize, NzButtonSize } from 'ng-zorro-antd/button';
 import { NzSizeDSType } from 'ng-zorro-antd/core/types';
 
 export interface CvcFormLayoutWrapperProps extends FormlyFieldProps {
-  title: string;
-  cardSize: NzSizeDSType;
-  bordered: boolean;
-  submitLabel: string;
-  submitSize: NzButtonGroupSize | NzButtonSize;
-  observeParentModel: boolean;
+  title: string
+  submitLabel: string
+  showFormStatus: boolean
 }
+
+const defaultProps = {
+  title: 'Form Card',
+  submitLabel: 'Submit',
+  showFormStatus: false,
+};
 
 @Component({
   selector: 'cvc-form-layout-wrapper',
@@ -19,23 +22,13 @@ export interface CvcFormLayoutWrapperProps extends FormlyFieldProps {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcFormLayoutWrapper extends FieldWrapper<FormlyFieldConfig<CvcFormLayoutWrapperProps>> implements OnInit {
-
-  constructor() {
-    super();
-  }
-
   get errorState() {
     return this.showError ? 'error' : '';
   }
 
   ngOnInit(): void {
-    console.log('form-layout onInit() called.');
-    // set defaults
-    this.props.title = this.props.title || 'Form Card';
-    this.props.cardSize = this.props.cardSize || 'default';
-    this.props.bordered = this.props.bordered || true;
-    this.props.submitLabel = this.props.submitLabel || 'Submit';
-    this.props.submitSize = this.props.submitSize || 'default';
-    this.props.observeParentModel = this.props.observeParentModel || false;
+    this.props.title = this.props.title || defaultProps.title;
+    this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel;
+    this.props.showFormStatus = this.props.showFormStatus || defaultProps.showFormStatus;
   }
 }
