@@ -6,7 +6,16 @@
   <!-- FORM STATUS PANEL COL -->
   <nz-col *ngIf="props.showFormStatus" [nzSpan]="8" class="status-col">
     <cvc-form-debug
-      [cvcModel]="field.model"
       [cvcForm]="form"></cvc-form-debug>
+  </nz-col>
+</nz-row>
+<nz-row>
+  <nz-col nzSpan="12">
+    <h4>Model</h4>
+    <ngx-json-viewer [json]="field.model"></ngx-json-viewer>
+  </nz-col>
+  <nz-col nzSpan="12">
+
+    <h4>Controls</h4>
   </nz-col>
 </nz-row>

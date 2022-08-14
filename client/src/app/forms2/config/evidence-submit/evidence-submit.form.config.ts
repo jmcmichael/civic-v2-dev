@@ -56,7 +56,7 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
         defaultValue: null,
         props: {
           label: 'Comment',
-          required: true,
+          // required: true,
         },
       },
       {
