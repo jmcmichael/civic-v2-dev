@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
@@ -7,7 +8,15 @@ import {
 import { AbstractControl } from '@angular/forms'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import { distinctUntilChanged, Observable, startWith, Subscription } from 'rxjs'
+import {
+    BehaviorSubject,
+  combineLatestWith,
+  distinctUntilChanged,
+  Observable,
+  startWith,
+  Subscription,
+} from 'rxjs'
+import { combineLatestArray } from 'rxjs-etc'
 import { tag } from 'rxjs-spy/operators'
 
 @UntilDestroy({ arrayName: 'subscriptions' })
@@ -22,25 +31,30 @@ export class CvcFormDebugComponent implements OnInit {
   selectedIndex = 0
 
   subscriptions!: Subscription[]
-  valueChange$!: Observable<any>
-  statusChange$!: Observable<any>
+  valueChange$!: BehaviorSubject<any>
+  statusChange$!: BehaviorSubject<any>
+  formChange$!: Observable<any>
+  constructor(private cdr: ChangeDetectorRef) {
+  }
   ngOnInit(): void {
     console.log('form-debug-panel onInit() called.')
     if (!this.cvcForm)
       throw new Error(`cvc-form-debug requires valid cvcForm Input.`)
 
-    this.valueChange$ = this.cvcForm.valueChanges.pipe(
-      startWith(this.cvcForm.value),
-      tag('form-debug valueChange$')
-    )
+    this.valueChange$ = new BehaviorSubject(this.cvcForm.value)
+    this.statusChange$ = new BehaviorSubject(this.cvcForm.status)
 
-    this.statusChange$ = this.cvcForm.statusChanges.pipe(
-      distinctUntilChanged(),
-      tag('form-debug statusChange$')
-    )
+    this.formChange$ = combineLatestArray<any>([
+      this.statusChange$,
+      this.valueChange$,
+    ])
+
     this.subscriptions = [
-      this.valueChange$.subscribe(),
-      this.statusChange$.subscribe(),
+      this.cvcForm.valueChanges.subscribe(v => this.valueChange$.next(v)),
+      this.cvcForm.statusChanges.subscribe(s => this.statusChange$.next(s)),
+      this.formChange$.pipe(tag('form-debug formChange$')).subscribe(
+        _ => this.cdr.markForCheck()
+      ),
     ]
   }
 }

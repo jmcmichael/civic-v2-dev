@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { Maybe, Organization } from '@app/generated/civic.apollo';
 import { FieldType, FieldTypeConfig, FormlyFieldProps } from '@ngx-formly/core';
 
 export interface CvcOrgSubmitButtonTypeProps extends FormlyFieldProps {
@@ -14,7 +13,7 @@ const defaultProps = {
   selector: 'cvc-org-submit-button-type',
   templateUrl: './org-submit-button.type.html',
   styleUrls: ['./org-submit-button.type.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CvcOrgSubmitButtonComponent extends FieldType<FieldTypeConfig> implements OnInit {
 

@@ -1,9 +1,14 @@
 <button
   type="submit"
   nz-button
+  [disabled]="!form.valid"
   nzType="primary">
   {{ props.submitLabel }}
 </button>
+<input
+  type="hidden"
+  [formControl]="formControl"
+  [formlyAttributes]="field" />
 <!-- <cvc-org-selector-btn-group
   #orgButton
   [(selectedOrg)]="selectedOrg"

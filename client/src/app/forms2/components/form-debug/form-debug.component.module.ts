@@ -9,15 +9,20 @@ import { FormDebugFieldListComponent } from './form-debug-field-list/form-debug-
 import { NzTagModule } from "ng-zorro-antd/tag";
 import { NzGridModule } from "ng-zorro-antd/grid";
 import { ReactiveComponentModule } from "@ngrx/component";
+import { NzIconModule } from "ng-zorro-antd/icon";
+import { NzDestroyService } from "ng-zorro-antd/core/services";
+import { NzDescriptionsModule } from "ng-zorro-antd/descriptions";
 
 @NgModule({
     declarations:[CvcFormDebugComponent, FormDebugFieldListComponent],
     imports: [
         CommonModule,
         ReactiveComponentModule,
+        NzIconModule,
         NzGridModule,
         NzCardModule,
         NzTabsModule,
+        NzDescriptionsModule,
         NzListModule,
         NzTagModule,
         ...environment.devModules

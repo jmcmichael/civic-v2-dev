@@ -6,6 +6,7 @@
       [(nzSelectedIndex)]="selectedIndex"
       nzSize="small">
       <nz-tab nzTitle="Value"> </nz-tab>
+      <nz-tab nzTitle="Form"></nz-tab>
       <nz-tab nzTitle="Fields"></nz-tab>
       <nz-tab nzTitle="State"></nz-tab>
     </nz-tabset>
@@ -15,10 +16,39 @@
       <ngx-json-viewer [json]="valueChange$ | ngrxPush"></ngx-json-viewer>
     </ng-container>
     <ng-container *ngSwitchCase="1">
+      <nz-descriptions
+        nzBordered
+        [nzColumn]="1"
+        nzSize="small">
+        <nz-descriptions-item nzTitle="status">
+          {{ cvcForm?.status }}
+        </nz-descriptions-item>
+        <nz-descriptions-item nzTitle="pending">
+          {{ cvcForm?.pending }}
+        </nz-descriptions-item>
+        <nz-descriptions-item nzTitle="touched">
+          {{ cvcForm?.touched }}
+        </nz-descriptions-item>
+        <!-- <nz-descriptions-item nzTitle="untouched">{{ cvcForm?.untouched  }}</nz-descriptions-item> -->
+        <nz-descriptions-item nzTitle="valid">
+          {{ cvcForm?.valid }}
+        </nz-descriptions-item>
+        <!-- <nz-descriptions-item nzTitle="invalid">{{ cvcForm?.invalid }}</nz-descriptions-item> -->
+        <nz-descriptions-item nzTitle="dirty">
+          {{ cvcForm?.dirty }}
+        </nz-descriptions-item>
+        <!-- <nz-descriptions-item nzTitle="pristine">{{ cvcForm?.pristine }}</nz-descriptions-item> -->
+        <nz-descriptions-item nzTitle="enabled">
+          {{ cvcForm?.enabled }}
+        </nz-descriptions-item>
+        <!-- <nz-descriptions-item nzTitle="disabled">{{ cvcForm?.disabled}}</nz-descriptions-item> -->
+      </nz-descriptions>
+    </ng-container>
+    <ng-container *ngSwitchCase="2">
       <cvc-form-debug-field-list
         [cvcAbstractControl]="cvcForm"></cvc-form-debug-field-list>
     </ng-container>
-    <ng-container *ngSwitchCase="2"> State Content </ng-container>
+    <ng-container *ngSwitchCase="3"> State Content </ng-container>
   </ng-container>
 </nz-card>
 <ng-template #cardTitle>
@@ -28,10 +58,10 @@
       nzFlex="3"
       class="form-status-col">
       <nz-tag [nzColor]="cvcForm?.valid ? 'success' : 'warning'">
+        <i
+          nz-icon
+          [nzType]="cvcForm?.valid ? 'check-circle' : 'exclamation-circle'"></i>
         {{ cvcForm?.valid ? 'valid' : 'invalid' }}
-      </nz-tag>
-      <nz-tag [nzColor]="cvcForm?.touched ? 'warning' : 'default'">
-        {{ cvcForm?.touched ? 'touched' : 'untouched' }}
       </nz-tag>
     </nz-col>
   </nz-row>

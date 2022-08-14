@@ -65,7 +65,7 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
           {
             key: 'organizationId',
             type: 'org-submit-button',
-            defaultValue: null,
+            defaultValue: 1,
             props: {
               submitLabel: 'Submit Evidence Item',
             },
