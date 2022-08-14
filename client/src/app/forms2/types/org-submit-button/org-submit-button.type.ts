@@ -1,8 +1,6 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { Maybe, Organization } from '@app/generated/civic.apollo';
 import { FieldType, FieldTypeConfig, FormlyFieldProps } from '@ngx-formly/core';
-import { Subject } from 'rxjs';
-import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 export interface CvcOrgSubmitButtonTypeProps extends FormlyFieldProps {
   submitLabel: string
@@ -25,7 +23,7 @@ export class CvcOrgSubmitButtonComponent extends FieldType<FieldTypeConfig> impl
 
   set selectedOrg(org: Maybe<Organization>) {
     this._selectedOrg = org;
-    this.formControl.setValue(org);
+    this.formControl.setValue(org?.id);
   }
 
   ngOnInit(): void {
