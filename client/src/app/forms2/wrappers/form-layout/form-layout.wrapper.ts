@@ -1,24 +1,24 @@
 import { ChangeDetectionStrategy, Component, OnInit, TemplateRef } from '@angular/core';
 import { FieldWrapper, FormlyFieldConfig, FormlyFieldProps } from '@ngx-formly/core';
-import { NzButtonGroupSize } from 'ng-zorro-antd/button';
+import { NzButtonGroupSize, NzButtonSize } from 'ng-zorro-antd/button';
 import { NzSizeDSType } from 'ng-zorro-antd/core/types';
 
-export interface CvcFormCardWrapperProps extends FormlyFieldProps {
+export interface CvcFormLayoutWrapperProps extends FormlyFieldProps {
   title: string;
   cardSize: NzSizeDSType;
   bordered: boolean;
   submitLabel: string;
-  submitSize: NzButtonGroupSize;
+  submitSize: NzButtonGroupSize | NzButtonSize;
   observeParentModel: boolean;
 }
 
 @Component({
-  selector: 'cvc-form-card-wrapper',
-  templateUrl: './form-card.wrapper.html',
-  styleUrls: ['./form-card.wrapper.less'],
+  selector: 'cvc-form-layout-wrapper',
+  templateUrl: './form-layout.wrapper.html',
+  styleUrls: ['./form-layout.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcFormCardWrapper extends FieldWrapper<FormlyFieldConfig<CvcFormCardWrapperProps>> implements OnInit {
+export class CvcFormLayoutWrapper extends FieldWrapper<FormlyFieldConfig<CvcFormLayoutWrapperProps>> implements OnInit {
 
   constructor() {
     super();
@@ -29,7 +29,7 @@ export class CvcFormCardWrapper extends FieldWrapper<FormlyFieldConfig<CvcFormCa
   }
 
   ngOnInit(): void {
-    console.log('form-card onInit() called.');
+    console.log('form-layout onInit() called.');
     // set defaults
     this.props.title = this.props.title || 'Form Card';
     this.props.cardSize = this.props.cardSize || 'default';

@@ -3,7 +3,7 @@ import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
 import { Maybe } from '@app/generated/civic.apollo';
 
 @Component({
-  selector: 'cvc-form-debug-panel',
+  selector: 'cvc-form-debug',
   templateUrl: './form-debug.component.html',
   styleUrls: ['./form-debug.component.less']
 })
@@ -15,7 +15,7 @@ export class CvcFormDebugComponent implements OnInit {
   // TODO: accept FormArray
   @Input()
   set cvcFormControl(fc: Maybe<AbstractControl>) {
-    if(!fc) throw new Error(`cvc-form-debug-panel requires valid cvcFormControl Input.`)
+    if(!fc) throw new Error(`cvc-form-debug requires valid cvcFormControl Input.`)
     this._cvcFormControl = fc
     this.formControl = fc as FormGroup
   }

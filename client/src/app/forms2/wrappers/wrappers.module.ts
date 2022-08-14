@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { CvcFormCardWrapperModule } from './form-card/form-card.wrapper.module';
+import { CvcFormLayoutWrapperModule } from './form-layout/form-layout.wrapper.module';
 
 @NgModule({
   imports: [
     CommonModule,
-    CvcFormCardWrapperModule,
+    CvcFormLayoutWrapperModule,
   ],
 })
 export class CvcFormWrappersModule {}

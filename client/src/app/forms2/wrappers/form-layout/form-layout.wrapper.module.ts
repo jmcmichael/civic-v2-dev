@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { CvcOrgSelectorBtnGroupModule } from '@app/forms/config/components/org-selector-btn-group/org-selector-btn-group.module';
+import { CvcFormDebugComponentModule } from '@app/forms2/components/form-debug-panel/form-debug.component.module';
 import { ConfigOption, FormlyModule } from '@ngx-formly/core';
 import { environment } from 'environments/environment';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -11,15 +12,14 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { CvcFormCardWrapper } from './form-card.wrapper';
-
+import { CvcFormLayoutWrapper } from './form-layout.wrapper';
 
 const wrapperConfig: ConfigOption = {
-  wrappers: [{ name: 'form-card', component: CvcFormCardWrapper }],
+  wrappers: [{ name: 'form-layout', component: CvcFormLayoutWrapper }],
 };
 
 @NgModule({
-  declarations: [CvcFormCardWrapper],
+  declarations: [CvcFormLayoutWrapper],
   imports: [
     CommonModule,
     FormlyModule.forChild(wrapperConfig),
@@ -34,8 +34,9 @@ const wrapperConfig: ConfigOption = {
     NzGridModule,
 
     CvcOrgSelectorBtnGroupModule,
+    CvcFormDebugComponentModule,
     ...environment.devModules,
   ],
-  exports: [CvcFormCardWrapper],
+  exports: [CvcFormLayoutWrapper],
 })
-export class CvcFormCardWrapperModule {}
+export class CvcFormLayoutWrapperModule {}

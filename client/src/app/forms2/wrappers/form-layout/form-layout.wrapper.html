@@ -8,10 +8,10 @@
        <ng-container #fieldComponent> </ng-container>
      </nz-col>
      <nz-col nzSpan="8">
-       <cvc-form-debug-panel
+       <cvc-form-debug
          [cvcFieldTitle]="props.title"
          [cvcModel]="props.observeParentModel ? field.parent!.model : field.model"
-         [cvcFormControl]="field.formControl"></cvc-form-debug-panel>
+         [cvcFormControl]="field.formControl"></cvc-form-debug>
      </nz-col>
    </nz-row>
  </nz-card>
@@ -30,9 +30,9 @@
        nzTheme="outline"></i>
    </nz-tag>
    <ng-template #debugPopover>
-     <cvc-form-debug-panel
+     <cvc-form-debug
        [cvcFieldTitle]="props.title"
        [cvcModel]="props.observeParentModel ? field.parent!.model : field.model"
-       [cvcFormControl]="field.formControl"></cvc-form-debug-panel>
+       [cvcFormControl]="field.formControl"></cvc-form-debug>
    </ng-template>
  </ng-template>

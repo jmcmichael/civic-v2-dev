@@ -1,4 +1,4 @@
-import { CvcFormCardWrapper, CvcFormCardWrapperProps } from '@app/forms2/wrappers/form-card/form-card.wrapper';
+import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper';
 import { EvidenceItemFields, Maybe, SubmitEvidenceItemInput } from '@app/generated/civic.apollo';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Object } from 'ts-toolbelt';
@@ -25,8 +25,8 @@ export type EvidenceSubmitFormModel = Object.Assign<
 // field configuration for evidence submit form
 export const evidenceSubmitFields: FormlyFieldConfig[] = [
   {
-    wrappers: ['form-card'],
-    props: <CvcFormCardWrapperProps>{
+    wrappers: ['form-layout'],
+    props: <CvcFormLayoutWrapperProps>{
       title: 'New Evidence Item',
       observeParentModel: true,
     },
