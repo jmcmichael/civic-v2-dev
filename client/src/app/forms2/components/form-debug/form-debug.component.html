@@ -15,7 +15,8 @@
       <ngx-json-viewer [json]="cvcModel"></ngx-json-viewer>
     </ng-container>
     <ng-container *ngSwitchCase="1">
-      <cvc-form-debug-field-list [cvcAbstractControl]="cvcForm"></cvc-form-debug-field-list>
+      <cvc-form-debug-field-list
+        [cvcAbstractControl]="cvcForm"></cvc-form-debug-field-list>
     </ng-container>
     <ng-container *ngSwitchCase="2"> State Content </ng-container>
   </ng-container>
@@ -23,7 +24,9 @@
 <ng-template #cardTitle>
   <nz-row>
     <nz-col nzFlex="2"> Form Details </nz-col>
-    <nz-col nzFlex="3" class="form-status-col">
+    <nz-col
+      nzFlex="3"
+      class="form-status-col">
       <nz-tag [nzColor]="cvcForm?.valid ? 'success' : 'warning'">
         {{ cvcForm?.valid ? 'valid' : 'invalid' }}
       </nz-tag>

@@ -20,6 +20,7 @@ export class CvcEvidenceSubmitForm {
   }
 
   onSubmit(model: EvidenceSubmitFormModel) {
+    console.log('------ Evidence Form Submitted ------')
     console.log(model);
   }
 }

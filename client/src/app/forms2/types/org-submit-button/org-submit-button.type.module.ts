@@ -4,6 +4,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CvcOrgSelectorBtnGroupModule } from '@app/forms/config/components/org-selector-btn-group/org-selector-btn-group.module';
 import { FormlyModule } from '@ngx-formly/core';
 import { ConfigOption } from '@ngx-formly/core/lib/models';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { CvcOrgSubmitButtonComponent } from './org-submit-button.type';
 
 const typeConfig: ConfigOption = {
@@ -16,7 +18,8 @@ const typeConfig: ConfigOption = {
     CommonModule,
     ReactiveFormsModule,
     FormlyModule.forChild(typeConfig),
-    CvcOrgSelectorBtnGroupModule,
+    NzButtonModule,
+    NzDropDownModule,
   ],
   exports: [CvcOrgSubmitButtonComponent],
 })
