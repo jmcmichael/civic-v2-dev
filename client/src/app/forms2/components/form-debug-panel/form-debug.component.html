@@ -1,5 +1,5 @@
 <nz-card
-  nzTitle="Form Debug Tools"
+  [nzTitle]="cvcFieldTitle + ' Debug Tools'"
   nzBordered="false"
   style="width: 100%">
   <nz-card-tab>
@@ -15,6 +15,16 @@
     <ng-container *ngSwitchCase="0">
       <ngx-json-viewer [json]="cvcModel"></ngx-json-viewer>
     </ng-container>
-    <ng-container *ngSwitchCase="1"> State Content </ng-container>
+    <ng-container *ngSwitchCase="1">
+      <nz-list *ngIf="formControl as fc; else noFormControl">
+        <nz-list-item *ngFor="let ctrl of fc.controls | keyvalue">
+          {{ ctrl.key }}: {{ ctrl.value.value  }}
+        </nz-list-item>
+      </nz-list>
+      <ng-template #noFormControl>
+        No AbstractFormControl provided.
+      </ng-template>
+    </ng-container>
+    <ng-container *ngSwitchCase="2"> State Content </ng-container>
   </ng-container>
 </nz-card>

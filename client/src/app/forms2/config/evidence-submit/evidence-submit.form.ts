@@ -7,7 +7,7 @@ import { evidenceSubmitFields, EvidenceSubmitFormModel } from './evidence-submit
 @Component({
   selector: 'cvc-evidence-submit-form',
   templateUrl: './evidence-submit.form.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEvidenceSubmitForm {
   model: EvidenceSubmitFormModel
