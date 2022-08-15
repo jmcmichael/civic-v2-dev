@@ -17,7 +17,7 @@
   </button>
 </ng-template>
 
-<ng-container *ngIf="organizations$ | async as organizations">
+<ng-container *ngIf="organizations$ | ngrxPush as organizations">
   <!-- if 0 or 1 organization, display button template w/o btn-group wrapper -->
   <ng-container *ngIf="organizations.length <= 1">
     <ng-container *ngTemplateOutlet="submitButton"></ng-container>
@@ -37,11 +37,11 @@
         nz-dropdown
         [nzDropdownMenu]="orgMenu">
         <span>for</span>
-        &nbsp;ORG
-        <!-- <nz-avatar
-                  [nzSrc]="selectedOrg?.profileImagePath"
-                  [nzSize]="10"
-                  [nzShape]="'square'"></nz-avatar> -->
+        &nbsp;
+        <nz-avatar
+          [nzSrc]="organizations[model.organizationId].profileImagePath"
+          [nzSize]="10"
+          [nzShape]="'square'"></nz-avatar>
         <i
           nz-icon
           nzType="down"></i>
@@ -62,7 +62,7 @@
           style="background-color: #f0f5ff"></nz-avatar>
         {{ org.name }}
       </li>
-    <!-- <li
+      <!-- <li
             *ngFor="let org of organizations"
             nz-menu-item
             [nzSelected]="selectedOrg?.id === org.id">

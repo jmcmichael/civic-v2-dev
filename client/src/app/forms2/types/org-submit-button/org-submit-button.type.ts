@@ -15,7 +15,17 @@ import { UntilDestroy } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig, FormlyFieldProps } from '@ngx-formly/core'
 import { NzButtonType } from 'ng-zorro-antd/button'
 import { BooleanInput } from 'ng-zorro-antd/core/types'
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs'
+import { NzMenuItemDirective } from 'ng-zorro-antd/menu'
+import {
+  BehaviorSubject,
+  filter,
+  first,
+  Observable,
+  Subject,
+  Subscription,
+  withLatestFrom,
+} from 'rxjs'
+import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
 import { tag } from 'rxjs-spy/operators'
 import {
@@ -46,14 +56,14 @@ export class CvcOrgSubmitButtonComponent
 
   viewer$: Observable<Viewer>
   organizations$: Observable<Organization[]>
-  mostRecentOrg$: Observable<Maybe<Organization>>
-
+  mostRecentOrgId$!: BehaviorSubject<number | undefined>
   isDisabled$: Subject<boolean>
   isHidden$: Subject<boolean>
   buttonClass$!: BehaviorSubject<string>
   baseButtonClass = 'org-dropdown-btn'
 
-  statusChange$!: BehaviorSubject<any>
+  formUpdate$!: BehaviorSubject<any>
+  menuSelection$: Subject<NzMenuItemDirective> = new Subject()
   subscriptions: Subscription[]
   constructor(
     private viewerService: ViewerService,
@@ -62,7 +72,6 @@ export class CvcOrgSubmitButtonComponent
     super()
     this.viewer$ = this.viewerService.viewer$
     this.organizations$ = this.viewer$.pipe(pluck('organizations'))
-    this.mostRecentOrg$ = this.viewer$.pipe(pluck('mostRecentOrg'))
 
     this.isDisabled$ = new Subject()
     this.isHidden$ = new Subject<boolean>()
@@ -73,18 +82,22 @@ export class CvcOrgSubmitButtonComponent
   ngOnInit(): void {
     // set defaults
     this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel
-    // create behaviorsubject for updating component when form status changes,
+    // create mostRecentOrg subject, with
+    this.viewer$.pipe(filter(isNonNulled), first()).subscribe((v: Viewer) => {
+      this.mostRecentOrgId$ = new BehaviorSubject(v.mostRecentOrg?.id)
+    })
+    // create subject for updating component when form status changes,
     // start with initial form status (required for OnPush)
-    this.statusChange$ = new BehaviorSubject(this.form.status)
+    this.formUpdate$ = new BehaviorSubject(this.form.status)
     // watch form for any status changes, call detectChanges
     const fcSub = this.form.statusChanges.subscribe((s) =>
-      this.statusChange$.next(s)
+      this.formUpdate$.next(s)
     )
-    const scSub = this.statusChange$.subscribe((_) => this.cdr.detectChanges())
+    const scSub = this.formUpdate$.subscribe((_) => this.cdr.detectChanges())
 
-    // set input value to most recent org id
-    const mroSub = this.mostRecentOrg$.subscribe((o) =>
-      o?.id ? this.formControl.setValue(o.id) : null
+    // set formControl value to most recent org id
+    const mroSub = this.mostRecentOrgId$.subscribe((oid) =>
+      this.formControl.setValue(oid)
     )
 
     this.subscriptions = this.subscriptions.concat([fcSub, scSub, mroSub])
@@ -98,7 +111,6 @@ export class CvcOrgSubmitButtonComponent
         const sub = this.button.domChange.subscribe((m: ButtonMutation) => {
           if (m.type === 'class' && typeof m.change === 'string') {
             // preserve base class by preprending it
-            this.buttonClass$.next(`${this.baseButtonClass} ${m.change}`)
           } else if (m.type === 'disabled' && typeof m.change === 'boolean') {
             this.isDisabled$.next(m.change)
           } else if (m.type === 'hidden' && typeof m.change === 'boolean') {

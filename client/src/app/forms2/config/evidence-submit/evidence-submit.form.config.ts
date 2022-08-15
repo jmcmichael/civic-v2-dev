@@ -42,7 +42,6 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
           {
             key: 'molecularProfileId',
             type: 'input',
-            defaultValue: null,
             props: {
               label: 'Molecular Profile',
               required: true,
@@ -53,7 +52,6 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
       {
         key: 'comment',
         type: 'textarea',
-        defaultValue: null,
         props: {
           label: 'Comment',
           // required: true,
@@ -65,7 +63,6 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
           {
             key: 'organizationId',
             type: 'org-submit-button',
-            defaultValue: null,
             props: {
               submitLabel: 'Submit Evidence Item',
             },
