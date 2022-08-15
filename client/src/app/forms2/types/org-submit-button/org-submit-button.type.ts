@@ -111,6 +111,7 @@ export class CvcOrgSubmitButtonComponent
         const sub = this.button.domChange.subscribe((m: ButtonMutation) => {
           if (m.type === 'class' && typeof m.change === 'string') {
             // preserve base class by preprending it
+            this.buttonClass$.next(`${this.baseButtonClass} ${m.change}`)
           } else if (m.type === 'disabled' && typeof m.change === 'boolean') {
             this.isDisabled$.next(m.change)
           } else if (m.type === 'hidden' && typeof m.change === 'boolean') {
