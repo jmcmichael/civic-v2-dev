@@ -17,7 +17,6 @@ export class CvcEvidenceSubmitForm implements OnInit {
   constructor() {
     this.model = { fields: {  } }
     this.fields = evidenceSubmitFields
-    console.log(this.form)
   }
 
   onSubmit(model: EvidenceSubmitFormModel) {
@@ -26,8 +25,8 @@ export class CvcEvidenceSubmitForm implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('evidence-submit OnInit called.')
-    console.log(this.form)
+    // console.log('evidence-submit OnInit called.')
+    // console.log(this.form)
   }
 
 }
