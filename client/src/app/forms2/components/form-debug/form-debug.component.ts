@@ -28,12 +28,13 @@ import { tag } from 'rxjs-spy/operators'
 })
 export class CvcFormDebugComponent implements OnInit {
   @Input() cvcForm: Maybe<AbstractControl>
-  selectedIndex = 0
 
   subscriptions!: Subscription[]
   valueChange$!: BehaviorSubject<any>
   statusChange$!: BehaviorSubject<any>
   formChange$!: Observable<any>
+
+  selectedIndex = 0
   constructor(private cdr: ChangeDetectorRef) {
   }
   ngOnInit(): void {
@@ -53,7 +54,7 @@ export class CvcFormDebugComponent implements OnInit {
       this.cvcForm.valueChanges.subscribe(v => this.valueChange$.next(v)),
       this.cvcForm.statusChanges.subscribe(s => this.statusChange$.next(s)),
       this.formChange$.pipe(tag('form-debug formChange$')).subscribe(
-        _ => this.cdr.markForCheck()
+        _ => this.cdr.detectChanges()
       ),
     ]
   }

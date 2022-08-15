@@ -7,33 +7,41 @@
 <!-- base submit button -->
 <ng-template #submitButton>
   <button
+    cvcOrgSubmitButton
     type="submit"
     nz-button
     [disabled]="!form.valid"
+    [nzDanger]=""
     nzType="primary">
     {{ props.submitLabel }}
   </button>
 </ng-template>
 
-<ng-container *ngIf="organizations$ | async as organizations" >
+<ng-container *ngIf="organizations$ | async as organizations">
   <!-- if 0 or 1 organization, display button template w/o btn-group wrapper -->
-  <ng-container *ngIf="organizations.length <= 1" >
+  <ng-container *ngIf="organizations.length <= 1">
     <ng-container *ngTemplateOutlet="submitButton"></ng-container>
   </ng-container>
 
   <!-- if multiple organizations, wrap in btn-group w/ selector btn -->
   <ng-container *ngIf="organizations.length > 1">
     <nz-button-group nzSize="large">
-
       <ng-container *ngTemplateOutlet="submitButton"></ng-container>
 
-      <button type="button" nz-button class="org-dropdown-btn"
-        nz-dropdown [nzDropdownMenu]="orgMenu">
-          <span>for</span>
-          AV
+      <button
+        type="button"
+        nz-button
+        class="org-dropdown-btn"
+        nz-dropdown
+        [disabled]="isDisabled$ | ngrxPush"
+        [nzDropdownMenu]="orgMenu">
+        <span>for</span>
+        AV
         <!-- <nz-avatar [nzSrc]="selectedOrg?.profileImagePath" [nzSize]="10"
                     [nzShape]="'square'"></nz-avatar> -->
-          <i nz-icon nzType="down"></i>
+        <i
+          nz-icon
+          nzType="down"></i>
       </button>
     </nz-button-group>
   </ng-container>
