@@ -6,11 +6,13 @@ import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { EvidenceSubmitPage } from './evidence-submit.page';
 import { CvcEvidenceSubmitFormModule } from '@app/forms2/config/evidence-submit/evidence-submit.form.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [EvidenceSubmitPage],
   imports: [
     CommonModule,
+    FormsModule,
     NzGridModule,
     NzSpaceModule,
     NzCardModule,

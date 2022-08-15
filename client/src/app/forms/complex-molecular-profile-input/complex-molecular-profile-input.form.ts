@@ -107,7 +107,6 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
       pluck('data', 'previewMolecularProfileName'),
       filter(isNonNulled),
       map((data) => data.segments),
-      tag("preview segment"),
       takeUntil(this.destroy$)
     );
 
@@ -115,7 +114,6 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
       pluck('data', 'previewMolecularProfileName'),
       filter(isNonNulled),
       map((data) => data.existingMolecularProfile),
-      tag("exists"),
       takeUntil(this.destroy$)
     );
 
