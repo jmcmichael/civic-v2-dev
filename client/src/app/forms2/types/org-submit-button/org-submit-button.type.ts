@@ -1,12 +1,13 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component, EventEmitter,
-    Input,
-    OnInit,
-    Output,
-    ViewChild
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
 } from '@angular/core'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import { Maybe, Organization } from '@app/generated/civic.apollo'
@@ -14,15 +15,12 @@ import { UntilDestroy } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig, FormlyFieldProps } from '@ngx-formly/core'
 import { NzButtonType } from 'ng-zorro-antd/button'
 import { BooleanInput } from 'ng-zorro-antd/core/types'
-import {
-    BehaviorSubject, Observable,
-    Subject,
-    Subscription
-} from 'rxjs'
+import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
+import { tag } from 'rxjs-spy/operators'
 import {
-    ButtonMutation,
-    CvcOrgSubmitButtonDirective
+  ButtonMutation,
+  CvcOrgSubmitButtonDirective,
 } from './org-submit-button.directive'
 
 export interface CvcOrgSubmitButtonTypeProps extends FormlyFieldProps {
@@ -43,13 +41,6 @@ export class CvcOrgSubmitButtonComponent
   extends FieldType<FieldTypeConfig>
   implements OnInit, AfterViewInit
 {
-  @Input() selectedOrg!: Maybe<Organization>
-  @Output() selectedOrgChange = new EventEmitter<Organization>()
-
-  @Input() buttonType: NzButtonType = 'primary'
-  @Input() nzDanger: BooleanInput = false
-  @Input() nzSize: 'large' | 'default' | 'small' = 'small'
-
   @ViewChild(CvcOrgSubmitButtonDirective, { static: false })
   button?: CvcOrgSubmitButtonDirective
 
@@ -59,11 +50,11 @@ export class CvcOrgSubmitButtonComponent
 
   isDisabled$: Subject<boolean>
   isHidden$: Subject<boolean>
-  buttonClass$: BehaviorSubject<string>
+  buttonClass$!: BehaviorSubject<string>
   baseButtonClass = 'org-dropdown-btn'
 
   statusChange$!: BehaviorSubject<any>
-  subscriptions!: Subscription[]
+  subscriptions: Subscription[]
   constructor(
     private viewerService: ViewerService,
     private cdr: ChangeDetectorRef
@@ -75,21 +66,28 @@ export class CvcOrgSubmitButtonComponent
 
     this.isDisabled$ = new Subject()
     this.isHidden$ = new Subject<boolean>()
-    this.buttonClass$ = new BehaviorSubject<string>('')
-  }
-
-  selectOrg(org: any): void {
-    this.selectedOrg = org
-    this.selectedOrgChange.emit(org)
+    this.buttonClass$ = new BehaviorSubject<string>(this.baseButtonClass)
+    this.subscriptions = []
   }
 
   ngOnInit(): void {
+    // set defaults
     this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel
+    // create behaviorsubject for updating component when form status changes,
+    // start with initial form status (required for OnPush)
     this.statusChange$ = new BehaviorSubject(this.form.status)
-    this.subscriptions = [
-      this.form.statusChanges.subscribe((s) => this.statusChange$.next(s)),
-      this.statusChange$.subscribe((_) => this.cdr.detectChanges()),
-    ]
+    // watch form for any status changes, call detectChanges
+    const fcSub = this.form.statusChanges.subscribe((s) =>
+      this.statusChange$.next(s)
+    )
+    const scSub = this.statusChange$.subscribe((_) => this.cdr.detectChanges())
+
+    // set input value to most recent org id
+    const mroSub = this.mostRecentOrg$.subscribe((o) =>
+      o?.id ? this.formControl.setValue(o.id) : null
+    )
+
+    this.subscriptions = this.subscriptions.concat([fcSub, scSub, mroSub])
   }
 
   ngAfterViewInit() {
@@ -97,17 +95,16 @@ export class CvcOrgSubmitButtonComponent
     // emit mutation events from the appropriate Subjects
     if (this.button) {
       if (this.button.domChange) {
-        const sub = this.button.domChange
-          .subscribe((m: ButtonMutation) => {
-            if (m.type === 'class' && typeof m.change === 'string') {
-              // preserve base class by preprending it
-              this.buttonClass$.next(`${this.baseButtonClass} ${m.change}`)
-            } else if (m.type === 'disabled' && typeof m.change === 'boolean') {
-              this.isDisabled$.next(m.change)
-            } else if (m.type === 'hidden' && typeof m.change === 'boolean') {
-              this.isHidden$.next(m.change)
-            }
-          })
+        const sub = this.button.domChange.subscribe((m: ButtonMutation) => {
+          if (m.type === 'class' && typeof m.change === 'string') {
+            // preserve base class by preprending it
+            this.buttonClass$.next(`${this.baseButtonClass} ${m.change}`)
+          } else if (m.type === 'disabled' && typeof m.change === 'boolean') {
+            this.isDisabled$.next(m.change)
+          } else if (m.type === 'hidden' && typeof m.change === 'boolean') {
+            this.isHidden$.next(m.change)
+          }
+        })
         this.subscriptions.push(sub)
       }
     }

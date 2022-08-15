@@ -37,10 +37,11 @@
         nz-dropdown
         [nzDropdownMenu]="orgMenu">
         <span>for</span>
-        <nz-avatar
-          [nzSrc]="selectedOrg?.profileImagePath"
-          [nzSize]="10"
-          [nzShape]="'square'"></nz-avatar>
+        &nbsp;ORG
+        <!-- <nz-avatar
+                  [nzSrc]="selectedOrg?.profileImagePath"
+                  [nzSize]="10"
+                  [nzShape]="'square'"></nz-avatar> -->
         <i
           nz-icon
           nzType="down"></i>
@@ -53,9 +54,7 @@
     <ul nz-menu>
       <li
         *ngFor="let org of organizations"
-        nz-menu-item
-        [nzSelected]="selectedOrg?.id === org.id"
-        (click)="selectOrg(org)">
+        nz-menu-item>
         <nz-avatar
           [nzSrc]="org?.profileImagePath"
           [nzSize]="10"
@@ -63,6 +62,17 @@
           style="background-color: #f0f5ff"></nz-avatar>
         {{ org.name }}
       </li>
+    <!-- <li
+            *ngFor="let org of organizations"
+            nz-menu-item
+            [nzSelected]="selectedOrg?.id === org.id">
+            <nz-avatar
+              [nzSrc]="org?.profileImagePath"
+              [nzSize]="10"
+              [nzShape]="'square'"
+              style="background-color: #f0f5ff"></nz-avatar>
+            {{ org.name }}
+          </li> -->
     </ul>
   </nz-dropdown-menu>
 </ng-container>

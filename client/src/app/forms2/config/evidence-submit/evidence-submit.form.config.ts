@@ -40,11 +40,11 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           {
-            key: 'geneId',
+            key: 'molecularProfileId',
             type: 'input',
             defaultValue: null,
             props: {
-              label: 'Gene',
+              label: 'Molecular Profile',
               required: true,
             },
           },
@@ -65,7 +65,7 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
           {
             key: 'organizationId',
             type: 'org-submit-button',
-            defaultValue: 1,
+            defaultValue: null,
             props: {
               submitLabel: 'Submit Evidence Item',
             },
