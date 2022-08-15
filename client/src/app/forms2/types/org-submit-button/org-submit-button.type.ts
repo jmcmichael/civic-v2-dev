@@ -20,6 +20,7 @@ import {
   BehaviorSubject,
   filter,
   first,
+  map,
   Observable,
   Subject,
   Subscription,
@@ -54,9 +55,12 @@ export class CvcOrgSubmitButtonComponent
   @ViewChild(CvcOrgSubmitButtonDirective, { static: false })
   button?: CvcOrgSubmitButtonDirective
 
+  // SOURCE STREAMS
   viewer$: Observable<Viewer>
+  organizationId$!: BehaviorSubject<Maybe<number>>
+  selectedOrg$!: Observable<Maybe<Organization>>
+
   organizations$: Observable<Organization[]>
-  mostRecentOrgId$!: BehaviorSubject<number | undefined>
   isDisabled$: Subject<boolean>
   isHidden$: Subject<boolean>
   buttonClass$!: BehaviorSubject<string>
@@ -76,30 +80,37 @@ export class CvcOrgSubmitButtonComponent
     this.isDisabled$ = new Subject()
     this.isHidden$ = new Subject<boolean>()
     this.buttonClass$ = new BehaviorSubject<string>(this.baseButtonClass)
+    this.organizationId$ = new BehaviorSubject<Maybe<number>>(undefined)
+    this.selectedOrg$ = this.organizationId$.pipe(
+      withLatestFrom(this.organizations$),
+      map(([id, orgs]: [Maybe<number>, Organization[]]) => {
+        return orgs.find((o) => (o.id === id))
+      })
+    )
     this.subscriptions = []
   }
 
   ngOnInit(): void {
     // set defaults
     this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel
-    // create mostRecentOrg subject, with
+    // emit viewer.mostRecentOrg.id as initial organizationId
     this.viewer$.pipe(filter(isNonNulled), first()).subscribe((v: Viewer) => {
-      this.mostRecentOrgId$ = new BehaviorSubject(v.mostRecentOrg?.id)
+      this.organizationId$.next(v.mostRecentOrg?.id)
     })
-    // create subject for updating component when form status changes,
-    // start with initial form status (required for OnPush)
+    // create subject for detecting changes on form update events,
+    // starting with initial form status (required for OnPush)
     this.formUpdate$ = new BehaviorSubject(this.form.status)
-    // watch form for any status changes, call detectChanges
+    // emit form update events from formUpdate$
     const fcSub = this.form.statusChanges.subscribe((s) =>
       this.formUpdate$.next(s)
     )
+    // call detectChanges for each form update event
     const scSub = this.formUpdate$.subscribe((_) => this.cdr.detectChanges())
 
-    // set formControl value to most recent org id
-    const mroSub = this.mostRecentOrgId$.subscribe((oid) =>
+    // set field value to emitted orgId$ updates
+    const mroSub = this.organizationId$.subscribe((oid) => {
       this.formControl.setValue(oid)
-    )
-
+    })
     this.subscriptions = this.subscriptions.concat([fcSub, scSub, mroSub])
   }
 

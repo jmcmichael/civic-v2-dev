@@ -44,7 +44,7 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
             type: 'input',
             props: {
               label: 'Molecular Profile',
-              required: true,
+              // required: true,
             },
           },
         ],

@@ -35,13 +35,17 @@
         [hidden]="isHidden$ | ngrxPush"
         [disabled]="isDisabled$ | ngrxPush"
         nz-dropdown
+        nzTrigger="click"
         [nzDropdownMenu]="orgMenu">
         <span>for</span>
         &nbsp;
-        <nz-avatar
-          [nzSrc]="organizations[model.organizationId].profileImagePath"
-          [nzSize]="10"
-          [nzShape]="'square'"></nz-avatar>
+        <ng-container *ngrxLet="selectedOrg$ as selectedOrg">
+          <nz-avatar
+            [nzSrc]="selectedOrg!.profileImagePath"
+            [nzSize]="10"
+            [nzShape]="'square'">
+          </nz-avatar>
+        </ng-container>
         <i
           nz-icon
           nzType="down"></i>
@@ -54,6 +58,7 @@
     <ul nz-menu>
       <li
         *ngFor="let org of organizations"
+        (click)="organizationId$.next(org.id)"
         nz-menu-item>
         <nz-avatar
           [nzSrc]="org?.profileImagePath"
