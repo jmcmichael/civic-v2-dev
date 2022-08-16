@@ -4,9 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --hmr",
-    "build": "ng build --build-optimizer",
-    "build:stats": "ng build --stats-json",
-    "analyze": "webpack-bundle-analyzer ../server/public/stats.json",
+    "start:production": "ng serve --hmr --configuration production --watch --port 4210",
+    "build": "ng build --configuration production",
+    "build:stats": "ng build --configuration production --stats-json && webpack-bundle-analyzer ../server/public/stats.json",
+    "build:watch": "ng build --watch --configuration production",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",

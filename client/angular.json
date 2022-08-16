@@ -41,14 +41,9 @@
                 "output": "/assets/"
               }
             ],
-            "styles": [
-              "src/styles.less"
-            ],
+            "styles": ["src/styles.less"],
             "stylePreprocessorOptions": {
-              "includePaths": [
-                "src/themes/",
-                "node_modules"
-              ]
+              "includePaths": ["src/themes/", "node_modules"]
             },
             "scripts": [],
             "vendorChunk": true,
@@ -70,7 +65,14 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": true,
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": true
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
@@ -118,13 +120,8 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles.less"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
+            "styles": ["src/styles.less"],
             "scripts": []
           }
         },
@@ -143,10 +140,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
