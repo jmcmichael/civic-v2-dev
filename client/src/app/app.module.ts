@@ -18,8 +18,7 @@ import { AppComponent } from './app.component';
 import { CvcNetworkErrorAlertModule } from './components/app/network-error-alert/network-error-alert.module';
 import { AppLoadErrorHandler } from './core/utilities/app-reload-handler';
 import { CivicTimeagoFormatter } from './core/utilities/timeago-formatter';
-import { CvcFormlyConfig2 } from './forms2/forms2.config';
-import { CvcForms2Module } from './forms2/forms2.module';
+import { CvcFormlyConfig2 } from './forms2/forms2.options';
 
 registerLocaleData(en);
 

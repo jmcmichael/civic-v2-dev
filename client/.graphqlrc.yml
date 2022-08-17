@@ -1,13 +1,14 @@
 # collect & merge model types
-schema: ./src/app/generated/server.model.graphql
+schema: [./src/app/generated/server.model.graphql, ./src/app/graphql/client-schema.graphql]
 # collect & merge client queries, mutations, fragments
 documents: ./src/**/*.gql
 extensions:
+  customDirectives: ['@client', '@export']
   codegen:
     config:
       overwrite: true
       # app.module, relative to generated civic.apollo.ts
-      # ngModule: ../app.module#AppModule
+      ngModule: ../app.module#AppModule
       serviceProvidedInRoot: true
     generates:
       # generate apollo-angular client service

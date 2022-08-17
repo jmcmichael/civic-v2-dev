@@ -6,7 +6,6 @@ import { ApolloModule, APOLLO_FLAGS, APOLLO_OPTIONS } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
 import { CvcTypePolicies } from './graphql.type-policies';
 
-
 const uri = '/api/graphql'; // <-- URL of the GraphQL server
 
 const typePolicies: TypePolicies = CvcTypePolicies;
