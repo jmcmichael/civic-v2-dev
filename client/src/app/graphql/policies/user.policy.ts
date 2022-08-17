@@ -2,7 +2,7 @@ import { TypePolicy } from '@apollo/client/cache'
 import { Maybe, Organization } from '@app/generated/civic.apollo'
 export const CvcUserPolicy: TypePolicy = {
   fields: {
-    mostRecentOrg: {
+    mostRecentOrganization: {
       read: (org: Maybe<Organization>, { readField }) => {
         console.log(`user.policy mostRecentOrg read()`)
         return undefined

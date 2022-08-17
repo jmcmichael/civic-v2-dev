@@ -70,7 +70,8 @@ export class ViewerService {
             isEditor: isEditor(v),
             isCurator: isCurator(v),
             organizations: v == null ? [] : v.organizations,
-            mostRecentOrg: v == null ? undefined : mostRecentOrg(v),
+            mostRecentOrg: v.mostRecentOrganization,
+            // mostRecentOrg: v == null ? undefined : mostRecentOrg(v),
             invalidCoi: isEditor(v) && (!v.mostRecentConflictOfInterestStatement || v.mostRecentConflictOfInterestStatement.coiStatus === CoiStatus.Expired || v.mostRecentConflictOfInterestStatement.coiStatus === CoiStatus.Missing)
           } as Viewer
         }),
