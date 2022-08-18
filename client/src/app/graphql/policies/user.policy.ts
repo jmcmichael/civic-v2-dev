@@ -1,18 +1,17 @@
-import { TypePolicy } from '@apollo/client/cache'
-import { Maybe, Organization } from '@app/generated/civic.apollo'
+import { Reference, TypePolicy } from '@apollo/client/cache'
+import { Maybe } from '@app/generated/civic.apollo'
 export const CvcUserPolicy: TypePolicy = {
   fields: {
-    mostRecentOrganization: {
-      read: (org: Maybe<Organization>, { readField }) => {
-        console.log(`user.policy mostRecentOrg read()`)
-        return undefined
-        // if (v.mostRecentOrganizationId) {
-        //   return v.organizations.find(
-        //     (o) => o.id === v.mostRecentOrganizationId
-        //   )
-        // } else {
-        //   return undefined
-        // }
+    mostRecentOrg: {
+      read: (_: Maybe<Reference>, { readField }) => {
+        // return reference to most recently used Organization
+        const mroId: Maybe<number> = readField('mostRecentOrganizationId')
+        const orgs: Maybe<readonly Reference[]>= readField('organizations')
+        if(mroId && orgs) {
+          return orgs.find(o => o.__ref === `Organization:${mroId}`)
+        } else {
+          return undefined
+        }
       },
     },
   },

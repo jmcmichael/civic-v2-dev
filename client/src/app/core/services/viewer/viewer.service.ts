@@ -5,7 +5,8 @@ import { CoiStatus, Maybe, Organization, User, UserRole, ViewerBaseGQL } from '@
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { QueryRef } from 'apollo-angular';
 import { Observable } from 'rxjs';
-import { map, pluck, shareReplay, startWith } from 'rxjs/operators';
+import { pluck } from "rxjs-etc/operators";
+import { map, shareReplay, startWith } from 'rxjs/operators';
 
 export interface Viewer extends User {
   mostRecentOrg: Maybe<Organization>;
@@ -60,7 +61,13 @@ export class ViewerService {
       .pipe(
         pluck('data', 'viewer'),
         map((v: User): Viewer => {
-          return <Viewer>{
+          console.log('viewer.service most recent org:');
+          try {
+            if(v) console.log(v.mostRecentOrg);
+          } catch (err) {
+            console.log(err)
+          }
+          return {
             ...v,
             signedIn: v == null ? false : true,
             signedOut: v == null ? true : false,
@@ -70,7 +77,6 @@ export class ViewerService {
             isEditor: isEditor(v),
             isCurator: isCurator(v),
             organizations: v == null ? [] : v.organizations,
-            mostRecentOrg: v.mostRecentOrganization,
             // mostRecentOrg: v == null ? undefined : mostRecentOrg(v),
             invalidCoi: isEditor(v) && (!v.mostRecentConflictOfInterestStatement || v.mostRecentConflictOfInterestStatement.coiStatus === CoiStatus.Expired || v.mostRecentConflictOfInterestStatement.coiStatus === CoiStatus.Missing)
           } as Viewer

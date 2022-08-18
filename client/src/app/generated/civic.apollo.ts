@@ -4421,7 +4421,7 @@ export type User = {
   mostRecentActionTimestamp?: Maybe<Scalars['ISO8601DateTime']>;
   mostRecentConflictOfInterestStatement?: Maybe<Coi>;
   mostRecentEvent?: Maybe<Event>;
-  mostRecentOrganization?: Maybe<Organization>;
+  mostRecentOrg?: Maybe<Organization>;
   mostRecentOrganizationId?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
   /** Filterable list of notifications for the logged in user. */
@@ -5551,7 +5551,7 @@ export type BrowseVariantsFieldsFragment = { __typename: 'BrowseVariant', id: nu
 export type ViewerBaseQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ViewerBaseQuery = { __typename: 'Query', viewer?: { __typename: 'User', id: number, username: string, role: UserRole, displayName: string, profileImagePath?: string | undefined, mostRecentOrganizationId?: number | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined }>, mostRecentConflictOfInterestStatement?: { __typename: 'Coi', coiStatus: CoiStatus } | undefined, mostRecentOrganization?: { __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined } | undefined } | undefined };
+export type ViewerBaseQuery = { __typename: 'Query', viewer?: { __typename: 'User', id: number, username: string, role: UserRole, displayName: string, profileImagePath?: string | undefined, mostRecentOrganizationId?: number | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined }>, mostRecentConflictOfInterestStatement?: { __typename: 'Coi', coiStatus: CoiStatus } | undefined, mostRecentOrg?: { __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined } | undefined } | undefined };
 
 export type ViewerNotificationCountQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -10031,7 +10031,7 @@ export const ViewerBaseDocument = gql`
       coiStatus
     }
     mostRecentOrganizationId
-    mostRecentOrganization @client {
+    mostRecentOrg @client {
       id
       name
       profileImagePath(size: 32)

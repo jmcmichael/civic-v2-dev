@@ -15,7 +15,7 @@ query ViewerBase {
       coiStatus
     }
     mostRecentOrganizationId
-    mostRecentOrganization @client {
+    mostRecentOrg @client {
       id
       name
       profileImagePath(size: 32)
