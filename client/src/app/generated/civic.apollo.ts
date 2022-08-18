@@ -2,7 +2,6 @@
 import { gql } from 'apollo-angular';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
-import { AppModule } from '../app.module';
 export type Maybe<T> = T | undefined;
 export type InputMaybe<T> = T | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -8545,7 +8544,7 @@ export const AssertionPopoverDocument = gql`
     ${AssertionPopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AssertionPopoverGQL extends Apollo.Query<AssertionPopoverQuery, AssertionPopoverQueryVariables> {
     document = AssertionPopoverDocument;
@@ -8599,7 +8598,7 @@ export const AssertionsBrowseDocument = gql`
     ${AssertionBrowseFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AssertionsBrowseGQL extends Apollo.Query<AssertionsBrowseQuery, AssertionsBrowseQueryVariables> {
     document = AssertionsBrowseDocument;
@@ -8621,7 +8620,7 @@ export const ClinicalTrialPopoverDocument = gql`
     ${ClinicalTrialPopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ClinicalTrialPopoverGQL extends Apollo.Query<ClinicalTrialPopoverQuery, ClinicalTrialPopoverQueryVariables> {
     document = ClinicalTrialPopoverDocument;
@@ -8660,7 +8659,7 @@ export const ClinicalTrialsBrowseDocument = gql`
     ${BrowseClinicalTrialsRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ClinicalTrialsBrowseGQL extends Apollo.Query<ClinicalTrialsBrowseQuery, ClinicalTrialsBrowseQueryVariables> {
     document = ClinicalTrialsBrowseDocument;
@@ -8726,7 +8725,7 @@ export const CommentListDocument = gql`
     ${CommentListNodeFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CommentListGQL extends Apollo.Query<CommentListQuery, CommentListQueryVariables> {
     document = CommentListDocument;
@@ -8744,7 +8743,7 @@ export const CommentPopoverDocument = gql`
     ${CommentPopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CommentPopoverGQL extends Apollo.Query<CommentPopoverQuery, CommentPopoverQueryVariables> {
     document = CommentPopoverDocument;
@@ -8771,7 +8770,7 @@ export const DiseasePopoverDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DiseasePopoverGQL extends Apollo.Query<DiseasePopoverQuery, DiseasePopoverQueryVariables> {
     document = DiseasePopoverDocument;
@@ -8812,7 +8811,7 @@ export const BrowseDiseasesDocument = gql`
     ${BrowseDiseaseRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class BrowseDiseasesGQL extends Apollo.Query<BrowseDiseasesQuery, BrowseDiseasesQueryVariables> {
     document = BrowseDiseasesDocument;
@@ -8837,7 +8836,7 @@ export const DrugPopoverDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DrugPopoverGQL extends Apollo.Query<DrugPopoverQuery, DrugPopoverQueryVariables> {
     document = DrugPopoverDocument;
@@ -8876,7 +8875,7 @@ export const DrugsBrowseDocument = gql`
     ${DrugBrowseTableRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DrugsBrowseGQL extends Apollo.Query<DrugsBrowseQuery, DrugsBrowseQueryVariables> {
     document = DrugsBrowseDocument;
@@ -8905,7 +8904,7 @@ export const EventFeedCountDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EventFeedCountGQL extends Apollo.Query<EventFeedCountQuery, EventFeedCountQueryVariables> {
     document = EventFeedCountDocument;
@@ -8934,7 +8933,7 @@ export const EventFeedDocument = gql`
     ${EventFeedFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EventFeedGQL extends Apollo.Query<EventFeedQuery, EventFeedQueryVariables> {
     document = EventFeedDocument;
@@ -8952,7 +8951,7 @@ export const EvidencePopoverDocument = gql`
     ${EvidencePopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidencePopoverGQL extends Apollo.Query<EvidencePopoverQuery, EvidencePopoverQueryVariables> {
     document = EvidencePopoverDocument;
@@ -9010,7 +9009,7 @@ export const EvidenceBrowseDocument = gql`
     ${EvidenceGridFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidenceBrowseGQL extends Apollo.Query<EvidenceBrowseQuery, EvidenceBrowseQueryVariables> {
     document = EvidenceBrowseDocument;
@@ -9038,7 +9037,7 @@ export const FlagListDocument = gql`
     ${FlagListFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class FlagListGQL extends Apollo.Query<FlagListQuery, FlagListQueryVariables> {
     document = FlagListDocument;
@@ -9056,7 +9055,7 @@ export const FlagPopoverDocument = gql`
     ${FlagPopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class FlagPopoverGQL extends Apollo.Query<FlagPopoverQuery, FlagPopoverQueryVariables> {
     document = FlagPopoverDocument;
@@ -9074,7 +9073,7 @@ export const GenePopoverDocument = gql`
     ${GenePopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class GenePopoverGQL extends Apollo.Query<GenePopoverQuery, GenePopoverQueryVariables> {
     document = GenePopoverDocument;
@@ -9117,7 +9116,7 @@ export const BrowseGenesDocument = gql`
     ${BrowseGenesFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class BrowseGenesGQL extends Apollo.Query<BrowseGenesQuery, BrowseGenesQueryVariables> {
     document = BrowseGenesDocument;
@@ -9135,7 +9134,7 @@ export const QuicksearchDocument = gql`
     ${QuicksearchResultFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class QuicksearchGQL extends Apollo.Query<QuicksearchQuery, QuicksearchQueryVariables> {
     document = QuicksearchDocument;
@@ -9153,7 +9152,7 @@ export const MolecularProfilePopoverDocument = gql`
     ${MolecularProfilePopoverFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class MolecularProfilePopoverGQL extends Apollo.Query<MolecularProfilePopoverQuery, MolecularProfilePopoverQueryVariables> {
     document = MolecularProfilePopoverDocument;
@@ -9197,7 +9196,7 @@ export const BrowseMolecularProfilesDocument = gql`
     ${BrowseMolecularProfilesFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class BrowseMolecularProfilesGQL extends Apollo.Query<BrowseMolecularProfilesQuery, BrowseMolecularProfilesQueryVariables> {
     document = BrowseMolecularProfilesDocument;
@@ -9215,7 +9214,7 @@ export const OrgPopoverDocument = gql`
     ${OrgPopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class OrgPopoverGQL extends Apollo.Query<OrgPopoverQuery, OrgPopoverQueryVariables> {
     document = OrgPopoverDocument;
@@ -9253,7 +9252,7 @@ export const OrganizationsBrowseDocument = gql`
     ${OrganizationBrowseTableRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class OrganizationsBrowseGQL extends Apollo.Query<OrganizationsBrowseQuery, OrganizationsBrowseQueryVariables> {
     document = OrganizationsBrowseDocument;
@@ -9277,7 +9276,7 @@ export const PhenotypePopoverDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class PhenotypePopoverGQL extends Apollo.Query<PhenotypePopoverQuery, PhenotypePopoverQueryVariables> {
     document = PhenotypePopoverDocument;
@@ -9316,7 +9315,7 @@ export const PhenotypesBrowseDocument = gql`
     ${PhenotypeBrowseTableRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class PhenotypesBrowseGQL extends Apollo.Query<PhenotypesBrowseQuery, PhenotypesBrowseQueryVariables> {
     document = PhenotypesBrowseDocument;
@@ -9337,7 +9336,7 @@ export const AcceptRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AcceptRevisionGQL extends Apollo.Mutation<AcceptRevisionMutation, AcceptRevisionMutationVariables> {
     document = AcceptRevisionDocument;
@@ -9358,7 +9357,7 @@ export const RejectRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class RejectRevisionGQL extends Apollo.Mutation<RejectRevisionMutation, RejectRevisionMutationVariables> {
     document = RejectRevisionDocument;
@@ -9379,7 +9378,7 @@ export const ValidateRevisionsForAcceptanceDocument = gql`
     ${ValidationErrorFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ValidateRevisionsForAcceptanceGQL extends Apollo.Query<ValidateRevisionsForAcceptanceQuery, ValidateRevisionsForAcceptanceQueryVariables> {
     document = ValidateRevisionsForAcceptanceDocument;
@@ -9397,7 +9396,7 @@ export const RevisionPopoverDocument = gql`
     ${RevisionPopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class RevisionPopoverGQL extends Apollo.Query<RevisionPopoverQuery, RevisionPopoverQueryVariables> {
     document = RevisionPopoverDocument;
@@ -9452,7 +9451,7 @@ export const RevisionsDocument = gql`
     ${RevisionFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class RevisionsGQL extends Apollo.Query<RevisionsQuery, RevisionsQueryVariables> {
     document = RevisionsDocument;
@@ -9475,7 +9474,7 @@ export const ContributorAvatarsDocument = gql`
     ${ContributorFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ContributorAvatarsGQL extends Apollo.Query<ContributorAvatarsQuery, ContributorAvatarsQueryVariables> {
     document = ContributorAvatarsDocument;
@@ -9493,7 +9492,7 @@ export const SubscriptionForEntityDocument = gql`
     ${SubscriptionIdFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SubscriptionForEntityGQL extends Apollo.Query<SubscriptionForEntityQuery, SubscriptionForEntityQueryVariables> {
     document = SubscriptionForEntityDocument;
@@ -9513,7 +9512,7 @@ export const ModerateEvidenceItemDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ModerateEvidenceItemGQL extends Apollo.Mutation<ModerateEvidenceItemMutation, ModerateEvidenceItemMutationVariables> {
     document = ModerateEvidenceItemDocument;
@@ -9533,7 +9532,7 @@ export const ModerateAssertionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ModerateAssertionGQL extends Apollo.Mutation<ModerateAssertionMutation, ModerateAssertionMutationVariables> {
     document = ModerateAssertionDocument;
@@ -9580,7 +9579,7 @@ export const CivicStatsDocument = gql`
     ${TimepointCountFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CivicStatsGQL extends Apollo.Query<CivicStatsQuery, CivicStatsQueryVariables> {
     document = CivicStatsDocument;
@@ -9628,7 +9627,7 @@ export const BrowseSourceSuggestionsDocument = gql`
     ${BrowseSourceSuggestionRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class BrowseSourceSuggestionsGQL extends Apollo.Query<BrowseSourceSuggestionsQuery, BrowseSourceSuggestionsQueryVariables> {
     document = BrowseSourceSuggestionsDocument;
@@ -9649,7 +9648,7 @@ export const UpdateSourceSuggestionStatusDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UpdateSourceSuggestionStatusGQL extends Apollo.Mutation<UpdateSourceSuggestionStatusMutation, UpdateSourceSuggestionStatusMutationVariables> {
     document = UpdateSourceSuggestionStatusDocument;
@@ -9667,7 +9666,7 @@ export const SourcePopoverDocument = gql`
     ${SourcePopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SourcePopoverGQL extends Apollo.Query<SourcePopoverQuery, SourcePopoverQueryVariables> {
     document = SourcePopoverDocument;
@@ -9712,7 +9711,7 @@ export const BrowseSourcesDocument = gql`
     ${BrowseSourceRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class BrowseSourcesGQL extends Apollo.Query<BrowseSourcesQuery, BrowseSourcesQueryVariables> {
     document = BrowseSourcesDocument;
@@ -9730,7 +9729,7 @@ export const UserPopoverDocument = gql`
     ${PopoverUserFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UserPopoverGQL extends Apollo.Query<UserPopoverQuery, UserPopoverQueryVariables> {
     document = UserPopoverDocument;
@@ -9769,7 +9768,7 @@ export const UsersBrowseDocument = gql`
     ${UserBrowseTableRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UsersBrowseGQL extends Apollo.Query<UsersBrowseQuery, UsersBrowseQueryVariables> {
     document = UsersBrowseDocument;
@@ -9787,7 +9786,7 @@ export const VariantGroupPopoverDocument = gql`
     ${VariantGroupPopoverFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantGroupPopoverGQL extends Apollo.Query<VariantGroupPopoverQuery, VariantGroupPopoverQueryVariables> {
     document = VariantGroupPopoverDocument;
@@ -9828,7 +9827,7 @@ export const BrowseVariantGroupsDocument = gql`
     ${BrowseVariantGroupRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class BrowseVariantGroupsGQL extends Apollo.Query<BrowseVariantGroupsQuery, BrowseVariantGroupsQueryVariables> {
     document = BrowseVariantGroupsDocument;
@@ -9846,7 +9845,7 @@ export const VariantTypePopoverDocument = gql`
     ${VariantTypePopoverFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantTypePopoverGQL extends Apollo.Query<VariantTypePopoverQuery, VariantTypePopoverQueryVariables> {
     document = VariantTypePopoverDocument;
@@ -9885,7 +9884,7 @@ export const VariantTypesBrowseDocument = gql`
     ${VariantTypeBrowseTableRowFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantTypesBrowseGQL extends Apollo.Query<VariantTypesBrowseQuery, VariantTypesBrowseQueryVariables> {
     document = VariantTypesBrowseDocument;
@@ -9903,7 +9902,7 @@ export const CoordinatesCardDocument = gql`
     ${CoordinatesCardFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CoordinatesCardGQL extends Apollo.Query<CoordinatesCardQuery, CoordinatesCardQueryVariables> {
     document = CoordinatesCardDocument;
@@ -9921,7 +9920,7 @@ export const VariantPopoverDocument = gql`
     ${VariantPopoverFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantPopoverGQL extends Apollo.Query<VariantPopoverQuery, VariantPopoverQueryVariables> {
     document = VariantPopoverDocument;
@@ -9960,7 +9959,7 @@ export const VariantsMenuDocument = gql`
     ${MenuVariantFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantsMenuGQL extends Apollo.Query<VariantsMenuQuery, VariantsMenuQueryVariables> {
     document = VariantsMenuDocument;
@@ -10005,7 +10004,7 @@ export const BrowseVariantsDocument = gql`
     ${BrowseVariantsFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class BrowseVariantsGQL extends Apollo.Query<BrowseVariantsQuery, BrowseVariantsQueryVariables> {
     document = BrowseVariantsDocument;
@@ -10041,7 +10040,7 @@ export const ViewerBaseDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ViewerBaseGQL extends Apollo.Query<ViewerBaseQuery, ViewerBaseQueryVariables> {
     document = ViewerBaseDocument;
@@ -10059,7 +10058,7 @@ export const ViewerNotificationCountDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ViewerNotificationCountGQL extends Apollo.Query<ViewerNotificationCountQuery, ViewerNotificationCountQueryVariables> {
     document = ViewerNotificationCountDocument;
@@ -10077,7 +10076,7 @@ export const AssertionRevisableFieldsDocument = gql`
     ${RevisableAssertionFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AssertionRevisableFieldsGQL extends Apollo.Query<AssertionRevisableFieldsQuery, AssertionRevisableFieldsQueryVariables> {
     document = AssertionRevisableFieldsDocument;
@@ -10098,7 +10097,7 @@ export const SuggestAssertionRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SuggestAssertionRevisionGQL extends Apollo.Mutation<SuggestAssertionRevisionMutation, SuggestAssertionRevisionMutationVariables> {
     document = SuggestAssertionRevisionDocument;
@@ -10119,7 +10118,7 @@ export const SubmitAssertionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SubmitAssertionGQL extends Apollo.Mutation<SubmitAssertionMutation, SubmitAssertionMutationVariables> {
     document = SubmitAssertionDocument;
@@ -10140,7 +10139,7 @@ export const AddCommentDocument = gql`
     ${CommentListNodeFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AddCommentGQL extends Apollo.Mutation<AddCommentMutation, AddCommentMutationVariables> {
     document = AddCommentDocument;
@@ -10158,7 +10157,7 @@ export const PreviewCommentDocument = gql`
     ${PreviewCommentFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class PreviewCommentGQL extends Apollo.Query<PreviewCommentQuery, PreviewCommentQueryVariables> {
     document = PreviewCommentDocument;
@@ -10176,7 +10175,7 @@ export const UserTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UserTypeaheadGQL extends Apollo.Query<UserTypeaheadQuery, UserTypeaheadQueryVariables> {
     document = UserTypeaheadDocument;
@@ -10196,7 +10195,7 @@ export const EntityTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EntityTypeaheadGQL extends Apollo.Query<EntityTypeaheadQuery, EntityTypeaheadQueryVariables> {
     document = EntityTypeaheadDocument;
@@ -10221,7 +10220,7 @@ export const PreviewMolecularProfileNameDocument = gql`
     ${PreviewMpNameFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class PreviewMolecularProfileNameGQL extends Apollo.Query<PreviewMolecularProfileNameQuery, PreviewMolecularProfileNameQueryVariables> {
     document = PreviewMolecularProfileNameDocument;
@@ -10243,7 +10242,7 @@ export const CreateMolecularProfileDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CreateMolecularProfileGQL extends Apollo.Mutation<CreateMolecularProfileMutation, CreateMolecularProfileMutationVariables> {
     document = CreateMolecularProfileDocument;
@@ -10263,7 +10262,7 @@ export const AcmgCodeTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AcmgCodeTypeaheadGQL extends Apollo.Query<AcmgCodeTypeaheadQuery, AcmgCodeTypeaheadQueryVariables> {
     document = AcmgCodeTypeaheadDocument;
@@ -10283,7 +10282,7 @@ export const ClingenCodeTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ClingenCodeTypeaheadGQL extends Apollo.Query<ClingenCodeTypeaheadQuery, ClingenCodeTypeaheadQueryVariables> {
     document = ClingenCodeTypeaheadDocument;
@@ -10305,7 +10304,7 @@ export const DiseaseTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DiseaseTypeaheadGQL extends Apollo.Query<DiseaseTypeaheadQuery, DiseaseTypeaheadQueryVariables> {
     document = DiseaseTypeaheadDocument;
@@ -10323,7 +10322,7 @@ export const AddDiseaseDocument = gql`
     ${AddDiseaseFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AddDiseaseGQL extends Apollo.Mutation<AddDiseaseMutation, AddDiseaseMutationVariables> {
     document = AddDiseaseDocument;
@@ -10344,7 +10343,7 @@ export const DrugTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DrugTypeaheadGQL extends Apollo.Query<DrugTypeaheadQuery, DrugTypeaheadQueryVariables> {
     document = DrugTypeaheadDocument;
@@ -10362,7 +10361,7 @@ export const AddDrugDocument = gql`
     ${AddDrugFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AddDrugGQL extends Apollo.Mutation<AddDrugMutation, AddDrugMutationVariables> {
     document = AddDrugDocument;
@@ -10382,7 +10381,7 @@ export const EvidenceTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidenceTypeaheadGQL extends Apollo.Query<EvidenceTypeaheadQuery, EvidenceTypeaheadQueryVariables> {
     document = EvidenceTypeaheadDocument;
@@ -10400,7 +10399,7 @@ export const GeneTypeaheadDocument = gql`
     ${GeneTypeaheadFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class GeneTypeaheadGQL extends Apollo.Query<GeneTypeaheadQuery, GeneTypeaheadQueryVariables> {
     document = GeneTypeaheadDocument;
@@ -10419,7 +10418,7 @@ export const NccnGuidelineTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class NccnGuidelineTypeaheadGQL extends Apollo.Query<NccnGuidelineTypeaheadQuery, NccnGuidelineTypeaheadQueryVariables> {
     document = NccnGuidelineTypeaheadDocument;
@@ -10439,7 +10438,7 @@ export const PhenotypeTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class PhenotypeTypeaheadGQL extends Apollo.Query<PhenotypeTypeaheadQuery, PhenotypeTypeaheadQueryVariables> {
     document = PhenotypeTypeaheadDocument;
@@ -10457,7 +10456,7 @@ export const CitationTypeaheadDocument = gql`
     ${SourceTypeaheadResultFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CitationTypeaheadGQL extends Apollo.Query<CitationTypeaheadQuery, CitationTypeaheadQueryVariables> {
     document = CitationTypeaheadDocument;
@@ -10473,7 +10472,7 @@ export const CitationExistenceCheckDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CitationExistenceCheckGQL extends Apollo.Query<CitationExistenceCheckQuery, CitationExistenceCheckQueryVariables> {
     document = CitationExistenceCheckDocument;
@@ -10495,7 +10494,7 @@ export const CreateSourceStubDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CreateSourceStubGQL extends Apollo.Mutation<CreateSourceStubMutation, CreateSourceStubMutationVariables> {
     document = CreateSourceStubDocument;
@@ -10511,7 +10510,7 @@ export const CheckRemoteCitationDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CheckRemoteCitationGQL extends Apollo.Query<CheckRemoteCitationQuery, CheckRemoteCitationQueryVariables> {
     document = CheckRemoteCitationDocument;
@@ -10531,7 +10530,7 @@ export const AddRemoteCitationDocument = gql`
     ${SourceStubFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AddRemoteCitationGQL extends Apollo.Mutation<AddRemoteCitationMutation, AddRemoteCitationMutationVariables> {
     document = AddRemoteCitationDocument;
@@ -10549,7 +10548,7 @@ export const SourceTypeaheadDocument = gql`
     ${SourceTypeaheadResultFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SourceTypeaheadGQL extends Apollo.Query<SourceTypeaheadQuery, SourceTypeaheadQueryVariables> {
     document = SourceTypeaheadDocument;
@@ -10569,7 +10568,7 @@ export const VariantTypeaheadDocument = gql`
     ${VariantTypeaheadFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantTypeaheadGQL extends Apollo.Query<VariantTypeaheadQuery, VariantTypeaheadQueryVariables> {
     document = VariantTypeaheadDocument;
@@ -10587,7 +10586,7 @@ export const AddVariantDocument = gql`
     ${AddVariantFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AddVariantGQL extends Apollo.Mutation<AddVariantMutation, AddVariantMutationVariables> {
     document = AddVariantDocument;
@@ -10607,7 +10606,7 @@ export const VariantSelectDocument = gql`
     ${VariantTypeaheadFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantSelectGQL extends Apollo.Query<VariantSelectQuery, VariantSelectQueryVariables> {
     document = VariantSelectDocument;
@@ -10627,7 +10626,7 @@ export const VariantTypeTypeaheadDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantTypeTypeaheadGQL extends Apollo.Query<VariantTypeTypeaheadQuery, VariantTypeTypeaheadQueryVariables> {
     document = VariantTypeTypeaheadDocument;
@@ -10645,7 +10644,7 @@ export const EvidenceItemRevisableFieldsDocument = gql`
     ${RevisableEvidenceFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidenceItemRevisableFieldsGQL extends Apollo.Query<EvidenceItemRevisableFieldsQuery, EvidenceItemRevisableFieldsQueryVariables> {
     document = EvidenceItemRevisableFieldsDocument;
@@ -10666,7 +10665,7 @@ export const SuggestEvidenceItemRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SuggestEvidenceItemRevisionGQL extends Apollo.Mutation<SuggestEvidenceItemRevisionMutation, SuggestEvidenceItemRevisionMutationVariables> {
     document = SuggestEvidenceItemRevisionDocument;
@@ -10704,7 +10703,7 @@ export const EvidenceFieldsFromSourceSuggestionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidenceFieldsFromSourceSuggestionGQL extends Apollo.Query<EvidenceFieldsFromSourceSuggestionQuery, EvidenceFieldsFromSourceSuggestionQueryVariables> {
     document = EvidenceFieldsFromSourceSuggestionDocument;
@@ -10722,7 +10721,7 @@ export const EvidenceSubmittableFieldsDocument = gql`
     ${SubmittableEvidenceFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidenceSubmittableFieldsGQL extends Apollo.Query<EvidenceSubmittableFieldsQuery, EvidenceSubmittableFieldsQueryVariables> {
     document = EvidenceSubmittableFieldsDocument;
@@ -10743,7 +10742,7 @@ export const SubmitEvidenceItemDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SubmitEvidenceItemGQL extends Apollo.Mutation<SubmitEvidenceItemMutation, SubmitEvidenceItemMutationVariables> {
     document = SubmitEvidenceItemDocument;
@@ -10763,7 +10762,7 @@ export const FlagEntityDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class FlagEntityGQL extends Apollo.Mutation<FlagEntityMutation, FlagEntityMutationVariables> {
     document = FlagEntityDocument;
@@ -10783,7 +10782,7 @@ export const ResolveFlagDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ResolveFlagGQL extends Apollo.Mutation<ResolveFlagMutation, ResolveFlagMutationVariables> {
     document = ResolveFlagDocument;
@@ -10801,7 +10800,7 @@ export const GeneRevisableFieldsDocument = gql`
     ${RevisableGeneFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class GeneRevisableFieldsGQL extends Apollo.Query<GeneRevisableFieldsQuery, GeneRevisableFieldsQueryVariables> {
     document = GeneRevisableFieldsDocument;
@@ -10873,7 +10872,7 @@ export const SuggestGeneRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SuggestGeneRevisionGQL extends Apollo.Mutation<SuggestGeneRevisionMutation, SuggestGeneRevisionMutationVariables> {
     document = SuggestGeneRevisionDocument;
@@ -10891,7 +10890,7 @@ export const GeneAdvancedSearchDocument = gql`
     ${AdvancedSearchPermalinkFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class GeneAdvancedSearchGQL extends Apollo.Query<GeneAdvancedSearchQuery, GeneAdvancedSearchQueryVariables> {
     document = GeneAdvancedSearchDocument;
@@ -10909,7 +10908,7 @@ export const MolecularProfileRevisableFieldsDocument = gql`
     ${RevisableMolecularProfileFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class MolecularProfileRevisableFieldsGQL extends Apollo.Query<MolecularProfileRevisableFieldsQuery, MolecularProfileRevisableFieldsQueryVariables> {
     document = MolecularProfileRevisableFieldsDocument;
@@ -10934,7 +10933,7 @@ export const SuggestMolecularProfileRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SuggestMolecularProfileRevisionGQL extends Apollo.Mutation<SuggestMolecularProfileRevisionMutation, SuggestMolecularProfileRevisionMutationVariables> {
     document = SuggestMolecularProfileRevisionDocument;
@@ -10955,7 +10954,7 @@ export const SuggestSourceDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SuggestSourceGQL extends Apollo.Mutation<SuggestSourceMutation, SuggestSourceMutationVariables> {
     document = SuggestSourceDocument;
@@ -10976,7 +10975,7 @@ export const UpdateSourceSuggestionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UpdateSourceSuggestionGQL extends Apollo.Mutation<UpdateSourceSuggestionMutation, UpdateSourceSuggestionMutationVariables> {
     document = UpdateSourceSuggestionDocument;
@@ -10999,7 +10998,7 @@ export const UpdateCoiDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UpdateCoiGQL extends Apollo.Mutation<UpdateCoiMutation, UpdateCoiMutationVariables> {
     document = UpdateCoiDocument;
@@ -11019,7 +11018,7 @@ export const UpdateUserProfileDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UpdateUserProfileGQL extends Apollo.Mutation<UpdateUserProfileMutation, UpdateUserProfileMutationVariables> {
     document = UpdateUserProfileDocument;
@@ -11038,7 +11037,7 @@ export const CountriesDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class CountriesGQL extends Apollo.Query<CountriesQuery, CountriesQueryVariables> {
     document = CountriesDocument;
@@ -11063,7 +11062,7 @@ export const SuggestVariantGroupRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SuggestVariantGroupRevisionGQL extends Apollo.Mutation<SuggestVariantGroupRevisionMutation, SuggestVariantGroupRevisionMutationVariables> {
     document = SuggestVariantGroupRevisionDocument;
@@ -11081,7 +11080,7 @@ export const VariantGroupSubmittableFieldsDocument = gql`
     ${SubmittableVariantGroupFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantGroupSubmittableFieldsGQL extends Apollo.Query<VariantGroupSubmittableFieldsQuery, VariantGroupSubmittableFieldsQueryVariables> {
     document = VariantGroupSubmittableFieldsDocument;
@@ -11102,7 +11101,7 @@ export const SubmitVariantGroupDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SubmitVariantGroupGQL extends Apollo.Mutation<SubmitVariantGroupMutation, SubmitVariantGroupMutationVariables> {
     document = SubmitVariantGroupDocument;
@@ -11120,7 +11119,7 @@ export const VariantRevisableFieldsDocument = gql`
     ${RevisableVariantFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantRevisableFieldsGQL extends Apollo.Query<VariantRevisableFieldsQuery, VariantRevisableFieldsQueryVariables> {
     document = VariantRevisableFieldsDocument;
@@ -11192,7 +11191,7 @@ export const SuggestVariantRevisionDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SuggestVariantRevisionGQL extends Apollo.Mutation<SuggestVariantRevisionMutation, SuggestVariantRevisionMutationVariables> {
     document = SuggestVariantRevisionDocument;
@@ -11210,7 +11209,7 @@ export const AssertionDetailDocument = gql`
     ${AssertionDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AssertionDetailGQL extends Apollo.Query<AssertionDetailQuery, AssertionDetailQueryVariables> {
     document = AssertionDetailDocument;
@@ -11228,7 +11227,7 @@ export const AssertionSummaryDocument = gql`
     ${AssertionSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class AssertionSummaryGQL extends Apollo.Query<AssertionSummaryQuery, AssertionSummaryQueryVariables> {
     document = AssertionSummaryDocument;
@@ -11251,7 +11250,7 @@ export const ClinicalTrialDetailDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ClinicalTrialDetailGQL extends Apollo.Query<ClinicalTrialDetailQuery, ClinicalTrialDetailQueryVariables> {
     document = ClinicalTrialDetailDocument;
@@ -11274,7 +11273,7 @@ export const ClinicalTrialSummaryDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class ClinicalTrialSummaryGQL extends Apollo.Query<ClinicalTrialSummaryQuery, ClinicalTrialSummaryQueryVariables> {
     document = ClinicalTrialSummaryDocument;
@@ -11298,7 +11297,7 @@ export const DiseaseDetailDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DiseaseDetailGQL extends Apollo.Query<DiseaseDetailQuery, DiseaseDetailQueryVariables> {
     document = DiseaseDetailDocument;
@@ -11316,7 +11315,7 @@ export const DiseasesSummaryDocument = gql`
     ${DiseasesSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DiseasesSummaryGQL extends Apollo.Query<DiseasesSummaryQuery, DiseasesSummaryQueryVariables> {
     document = DiseasesSummaryDocument;
@@ -11339,7 +11338,7 @@ export const DrugDetailDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DrugDetailGQL extends Apollo.Query<DrugDetailQuery, DrugDetailQueryVariables> {
     document = DrugDetailDocument;
@@ -11357,7 +11356,7 @@ export const DrugsSummaryDocument = gql`
     ${DrugsSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DrugsSummaryGQL extends Apollo.Query<DrugsSummaryQuery, DrugsSummaryQueryVariables> {
     document = DrugsSummaryDocument;
@@ -11375,7 +11374,7 @@ export const EvidenceDetailDocument = gql`
     ${EvidenceDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidenceDetailGQL extends Apollo.Query<EvidenceDetailQuery, EvidenceDetailQueryVariables> {
     document = EvidenceDetailDocument;
@@ -11393,7 +11392,7 @@ export const EvidenceSummaryDocument = gql`
     ${EvidenceSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class EvidenceSummaryGQL extends Apollo.Query<EvidenceSummaryQuery, EvidenceSummaryQueryVariables> {
     document = EvidenceSummaryDocument;
@@ -11411,7 +11410,7 @@ export const GeneDetailDocument = gql`
     ${GeneDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class GeneDetailGQL extends Apollo.Query<GeneDetailQuery, GeneDetailQueryVariables> {
     document = GeneDetailDocument;
@@ -11429,7 +11428,7 @@ export const GenesSummaryDocument = gql`
     ${GeneSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class GenesSummaryGQL extends Apollo.Query<GenesSummaryQuery, GenesSummaryQueryVariables> {
     document = GenesSummaryDocument;
@@ -11447,7 +11446,7 @@ export const MolecularProfileDetailDocument = gql`
     ${MolecularProfileDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class MolecularProfileDetailGQL extends Apollo.Query<MolecularProfileDetailQuery, MolecularProfileDetailQueryVariables> {
     document = MolecularProfileDetailDocument;
@@ -11465,7 +11464,7 @@ export const MolecularProfileSummaryDocument = gql`
     ${MolecularProfileSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class MolecularProfileSummaryGQL extends Apollo.Query<MolecularProfileSummaryQuery, MolecularProfileSummaryQueryVariables> {
     document = MolecularProfileSummaryDocument;
@@ -11483,7 +11482,7 @@ export const OrganizationDetailDocument = gql`
     ${OrganizationDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class OrganizationDetailGQL extends Apollo.Query<OrganizationDetailQuery, OrganizationDetailQueryVariables> {
     document = OrganizationDetailDocument;
@@ -11503,7 +11502,7 @@ export const OrganizationGroupsDocument = gql`
     ${OrganizationGroupsFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class OrganizationGroupsGQL extends Apollo.Query<OrganizationGroupsQuery, OrganizationGroupsQueryVariables> {
     document = OrganizationGroupsDocument;
@@ -11538,7 +11537,7 @@ export const OrganizationMembersDocument = gql`
     ${OrganizationMembersFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class OrganizationMembersGQL extends Apollo.Query<OrganizationMembersQuery, OrganizationMembersQueryVariables> {
     document = OrganizationMembersDocument;
@@ -11560,7 +11559,7 @@ export const PhenotypeDetailDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class PhenotypeDetailGQL extends Apollo.Query<PhenotypeDetailQuery, PhenotypeDetailQueryVariables> {
     document = PhenotypeDetailDocument;
@@ -11578,7 +11577,7 @@ export const DataReleasesDocument = gql`
     ${ReleaseFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class DataReleasesGQL extends Apollo.Query<DataReleasesQuery, DataReleasesQueryVariables> {
     document = DataReleasesDocument;
@@ -11596,7 +11595,7 @@ export const SourceDetailDocument = gql`
     ${SourceDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SourceDetailGQL extends Apollo.Query<SourceDetailQuery, SourceDetailQueryVariables> {
     document = SourceDetailDocument;
@@ -11614,7 +11613,7 @@ export const SourceSummaryDocument = gql`
     ${SourceSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SourceSummaryGQL extends Apollo.Query<SourceSummaryQuery, SourceSummaryQueryVariables> {
     document = SourceSummaryDocument;
@@ -11632,7 +11631,7 @@ export const UserDetailDocument = gql`
     ${UserDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UserDetailGQL extends Apollo.Query<UserDetailQuery, UserDetailQueryVariables> {
     document = UserDetailDocument;
@@ -11685,7 +11684,7 @@ ${NotificationOrganizationFragmentDoc}
 ${NotificationNodeFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UserNotificationsGQL extends Apollo.Query<UserNotificationsQuery, UserNotificationsQueryVariables> {
     document = UserNotificationsDocument;
@@ -11705,7 +11704,7 @@ export const UpdateNotificationStatusDocument = gql`
     ${NotificationNodeFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UpdateNotificationStatusGQL extends Apollo.Mutation<UpdateNotificationStatusMutation, UpdateNotificationStatusMutationVariables> {
     document = UpdateNotificationStatusDocument;
@@ -11725,7 +11724,7 @@ export const UnsubscribeDocument = gql`
     ${SubscribableFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class UnsubscribeGQL extends Apollo.Mutation<UnsubscribeMutation, UnsubscribeMutationVariables> {
     document = UnsubscribeDocument;
@@ -11745,7 +11744,7 @@ export const SubscribeDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class SubscribeGQL extends Apollo.Mutation<SubscribeMutation, SubscribeMutationVariables> {
     document = SubscribeDocument;
@@ -11763,7 +11762,7 @@ export const VariantGroupDetailDocument = gql`
     ${VariantGroupDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantGroupDetailGQL extends Apollo.Query<VariantGroupDetailQuery, VariantGroupDetailQueryVariables> {
     document = VariantGroupDetailDocument;
@@ -11844,7 +11843,7 @@ export const VariantGroupRevisionsDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantGroupRevisionsGQL extends Apollo.Query<VariantGroupRevisionsQuery, VariantGroupRevisionsQueryVariables> {
     document = VariantGroupRevisionsDocument;
@@ -11862,7 +11861,7 @@ export const VariantGroupsSummaryDocument = gql`
     ${VariantGroupSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantGroupsSummaryGQL extends Apollo.Query<VariantGroupsSummaryQuery, VariantGroupsSummaryQueryVariables> {
     document = VariantGroupsSummaryDocument;
@@ -11885,7 +11884,7 @@ export const VariantTypeDetailDocument = gql`
     `;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantTypeDetailGQL extends Apollo.Query<VariantTypeDetailQuery, VariantTypeDetailQueryVariables> {
     document = VariantTypeDetailDocument;
@@ -11903,7 +11902,7 @@ export const VariantDetailDocument = gql`
     ${VariantDetailFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantDetailGQL extends Apollo.Query<VariantDetailQuery, VariantDetailQueryVariables> {
     document = VariantDetailDocument;
@@ -11921,7 +11920,7 @@ export const VariantSummaryDocument = gql`
     ${VariantSummaryFieldsFragmentDoc}`;
 
   @Injectable({
-    providedIn: AppModule
+    providedIn: 'root'
   })
   export class VariantSummaryGQL extends Apollo.Query<VariantSummaryQuery, VariantSummaryQueryVariables> {
     document = VariantSummaryDocument;

@@ -61,12 +61,6 @@ export class ViewerService {
       .pipe(
         pluck('data', 'viewer'),
         map((v: User): Viewer => {
-          console.log('viewer.service most recent org:');
-          try {
-            if(v) console.log(v.mostRecentOrg);
-          } catch (err) {
-            console.log(err)
-          }
           return {
             ...v,
             signedIn: v == null ? false : true,

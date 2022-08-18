@@ -13,8 +13,6 @@ extensions:
     config:
       # replace generated files
       overwrite: true
-      #
-      ngModule: ../app.module#AppModule
       serviceProvidedInRoot: true
     generates:
       # generate apollo-angular client service

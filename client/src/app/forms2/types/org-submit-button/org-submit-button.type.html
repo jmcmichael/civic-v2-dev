@@ -38,11 +38,10 @@
         nzTrigger="click"
         [nzDropdownMenu]="orgMenu">
         <span>for</span>
-        &nbsp;
-        <ng-container *ngrxLet="selectedOrg$ as selectedOrg">
+        <ng-container *ngrxLet="mostRecentOrg$ as mrOrg">
           <nz-avatar
-            [nzSrc]="selectedOrg!.profileImagePath"
-            [nzSize]="10"
+            [nzSrc]="mrOrg!.profileImagePath"
+            [nzSize]="16"
             [nzShape]="'square'">
           </nz-avatar>
         </ng-container>
@@ -58,7 +57,7 @@
     <ul nz-menu>
       <li
         *ngFor="let org of organizations"
-        (click)="organizationId$.next(org.id)"
+        (click)="menuSelection$.next(org.id)"
         nz-menu-item>
         <nz-avatar
           [nzSrc]="org?.profileImagePath"
