@@ -2,7 +2,7 @@
 # see: https://www.graphql-code-generator.com/docs/integrations/apollo-local-state
 schema:
   - ./src/app/generated/server.model.graphql
-  - ./src/app/graphql/client-schema.graphql
+  - ./src/app/graphql/schemas/**/*.graphql
 
 # collect client-side component& service queries, mutations, fragments
 documents: ./src/**/*.gql

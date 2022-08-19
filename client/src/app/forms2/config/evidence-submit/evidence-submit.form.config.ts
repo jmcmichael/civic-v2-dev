@@ -1,37 +1,22 @@
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper';
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper';
-import { EvidenceItemFields, Maybe, SubmitEvidenceItemInput } from '@app/generated/civic.apollo';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Object } from 'ts-toolbelt';
 
-// Form model type created by setting all its SubmitInput fields optional,
-// and adding comment, organizationId attributes to its fields object
-export type EvidenceSubmitFormModel = Object.Assign<
-  SubmitEvidenceItemInput,
-  [
-    {
-      fields: Object.Assign<
-        Object.Partial<EvidenceItemFields>,
-        [
-          Object.Partial<{
-            comment: string;
-            organizationId: number;
-          }>,
-        ]
-      >;
-    },
-  ]
->;
-
-// field configuration for evidence submit form
-export const evidenceSubmitFields: FormlyFieldConfig[] = [
+export const evidenceSubmitFormFields: FormlyFieldConfig[] = [
   {
+    key: 'form',
     wrappers: ['form-layout'],
     props: <CvcFormLayoutWrapperProps>{
       submitLabel: 'Submit Evidence Item',
       showFormStatus: true,
     },
     fieldGroup: [
+      {
+        key: 'clientMutationId',
+        props: {
+          hidden: true
+        }
+      },
       {
         key: 'fields',
         wrappers: ['fields-layout'],
@@ -58,6 +43,7 @@ export const evidenceSubmitFields: FormlyFieldConfig[] = [
         },
       },
       {
+        key: 'formFooter',
         wrappers: ['form-footer'],
         fieldGroup: [
           {
