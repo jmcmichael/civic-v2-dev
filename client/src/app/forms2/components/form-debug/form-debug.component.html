@@ -7,16 +7,16 @@
       [(nzSelectedIndex)]="selectedIndex"
       nzSize="small">
       <nz-tab nzTitle="Model"> </nz-tab>
-      <nz-tab nzTitle="Status"></nz-tab>
-      <nz-tab nzTitle="Fields"></nz-tab>
+      <nz-tab nzTitle="Controls"></nz-tab>
       <nz-tab nzTitle="State"></nz-tab>
+      <nz-tab nzTitle="Form Status"></nz-tab>
     </nz-tabset>
   </nz-card-tab>
   <ng-container [ngSwitch]="selectedIndex">
     <ng-container *ngSwitchCase="0">
       <ngx-json-viewer [json]="cvcModel"></ngx-json-viewer>
     </ng-container>
-    <ng-container *ngSwitchCase="1">
+    <ng-container *ngSwitchCase="3">
       <nz-descriptions
         nzBordered
         [nzColumn]="1"
@@ -45,11 +45,11 @@
         <!-- <nz-descriptions-item nzTitle="disabled">{{ cvcForm?.disabled}}</nz-descriptions-item> -->
       </nz-descriptions>
     </ng-container>
-    <ng-container *ngSwitchCase="2">
+    <ng-container *ngSwitchCase="1">
       <cvc-form-debug-field-list
         [cvcAbstractControl]="cvcForm"></cvc-form-debug-field-list>
     </ng-container>
-    <ng-container *ngSwitchCase="3"> State Content </ng-container>
+    <ng-container *ngSwitchCase="2"> State Content </ng-container>
   </ng-container>
 </nz-card>
 <ng-template #cardTitle>
