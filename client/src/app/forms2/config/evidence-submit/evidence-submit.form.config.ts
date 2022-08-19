@@ -1,10 +1,11 @@
+import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit-form.model';
+import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values';
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper';
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
-export const evidenceSubmitFormFields: FormlyFieldConfig[] = [
+const formFieldConfig: FormlyFieldConfig[] = [
   {
-    key: 'form',
     wrappers: ['form-layout'],
     props: <CvcFormLayoutWrapperProps>{
       submitLabel: 'Submit Evidence Item',
@@ -43,7 +44,6 @@ export const evidenceSubmitFormFields: FormlyFieldConfig[] = [
         },
       },
       {
-        key: 'formFooter',
         wrappers: ['form-footer'],
         fieldGroup: [
           {
@@ -58,3 +58,4 @@ export const evidenceSubmitFormFields: FormlyFieldConfig[] = [
     ],
   },
 ];
+ export const evidenceSubmitFormFields: FormlyFieldConfig[] = assignFieldConfigDefaultValues(formFieldConfig, evidenceSubmitFormInitialModel)

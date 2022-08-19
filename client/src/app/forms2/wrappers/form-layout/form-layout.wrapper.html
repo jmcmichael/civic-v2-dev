@@ -6,7 +6,7 @@
   <!-- FORM STATUS PANEL COL -->
   <nz-col *ngIf="props.showFormStatus" [nzSpan]="8" class="status-col">
     <cvc-form-debug
-      [cvcForm]="form"></cvc-form-debug>
+      [cvcForm]="form" [cvcModel]="model"></cvc-form-debug>
   </nz-col>
 </nz-row>
 <nz-row style="background-color: #EFE">

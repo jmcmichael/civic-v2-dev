@@ -28,8 +28,6 @@ export interface EvidenceSubmitFormModel extends FormSubmitBaseModel {
 
 export const evidenceSubmitFormInitialModel: EvidenceSubmitFormModel = {
   clientMutationId: undefined,
-  comment: undefined,
-  organizationId: undefined,
   fields: {
     clinicalSignificance: undefined,
     description: undefined,
@@ -44,5 +42,7 @@ export const evidenceSubmitFormInitialModel: EvidenceSubmitFormModel = {
     rating: undefined,
     sourceId: undefined,
     variantOrigin: undefined,
-  }
+  },
+  comment: undefined,
+  organizationId: undefined,
 }

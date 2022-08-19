@@ -5,7 +5,7 @@
 // enums/primitives
 export interface FormSubmitBaseModel {
   clientMutationId?: string
+  fields: any
   comment?: string
   organizationId?: number
-  fields: any
 }

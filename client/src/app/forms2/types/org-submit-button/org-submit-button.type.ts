@@ -78,10 +78,6 @@ export class CvcOrgSubmitButtonComponent
     this.isHidden$ = new Subject<boolean>()
     this.buttonClass$ = new BehaviorSubject<string>(this.baseButtonClass)
     this.subscriptions = []
-    this.viewer$.subscribe((v) => {
-      console.log('submit btn mostRecentOrg: ')
-      console.log(v.mostRecentOrg)
-    })
   }
 
   ngOnInit(): void {

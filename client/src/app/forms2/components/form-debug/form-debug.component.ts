@@ -22,6 +22,7 @@ import { combineLatestArray } from 'rxjs-etc'
 })
 export class CvcFormDebugComponent implements OnInit {
   @Input() cvcForm: Maybe<AbstractControl>
+  @Input() cvcModel: Maybe<any>
 
   subscriptions!: Subscription[]
   valueChange$!: BehaviorSubject<any>
