@@ -8,12 +8,14 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzListModule } from 'ng-zorro-antd/list'
 import { NzTabsModule } from 'ng-zorro-antd/tabs'
 import { NzTagModule } from 'ng-zorro-antd/tag'
+import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { NgxJsonViewerModule } from 'ngx-json-viewer'
 import { FormDebugFieldListComponent } from './form-debug-field-list/form-debug-field-list.component'
-import { CvcFormDebugComponent } from './form-debug.component'
+import { CvcFormDebugComponent } from './form-debug.component';
+import { StatusTagComponent } from './status-tag/status-tag.component'
 
 @NgModule({
-  declarations: [CvcFormDebugComponent, FormDebugFieldListComponent],
+  declarations: [CvcFormDebugComponent, FormDebugFieldListComponent, StatusTagComponent],
   imports: [
     CommonModule,
     ReactiveComponentModule,
@@ -24,6 +26,7 @@ import { CvcFormDebugComponent } from './form-debug.component'
     NzDescriptionsModule,
     NzListModule,
     NzTagModule,
+    NzTypographyModule,
 
     NgxJsonViewerModule,
   ],

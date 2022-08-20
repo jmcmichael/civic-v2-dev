@@ -1,30 +1,54 @@
 <ng-container *ngIf="formControl as fc; else noFormControl">
-  <nz-list>
+  <nz-list nzSize="small">
     <ng-template
       #ctrlTemplateRef
       let-ctrl="ctrl"
       let-key="key">
-
       <!-- form control item -->
       <nz-list-item *ngIf="!ctrl.controls">
-        {{ key }}: {{ ctrl.value ? ctrl.value : 'undefined' }}
+        <nz-list-item-meta>
+          <nz-list-item-meta-title>
+            {{ key }}
+          </nz-list-item-meta-title>
+          <nz-list-item-meta-description>
+            <span *ngIf="ctrl.value">
+              {{ ctrl.value }}
+            </span>
+            <span
+              *ngIf="!ctrl.value"
+              style="padding: 0px 4px; color: white; background-color: #ccc">
+              undefined
+            </span>
+          </nz-list-item-meta-description>
+        </nz-list-item-meta>
+        <nz-list-item-extra>
+          <span nz-typography>{{ ctrl.status }}</span>
+        </nz-list-item-extra>
       </nz-list-item>
 
       <!-- form array/group item -->
       <nz-list-item *ngIf="ctrl.controls">
-        <nz-list [nzHeader]="key">
-          <ng-template
-            *ngFor="let ctrl of ctrl.controls | keyvalue"
-            [ngTemplateOutlet]="ctrlTemplateRef"
-            [ngTemplateOutletContext]="{
-              key: ctrl.key,
-              ctrl: ctrl.value
-            }">
-          </ng-template>
-        </nz-list>
+        <nz-card
+          [nzTitle]="key"
+          nzSize="small" style="width: 100%">
+          <nz-list nzSize="small" style="padding: 0;">
+            <ng-template
+              *ngFor="let ctrl of ctrl.controls | keyvalue"
+              [ngTemplateOutlet]="ctrlTemplateRef"
+              [ngTemplateOutletContext]="{
+                key: ctrl.key,
+                ctrl: ctrl.value
+              }">
+            </ng-template>
+          </nz-list>
+        </nz-card>
+        <ng-template #cardExtra>
+          <strong>{{ key }}</strong>
+        </ng-template>
       </nz-list-item>
     </ng-template>
   </nz-list>
+
   <ng-template
     *ngFor="let ctrl of fc.controls | keyvalue"
     [ngTemplateOutlet]="ctrlTemplateRef"

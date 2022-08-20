@@ -1,8 +1,8 @@
-import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit-form.model';
-import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values';
-import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper';
-import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper';
-import { FormlyFieldConfig } from '@ngx-formly/core';
+import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit-form.model'
+import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
+import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
+import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
+import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
   {
@@ -15,8 +15,8 @@ const formFieldConfig: FormlyFieldConfig[] = [
       {
         key: 'clientMutationId',
         props: {
-          hidden: true
-        }
+          hidden: true,
+        },
       },
       {
         key: 'fields',
@@ -30,7 +30,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'input',
             props: {
               label: 'Molecular Profile',
-              // required: true,
+              required: true,
             },
           },
         ],
@@ -57,5 +57,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
       },
     ],
   },
-];
- export const evidenceSubmitFormFields: FormlyFieldConfig[] = assignFieldConfigDefaultValues(formFieldConfig, evidenceSubmitFormInitialModel)
+]
+export const evidenceSubmitFormFields: FormlyFieldConfig[] =
+  assignFieldConfigDefaultValues(
+    formFieldConfig,
+    evidenceSubmitFormInitialModel
+  )
