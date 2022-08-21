@@ -17,7 +17,6 @@ import { CvcFormWrappersModule } from './wrappers/form-wrappers.module';
     FormlyNgZorroAntdModule,
     CvcFormWrappersModule,
     NgxJsonViewerModule,
-    ...environment.devModules
   ],
   exports: [
     ReactiveFormsModule,
@@ -25,7 +24,6 @@ import { CvcFormWrappersModule } from './wrappers/form-wrappers.module';
     FormlyNgZorroAntdModule,
     CvcFormWrappersModule,
     CvcFormTypesModule,
-    ...environment.devModules
   ],
 })
 export class CvcForms2Module {}

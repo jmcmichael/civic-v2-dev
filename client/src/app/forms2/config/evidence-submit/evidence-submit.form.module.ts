@@ -1,9 +1,9 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { CvcForms2Module } from "@app/forms2/forms2.module";
-import { environment } from "environments/environment";
 import { NzButtonModule } from "ng-zorro-antd/button";
 import { NzFormModule } from "ng-zorro-antd/form";
+import { NgxJsonViewerModule } from "ngx-json-viewer"; // debug
 import { CvcEvidenceSubmitForm } from "./evidence-submit.form";
 
 @NgModule({
@@ -14,7 +14,7 @@ import { CvcEvidenceSubmitForm } from "./evidence-submit.form";
     NzButtonModule,
     CvcForms2Module,
 
-    ...environment.devModules
+    NgxJsonViewerModule, // debug
   ],
   exports: [CvcEvidenceSubmitForm]
 })

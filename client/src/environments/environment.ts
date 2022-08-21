@@ -6,7 +6,8 @@ import { NgxJsonViewerModule } from "ngx-json-viewer";
 
 export const environment = {
   production: false,
-  devModules: [NgxJsonViewerModule]
+  showDevPanels: true,
+  devModules: [NgxJsonViewerModule],
 };
 
 /*
