@@ -11,19 +11,22 @@ import {
     FormlyFieldConfig,
     FormlyFieldProps
 } from '@ngx-formly/core'
+import { environment } from 'environments/environment'
 import { Observable, Subscription } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 
 export interface CvcFormLayoutWrapperProps extends FormlyFieldProps {
   title: string
   submitLabel: string
-  showFormStatus: boolean
+  showDevPanel: boolean
 }
-const defaultProps = {
+
+const defaultProps: CvcFormLayoutWrapperProps = {
   title: 'Form Card',
   submitLabel: 'Submit',
-  showFormStatus: false,
+  showDevPanel: false,
 }
+
 @UntilDestroy({ arrayName: 'subscriptions' })
 @Component({
   selector: 'cvc-form-layout-wrapper',
@@ -35,11 +38,13 @@ export class CvcFormLayoutWrapper
   extends FieldWrapper<FormlyFieldConfig<CvcFormLayoutWrapperProps>>
   implements OnInit
 {
-  subscriptions!: Subscription[]
   valueChange$: Maybe<Observable<any>>
   statusChange$: Maybe<Observable<any>>
+  subscriptions!: Subscription[]
+
   constructor(cdr: ChangeDetectorRef) {
     super()
+
   }
   get errorState() {
     return this.showError ? 'error' : ''
@@ -48,7 +53,6 @@ export class CvcFormLayoutWrapper
   ngOnInit(): void {
     this.props.title = this.props.title || defaultProps.title
     this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel
-    this.props.showFormStatus =
-      this.props.showFormStatus || defaultProps.showFormStatus
+    this.props.showDevPanel = environment.production ? false : (this.props.showDevPanel || defaultProps.showDevPanel)
   }
 }

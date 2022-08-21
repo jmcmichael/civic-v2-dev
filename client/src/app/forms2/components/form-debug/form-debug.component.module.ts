@@ -12,10 +12,10 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { NgxJsonViewerModule } from 'ngx-json-viewer'
 import { FormDebugFieldListComponent } from './form-debug-field-list/form-debug-field-list.component'
 import { CvcFormDebugComponent } from './form-debug.component';
-import { StatusTagComponent } from './status-tag/status-tag.component'
+import { CvcFormStatusTagComponent } from './form-status-tag/form-status-tag.component'
 
 @NgModule({
-  declarations: [CvcFormDebugComponent, FormDebugFieldListComponent, StatusTagComponent],
+  declarations: [CvcFormDebugComponent, FormDebugFieldListComponent, CvcFormStatusTagComponent],
   imports: [
     CommonModule,
     ReactiveComponentModule,

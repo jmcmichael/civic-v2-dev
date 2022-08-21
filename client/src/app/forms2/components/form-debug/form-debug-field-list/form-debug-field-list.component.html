@@ -22,7 +22,8 @@
           </nz-list-item-meta-description>
         </nz-list-item-meta>
         <nz-list-item-extra>
-          <span nz-typography>{{ ctrl.status }}</span>
+          <cvc-form-status-tag
+            [cvcFormControlStatus]="ctrl.status"></cvc-form-status-tag>
         </nz-list-item-extra>
       </nz-list-item>
 
@@ -30,8 +31,11 @@
       <nz-list-item *ngIf="ctrl.controls">
         <nz-card
           [nzTitle]="key"
-          nzSize="small" style="width: 100%">
-          <nz-list nzSize="small" style="padding: 0;">
+          nzSize="small"
+          style="width: 100%">
+          <nz-list
+            nzSize="small"
+            style="padding: 0">
             <ng-template
               *ngFor="let ctrl of ctrl.controls | keyvalue"
               [ngTemplateOutlet]="ctrlTemplateRef"
