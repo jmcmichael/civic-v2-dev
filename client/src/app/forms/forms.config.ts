@@ -1,4 +1,4 @@
-import { ConfigOption } from '@ngx-formly/core';
+import { ConfigOption } from '@ngx-formly/core';
 import { defaultMessages, defaultValidators } from './config/validators/default.validators';
 
 export const CvcFormlyConfig: ConfigOption = {
