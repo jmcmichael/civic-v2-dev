@@ -5,7 +5,7 @@ import { FormlyModule, FORMLY_CONFIG } from '@ngx-formly/core'
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd'
 import { NzFormModule } from 'ng-zorro-antd/form'
 import { NgxJsonViewerModule } from 'ngx-json-viewer'
-import { registerObserveQueryParamExtension } from './extensions/observe-query-param.extension'
+import { registerCvcExtensions } from './extensions/form-extensions.config'
 import { CvcFormTypesModule } from './types/form-types.module'
 import { CvcFormWrappersModule } from './wrappers/form-wrappers.module'
 
@@ -27,10 +27,10 @@ import { CvcFormWrappersModule } from './wrappers/form-wrappers.module'
     CvcFormTypesModule,
   ],
   providers: [
-    {
+    { // inject deps, instantiate and register expressions
       provide: FORMLY_CONFIG,
       multi: true,
-      useFactory: registerObserveQueryParamExtension,
+      useFactory: registerCvcExtensions,
       deps: [ActivatedRoute],
     },
   ],
