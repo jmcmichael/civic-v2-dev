@@ -3,8 +3,18 @@
 import { Injectable } from '@angular/core'
 import { evidenceItemStateFieldsDefaults } from '@app/forms2/models/evidence-fields.model'
 import { environment } from 'environments/environment'
-import { Machine, MachineConfig, StateMachine } from 'xstate'
-import { InterpretedService, XstateAngular } from 'xstate-angular'
+import {
+  InterpreterOptions,
+  Machine,
+  MachineConfig,
+  MachineOptions,
+  StateMachine,
+} from 'xstate'
+import {
+  InterpretedService,
+  UseMachineOptions,
+  XstateAngular,
+} from 'xstate-angular'
 import { EvidenceItemStateEvent } from './evidence-statechart.events'
 import {
   EvidenceItemStateContext,
@@ -29,6 +39,11 @@ export class EvidenceItemStateService {
     EvidenceItemStateSchema,
     EvidenceItemStateEvent
   >
+  options: Partial<InterpreterOptions> &
+    Partial<
+      UseMachineOptions<EvidenceItemStateContext, EvidenceItemStateEvent>
+    > &
+    Partial<MachineOptions<EvidenceItemStateContext, EvidenceItemStateEvent>>
 
   constructor(
     private xstateAngular: XstateAngular<
@@ -54,11 +69,16 @@ export class EvidenceItemStateService {
       },
     }
 
+    this.options = {
+      actions: {},
+      services: {}
+    }
+
     this.machine = Machine<
       EvidenceItemStateContext,
       EvidenceItemStateSchema,
       EvidenceItemStateEvent
-    >(this.config)
+    >(this.config, this.options)
 
     this.service = this.xstateAngular.useMachine(this.machine, {
       devTools: !environment.production,

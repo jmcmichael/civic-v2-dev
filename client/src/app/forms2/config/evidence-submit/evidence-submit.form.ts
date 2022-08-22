@@ -15,10 +15,13 @@ export class CvcEvidenceSubmitForm implements OnInit {
   model: EvidenceSubmitFormModel = evidenceSubmitFormInitialModel
   form: FormGroup = new FormGroup({})
   fields: FormlyFieldConfig[]
-  options: FormlyFormOptions = { formState: new EvidenceState() }
+  options: FormlyFormOptions
 
   constructor(state: EvidenceItemStateService) {
     this.fields = evidenceSubmitFormFields
+    this.options = {
+      formState: state.service
+    }
   }
 
   onSubmit(model: EvidenceSubmitFormModel) {
