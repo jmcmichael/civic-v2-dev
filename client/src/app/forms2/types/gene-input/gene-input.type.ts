@@ -1,16 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { FieldType, FieldTypeConfig } from '@ngx-formly/core';
+import { Component, ChangeDetectionStrategy, Type } from '@angular/core';
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
+import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field';
+
+interface CvcGeneInputFieldProps extends FormlyFieldProps {}
+
+export interface CvcGeneInputFieldConfig extends FormlyFieldConfig<CvcGeneInputFieldProps> {
+  // type: 'gene-input' | Type<CvcGeneInputField>;
+}
 
 @Component({
   selector: 'cvc-gene-input',
   templateUrl: './gene-input.type.html',
-  styleUrls: ['./gene-input.type.less']
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcGeneInputType extends FieldType<FieldTypeConfig> implements OnInit {
-
-  constructor() { super()}
-
-  ngOnInit(): void {
-  }
-
-}
+export class CvcGeneInputField extends FieldType<FieldTypeConfig<CvcGeneInputFieldProps>> {}

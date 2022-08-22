@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { CvcGeneInputField } from './gene-input.type'
+import { CvcVariantInputField } from './variant-input.type'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { ReactiveFormsModule } from '@angular/forms'
@@ -10,15 +10,15 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'gene-input',
+      name: 'variant-input',
       wrappers: ['form-field'],
-      component: CvcGeneInputField,
+      component: CvcVariantInputField,
     },
   ],
 }
 
 @NgModule({
-  declarations: [CvcGeneInputField],
+  declarations: [CvcVariantInputField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -27,6 +27,6 @@ const typeConfig: ConfigOption = {
     FormlyNzFormFieldModule, // for form-field wrapper
     FormlyModule.forChild(typeConfig),
   ],
-  exports: [CvcGeneInputField],
+  exports: [CvcVariantInputField],
 })
-export class CvcGeneInputModule {}
+export class CvcVariantInputModule {}
