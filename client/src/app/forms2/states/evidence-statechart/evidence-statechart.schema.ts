@@ -5,6 +5,7 @@ import { EvidenceItemStateFields } from '@app/forms2/models/evidence-fields.mode
 
 export interface EvidenceItemStateSchema {
   states: {
+    initial: {}
     Gene: {
     } // Gene
     Variant: {

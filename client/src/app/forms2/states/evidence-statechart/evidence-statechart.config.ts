@@ -2,72 +2,66 @@
 
 import { Injectable } from '@angular/core'
 import { evidenceItemStateFieldsDefaults } from '@app/forms2/models/evidence-fields.model'
-import { Machine } from 'xstate'
-import { XstateAngular } from 'xstate-angular'
+import { environment } from 'environments/environment'
+import { Machine, MachineConfig, StateMachine } from 'xstate'
+import { InterpretedService, XstateAngular } from 'xstate-angular'
 import { EvidenceItemStateEvent } from './evidence-statechart.events'
 import {
-    EvidenceItemStateContext,
-    EvidenceItemStateSchema
+  EvidenceItemStateContext,
+  EvidenceItemStateSchema,
 } from './evidence-statechart.schema'
-
-// export const articleListInitialContext: ArticleListMachineContext = {
-//   articles: [],
-//   config: {
-//     currentPage: 1,
-//     filters: {
-//       limit: 10,
-//     },
-//   },
-// };
 
 @Injectable()
 export class EvidenceItemStateService {
+  config: MachineConfig<
+    EvidenceItemStateContext,
+    EvidenceItemStateSchema,
+    EvidenceItemStateEvent
+  >
+  machine: StateMachine<
+    EvidenceItemStateContext,
+    EvidenceItemStateSchema,
+    EvidenceItemStateEvent
+  >
+
+  service: InterpretedService<
+    EvidenceItemStateContext,
+    EvidenceItemStateSchema,
+    EvidenceItemStateEvent
+  >
+
   constructor(
     private xstateAngular: XstateAngular<
       EvidenceItemStateContext,
       EvidenceItemStateSchema,
       EvidenceItemStateEvent
     >
-  ) {}
-
-  // const machine: StateMachine<EvidenceItemStateContext, EvidenceItemStateSchema, EvidenceItemStateEvent> = Machine<EvidenceItemStateContext
-
-  private eidMachine = Machine<
-    EvidenceItemStateContext,
-    EvidenceItemStateSchema,
-    EvidenceItemStateEvent
-  >(
-    {
+  ) {
+    this.config = <EvidenceItemStateSchema>{
       id: 'EvidenceItem',
       context: <EvidenceItemStateContext>{
         fields: evidenceItemStateFieldsDefaults,
       },
-      initial: 'Gene',
+      initial: 'initial',
       states: {
+        initial: {},
         Gene: {
-          id: 'geneId'
+          id: 'geneId',
         },
         Variant: {
-          id: 'variantId'
-        }
-      }
+          id: 'variantId',
+        },
+      },
     }
-    // {
-    //   id: 'EvidenceItem',
-    //   context: <EvidenceItemStateContext>{
-    //     fields: evidenceItemStateFieldsDefaults,
-    //   },
-    //   initial: 'Gene',
-    //   states: {
-    //     Gene: {
-    //       on: {
 
-    //       }
-    //     }
-    //   }
-    // }
-  )
-  // evidenceItemStateMachine = this.xstateAngular.useMachine(), {
-  //   devTools: !environment.production,
-  // })
+    this.machine = Machine<
+      EvidenceItemStateContext,
+      EvidenceItemStateSchema,
+      EvidenceItemStateEvent
+    >(this.config)
+
+    this.service = this.xstateAngular.useMachine(this.machine, {
+      devTools: !environment.production,
+    })
+  }
 }
