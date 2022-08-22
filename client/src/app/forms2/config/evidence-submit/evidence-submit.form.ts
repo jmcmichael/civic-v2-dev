@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { EvidenceState } from '@app/forms/config/states/evidence.state';
 import { evidenceSubmitFormInitialModel, EvidenceSubmitFormModel } from '@app/forms2/models/evidence-submit-form.model';
+import { EvidenceItemStateService } from '@app/forms2/states/evidence-statechart/evidence-statechart.config';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
 import { evidenceSubmitFormFields } from './evidence-submit.form.config';
 
@@ -15,7 +16,8 @@ export class CvcEvidenceSubmitForm implements OnInit {
   form: FormGroup = new FormGroup({})
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions = { formState: new EvidenceState() }
-  constructor() {
+
+  constructor(state: EvidenceItemStateService) {
     this.fields = evidenceSubmitFormFields
   }
 
