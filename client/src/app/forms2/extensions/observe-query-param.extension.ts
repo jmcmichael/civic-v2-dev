@@ -38,9 +38,12 @@ export class ObserveQueryParamExtension implements FormlyExtension {
     props._routeSub = this.getRouteSub(this.route, field)
 
     // unsub from routeSub onDestroy
+    const _onDestroy = field.hooks?.onDestroy // preserve existing onDestroy fn
     field.hooks = {
+      ...field.hooks,
       onDestroy: (field) => {
         if (field.props?._routeSub) field.props._routeSub.unsubscribe()
+        if (_onDestroy) _onDestroy(field)
       },
     }
   }
