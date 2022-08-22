@@ -4,8 +4,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { XstateAngular } from 'xstate-angular';
-import { EvidenceItemStateService } from './evidence-statechart/evidence-statechart.config';
-import { EvidenceItemStateFacade } from './evidence-statechart/facades/evidence-statechart.form.facade';
+import { EvidenceItemStateService } from './evidence-statechart/evidence-statechart.service';
+import { EvidenceItemStateFacade } from './evidence-statechart/evidence-statechart.facade';
 
 @NgModule({
   imports: [CommonModule, RouterModule],
