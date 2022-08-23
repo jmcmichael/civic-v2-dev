@@ -70,7 +70,7 @@ export class CvcVariantInputField
 
   // SOURCE STREAMS
   onSearch$: Subject<string>
-  onSelect$: Subject<void>
+  onSelect$: Subject<Maybe<number>>
   queryRef!: QueryRef<
     VariantInputTypeaheadQuery,
     VariantInputTypeaheadQueryVariables
@@ -97,7 +97,7 @@ export class CvcVariantInputField
   constructor(private gql: VariantInputTypeaheadGQL, private apollo: Apollo) {
     super()
     this.onSearch$ = new Subject<string>()
-    this.onSelect$ = new Subject<void>()
+    this.onSelect$ = new Subject<Maybe<number>>()
   }
 
   private onGeneId(gid: Maybe<number>): void {

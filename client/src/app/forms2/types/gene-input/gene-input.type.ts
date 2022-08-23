@@ -17,7 +17,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
-import { QueryRef } from 'apollo-angular'
+import { Apollo, gql, QueryRef } from 'apollo-angular'
 import {
   asyncScheduler,
   defer,
@@ -33,6 +33,7 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
+import { tag } from 'rxjs-spy/operators'
 
 interface CvcGeneInputFieldProps extends FormlyFieldProps {
   placeholder: string
@@ -62,7 +63,7 @@ export class CvcGeneInputField
 
   // SOURCE STREAMS
   onSearch$: Subject<string>
-  onSelect$: Subject<void>
+  onSelect$: Subject<Maybe<number>>
   queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
 
   // INTERMEDIATE STREAMS
@@ -70,13 +71,14 @@ export class CvcGeneInputField
   result$!: Observable<GeneInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
 
-  constructor(private gql: GeneInputTypeaheadGQL) {
+  constructor(private gql: GeneInputTypeaheadGQL, private apollo: Apollo) {
     super()
     this.onSearch$ = new Subject<string>()
-    this.onSelect$ = new Subject<void>()
+    this.onSelect$ = new Subject<Maybe<number>>()
   }
 
   ngAfterViewInit(): void {
+    // get geneId$ reference from state, subscribe to push updates
     if (this.field?.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.geneId$) {
@@ -139,6 +141,31 @@ export class CvcGeneInputField
       //   return genes.map(g => g.entrezId)
       // })
     )
+
+    this.onSelect$.subscribe((gid: Maybe<number>) => {
+      if (!gid) {
+        delete this.tag
+        return
+      }
+
+      // linkable gene from cache
+      const fragment = {
+        id: `Gene:${gid}`,
+        fragment: gql`
+          fragment LinkableGene on Gene {
+            id
+            name
+            link
+          }
+        `,
+      }
+      const lgene = this.apollo.client.readFragment(fragment) as LinkableGene
+      if (!lgene) {
+        console.error(`gene-input could not find cached Gene:${gid}`)
+        return
+      }
+      this.tag = lgene;
+    })
   }
 
   defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {

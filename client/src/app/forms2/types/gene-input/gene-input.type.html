@@ -1,4 +1,6 @@
+<cvc-gene-tag *ngIf="tag" [gene]="tag"></cvc-gene-tag>
 <nz-select
+  *ngIf="!tag"
   nzShowSearch
   nzServerSearch
   nzAllowClear
