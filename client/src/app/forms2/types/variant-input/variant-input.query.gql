@@ -1,0 +1,20 @@
+query VariantInputTypeahead($name: String!, $geneId: Int) {
+  variants(name: $name, geneId: $geneId, first: 20) {
+    nodes {
+      ... VariantInputTypeaheadFields
+    }
+  }
+}
+
+fragment VariantInputTypeaheadFields on Variant {
+  id
+  name
+  link
+  variantAliases
+  singleVariantMolecularProfileId
+  singleVariantMolecularProfile {
+    id
+    name
+    link
+  }
+}

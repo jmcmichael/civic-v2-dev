@@ -5984,6 +5984,16 @@ export type GeneInputTypeaheadQuery = { __typename: 'Query', geneTypeahead: Arra
 
 export type GeneInputTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
+export type VariantInputTypeaheadQueryVariables = Exact<{
+  name: Scalars['String'];
+  geneId?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type VariantInputTypeaheadQuery = { __typename: 'Query', variants: { __typename: 'VariantConnection', nodes: Array<{ __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } }> } };
+
+export type VariantInputTypeaheadFieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
+
 export type AssertionDetailQueryVariables = Exact<{
   assertionId: Scalars['Int'];
 }>;
@@ -7716,6 +7726,20 @@ export const GeneInputTypeaheadFieldsFragmentDoc = gql`
   name
   geneAliases
   link
+}
+    `;
+export const VariantInputTypeaheadFieldsFragmentDoc = gql`
+    fragment VariantInputTypeaheadFields on Variant {
+  id
+  name
+  link
+  variantAliases
+  singleVariantMolecularProfileId
+  singleVariantMolecularProfile {
+    id
+    name
+    link
+  }
 }
     `;
 export const AssertionDetailFieldsFragmentDoc = gql`
@@ -11231,6 +11255,26 @@ export const GeneInputTypeaheadDocument = gql`
   })
   export class GeneInputTypeaheadGQL extends Apollo.Query<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables> {
     document = GeneInputTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const VariantInputTypeaheadDocument = gql`
+    query VariantInputTypeahead($name: String!, $geneId: Int) {
+  variants(name: $name, geneId: $geneId, first: 20) {
+    nodes {
+      ...VariantInputTypeaheadFields
+    }
+  }
+}
+    ${VariantInputTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class VariantInputTypeaheadGQL extends Apollo.Query<VariantInputTypeaheadQuery, VariantInputTypeaheadQueryVariables> {
+    document = VariantInputTypeaheadDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

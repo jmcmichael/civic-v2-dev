@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Type } from '@angular/core'
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Type,
+} from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
@@ -45,9 +50,10 @@ export interface CvcGeneInputFieldConfig
   templateUrl: './gene-input.type.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcGeneInputField extends FieldType<
-  FieldTypeConfig<CvcGeneInputFieldProps>
-> {
+export class CvcGeneInputField
+  extends FieldType<FieldTypeConfig<CvcGeneInputFieldProps>>
+  implements AfterViewInit
+{
   // store linkable entity for tag display
   tag: Maybe<LinkableGene>
 
@@ -69,36 +75,60 @@ export class CvcGeneInputField extends FieldType<
     super()
     this.onSearch$ = new Subject<string>()
     this.onSelect$ = new Subject<void>()
+  }
+
+  ngAfterViewInit(): void {
+    if (this.field?.options?.formState) {
+      this.state = this.field.options.formState
+      if (this.state && this.state.fields.geneId$) {
+        this.geneId$ = this.state.fields.geneId$
+        if (this.geneId$ && this.field.options?.fieldChanges) {
+          this.field.options.fieldChanges
+            .pipe(
+              filter((c) => c.field.key === this.field.key),
+              // tag('gene-input fields.geneId$'),
+              untilDestroyed(this)
+            )
+            .subscribe((change) => {
+              this.geneId$!.next(change.value)
+            })
+        }
+      }
+    }
     // set up typeahead watch, fetch calls
     this.response$ = this.onSearch$.pipe(
       skip(1), // drop empty string from initial field focus
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      tag('gene-input response$'),
+      // tag('gene-input response$'),
       switchMap((str: string) => {
+        const query: GeneInputTypeaheadQueryVariables = { entrezSymbol: str }
         // helper functions for iif operator:
-        const watchQuery = (str: string) => {
+        const watchQuery = (query: GeneInputTypeaheadQueryVariables) => {
           // returns observable from initial watch() query
-          this.queryRef = this.gql.watch({ entrezSymbol: str })
+          this.queryRef = this.gql.watch(query)
           return this.queryRef.valueChanges
         }
-        const fetchQuery = (str: string) =>
+        const fetchQuery = (query: GeneInputTypeaheadQueryVariables) => {
           // returns observable from refetch() promise
-          from(this.queryRef.refetch({ entrezSymbol: str }))
+          return from(this.queryRef.refetch(query))
+        }
 
         // this iif operator prevents double-calling the API:
         // if queryRef doesn't exist, create it with watchQuery observable
         // if it does, refetch with fetchQuery observable.
         // using defer() ensures functions are not called until
         // values are emitted. otherwise they'll be called on subscribe.
-        return iif(
+        const ret = iif(
           () => this.queryRef === undefined, // predicate
-          defer(() => watchQuery(str)), // true
-          defer(() => fetchQuery(str)) // false
+          defer(() => watchQuery(query)), // true
+          defer(() => fetchQuery(query)) // false
         )
+        return ret
       })
     ) // end this.response$
+
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
       filter(isNonNulled),
@@ -117,27 +147,6 @@ export class CvcGeneInputField extends FieldType<
     props: {
       label: 'Gene',
       placeholder: 'Search CIViC Genes',
-    },
-    hooks: {
-      onInit: (field) => {
-        if (field?.options?.formState) {
-          this.state = field.options.formState
-          if (this.state && this.state.fields.geneId$) {
-            this.geneId$ = this.state.fields.geneId$
-            if (this.geneId$ && field.options?.fieldChanges) {
-              field.options.fieldChanges
-                .pipe(
-                  filter((c) => c.field.key === field.key),
-                  tag('gene-input fields.geneId$'),
-                  untilDestroyed(this)
-                )
-                .subscribe((change) => {
-                  this.geneId$!.next(change.value)
-                })
-            }
-          }
-        }
-      },
     },
   }
 }

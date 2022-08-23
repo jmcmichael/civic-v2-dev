@@ -5,7 +5,10 @@ import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { ReactiveFormsModule } from '@angular/forms'
 import { NzInputModule } from 'ng-zorro-antd/input'
-import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
+import { ReactiveComponentModule } from '@ngrx/component'
+import { NzSelectModule } from 'ng-zorro-antd/select'
+import { NzFormModule } from 'ng-zorro-antd/form'
+import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -22,10 +25,13 @@ const typeConfig: ConfigOption = {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    NzInputModule,
-    NzInputNumberModule,
-    FormlyNzFormFieldModule, // for form-field wrapper
+    ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
+    FormlyNzFormFieldModule, // for form-field wrapper
+    NzSelectModule,
+    NzInputModule,
+    NzFormModule,
+    NzAutocompleteModule
   ],
   exports: [CvcVariantInputField],
 })
