@@ -26,11 +26,24 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           {
-            key: 'molecularProfileId',
-            type: 'input',
+            key: 'geneId',
+            type: 'gene-input',
             props: {
-              label: 'Molecular Profile',
+              label: 'Gene',
               required: true,
+            },
+          },
+          {
+            key: 'variantId',
+            type: 'variant-input',
+            props: {
+              label: 'Variant',
+              required: true,
+              hooks: {
+                onInit: (field: FormlyFieldConfig) => {
+                  console.log('variant-input hooks.onInit()')
+                },
+              },
             },
           },
         ],

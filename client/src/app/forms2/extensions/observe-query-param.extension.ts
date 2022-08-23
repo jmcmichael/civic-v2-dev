@@ -38,9 +38,12 @@ export class ObserveQueryParamExtension implements FormlyExtension {
     props._routeSub = this.getRouteSub(this.route, field)
 
     // unsub from routeSub onDestroy
+    const _onDestroy = field.hooks?.onDestroy // preserve existing onDestroy fn
     field.hooks = {
+      ...field.hooks,
       onDestroy: (field) => {
         if (field.props?._routeSub) field.props._routeSub.unsubscribe()
+        if (_onDestroy) _onDestroy(field)
       },
     }
   }
@@ -61,9 +64,8 @@ export class ObserveQueryParamExtension implements FormlyExtension {
         )
         return
       }
-    } else {
-      return
     }
+    return
   }
 
   getRouteSub(route: ActivatedRoute, field: FormlyFieldConfig): Subscription {
@@ -95,9 +97,9 @@ export class ObserveQueryParamExtension implements FormlyExtension {
         // ensure provided value is not an object, end if it is
         if (typeof fieldValue === 'object') {
           console.warn(
-            `observe-query-param may only set primitive types, param ${this.paramKey} is an object: ${JSON.stringify(
-              fieldValue
-            )}`
+            `observe-query-param may only set primitive types, param ${
+              this.paramKey
+            } is an object: ${JSON.stringify(fieldValue)}`
           )
           sub.unsubscribe()
           return

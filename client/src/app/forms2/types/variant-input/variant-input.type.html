@@ -1,0 +1,20 @@
+<nz-select
+  nzShowSearch
+  nzServerSearch
+  nzAllowClear
+  [class.ng-dirty]="showError"
+  [nzDisabled]="props.requireGene && !(geneId$ | ngrxPush)"
+  [nzPlaceHolder]="(placeholder$ | ngrxPush)!"
+  [formControl]="formControl"
+  [formlyAttributes]="field"
+  [nzOptionHeightPx]="28"
+  (ngModelChange)="onSelect$.next($event)"
+  (nzOnSearch)="onSearch$.next($event)"
+  (ngModelChange)="props.change && props.change(field, $event)">
+  <ng-container
+    *ngFor="let item of (result$ | ngrxPush)">
+    <nz-option
+      [nzValue]="item.id"
+      [nzLabel]="item.name"></nz-option>
+  </ng-container>
+</nz-select>

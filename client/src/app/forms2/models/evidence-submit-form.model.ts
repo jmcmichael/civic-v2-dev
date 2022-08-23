@@ -6,43 +6,17 @@ import {
   EvidenceType,
   VariantOrigin,
 } from '@app/generated/civic.apollo'
+import { EvidenceItemStateFields, evidenceItemStateFieldsDefaults } from './evidence-fields.model'
 import { FormSubmitBaseModel } from './form-submit-base.model'
 
 export interface EvidenceSubmitFormModel extends FormSubmitBaseModel {
-  fields: {
-    clinicalSignificance?: EvidenceClinicalSignificance
-    description?: string
-    diseaseId?: number
-    drugIds?: number[]
-    drugInteractionType?: DrugInteraction
-    evidenceDirection?: EvidenceDirection
-    evidenceLevel?: EvidenceLevel
-    evidenceType?: EvidenceType
-    molecularProfileId?: number
-    phenotypeIds?: number[]
-    rating?: number
-    sourceId?: number
-    variantOrigin?: VariantOrigin
-  }
+  fields: EvidenceItemStateFields
 }
+
 
 export const evidenceSubmitFormInitialModel: EvidenceSubmitFormModel = {
   clientMutationId: undefined,
-  fields: {
-    clinicalSignificance: undefined,
-    description: undefined,
-    diseaseId: undefined,
-    drugIds: [],
-    drugInteractionType: undefined,
-    evidenceDirection: undefined,
-    evidenceLevel: undefined,
-    evidenceType: undefined,
-    molecularProfileId: undefined,
-    phenotypeIds: [],
-    rating: undefined,
-    sourceId: undefined,
-    variantOrigin: undefined,
-  },
+  fields: evidenceItemStateFieldsDefaults,
   comment: undefined,
   organizationId: undefined,
 }

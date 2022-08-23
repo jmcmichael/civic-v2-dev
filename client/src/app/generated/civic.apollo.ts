@@ -5975,6 +5975,25 @@ export type SuggestVariantRevisionMutationVariables = Exact<{
 
 export type SuggestVariantRevisionMutation = { __typename: 'Mutation', suggestVariantRevision?: { __typename: 'SuggestVariantRevisionPayload', clientMutationId?: string | undefined, variant: { __typename: 'Variant', id: number, revisions: { __typename: 'RevisionConnection', totalCount: number, edges: Array<{ __typename: 'RevisionEdge', node?: { __typename: 'Revision', id: number, revisionsetId: string, createdAt: any, fieldName: string, currentValue?: any | undefined, suggestedValue?: any | undefined, status: RevisionStatus, linkoutData: { __typename: 'LinkoutData', name: string, diffValue: { __typename: 'ObjectFieldDiff', addedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string }>, removedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string }>, keptObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string }> } | { __typename: 'ScalarFieldDiff', left: string, right: string } }, revisor?: { __typename: 'User', id: number, name?: string | undefined } | undefined } | undefined }> } }, results: Array<{ __typename: 'RevisionResult', id: number, fieldName: string }> } | undefined };
 
+export type GeneInputTypeaheadQueryVariables = Exact<{
+  entrezSymbol: Scalars['String'];
+}>;
+
+
+export type GeneInputTypeaheadQuery = { __typename: 'Query', geneTypeahead: Array<{ __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string }> };
+
+export type GeneInputTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
+
+export type VariantInputTypeaheadQueryVariables = Exact<{
+  name: Scalars['String'];
+  geneId?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type VariantInputTypeaheadQuery = { __typename: 'Query', variants: { __typename: 'VariantConnection', nodes: Array<{ __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } }> } };
+
+export type VariantInputTypeaheadFieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
+
 export type AssertionDetailQueryVariables = Exact<{
   assertionId: Scalars['Int'];
 }>;
@@ -7700,6 +7719,29 @@ export const RevisableVariantFieldsFragmentDoc = gql`
   variantBases
 }
     ${CoordinateFieldsFragmentDoc}`;
+export const GeneInputTypeaheadFieldsFragmentDoc = gql`
+    fragment GeneInputTypeaheadFields on Gene {
+  id
+  entrezId
+  name
+  geneAliases
+  link
+}
+    `;
+export const VariantInputTypeaheadFieldsFragmentDoc = gql`
+    fragment VariantInputTypeaheadFields on Variant {
+  id
+  name
+  link
+  variantAliases
+  singleVariantMolecularProfileId
+  singleVariantMolecularProfile {
+    id
+    name
+    link
+  }
+}
+    `;
 export const AssertionDetailFieldsFragmentDoc = gql`
     fragment AssertionDetailFields on Assertion {
   id
@@ -11195,6 +11237,44 @@ export const SuggestVariantRevisionDocument = gql`
   })
   export class SuggestVariantRevisionGQL extends Apollo.Mutation<SuggestVariantRevisionMutation, SuggestVariantRevisionMutationVariables> {
     document = SuggestVariantRevisionDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const GeneInputTypeaheadDocument = gql`
+    query GeneInputTypeahead($entrezSymbol: String!) {
+  geneTypeahead(queryTerm: $entrezSymbol) {
+    ...GeneInputTypeaheadFields
+  }
+}
+    ${GeneInputTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class GeneInputTypeaheadGQL extends Apollo.Query<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables> {
+    document = GeneInputTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const VariantInputTypeaheadDocument = gql`
+    query VariantInputTypeahead($name: String!, $geneId: Int) {
+  variants(name: $name, geneId: $geneId, first: 50) {
+    nodes {
+      ...VariantInputTypeaheadFields
+    }
+  }
+}
+    ${VariantInputTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class VariantInputTypeaheadGQL extends Apollo.Query<VariantInputTypeaheadQuery, VariantInputTypeaheadQueryVariables> {
+    document = VariantInputTypeaheadDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

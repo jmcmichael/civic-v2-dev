@@ -99,25 +99,16 @@ export class CvcOrgSubmitButtonComponent
         }
         this.apollo.client.writeFragment(fragment)
       })
-    // emit viewer.mostRecentOrg.id as initial organizationId
-    // this.viewer$.pipe(filter(isNonNulled), first()).subscribe((v: Viewer) => {
-    //   this.organizationId$ = new BehaviorSubject<Maybe<number>>(
-    //     v.mostRecentOrg?.id
-    //   )
-    //   this.selectedOrg$ = this.organizationId$.pipe(
-    //     withLatestFrom(this.organizations$),
-    //     map(([id, orgs]: [Maybe<number>, Organization[]]) => {
-    //       return orgs.find((o) => o.id === id)
-    //     })
-    //   )
-    // })
+
     // create subject for detecting changes on form update events,
     // starting with initial form status (required for OnPush)
     this.formUpdate$ = new BehaviorSubject(this.form.status)
+
     // emit form update events from formUpdate$
     const fcSub = this.form.statusChanges.subscribe((s) =>
       this.formUpdate$.next(s)
     )
+
     // call detectChanges for each form update event
     const scSub = this.formUpdate$.subscribe((_) => this.cdr.detectChanges())
 
