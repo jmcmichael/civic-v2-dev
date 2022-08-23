@@ -11262,7 +11262,7 @@ export const GeneInputTypeaheadDocument = gql`
   }
 export const VariantInputTypeaheadDocument = gql`
     query VariantInputTypeahead($name: String!, $geneId: Int) {
-  variants(name: $name, geneId: $geneId, first: 20) {
+  variants(name: $name, geneId: $geneId, first: 50) {
     nodes {
       ...VariantInputTypeaheadFields
     }

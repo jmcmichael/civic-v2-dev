@@ -21,7 +21,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { Apollo, QueryRef, gql } from 'apollo-angular'
+import { Apollo, gql, QueryRef } from 'apollo-angular'
 import {
   asyncScheduler,
   BehaviorSubject,
@@ -31,7 +31,6 @@ import {
   from,
   iif,
   Observable,
-  skip,
   Subject,
   switchMap,
   throttleTime,
@@ -39,7 +38,6 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
 
 interface CvcVariantInputFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
@@ -102,8 +100,12 @@ export class CvcVariantInputField
     this.onSelect$ = new Subject<void>()
   }
 
-  private onGeneSelected(gid: Maybe<number>): void {
-    if (!gid) return
+  private onGeneId(gid: Maybe<number>): void {
+    if (!gid && this.props.requireGene) {
+      this.formControl.setValue(undefined)
+      this.placeholder$.next(this.props.requireGenePrompt)
+      return
+    }
     // get gene name
     const fragment = {
       id: `Gene:${gid}`,
@@ -116,6 +118,7 @@ export class CvcVariantInputField
     const { name } = this.apollo.client.readFragment(fragment) as {
       name: string
     }
+    if (!name) console.error(`variant-input could not find cached Gene:${gid}`)
     // format require gene msg
     const ph = this.props.requireGenePlaceholder.replace('GENE_NAME', name)
     this.placeholder$.next(ph)
@@ -134,11 +137,8 @@ export class CvcVariantInputField
       if (this.state && this.state.fields.geneId$) {
         this.geneId$ = this.state.fields.geneId$
         this.geneId$
-          .pipe(
-            // tag('variant-input fields.geneId$'),
-            untilDestroyed(this)
-          )
-          .subscribe((gid) => this.onGeneSelected(gid))
+          .pipe(untilDestroyed(this))
+          .subscribe((gid) => this.onGeneId(gid))
       } else {
         if (this.props.requireGene) {
           console.error(
@@ -149,11 +149,14 @@ export class CvcVariantInputField
     }
     // set up typeahead watch, fetch calls
     this.response$ = this.onSearch$.pipe(
-      skip(1), // drop empty string from initial field focus
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
       withLatestFrom(this.geneId$),
+      filter(([str, geneId]: [string, Maybe<number>]) => {
+        // if gene required, filter events w/o a geneId provided
+        return !!this.props.requireGene && !!geneId
+      }),
       switchMap(([str, geneId]: [string, Maybe<number>]) => {
         const query: VariantInputTypeaheadQueryVariables = {
           name: str,

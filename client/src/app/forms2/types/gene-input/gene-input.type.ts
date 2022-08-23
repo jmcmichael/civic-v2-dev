@@ -33,7 +33,6 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
-import { tag } from 'rxjs-spy/operators'
 
 interface CvcGeneInputFieldProps extends FormlyFieldProps {
   placeholder: string
