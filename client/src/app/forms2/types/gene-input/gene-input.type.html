@@ -14,6 +14,6 @@
     *ngFor="let item of (result$ | ngrxPush)">
     <nz-option
       [nzValue]="item.id"
-      [nzLabel]="item.entrezId"></nz-option>
+      [nzLabel]="item.name"></nz-option>
   </ng-container>
 </nz-select>

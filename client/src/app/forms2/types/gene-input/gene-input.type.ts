@@ -71,20 +71,23 @@ export class CvcGeneInputField extends FieldType<
     this.onSelect$ = new Subject<void>()
     // set up typeahead watch, fetch calls
     this.response$ = this.onSearch$.pipe(
-      skip(1), // drop initial empty string from input field init
-      // wait 1/3sec after typing activity to query server
+      skip(1), // drop empty string from initial field focus
+      // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
+      tag('gene-input response$'),
       switchMap((str: string) => {
-        // set queryRef with watch(), return its valueChanges observable
+        // helper functions for iif operator:
         const watchQuery = (str: string) => {
+          // returns observable from initial watch() query
           this.queryRef = this.gql.watch({ entrezSymbol: str })
           return this.queryRef.valueChanges
         }
-        // return observable from refetch() promise
         const fetchQuery = (str: string) =>
+          // returns observable from refetch() promise
           from(this.queryRef.refetch({ entrezSymbol: str }))
 
+        // this iif operator prevents double-calling the API:
         // if queryRef doesn't exist, create it with watchQuery observable
         // if it does, refetch with fetchQuery observable.
         // using defer() ensures functions are not called until
