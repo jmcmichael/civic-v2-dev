@@ -1,0 +1,13 @@
+query GeneInputTypeahead($entrezSymbol: String!) {
+  geneTypeahead(queryTerm: $entrezSymbol) {
+    ... GeneInputTypeaheadFields
+  }
+}
+
+fragment GeneInputTypeaheadFields on Gene {
+  id
+  entrezId
+  name
+  geneAliases
+  link
+}

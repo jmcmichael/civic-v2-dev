@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component, Type} from '@angular/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
-import { Maybe } from '@app/generated/civic.apollo'
+import { LinkableVariant, Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldType,
@@ -15,7 +15,7 @@ interface CvcVariantInputFieldProps extends FormlyFieldProps {}
 
 export interface CvcVariantInputFieldConfig
   extends FormlyFieldConfig<CvcVariantInputFieldProps> {
-  // type: 'variant-input' | Type<CvcVariantInputField>;
+   type: 'variant-input' | Type<CvcVariantInputField>
 }
 @UntilDestroy()
 @Component({
@@ -29,10 +29,7 @@ export class CvcVariantInputField extends FieldType<
 > {
   state?: EvidenceState
   geneId$?: Observable<Maybe<number>>
-
-  constructor() {
-    super()
-  }
+  variant: Maybe<LinkableVariant>
 
   defaultOptions: Partial<FieldTypeConfig<CvcVariantInputFieldProps>> = {
     props: {
