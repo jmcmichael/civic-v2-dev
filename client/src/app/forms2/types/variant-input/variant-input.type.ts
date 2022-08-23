@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
@@ -10,10 +9,10 @@ import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   LinkableVariant,
   Maybe,
+  VariantInputTypeaheadFieldsFragment,
   VariantInputTypeaheadGQL,
   VariantInputTypeaheadQuery,
   VariantInputTypeaheadQueryVariables,
-  VariantInputTypeaheadFieldsFragment,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -27,7 +26,6 @@ import {
   asyncScheduler,
   defer,
   distinctUntilChanged,
-  map,
   filter,
   from,
   iif,
@@ -113,9 +111,13 @@ export class CvcVariantInputField
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      // tag('variant-input response$'),
-      switchMap((str: string) => {
-        const query: VariantInputTypeaheadQueryVariables = { name: str, geneId: undefined}
+      tag('variant-input response$'),
+      withLatestFrom(this.geneId$),
+      switchMap(([str, geneId]: [string, Maybe<number>]) => {
+        const query: VariantInputTypeaheadQueryVariables = {
+          name: str,
+          geneId: geneId,
+        }
         // helper functions for iif operator:
         const watchQuery = (query: VariantInputTypeaheadQueryVariables) => {
           // returns observable from initial watch() query

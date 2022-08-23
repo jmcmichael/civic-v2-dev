@@ -4,7 +4,8 @@ import {
   EvidenceType,
   Maybe,
 } from "@app/generated/civic.apollo";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
+import { evidenceItemStateFieldsDefaults } from "../models/evidence-fields.model";
 import { EntityName, EntityState } from "./entity.state";
 
 export type EvidenceFieldSubjectMap = {
@@ -18,9 +19,10 @@ class EvidenceState extends EntityState {
   constructor() {
     super(EntityName.EVIDENCE);
 
+    const def = evidenceItemStateFieldsDefaults
     this.fields = {
-      geneId$: new Subject<Maybe<number>>(),
-      variantId$: new Subject<Maybe<number>>(),
+      geneId$: new BehaviorSubject<Maybe<number>>(def.geneId),
+      variantId$: new BehaviorSubject<Maybe<number>>(def.variantId),
     }
 
     this.validStates.set(EvidenceType.Predictive, {
