@@ -21,9 +21,10 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { QueryRef } from 'apollo-angular'
+import { Apollo, QueryRef, gql } from 'apollo-angular'
 import {
   asyncScheduler,
+  BehaviorSubject,
   defer,
   distinctUntilChanged,
   filter,
@@ -41,8 +42,10 @@ import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
 interface CvcVariantInputFieldProps extends FormlyFieldProps {
-  placeholder: string
-  selectGeneMessage: string
+  placeholder: string // default placeholder
+  requireGene: boolean // if true, disables field if no geneId$
+  requireGenePlaceholder: string // placeholder if geneId required & none is set
+  requireGenePrompt: string // placeholder prompt displayed when geneId set
 }
 
 export interface CvcVariantInputFieldConfig
@@ -77,41 +80,79 @@ export class CvcVariantInputField
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<VariantInputTypeaheadQuery>>
+
+  // DISPLAY STREAMS
+  placeholder$!: BehaviorSubject<string>
   result$!: Observable<VariantInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
 
-  onSearch = (str: string) => {
-    console.log(str)
+  defaultOptions: Partial<FieldTypeConfig<CvcVariantInputFieldProps>> = {
+    props: {
+      label: 'Variant',
+      placeholder: 'Search CIViC Variants',
+      requireGene: true,
+      requireGenePlaceholder: 'Search GENE_NAME Variants',
+      requireGenePrompt: 'Select a Gene to search Variants',
+    },
   }
-  constructor(private gql: VariantInputTypeaheadGQL) {
+
+  constructor(private gql: VariantInputTypeaheadGQL, private apollo: Apollo) {
     super()
     this.onSearch$ = new Subject<string>()
     this.onSelect$ = new Subject<void>()
   }
 
+  private onGeneSelected(gid: Maybe<number>): void {
+    if (!gid) return
+    // get gene name
+    const fragment = {
+      id: `Gene:${gid}`,
+      fragment: gql`
+        fragment GeneName on Gene {
+          name
+        }
+      `,
+    }
+    const { name } = this.apollo.client.readFragment(fragment) as {
+      name: string
+    }
+    // format require gene msg
+    const ph = this.props.requireGenePlaceholder.replace('GENE_NAME', name)
+    this.placeholder$.next(ph)
+  }
+
   ngAfterViewInit(): void {
+    // show prompt to select a gene if requireGene true
+    const initialPlaceholder = this.props.requireGene
+      ? this.props.requireGenePrompt
+      : this.props.placeholder
+    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
+
     // find and assign geneId on formState.fields
     if (this.field.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.geneId$) {
         this.geneId$ = this.state.fields.geneId$
         this.geneId$
-          .pipe(tag('variant-input fields.geneId$'), untilDestroyed(this))
-          .subscribe()
+          .pipe(
+            // tag('variant-input fields.geneId$'),
+            untilDestroyed(this)
+          )
+          .subscribe((gid) => this.onGeneSelected(gid))
       } else {
-        console.error(
-          `variant-input field could not find a geneId$ subject in formState fields.`
-        )
+        if (this.props.requireGene) {
+          console.error(
+            `variant-input field requires a gene to be set, but could not find a geneId$  formState fields.`
+          )
+        }
       }
     }
-    // set up typeahead watch, fetch calls
     // set up typeahead watch, fetch calls
     this.response$ = this.onSearch$.pipe(
       skip(1), // drop empty string from initial field focus
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      tag('variant-input response$'),
       withLatestFrom(this.geneId$),
       switchMap(([str, geneId]: [string, Maybe<number>]) => {
         const query: VariantInputTypeaheadQueryVariables = {
@@ -150,13 +191,5 @@ export class CvcVariantInputField
       pluck('data', 'variants', 'nodes'),
       filter(isNonNulled)
     )
-  }
-
-  defaultOptions: Partial<FieldTypeConfig<CvcVariantInputFieldProps>> = {
-    props: {
-      label: 'Variant',
-      placeholder: 'Search CIViC Variants',
-      selectGeneMessage: 'Select a Gene to search Variants',
-    },
   }
 }

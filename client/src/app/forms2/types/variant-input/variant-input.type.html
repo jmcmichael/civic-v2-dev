@@ -3,7 +3,8 @@
   nzServerSearch
   nzAllowClear
   [class.ng-dirty]="showError"
-  [nzPlaceHolder]="props.placeholder"
+  [nzDisabled]="props.requireGene && !(geneId$ | ngrxPush)"
+  [nzPlaceHolder]="(placeholder$ | ngrxPush)!"
   [formControl]="formControl"
   [formlyAttributes]="field"
   [nzOptionHeightPx]="28"
