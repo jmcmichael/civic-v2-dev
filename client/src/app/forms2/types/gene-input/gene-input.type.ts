@@ -120,12 +120,11 @@ export class CvcGeneInputField
         // if it does, refetch with fetchQuery observable.
         // using defer() ensures functions are not called until
         // values are emitted. otherwise they'll be called on subscribe.
-        const ret = iif(
+        return iif(
           () => this.queryRef === undefined, // predicate
           defer(() => watchQuery(query)), // true
           defer(() => fetchQuery(query)) // false
         )
-        return ret
       })
     ) // end this.response$
 

@@ -107,18 +107,15 @@ export class CvcVariantInputField
       }
     }
     // set up typeahead watch, fetch calls
+    // set up typeahead watch, fetch calls
     this.response$ = this.onSearch$.pipe(
-      tag('variant-input response$'),
       skip(1), // drop empty string from initial field focus
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      withLatestFrom(this.geneId$),
-      switchMap(([str, geneId]: [string, Maybe<number>]) => {
-        const query: VariantInputTypeaheadQueryVariables = {
-          name: str,
-          geneId: geneId,
-        }
+      // tag('variant-input response$'),
+      switchMap((str: string) => {
+        const query: VariantInputTypeaheadQueryVariables = { name: str, geneId: undefined}
         // helper functions for iif operator:
         const watchQuery = (query: VariantInputTypeaheadQueryVariables) => {
           // returns observable from initial watch() query
@@ -135,12 +132,11 @@ export class CvcVariantInputField
         // if it does, refetch with fetchQuery observable.
         // using defer() ensures functions are not called until
         // values are emitted. otherwise they'll be called on subscribe.
-        const ret = iif(
+        return iif(
           () => this.queryRef === undefined, // predicate
           defer(() => watchQuery(query)), // true
           defer(() => fetchQuery(query)) // false
         )
-        return ret
       })
     ) // end this.response$
     this.isLoading$ = this.response$.pipe(
@@ -149,8 +145,7 @@ export class CvcVariantInputField
       distinctUntilChanged()
     )
     this.result$ = this.response$.pipe(
-      pluck('data', 'variantTypeahead'),
-      map((r) => r as VariantInputTypeaheadFieldsFragment[]),
+      pluck('data', 'variants', 'nodes'),
       filter(isNonNulled)
     )
   }
@@ -160,9 +155,6 @@ export class CvcVariantInputField
       label: 'Variant',
       placeholder: 'Search CIViC Variants',
       selectGeneMessage: 'Select a Gene to search Variants',
-    },
-    hooks: {
-      onInit: (field) => {},
     },
   }
 }
