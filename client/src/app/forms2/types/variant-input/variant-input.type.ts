@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
-import { EvidenceItemStateFacade } from '@app/forms2/states/evidence-statechart/evidence-statechart.facade'
+import { ChangeDetectionStrategy, Component } from '@angular/core'
+import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { Maybe } from '@app/generated/civic.apollo'
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldType,
   FieldTypeConfig,
@@ -16,7 +17,7 @@ export interface CvcVariantInputFieldConfig
   extends FormlyFieldConfig<CvcVariantInputFieldProps> {
   // type: 'variant-input' | Type<CvcVariantInputField>;
 }
-
+@UntilDestroy()
 @Component({
   selector: 'cvc-variant-input',
   templateUrl: './variant-input.type.html',
@@ -26,9 +27,8 @@ export interface CvcVariantInputFieldConfig
 export class CvcVariantInputField extends FieldType<
   FieldTypeConfig<CvcVariantInputFieldProps>
 > {
-  state?: EvidenceItemStateFacade
+  state?: EvidenceState
   geneId$?: Observable<Maybe<number>>
-  changeSub?: Subscription
 
   constructor() {
     super()
@@ -40,20 +40,14 @@ export class CvcVariantInputField extends FieldType<
     },
     hooks: {
       onInit: (field) => {
-        if (field?.options?.formState) {
+        if (field.options?.formState) {
           this.state = field.options.formState
-          this.geneId$ = this.state!.geneId$
-          this.state!.state$.pipe(tag('state')).subscribe()
-          if (field?.options?.fieldChanges) {
-            this.changeSub = field.options.fieldChanges.subscribe((change) => {
-              if (this.state) this.state.send('SET_VARIANT', change.value)
-            })
+          if (this.state && this.state.fields.geneId$) {
+            this.geneId$ = this.state.fields.geneId$
+            this.geneId$
+              .pipe(tag('variant-input fields.geneId$'), untilDestroyed(this))
+              .subscribe()
           }
-        }
-      },
-      onDestroy: (_) => {
-        if (this.changeSub) {
-          this.changeSub.unsubscribe()
         }
       },
     },
