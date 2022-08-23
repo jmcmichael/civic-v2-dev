@@ -1,4 +1,5 @@
-<cvc-gene-tag *ngIf="tag" [gene]="tag"></cvc-gene-tag>
+<cvc-entity-tag *ngIf="tag" [cvcCacheId]="'Gene:' + tag.id"></cvc-entity-tag>
+<!-- <cvc-gene-tag *ngIf="tag" [gene]="tag"></cvc-gene-tag> -->
 <nz-select
   *ngIf="!tag"
   nzShowSearch

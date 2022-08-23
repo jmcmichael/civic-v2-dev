@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { CvcGeneTagModule } from '@app/components/genes/gene-tag/gene-tag.module'
+import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
@@ -35,6 +36,7 @@ const typeConfig: ConfigOption = {
     NzAutocompleteModule,
 
     CvcGeneTagModule,
+    CvcEntityTagModule,
   ],
   exports: [CvcGeneInputField],
 })
