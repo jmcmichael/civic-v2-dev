@@ -49,16 +49,16 @@ const formFieldConfig: FormlyFieldConfig[] = [
         ],
       },
       {
-        key: 'comment',
-        type: 'textarea',
-        props: {
-          label: 'Comment',
-          // required: true,
-        },
-      },
-      {
         wrappers: ['form-footer'],
         fieldGroup: [
+          {
+            key: 'comment',
+            type: 'textarea',
+            props: {
+              label: 'Comment',
+              // required: true,
+            },
+          },
           {
             key: 'organizationId',
             type: 'org-submit-button',
