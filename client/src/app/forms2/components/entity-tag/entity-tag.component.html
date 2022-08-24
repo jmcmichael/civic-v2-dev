@@ -1,5 +1,5 @@
 <nz-tag
-  [nzMode]="'closeable'"
+  [nzMode]="cvcMode"
   (nzOnClose)="cvcOnClose.next($event)">
   <i
     *ngIf="typename else noIcon"
@@ -8,7 +8,7 @@
     nzTheme="twotone"
     [nzTwotoneColor]="typename | entityColor"></i>
   <ng-container *ngIf="entity else noEntity">
-    {{ entity.name }}
+    <span [innerHtml]="entity.name | highlightTypeahead:cvcEmphasize"></span>
   </ng-container>
 </nz-tag>
 <ng-template #noIcon>

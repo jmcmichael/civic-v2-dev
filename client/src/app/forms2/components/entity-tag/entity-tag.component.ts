@@ -24,7 +24,8 @@ export class CvcEntityTagComponent implements OnInit {
   get cvcCacheId(): string {
     return this._cacheId
   }
-  @Input() cvcCloseable: boolean = false
+  @Input() cvcMode: 'default' | 'closeable' | 'checkable' = 'default'
+  @Input() cvcEmphasize?: string
   @Output() cvcOnClose: EventEmitter<MouseEvent>
 
   typename?: string
