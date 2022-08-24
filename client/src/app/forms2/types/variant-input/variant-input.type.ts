@@ -75,7 +75,7 @@ export class CvcVariantInputField
   // field interactions
   state: Maybe<EvidenceState>
   // receive geneId updates from state
-  geneId$!: Subject<Maybe<number>>
+  onGeneId$!: Subject<Maybe<number>>
   // send variantId updates to state
   variantId$!: Subject<Maybe<number>>
 
@@ -126,7 +126,7 @@ export class CvcVariantInputField
   }
 
   private onGeneId(gid: Maybe<number>): void {
-    // if field config indicates that a geneId is required, and none is provided
+    // if field config indicates that a geneId is required, and none is provided,
     // set model to undefined (this resets the variant model if gene field is reset)
     // and update the placeholder message
     if (!gid && this.props.requireGene) {
@@ -169,8 +169,8 @@ export class CvcVariantInputField
     if (this.field.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.geneId$) {
-        this.geneId$ = this.state.fields.geneId$
-        this.geneId$
+        this.onGeneId$ = this.state.fields.geneId$
+        this.onGeneId$
           .pipe(untilDestroyed(this))
           .subscribe((gid) => this.onGeneId(gid))
       } else {
@@ -224,11 +224,7 @@ export class CvcVariantInputField
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      withLatestFrom(this.geneId$),
-      filter(([str, geneId]: [string, Maybe<number>]) => {
-        // if gene required, filter events w/o a geneId provided
-        return !!this.props.requireGene && !!geneId
-      }),
+      withLatestFrom(this.onGeneId$),
       switchMap(([str, geneId]: [string, Maybe<number>]) => {
         const query: VariantInputTypeaheadQueryVariables = {
           name: str,

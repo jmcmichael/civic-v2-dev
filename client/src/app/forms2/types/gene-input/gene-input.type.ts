@@ -65,7 +65,7 @@ export class CvcGeneInputField
   // field interactions
   state: Maybe<EvidenceState>
   // send geneId updates to state
-  geneId$: Maybe<Subject<Maybe<number>>>
+  geneId$?: Subject<Maybe<number>>
 
   // SOURCE STREAMS
   onSearch$: Subject<string>
@@ -122,7 +122,7 @@ export class CvcGeneInputField
             )
             .subscribe((change) => {
               this.onValueChange$.next(change.value)
-              this.geneId$!.next(change.value)
+              if (this.geneId$) this.geneId$.next(change.value)
             })
         }
       }

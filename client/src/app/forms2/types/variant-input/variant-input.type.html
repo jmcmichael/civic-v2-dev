@@ -9,7 +9,7 @@
   nzServerSearch
   nzAllowClear
   [class.ng-dirty]="showError"
-  [nzDisabled]="props.requireGene && !(geneId$ | ngrxPush)"
+  [nzDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
   [nzPlaceHolder]="(placeholder$ | ngrxPush)!"
   [formControl]="formControl"
   [formlyAttributes]="field"
