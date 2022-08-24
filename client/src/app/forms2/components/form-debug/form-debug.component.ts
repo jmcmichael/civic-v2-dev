@@ -47,7 +47,7 @@ export class CvcFormDebugComponent implements OnInit {
     this.watchModel = this.cvcModel
     this.subscriptions = [
       this.cvcForm.valueChanges.subscribe((v) => {
-        this.watchModel = {...this.cvcModel}
+        this.watchModel = { ...this.cvcModel }
         this.valueChange$.next(v)
       }),
       this.cvcForm.statusChanges.subscribe((s) => {
