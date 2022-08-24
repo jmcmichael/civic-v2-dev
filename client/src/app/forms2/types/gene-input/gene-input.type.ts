@@ -73,24 +73,25 @@ export class CvcGeneInputField
   extends FieldType<FieldTypeConfig<CvcGeneInputFieldProps>>
   implements AfterViewInit
 {
-  // store linkable entity for tag display
-  tag: Maybe<LinkableGene>
-
   // field interactions
   state: Maybe<EvidenceState>
   geneId$: Maybe<Subject<Maybe<number>>>
 
   // SOURCE STREAMS
-  onTagClose$: Subject<MouseEvent>
   onSearch$: Subject<string>
   onSelect$: Subject<Maybe<number>>
   onValueChange$: Subject<Maybe<number>>
-  queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
+  onTagClose$: Subject<MouseEvent>
+  tag$: Subject<Maybe<LinkableGene>>
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>>
   result$!: Observable<GeneInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
+
+  // store linkable entity for tag display
+  tag: Maybe<LinkableGene>
+  queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
 
   constructor(
     private gql: GeneInputTypeaheadGQL,
@@ -102,6 +103,7 @@ export class CvcGeneInputField
     this.onSelect$ = new Subject<Maybe<number>>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.onValueChange$ = new Subject<Maybe<number>>()
+    this.tag$ = new Subject<Maybe<LinkableGene>>()
   }
 
   ngAfterViewInit(): void {
@@ -205,6 +207,7 @@ export class CvcGeneInputField
 
   setTag(gid?: number) {
     if (!gid) {
+      this.tag$.next(undefined)
       delete this.tag
       return
     }
@@ -215,15 +218,16 @@ export class CvcGeneInputField
     }
     const lgene = this.apollo.client.readFragment(fragment) as LinkableGene
     if (lgene) {
+      this.tag$.next(undefined)
       this.tag = lgene
     } else {
       console.log(
         `gene-input field could not find cached Gene:${gid}, fetching.`
       )
       this.geneQuery.fetch({ geneId: gid }).subscribe(({ data }) => {
-        const gene = data.gene
-        if (gene) {
-          this.tag = lgene as LinkableGene
+        const lgene = data.gene
+        if (lgene) {
+          // this.tag = lgene as LinkableGene
         } else {
           console.error(
             `gene-input field could not find cached Gene:${gid}, or fetch it from the server.`
