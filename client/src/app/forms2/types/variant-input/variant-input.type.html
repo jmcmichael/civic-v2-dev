@@ -1,4 +1,9 @@
+<cvc-entity-tag
+  *ngIf="(tagCacheId$ | ngrxPush) as cacheId"
+  [cvcCacheId]="cacheId"
+  (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
 <nz-select
+  *ngIf="!(tagCacheId$ | ngrxPush)"
   nzShowSearch
   nzServerSearch
   nzAllowClear

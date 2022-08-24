@@ -35,7 +35,6 @@ const typeConfig: ConfigOption = {
     NzFormModule,
     NzAutocompleteModule,
 
-    CvcGeneTagModule,
     CvcEntityTagModule,
   ],
   exports: [CvcGeneInputField],

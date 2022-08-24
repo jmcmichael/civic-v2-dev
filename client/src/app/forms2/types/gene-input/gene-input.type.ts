@@ -75,6 +75,7 @@ export class CvcGeneInputField
 {
   // field interactions
   state: Maybe<EvidenceState>
+  // send geneId updates to state
   geneId$: Maybe<Subject<Maybe<number>>>
 
   // SOURCE STREAMS
@@ -86,10 +87,11 @@ export class CvcGeneInputField
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>>
+
+  // DISPLAY STREAMS
   result$!: Observable<GeneInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
 
-  // store linkable entity for tag display
   queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
 
   // FieldTypeConfig defaults

@@ -9,6 +9,7 @@ import { ReactiveComponentModule } from '@ngrx/component'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
+import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -31,7 +32,8 @@ const typeConfig: ConfigOption = {
     NzSelectModule,
     NzInputModule,
     NzFormModule,
-    NzAutocompleteModule
+    NzAutocompleteModule,
+    CvcEntityTagModule,
   ],
   exports: [CvcVariantInputField],
 })

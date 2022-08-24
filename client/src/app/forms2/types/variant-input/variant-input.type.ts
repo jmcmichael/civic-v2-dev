@@ -61,20 +61,17 @@ export class CvcVariantInputField
   extends FieldType<FieldTypeConfig<CvcVariantInputFieldProps>>
   implements AfterViewInit
 {
-  // store linkable entity for tag display
-  tag: Maybe<LinkableVariant>
-
   // field interactions
   state: Maybe<EvidenceState>
+  // receive geneId updates from state
   geneId$!: Subject<Maybe<number>>
 
   // SOURCE STREAMS
   onSearch$: Subject<string>
   onSelect$: Subject<Maybe<number>>
-  queryRef!: QueryRef<
-    VariantInputTypeaheadQuery,
-    VariantInputTypeaheadQueryVariables
-  >
+  onValueChange$: Subject<Maybe<number>>
+  onTagClose$: Subject<MouseEvent>
+  tagCacheId$: Subject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<VariantInputTypeaheadQuery>>
@@ -84,6 +81,12 @@ export class CvcVariantInputField
   result$!: Observable<VariantInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
 
+  queryRef!: QueryRef<
+    VariantInputTypeaheadQuery,
+    VariantInputTypeaheadQueryVariables
+  >
+
+  // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcVariantInputFieldProps>> = {
     props: {
       label: 'Variant',
@@ -98,15 +101,21 @@ export class CvcVariantInputField
     super()
     this.onSearch$ = new Subject<string>()
     this.onSelect$ = new Subject<Maybe<number>>()
+    this.onTagClose$ = new Subject<MouseEvent>()
+    this.onValueChange$ = new Subject<Maybe<number>>()
+    this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
   private onGeneId(gid: Maybe<number>): void {
+    // if field config indicates that a geneId is required, and none is provided
+    // set model to undefined (this resets the variant model if gene field is reset)
+    // and update the placeholder message
     if (!gid && this.props.requireGene) {
       this.formControl.setValue(undefined)
       this.placeholder$.next(this.props.requireGenePrompt)
       return
     }
-    // get gene name
+    // if geneId is provided, get gene name from cache
     const fragment = {
       id: `Gene:${gid}`,
       fragment: gql`
@@ -118,7 +127,10 @@ export class CvcVariantInputField
     const { name } = this.apollo.client.readFragment(fragment) as {
       name: string
     }
-    if (!name) console.error(`variant-input could not find cached Gene:${gid}`)
+    if (!name) {
+      console.error(`variant-input could not find cached Gene:${gid}`)
+      return
+    }
     // format require gene msg
     const ph = this.props.requireGenePlaceholder.replace('GENE_NAME', name)
     this.placeholder$.next(ph)
