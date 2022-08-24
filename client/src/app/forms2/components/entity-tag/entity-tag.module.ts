@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CvcEntityTagComponent } from './entity-tag.component';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { CvcPipesModule } from '@app/core/pipes/pipes.module';
 
 @NgModule({
   declarations: [
@@ -10,6 +11,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
   ],
   imports: [
     CommonModule,
+    CvcPipesModule,
     NzIconModule,
     NzTagModule,
   ],

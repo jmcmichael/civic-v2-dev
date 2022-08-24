@@ -1,1 +1,8 @@
-<nz-tag>{{ entity.name  }}</nz-tag>
+<nz-tag [nzMode]="'closeable'">
+  <i
+    nz-icon
+    [nzType]="typename | typenameToIcon"
+    nzTheme="twotone"
+    [nzTwotoneColor]="typename | entityColor"></i>
+  {{ entity.name }}
+</nz-tag>

@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { Maybe } from '@app/generated/civic.apollo'
 import { Apollo, gql } from 'apollo-angular'
 export interface LinkableEntity {
   id: number,
@@ -13,25 +12,34 @@ export interface LinkableEntity {
 })
 export class CvcEntityTagComponent implements OnInit {
   _cacheId!: string
-  private typename!: string
-  private id!: number
-  entity!: LinkableEntity
-
   @Input()
   set cvcCacheId(cacheId: string) {
-    if (!cacheId) return
+    if (!cacheId) {
+      console.error(`cvc-entity-tag requires valid cacheId Input string.`)
+      return
+    }
     this._cacheId = cacheId
     this.setLinkableEntity(cacheId)
   }
   get cvcCacheId(): string {
     return this._cacheId
   }
+  @Input() closeable?: boolean
+
+  typename!: string
+  id!: number
+  entity!: LinkableEntity
+
   constructor(private apollo: Apollo) {}
 
   private setLinkableEntity(cacheId: string) {
     const [typename, id] = cacheId.split(':')
     this.typename = typename
     this.id = +id
+    if(!this.typename || !this.id) {
+      console.error(`entity-tag received an invalid cacheId: ${cacheId}. Cache IDs must be in the format 'TYPENAME:ID'.`)
+      return
+    }
     // get linkable entity
     const fragment = {
       id: `${typename}:${id}`,

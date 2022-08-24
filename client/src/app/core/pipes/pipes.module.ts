@@ -23,6 +23,7 @@ import { TruncatePipe } from './truncate-pipe';
 import { TypenameToRoutePipe } from './typename-to-route-pipe';
 import { EntityColorPipe } from './entity-color.pipe';
 import { DevRandomBoolPipe } from './dev-rnd-bool.pipe';
+import { TypenameToIconPipe } from './typename-to-icon';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { DevRandomBoolPipe } from './dev-rnd-bool.pipe';
     IconNameForEventActionPipe,
     IconNameForSubscribableEntity,
     IfEmptyPipe,
+    TypenameToIconPipe,
     PluckPipe,
     PrepositionForSubjectPipe,
     ReferenceBuildDisplayPipe,
@@ -67,6 +69,7 @@ import { DevRandomBoolPipe } from './dev-rnd-bool.pipe';
     IconNameForEventActionPipe,
     IconNameForSubscribableEntity,
     IfEmptyPipe,
+    TypenameToIconPipe,
     PluckPipe,
     PrepositionForSubjectPipe,
     ReferenceBuildDisplayPipe,
