@@ -82,7 +82,7 @@ export class CvcGeneInputField
   onSelect$: Subject<Maybe<number>>
   onValueChange$: Subject<Maybe<number>>
   onTagClose$: Subject<MouseEvent>
-  tag$: Subject<Maybe<LinkableGene>>
+  tagCacheId$: Subject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>>
@@ -103,7 +103,7 @@ export class CvcGeneInputField
     this.onSelect$ = new Subject<Maybe<number>>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.onValueChange$ = new Subject<Maybe<number>>()
-    this.tag$ = new Subject<Maybe<LinkableGene>>()
+    this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
   ngAfterViewInit(): void {
@@ -207,26 +207,28 @@ export class CvcGeneInputField
 
   setTag(gid?: number) {
     if (!gid) {
-      this.tag$.next(undefined)
+      this.tagCacheId$.next(undefined)
       delete this.tag
       return
     }
+    const cacheId = `Gene:${gid}`
     // linkable gene from cache
     const fragment = {
-      id: `Gene:${gid}`,
+      id: cacheId,
       fragment: GET_CACHED_GENE,
     }
-    const lgene = this.apollo.client.readFragment(fragment) as LinkableGene
-    if (lgene) {
-      this.tag$.next(undefined)
-      this.tag = lgene
+    const cachedGene = this.apollo.client.readFragment(fragment) as LinkableGene
+    if (cachedGene) {
+      this.tagCacheId$.next(cacheId)
+      this.tag = cachedGene
     } else {
       console.log(
         `gene-input field could not find cached Gene:${gid}, fetching.`
       )
       this.geneQuery.fetch({ geneId: gid }).subscribe(({ data }) => {
-        const lgene = data.gene
-        if (lgene) {
+        const fetchedGene = data.gene
+        if (fetchedGene) {
+          this.tagCacheId$.next(cacheId)
           // this.tag = lgene as LinkableGene
         } else {
           console.error(
