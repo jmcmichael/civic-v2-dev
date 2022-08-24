@@ -6001,6 +6001,13 @@ export type VariantInputTypeaheadQuery = { __typename: 'Query', variants: { __ty
 
 export type VariantInputTypeaheadFieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
 
+export type VariantInputLinkableVariantQueryVariables = Exact<{
+  variantId: Scalars['Int'];
+}>;
+
+
+export type VariantInputLinkableVariantQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string } | undefined };
+
 export type AssertionDetailQueryVariables = Exact<{
   assertionId: Scalars['Int'];
 }>;
@@ -11302,6 +11309,26 @@ export const VariantInputTypeaheadDocument = gql`
   })
   export class VariantInputTypeaheadGQL extends Apollo.Query<VariantInputTypeaheadQuery, VariantInputTypeaheadQueryVariables> {
     document = VariantInputTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const VariantInputLinkableVariantDocument = gql`
+    query VariantInputLinkableVariant($variantId: Int!) {
+  variant(id: $variantId) {
+    id
+    name
+    link
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class VariantInputLinkableVariantGQL extends Apollo.Query<VariantInputLinkableVariantQuery, VariantInputLinkableVariantQueryVariables> {
+    document = VariantInputLinkableVariantDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

@@ -52,17 +52,6 @@ export const GET_CACHED_GENE = gql`
     link
   }
 `
-
-export const FETCH_GENE = gql`
-  query LinkableGene($geneId: Int!) {
-    gene(id: $geneId) {
-      id
-      name
-      link
-    }
-  }
-`
-
 @UntilDestroy()
 @Component({
   selector: 'cvc-gene-input',
@@ -115,7 +104,8 @@ export class CvcGeneInputField
   }
 
   ngAfterViewInit(): void {
-    // get geneId$ reference from state, subscribe to push updates
+    // get geneId$ reference from state, subscribe to field value changes
+    // and emit new geneIds from formState's geneId$
     if (this.field?.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.geneId$) {
@@ -135,8 +125,6 @@ export class CvcGeneInputField
     }
 
     // on value change, fetch linkable entity from cache, or query server
-    // NOTE: probably can use one of apollo's query modes to do the fetch-cache,
-    // fetch server if needed but not 100% sure that does what I think
     this.onValueChange$.subscribe((gid: Maybe<number>) => {
       this.setTag(gid)
     })
@@ -210,6 +198,10 @@ export class CvcGeneInputField
     })
   } // ngAfterViewInit()
 
+  // verifies that a cached record exists for the given geneId,
+  // and fetches from the server if not, then sends tagCacheId$ event
+  // NOTE: probably can use one of apollo's query modes to do the fetch-cache,
+  // fetch server if needed but not 100% sure that does what I think
   setTag(gid?: number) {
     if (!gid) {
       this.tagCacheId$.next(undefined)
@@ -225,9 +217,9 @@ export class CvcGeneInputField
     if (cachedGene) {
       this.tagCacheId$.next(cacheId)
     } else {
-      console.log(
-        `gene-input field could not find cached Gene:${gid}, fetching.`
-      )
+      // console.log(
+      //   `gene-input field could not find cached Gene:${gid}, fetching.`
+      // )
       this.entityQuery.fetch({ geneId: gid }).subscribe(({ data }) => {
         const fetchedGene = data.gene
         if (fetchedGene) {
@@ -240,5 +232,4 @@ export class CvcGeneInputField
       })
     }
   }
-
 }

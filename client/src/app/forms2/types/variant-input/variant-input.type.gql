@@ -18,3 +18,11 @@ fragment VariantInputTypeaheadFields on Variant {
     link
   }
 }
+
+query VariantInputLinkableVariant($variantId: Int!) {
+  variant(id: $variantId) {
+    id
+    name
+    link
+  }
+}

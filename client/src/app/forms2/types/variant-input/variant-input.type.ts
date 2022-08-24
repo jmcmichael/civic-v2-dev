@@ -13,6 +13,7 @@ import {
   VariantInputTypeaheadGQL,
   VariantInputTypeaheadQuery,
   VariantInputTypeaheadQueryVariables,
+  VariantInputLinkableVariantGQL,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -38,6 +39,7 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
+import { tag } from 'rxjs-spy/operators'
 
 interface CvcVariantInputFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
@@ -50,6 +52,15 @@ export interface CvcVariantInputFieldConfig
   extends FormlyFieldConfig<CvcVariantInputFieldProps> {
   type: 'variant-input' | Type<CvcVariantInputField>
 }
+
+export const GET_CACHED_VARIANT = gql`
+  fragment LinkablelGene on Gene {
+    id
+    name
+    link
+  }
+`
+
 @UntilDestroy()
 @Component({
   selector: 'cvc-variant-input',
@@ -97,7 +108,11 @@ export class CvcVariantInputField
     },
   }
 
-  constructor(private gql: VariantInputTypeaheadGQL, private apollo: Apollo) {
+  constructor(
+    private gql: VariantInputTypeaheadGQL,
+    private entityQuery: VariantInputLinkableVariantGQL,
+    private apollo: Apollo
+  ) {
     super()
     this.onSearch$ = new Subject<string>()
     this.onSelect$ = new Subject<Maybe<number>>()
@@ -138,12 +153,13 @@ export class CvcVariantInputField
 
   ngAfterViewInit(): void {
     // show prompt to select a gene if requireGene true
+    // otherwise show standard placeholder
     const initialPlaceholder = this.props.requireGene
       ? this.props.requireGenePrompt
       : this.props.placeholder
     this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
 
-    // find and assign geneId on formState.fields
+    // find formState's geneId$ subject, subscribe to call onGeneId for new events
     if (this.field.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.geneId$) {
@@ -159,6 +175,22 @@ export class CvcVariantInputField
         }
       }
     }
+
+    // on value change, fetch linkable entity from cache, or query server
+    this.onValueChange$.subscribe((vid: Maybe<number>) => {
+      this.setTag(vid)
+    })
+
+    // if field has been assigned a value before its initialization, fire
+    // emit geneId$ and onValueChange$ events to notify other fields and fetch
+    // the tag's linkable entity
+    if (this.field.formControl.value) {
+      const v = this.field.formControl.value
+      // TODO: get variantId$ from formState and emit field updates
+      // if (this.variantId$) this.variantId$.next(v)
+      if (this.onValueChange$) this.onValueChange$.next(v)
+    }
+
     // set up typeahead watch, fetch calls
     this.response$ = this.onSearch$.pipe(
       // wait 1/3sec after typing activity stops to query server
@@ -197,6 +229,12 @@ export class CvcVariantInputField
         )
       })
     ) // end this.response$
+
+    // watch for value changes
+    this.formControl.valueChanges
+      .pipe(tag('variant-input valueChanges'), untilDestroyed(this))
+      .subscribe((vid?: number) => this.onValueChange$.next(vid))
+
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
       filter(isNonNulled),
@@ -206,5 +244,42 @@ export class CvcVariantInputField
       pluck('data', 'variants', 'nodes'),
       filter(isNonNulled)
     )
+
+    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+      this.setTag(undefined)
+    })
+  } // ngAfterViewInit
+
+  setTag(vid?: number) {
+    if (!vid) {
+      this.tagCacheId$.next(undefined)
+      return
+    }
+    const cacheId = `Variant:${vid}`
+    // linkable variant from cache
+    const fragment = {
+      id: cacheId,
+      fragment: GET_CACHED_VARIANT,
+    }
+    const cachedVariant = this.apollo.client.readFragment(
+      fragment
+    ) as LinkableVariant
+    if (cachedVariant) {
+      this.tagCacheId$.next(cacheId)
+    } else {
+      console.log(
+        `variant-input field could not find cached Variant:${vid}, fetching.`
+      )
+      this.entityQuery.fetch({ variantId: vid }).subscribe(({ data }) => {
+        const fetchedVariant = data.variant
+        if (fetchedVariant) {
+          this.tagCacheId$.next(cacheId)
+        } else {
+          console.error(
+            `variant-input field could not find cached Variant:${vid}, or fetch it from the server.`
+          )
+        }
+      })
+    }
   }
 }
