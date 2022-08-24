@@ -1,5 +1,5 @@
 <cvc-entity-tag
-  *ngIf="(tagCacheId$ | ngrxPush) as cacheId"
+  *ngIf="tagCacheId$ | ngrxPush as cacheId"
   [cvcCacheId]="cacheId"
   cvcMode="closeable"
   (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
@@ -17,8 +17,31 @@
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="props.change && props.change(field, $event)">
   <ng-container *ngFor="let item of result$ | ngrxPush">
+
     <nz-option
       [nzValue]="item.id"
       [nzLabel]="item.name"></nz-option>
+    <!-- <nz-option
+          nzCustomContent
+          [nzValue]="item.id">
+          <nz-space nzDirection="horizontal">
+            <cvc-entity-tag
+              *nzSpaceItem
+              [cvcCacheId]="item.__typename + ':' + item.id"
+              [cvcEmphasize]="searchString"></cvc-entity-tag>
+            <span
+              *nzSpaceItem
+              nz-typography
+              nzType="secondary">
+              ID: {{ item.id }}
+              <span *ngIf="item.geneAliases.length > 0"> - Aliases: </span>
+              <span
+                [innerHtml]="
+                  item.geneAliases.join(', ')
+                    | highlightTypeahead:searchString
+                "></span>
+            </span>
+          </nz-space>
+        </nz-option> -->
   </ng-container>
 </nz-select>

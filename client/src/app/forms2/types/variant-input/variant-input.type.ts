@@ -76,6 +76,8 @@ export class CvcVariantInputField
   state: Maybe<EvidenceState>
   // receive geneId updates from state
   geneId$!: Subject<Maybe<number>>
+  // send variantId updates to state
+  variantId$!: Subject<Maybe<number>>
 
   // SOURCE STREAMS
   onSearch$: Subject<string>
@@ -178,6 +180,28 @@ export class CvcVariantInputField
       }
     }
 
+    // get variantId$ reference from state, subscribe to field value changes
+    // and emit new variantIds from formState's variantId$
+    // and call onValueChange$
+    if (this.field?.options?.formState) {
+      this.state = this.field.options.formState
+      if (this.state && this.state.fields.variantId$) {
+        this.variantId$ = this.state.fields.variantId$
+        if (this.variantId$ && this.field.options?.fieldChanges) {
+          this.field.options.fieldChanges
+            .pipe(
+              filter((c) => c.field.key === this.field.key),
+              tag('variant-input fields.variantId$'),
+              untilDestroyed(this)
+            )
+            .subscribe((change) => {
+              this.onValueChange$.next(change.value)
+              this.variantId$!.next(change.value)
+            })
+        }
+      }
+    }
+
     // on value change, fetch linkable entity from cache, or query server
     this.onValueChange$.subscribe((vid: Maybe<number>) => {
       this.setTag(vid)
@@ -233,9 +257,9 @@ export class CvcVariantInputField
     ) // end this.response$
 
     // watch for value changes
-    this.formControl.valueChanges
-      .pipe(tag('variant-input valueChanges'), untilDestroyed(this))
-      .subscribe((vid?: number) => this.onValueChange$.next(vid))
+    // this.formControl.valueChanges
+    //   .pipe(tag('variant-input valueChanges'), untilDestroyed(this))
+    //   .subscribe((vid?: number) => this.onValueChange$.next(vid))
 
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
@@ -249,6 +273,7 @@ export class CvcVariantInputField
 
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
       this.setTag(undefined)
+      this.formControl.setValue(undefined)
     })
   } // ngAfterViewInit
 

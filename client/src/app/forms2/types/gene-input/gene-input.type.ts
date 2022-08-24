@@ -83,6 +83,8 @@ export class CvcGeneInputField
 
   queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
 
+  searchString?: string // for emphasizing strings in select options
+
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
     props: {
@@ -106,6 +108,7 @@ export class CvcGeneInputField
   ngAfterViewInit(): void {
     // get geneId$ reference from state, subscribe to field value changes
     // and emit new geneIds from formState's geneId$
+    // and call onValueChange$
     if (this.field?.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.geneId$) {
@@ -114,10 +117,11 @@ export class CvcGeneInputField
           this.field.options.fieldChanges
             .pipe(
               filter((c) => c.field.key === this.field.key),
-              // tag('gene-input fields.geneId$'),
+              tag('gene-input fields.geneId$'),
               untilDestroyed(this)
             )
             .subscribe((change) => {
+              this.onValueChange$.next(change.value)
               this.geneId$!.next(change.value)
             })
         }
@@ -172,16 +176,14 @@ export class CvcGeneInputField
     ) // end this.response$
 
     // watch for value changes
-    this.formControl.valueChanges
-      .pipe(tag('gene-input valueChanges'), untilDestroyed(this))
-      .subscribe((gid?: number) => this.onValueChange$.next(gid))
+    // this.formControl.valueChanges
+    //   .pipe(tag('gene-input valueChanges'), untilDestroyed(this))
+    //   .subscribe((gid?: number) => this.onValueChange$.next(gid))
 
-    // NOTE: probably can remove this, as onValueChange$ fires upon selection
-    // this.onSelect$
-    //   .pipe(untilDestroyed(this))
-    //   .subscribe((gid: Maybe<number>) => {
-    //     console.log('gene-input onSelect$: ${gid}')
-    //   })
+    // update searchString for option item emphasis
+    this.onSearch$
+      .pipe(untilDestroyed(this))
+      .subscribe((str) => (this.searchString = str))
 
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
@@ -205,6 +207,7 @@ export class CvcGeneInputField
   setTag(gid?: number) {
     if (!gid) {
       this.tagCacheId$.next(undefined)
+      this.formControl.setValue(undefined)
       return
     }
     const cacheId = `Gene:${gid}`

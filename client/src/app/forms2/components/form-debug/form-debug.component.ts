@@ -1,17 +1,16 @@
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    Input,
-    OnInit
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
 } from '@angular/core'
 import { AbstractControl } from '@angular/forms'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import {
-    BehaviorSubject, Observable, Subscription
-} from 'rxjs'
+import { BehaviorSubject, Observable, Subscription } from 'rxjs'
 import { combineLatestArray } from 'rxjs-etc'
+import { tag } from 'rxjs-spy/operators'
 
 @UntilDestroy({ arrayName: 'subscriptions' })
 @Component({
@@ -24,6 +23,7 @@ export class CvcFormDebugComponent implements OnInit {
   @Input() cvcForm: Maybe<AbstractControl>
   @Input() cvcModel: Maybe<any>
 
+  watchModel: Maybe<any>
   subscriptions!: Subscription[]
   valueChange$!: BehaviorSubject<any>
   statusChange$!: BehaviorSubject<any>
@@ -44,10 +44,18 @@ export class CvcFormDebugComponent implements OnInit {
       this.valueChange$,
     ])
 
+    this.watchModel = this.cvcModel
     this.subscriptions = [
-      this.cvcForm.valueChanges.subscribe((v) => this.valueChange$.next(v)),
-      this.cvcForm.statusChanges.subscribe((s) => this.statusChange$.next(s)),
-      this.formChange$.subscribe((_) => this.cdr.detectChanges()),
+      this.cvcForm.valueChanges.subscribe((v) => {
+        this.watchModel = {...this.cvcModel}
+        this.valueChange$.next(v)
+      }),
+      this.cvcForm.statusChanges.subscribe((s) => {
+        this.statusChange$.next(s)
+      }),
+      this.formChange$.subscribe((_) => {
+        this.cdr.detectChanges()
+      }),
     ]
   }
 }
