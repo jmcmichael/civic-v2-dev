@@ -90,12 +90,18 @@ export class CvcGeneInputField
   isLoading$!: Observable<boolean>
 
   // store linkable entity for tag display
-  tag: Maybe<LinkableGene>
   queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
 
+  // FieldTypeConfig defaults
+  defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
+    props: {
+      label: 'Gene',
+      placeholder: 'Search CIViC Genes',
+    },
+  }
   constructor(
     private gql: GeneInputTypeaheadGQL,
-    private geneQuery: GeneInputLinkableGeneGQL,
+    private entityQuery: GeneInputLinkableGeneGQL,
     private apollo: Apollo
   ) {
     super()
@@ -195,20 +201,16 @@ export class CvcGeneInputField
     this.result$ = this.response$.pipe(
       pluck('data', 'geneTypeahead'),
       filter(isNonNulled)
-      // map((genes: GeneInputTypeaheadFieldsFragment[]) => {
-      //   return genes.map(g => g.entrezId)
-      // })
     )
 
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-      delete this.tag
+      this.setTag(undefined)
     })
   } // ngAfterViewInit()
 
   setTag(gid?: number) {
     if (!gid) {
       this.tagCacheId$.next(undefined)
-      delete this.tag
       return
     }
     const cacheId = `Gene:${gid}`
@@ -220,16 +222,14 @@ export class CvcGeneInputField
     const cachedGene = this.apollo.client.readFragment(fragment) as LinkableGene
     if (cachedGene) {
       this.tagCacheId$.next(cacheId)
-      this.tag = cachedGene
     } else {
       console.log(
         `gene-input field could not find cached Gene:${gid}, fetching.`
       )
-      this.geneQuery.fetch({ geneId: gid }).subscribe(({ data }) => {
+      this.entityQuery.fetch({ geneId: gid }).subscribe(({ data }) => {
         const fetchedGene = data.gene
         if (fetchedGene) {
           this.tagCacheId$.next(cacheId)
-          // this.tag = lgene as LinkableGene
         } else {
           console.error(
             `gene-input field could not find cached Gene:${gid}, or fetch it from the server.`
@@ -239,10 +239,4 @@ export class CvcGeneInputField
     }
   }
 
-  defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
-    props: {
-      label: 'Gene',
-      placeholder: 'Search CIViC Genes',
-    },
-  }
 }

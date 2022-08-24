@@ -1,10 +1,10 @@
 <cvc-entity-tag
-  *ngIf="tag"
-  [cvcCacheId]="'Gene:' + tag.id"
+  *ngIf="(tagCacheId$ | ngrxPush) as cacheId"
+  [cvcCacheId]="cacheId"
   (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
 <!-- <cvc-gene-tag *ngIf="tag" [gene]="tag"></cvc-gene-tag> -->
 <nz-select
-  *ngIf="!tag"
+  *ngIf="!(tagCacheId$ | ngrxPush)"
   nzShowSearch
   nzServerSearch
   nzAllowClear
