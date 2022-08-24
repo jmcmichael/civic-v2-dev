@@ -175,11 +175,6 @@ export class CvcGeneInputField
       })
     ) // end this.response$
 
-    // watch for value changes
-    // this.formControl.valueChanges
-    //   .pipe(tag('gene-input valueChanges'), untilDestroyed(this))
-    //   .subscribe((gid?: number) => this.onValueChange$.next(gid))
-
     // update searchString for option item emphasis
     this.onSearch$
       .pipe(untilDestroyed(this))

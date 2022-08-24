@@ -99,6 +99,8 @@ export class CvcVariantInputField
     VariantInputTypeaheadQueryVariables
   >
 
+  searchString?: string // for emphasizing strings in select options
+
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcVariantInputFieldProps>> = {
     props: {
@@ -256,10 +258,10 @@ export class CvcVariantInputField
       })
     ) // end this.response$
 
-    // watch for value changes
-    // this.formControl.valueChanges
-    //   .pipe(tag('variant-input valueChanges'), untilDestroyed(this))
-    //   .subscribe((vid?: number) => this.onValueChange$.next(vid))
+    // update searchString for option item emphasis
+    this.onSearch$
+      .pipe(untilDestroyed(this))
+      .subscribe((str) => (this.searchString = str))
 
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
