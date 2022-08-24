@@ -5984,6 +5984,13 @@ export type GeneInputTypeaheadQuery = { __typename: 'Query', geneTypeahead: Arra
 
 export type GeneInputTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
+export type GeneInputLinkableGeneQueryVariables = Exact<{
+  geneId: Scalars['Int'];
+}>;
+
+
+export type GeneInputLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
+
 export type VariantInputTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
   geneId?: InputMaybe<Scalars['Int']>;
@@ -11255,6 +11262,26 @@ export const GeneInputTypeaheadDocument = gql`
   })
   export class GeneInputTypeaheadGQL extends Apollo.Query<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables> {
     document = GeneInputTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const GeneInputLinkableGeneDocument = gql`
+    query GeneInputLinkableGene($geneId: Int!) {
+  gene(id: $geneId) {
+    id
+    name
+    link
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class GeneInputLinkableGeneGQL extends Apollo.Query<GeneInputLinkableGeneQuery, GeneInputLinkableGeneQueryVariables> {
+    document = GeneInputLinkableGeneDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

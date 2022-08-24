@@ -1,6 +1,6 @@
 query GeneInputTypeahead($entrezSymbol: String!) {
   geneTypeahead(queryTerm: $entrezSymbol) {
-    ... GeneInputTypeaheadFields
+    ...GeneInputTypeaheadFields
   }
 }
 
@@ -10,4 +10,12 @@ fragment GeneInputTypeaheadFields on Gene {
   name
   geneAliases
   link
+}
+
+query GeneInputLinkableGene($geneId: Int!) {
+  gene(id: $geneId) {
+    id
+    name
+    link
+  }
 }

@@ -1,4 +1,7 @@
-<cvc-entity-tag *ngIf="tag" [cvcCacheId]="'Gene:' + tag.id"></cvc-entity-tag>
+<cvc-entity-tag
+  *ngIf="tag"
+  [cvcCacheId]="'Gene:' + tag.id"
+  (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
 <!-- <cvc-gene-tag *ngIf="tag" [gene]="tag"></cvc-gene-tag> -->
 <nz-select
   *ngIf="!tag"
@@ -13,8 +16,7 @@
   (ngModelChange)="onSelect$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="props.change && props.change(field, $event)">
-  <ng-container
-    *ngFor="let item of (result$ | ngrxPush)">
+  <ng-container *ngFor="let item of result$ | ngrxPush">
     <nz-option
       [nzValue]="item.id"
       [nzLabel]="item.name"></nz-option>

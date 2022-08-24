@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core'
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { Apollo, gql } from 'apollo-angular'
 export interface LinkableEntity {
   id: number,
@@ -24,13 +24,16 @@ export class CvcEntityTagComponent implements OnInit {
   get cvcCacheId(): string {
     return this._cacheId
   }
-  @Input() closeable?: boolean
+  @Input() cvcCloseable: boolean = false
+  @Output() cvcOnClose: EventEmitter<MouseEvent>
 
-  typename!: string
-  id!: number
-  entity!: LinkableEntity
+  typename?: string
+  id?: number
+  entity?: LinkableEntity
 
-  constructor(private apollo: Apollo) {}
+  constructor(private apollo: Apollo) {
+    this.cvcOnClose = new EventEmitter<MouseEvent>()
+  }
 
   private setLinkableEntity(cacheId: string) {
     const [typename, id] = cacheId.split(':')

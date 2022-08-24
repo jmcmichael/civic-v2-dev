@@ -1,8 +1,20 @@
-<nz-tag [nzMode]="'closeable'">
+<nz-tag
+  [nzMode]="'closeable'"
+  (nzOnClose)="cvcOnClose.next($event)">
   <i
+    *ngIf="typename else noIcon"
     nz-icon
     [nzType]="typename | typenameToIcon"
     nzTheme="twotone"
     [nzTwotoneColor]="typename | entityColor"></i>
-  {{ entity.name }}
+  <ng-container *ngIf="entity else noEntity">
+    {{ entity.name }}
+  </ng-container>
 </nz-tag>
+<ng-template #noIcon>
+  <i
+    nz-icon
+    nzType="question-circle"
+    nzTheme="outline"></i
+></ng-template>
+<ng-template #noEntity>?ENTITY?</ng-template>

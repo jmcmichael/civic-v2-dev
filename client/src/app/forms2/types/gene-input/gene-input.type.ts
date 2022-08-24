@@ -7,6 +7,7 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
+  GeneInputLinkableGeneGQL,
   GeneInputTypeaheadFieldsFragment,
   GeneInputTypeaheadGQL,
   GeneInputTypeaheadQuery,
@@ -44,6 +45,24 @@ export interface CvcGeneInputFieldConfig
   type: 'gene-input' | Type<CvcGeneInputField>
 }
 
+export const GET_CACHED_GENE = gql`
+  fragment LinkablelGene on Gene {
+    id
+    name
+    link
+  }
+`
+
+export const FETCH_GENE = gql`
+  query LinkableGene($geneId: Int!) {
+    gene(id: $geneId) {
+      id
+      name
+      link
+    }
+  }
+`
+
 @UntilDestroy()
 @Component({
   selector: 'cvc-gene-input',
@@ -62,8 +81,10 @@ export class CvcGeneInputField
   geneId$: Maybe<Subject<Maybe<number>>>
 
   // SOURCE STREAMS
+  onTagClose$: Subject<MouseEvent>
   onSearch$: Subject<string>
   onSelect$: Subject<Maybe<number>>
+  onValueChange$: Subject<Maybe<number>>
   queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
 
   // INTERMEDIATE STREAMS
@@ -71,10 +92,16 @@ export class CvcGeneInputField
   result$!: Observable<GeneInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
 
-  constructor(private gql: GeneInputTypeaheadGQL, private apollo: Apollo) {
+  constructor(
+    private gql: GeneInputTypeaheadGQL,
+    private geneQuery: GeneInputLinkableGeneGQL,
+    private apollo: Apollo
+  ) {
     super()
     this.onSearch$ = new Subject<string>()
     this.onSelect$ = new Subject<Maybe<number>>()
+    this.onTagClose$ = new Subject<MouseEvent>()
+    this.onValueChange$ = new Subject<Maybe<number>>()
   }
 
   ngAfterViewInit(): void {
@@ -96,7 +123,24 @@ export class CvcGeneInputField
         }
       }
     }
-    // set up typeahead watch, fetch calls
+
+    // on value change, fetch linkable entity from cache, or query server
+    // NOTE: probably can use one of apollo's query modes to do the fetch-cache,
+    // fetch server if needed but not 100% sure that does what I think
+    this.onValueChange$.subscribe((gid: Maybe<number>) => {
+      this.setTag(gid)
+    })
+
+    // if field has been assigned a value before its initialization, fire
+    // emit geneId$ and onValueChange$ events to notify other fields and fetch
+    // the tag's linkable entity
+    if (this.field.formControl.value) {
+      const v = this.field.formControl.value
+      if (this.geneId$) this.geneId$.next(v)
+      if (this.onValueChange$) this.onValueChange$.next(v)
+    }
+
+    // set up typeahead watch & fetch calls
     this.response$ = this.onSearch$.pipe(
       skip(1), // drop empty string from initial field focus
       // wait 1/3sec after typing activity stops to query server
@@ -129,6 +173,18 @@ export class CvcGeneInputField
       })
     ) // end this.response$
 
+    // watch for value changes
+    this.formControl.valueChanges
+      .pipe(tag('gene-input valueChanges'), untilDestroyed(this))
+      .subscribe((gid?: number) => this.onValueChange$.next(gid))
+
+    // NOTE: probably can remove this, as onValueChange$ fires upon selection
+    // this.onSelect$
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe((gid: Maybe<number>) => {
+    //     console.log('gene-input onSelect$: ${gid}')
+    //   })
+
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
       filter(isNonNulled),
@@ -142,30 +198,39 @@ export class CvcGeneInputField
       // })
     )
 
-    this.onSelect$.subscribe((gid: Maybe<number>) => {
-      if (!gid) {
-        delete this.tag
-        return
-      }
-
-      // linkable gene from cache
-      const fragment = {
-        id: `Gene:${gid}`,
-        fragment: gql`
-          fragment LinkableGene on Gene {
-            id
-            name
-            link
-          }
-        `,
-      }
-      const lgene = this.apollo.client.readFragment(fragment) as LinkableGene
-      if (!lgene) {
-        console.error(`gene-input could not find cached Gene:${gid}`)
-        return
-      }
-      this.tag = lgene;
+    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+      delete this.tag
     })
+  } // ngAfterViewInit()
+
+  setTag(gid?: number) {
+    if (!gid) {
+      delete this.tag
+      return
+    }
+    // linkable gene from cache
+    const fragment = {
+      id: `Gene:${gid}`,
+      fragment: GET_CACHED_GENE,
+    }
+    const lgene = this.apollo.client.readFragment(fragment) as LinkableGene
+    if (lgene) {
+      this.tag = lgene
+    } else {
+      console.log(
+        `gene-input field could not find cached Gene:${gid}, fetching.`
+      )
+      this.geneQuery.fetch({ geneId: gid }).subscribe(({ data }) => {
+        const gene = data.gene
+        if (gene) {
+          this.tag = lgene as LinkableGene
+        } else {
+          console.error(
+            `gene-input field could not find cached Gene:${gid}, or fetch it from the server.`
+          )
+        }
+      })
+    }
   }
 
   defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
