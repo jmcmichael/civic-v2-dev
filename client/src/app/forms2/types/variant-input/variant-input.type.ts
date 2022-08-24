@@ -131,6 +131,8 @@ export class CvcVariantInputField
       return
     }
     // if geneId is provided, get gene name from cache
+    // since formState's geneId$ will only emit when a geneId field is updated,
+    // we can assume that it is cached, and omit checking & fetching here
     const fragment = {
       id: `Gene:${gid}`,
       fragment: gql`

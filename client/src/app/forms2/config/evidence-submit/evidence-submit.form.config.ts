@@ -39,11 +39,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             props: {
               label: 'Variant',
               required: true,
-              hooks: {
-                onInit: (field: FormlyFieldConfig) => {
-                  console.log('variant-input hooks.onInit()')
-                },
-              },
             },
           },
         ],

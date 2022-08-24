@@ -26,7 +26,6 @@ export class ObserveQueryParamExtension implements FormlyExtension {
     // NOTE: it is possible to support array, object types, just want
     // to keep things simple to start
     if (field.fieldGroup || field.fieldArray) return
-
     // merge field props, end if field config has has paramKey set to false
     const props = field.props || { ...defaultObserveQueryParamProps }
     if (props.paramKey === false) return
