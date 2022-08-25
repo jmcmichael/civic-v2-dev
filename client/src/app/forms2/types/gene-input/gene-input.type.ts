@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   Type,
+  TrackByFunction
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
@@ -26,6 +27,7 @@ import {
   filter,
   from,
   iif,
+  map,
   Observable,
   skip,
   Subject,
@@ -77,13 +79,11 @@ export class CvcGeneInputField
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>>
 
-  // DISPLAY STREAMS
+  // PRESENTATION STREAMS
   result$!: Observable<GeneInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
 
   queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
-
-  searchString?: string // for emphasizing strings in select options
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
@@ -148,7 +148,6 @@ export class CvcGeneInputField
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      // tag('gene-input response$'),
       switchMap((str: string) => {
         const query: GeneInputTypeaheadQueryVariables = { entrezSymbol: str }
         // helper functions for iif operator:
@@ -175,23 +174,19 @@ export class CvcGeneInputField
       })
     ) // end this.response$
 
-    // update searchString for option item emphasis
-    this.onSearch$
-      .pipe(untilDestroyed(this))
-      .subscribe((str) => (this.searchString = str))
-
-    this.isLoading$ = this.response$.pipe(
-      pluck('loading'),
-      filter(isNonNulled),
-      distinctUntilChanged()
-    )
     this.result$ = this.response$.pipe(
       pluck('data', 'geneTypeahead'),
       filter(isNonNulled)
     )
+    // BUG: isLoading returns true a couple of times then false thereafter for no apparent reason
+    this.isLoading$ = this.response$.pipe(
+      pluck('loading'),
+      tag('gene-input isloading$'),
+      distinctUntilChanged()
+    )
 
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.setTag(undefined)
+      this.deleteTag()
     })
   } // ngAfterViewInit()
 
@@ -200,11 +195,7 @@ export class CvcGeneInputField
   // NOTE: probably can use one of apollo's query modes to do the fetch-cache,
   // fetch server if needed but not 100% sure that does what I think
   setTag(gid?: number) {
-    if (!gid) {
-      this.tagCacheId$.next(undefined)
-      this.formControl.setValue(undefined)
-      return
-    }
+    if(!gid) return
     const cacheId = `Gene:${gid}`
     // linkable gene from cache
     const fragment = {
@@ -224,10 +215,21 @@ export class CvcGeneInputField
           this.tagCacheId$.next(cacheId)
         } else {
           console.error(
-            `gene-input field could not find cached Gene:${gid}, or fetch it from the server.`
+            `gene-input field could neither find cached Gene:${gid}, nor fetch it from the server.`
           )
         }
       })
     }
+  }
+
+  deleteTag() {
+    this.tagCacheId$.next(undefined)
+    this.formControl.setValue(undefined)
+  }
+
+  optionTrackBy: TrackByFunction<GeneInputTypeaheadFieldsFragment> = (
+    index: number, option: GeneInputTypeaheadFieldsFragment
+  ): number => {
+    return option.id
   }
 }

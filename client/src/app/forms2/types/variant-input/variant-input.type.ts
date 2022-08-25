@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
@@ -89,7 +90,7 @@ export class CvcVariantInputField
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<VariantInputTypeaheadQuery>>
 
-  // DISPLAY STREAMS
+  // PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
   result$!: Observable<VariantInputTypeaheadFieldsFragment[]>
   isLoading$!: Observable<boolean>
@@ -98,8 +99,6 @@ export class CvcVariantInputField
     VariantInputTypeaheadQuery,
     VariantInputTypeaheadQueryVariables
   >
-
-  searchString?: string // for emphasizing strings in select options
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcVariantInputFieldProps>> = {
@@ -254,11 +253,6 @@ export class CvcVariantInputField
       })
     ) // end this.response$
 
-    // update searchString for option item emphasis
-    this.onSearch$
-      .pipe(untilDestroyed(this))
-      .subscribe((str) => (this.searchString = str))
-
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
       filter(isNonNulled),
@@ -270,16 +264,12 @@ export class CvcVariantInputField
     )
 
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.setTag(undefined)
-      this.formControl.setValue(undefined)
+      this.deleteTag()
     })
   } // ngAfterViewInit
 
   setTag(vid?: number) {
-    if (!vid) {
-      this.tagCacheId$.next(undefined)
-      return
-    }
+    if(!vid) return
     const cacheId = `Variant:${vid}`
     // linkable variant from cache
     const fragment = {
@@ -306,5 +296,16 @@ export class CvcVariantInputField
         }
       })
     }
+  } // setTag
+
+  deleteTag() {
+    this.tagCacheId$.next(undefined)
+    this.formControl.setValue(undefined)
+  }
+
+  optionTrackBy: TrackByFunction<VariantInputTypeaheadFieldsFragment> = (
+    _index: number, option: VariantInputTypeaheadFieldsFragment
+  ): number => {
+    return option.id
   }
 }

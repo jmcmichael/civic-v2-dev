@@ -15,9 +15,11 @@
   [nzOptionHeightPx]="28"
   (ngModelChange)="onSelect$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
+  [nzLoading]="isLoading$ | ngrxPush"
   (ngModelChange)="props.change && props.change(field, $event)">
-  <ng-container *ngFor="let item of result$ | ngrxPush">
+  <ng-container *ngrxLet="onSearch$ as searchString">
     <nz-option
+      *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy"
       nzCustomContent
       [nzValue]="item.id">
       <nz-space nzDirection="horizontal">
@@ -30,12 +32,14 @@
           nz-typography
           nzType="secondary">
           ID: {{ item.id }}
-          <span *ngIf="item.geneAliases.length > 0"> - Aliases: </span>
-          <span
-            [innerHtml]="
-              item.geneAliases.join(', ')
-                | highlightTypeahead:searchString
-            "></span>
+          <ng-container *ngIf="item.geneAliases.length > 0">
+            <span>- Aliases:</span>
+
+            <span
+              [innerHtml]="
+                item.geneAliases.join(', ') | highlightTypeahead: searchString
+              "></span>
+          </ng-container>
         </span>
       </nz-space>
     </nz-option>

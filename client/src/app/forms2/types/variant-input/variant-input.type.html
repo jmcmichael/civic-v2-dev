@@ -17,8 +17,9 @@
   (ngModelChange)="onSelect$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="props.change && props.change(field, $event)">
-  <ng-container *ngFor="let item of result$ | ngrxPush">
+  <ng-container *ngrxLet="onSearch$ as searchString">
     <nz-option
+      *ngFor="let item of result$ | ngrxPush"
       nzCustomContent
       [nzValue]="item.id">
       <nz-space nzDirection="horizontal">
