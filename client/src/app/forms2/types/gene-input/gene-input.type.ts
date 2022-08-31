@@ -2,8 +2,8 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  Type,
   TrackByFunction,
+  Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
@@ -13,7 +13,6 @@ import {
   GeneInputTypeaheadGQL,
   GeneInputTypeaheadQuery,
   GeneInputTypeaheadQueryVariables,
-  LinkableGene,
   Maybe,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
@@ -27,7 +26,7 @@ import {
   filter,
   from,
   iif,
-  map,
+  lastValueFrom,
   Observable,
   skip,
   Subject,
@@ -64,17 +63,11 @@ export class CvcGeneInputField
   extends FieldType<FieldTypeConfig<CvcGeneInputFieldProps>>
   implements AfterViewInit
 {
-  // field interactions
-  state: Maybe<EvidenceState>
-  // send geneId updates to state
-  geneId$?: Subject<Maybe<number>>
-
   // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<number>> // emits field model changes
-  onValueChange$: Subject<Maybe<number>> // emits on model changes, if initialized w/ query param
+  onModelChange$!: Observable<Maybe<number>> // emits all field model changes
+  onValueChange$: Subject<Maybe<number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
   onSearch$: Subject<string> // emits on typeahead keypress
   onTagClose$: Subject<MouseEvent> // emits on entity tag closed btn click
-  tagCacheId$: Subject<Maybe<string>> // stores cache ID for entity-tag
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>> // gql query responses
@@ -82,8 +75,13 @@ export class CvcGeneInputField
   // PRESENTATION STREAMS
   result$!: Observable<GeneInputTypeaheadFieldsFragment[]> // gql query results
   isLoading$!: Observable<boolean> // gqp query loading bool
+  tagCacheId$: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
+
+  // STATE STREAMS
+  geneId$?: Subject<Maybe<number>> // emit values from state's Subject
 
   queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables> // gql query reference
+  state: Maybe<EvidenceState>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
@@ -93,7 +91,7 @@ export class CvcGeneInputField
     },
   }
   constructor(
-    private gql: GeneInputTypeaheadGQL,
+    private typeaheadGQL: GeneInputTypeaheadGQL,
     private entityQuery: GeneInputLinkableGeneGQL, // gql query for fetching linkable tag if not cached
     private apollo: Apollo
   ) {
@@ -104,7 +102,7 @@ export class CvcGeneInputField
     this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
-  // formly's field is assigned OnInit, so field setup happens in AfterViewInit
+  // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     // create onModelChange$ observable from fieldChanges
     if (!this.field?.options?.fieldChanges) {
@@ -123,13 +121,14 @@ export class CvcGeneInputField
       })
     }
 
-    // on value change, call setTag
+    // on all value changes, call setTag
     this.onValueChange$.subscribe((gid: Maybe<number>) => {
+      if(!gid) { this.deleteTag(); return }
       this.setTag(gid)
     })
 
     // if form has a state object,
-    // get geneId$ Subject from state & emit local value updates from it
+    // get field's Subject from state & emit local value updates from it
     if (this.field?.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.geneId$) {
@@ -161,7 +160,7 @@ export class CvcGeneInputField
         // helper functions for iif operator:
         const watchQuery = (query: GeneInputTypeaheadQueryVariables) => {
           // returns observable from initial watch() query
-          this.queryRef = this.gql.watch(query)
+          this.queryRef = this.typeaheadGQL.watch(query)
           return this.queryRef.valueChanges
         }
         const fetchQuery = (query: GeneInputTypeaheadQueryVariables) => {
@@ -205,30 +204,15 @@ export class CvcGeneInputField
   // fetch server if needed but not 100% sure that does what I think
   setTag(gid?: number) {
     if (!gid) return
-    const cacheId = `Gene:${gid}`
-    // linkable gene from cache
-    const fragment = {
-      id: cacheId,
-      fragment: GET_CACHED_GENE,
-    }
-    const cachedGene = this.apollo.client.readFragment(fragment) as LinkableGene
-    if (cachedGene) {
-      this.tagCacheId$.next(cacheId)
-    } else {
-      // console.log(
-      //   `gene-input field could not find cached Gene:${gid}, fetching.`
-      // )
-      this.entityQuery.fetch({ geneId: gid }).subscribe(({ data }) => {
-        const fetchedGene = data.gene
-        if (fetchedGene) {
-          this.tagCacheId$.next(cacheId)
-        } else {
-          console.error(
-            `gene-input field could neither find cached Gene:${gid}, nor fetch it from the server.`
-          )
-        }
-      })
-    }
+    lastValueFrom(
+      this.entityQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
+    ).then(({ data }) => {
+      if (!data?.gene?.id) {
+        console.error(`gene-input field could not fetch Gene:${gid}.`)
+      } else {
+        this.tagCacheId$.next(`Gene:${gid}`)
+      }
+    })
   }
 
   deleteTag() {
