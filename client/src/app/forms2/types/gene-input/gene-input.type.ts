@@ -8,17 +8,17 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-  GeneInputLinkableGeneGQL,
   GeneInputTypeaheadFieldsFragment,
   GeneInputTypeaheadGQL,
   GeneInputTypeaheadQuery,
   GeneInputTypeaheadQueryVariables,
+  LinkableGeneGQL,
   Maybe,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
-import { Apollo, gql, QueryRef } from 'apollo-angular'
+import { QueryRef } from 'apollo-angular'
 import {
   asyncScheduler,
   defer,
@@ -46,13 +46,6 @@ export interface CvcGeneInputFieldConfig
   type: 'gene-input' | Type<CvcGeneInputField>
 }
 
-export const GET_CACHED_GENE = gql`
-  fragment LinkablelGene on Gene {
-    id
-    name
-    link
-  }
-`
 @UntilDestroy()
 @Component({
   selector: 'cvc-gene-input',
@@ -92,8 +85,7 @@ export class CvcGeneInputField
   }
   constructor(
     private typeaheadGQL: GeneInputTypeaheadGQL,
-    private entityQuery: GeneInputLinkableGeneGQL, // gql query for fetching linkable tag if not cached
-    private apollo: Apollo
+    private tagQuery: LinkableGeneGQL // gql query for fetching linkable tag if not cached
   ) {
     super()
     this.onSearch$ = new Subject<string>()
@@ -121,9 +113,13 @@ export class CvcGeneInputField
       })
     }
 
-    // on all value changes, call setTag
+    // on all value changes, deleteTag() if gid undefined,
+    // setTag() if defined
     this.onValueChange$.subscribe((gid: Maybe<number>) => {
-      if(!gid) { this.deleteTag(); return }
+      if (!gid) {
+        this.deleteTag()
+        return
+      }
       this.setTag(gid)
     })
 
@@ -205,7 +201,7 @@ export class CvcGeneInputField
   setTag(gid?: number) {
     if (!gid) return
     lastValueFrom(
-      this.entityQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
+      this.tagQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
     ).then(({ data }) => {
       if (!data?.gene?.id) {
         console.error(`gene-input field could not fetch Gene:${gid}.`)

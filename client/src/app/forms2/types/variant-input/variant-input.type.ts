@@ -10,11 +10,12 @@ import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   LinkableVariant,
   Maybe,
-  VariantInputLinkableVariantGQL,
+  LinkableVariantGQL,
   VariantInputTypeaheadFieldsFragment,
   VariantInputTypeaheadGQL,
   VariantInputTypeaheadQuery,
   VariantInputTypeaheadQueryVariables,
+  LinkableGeneGQL,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -32,6 +33,7 @@ import {
   filter,
   from,
   iif,
+  lastValueFrom,
   Observable,
   Subject,
   switchMap,
@@ -111,8 +113,9 @@ export class CvcVariantInputField
   }
 
   constructor(
-    private gql: VariantInputTypeaheadGQL,
-    private entityQuery: VariantInputLinkableVariantGQL,
+    private typeaheadGQL: VariantInputTypeaheadGQL,
+    private tagQuery: LinkableVariantGQL,
+    private geneQuery: LinkableGeneGQL,
     private apollo: Apollo
   ) {
     super()
@@ -200,7 +203,7 @@ export class CvcVariantInputField
         // helper functions for iif operator:
         const watchQuery = (query: VariantInputTypeaheadQueryVariables) => {
           // returns observable from initial watch() query
-          this.queryRef = this.gql.watch(query)
+          this.queryRef = this.typeaheadGQL.watch(query)
           return this.queryRef.valueChanges
         }
         const fetchQuery = (query: VariantInputTypeaheadQueryVariables) => {
@@ -244,29 +247,26 @@ export class CvcVariantInputField
       this.formControl.setValue(undefined)
       this.placeholder$.next(this.props.requireGenePrompt)
       return
-    }
-    // if geneId is provided, get gene name from cache
-    // since formState's geneId$ will only emit when a geneId field is updated,
-    // we can assume that it is cached, and omit checking & fetching here
-    const fragment = {
-      id: `Gene:${gid}`,
-      fragment: gql`
-        fragment GeneName on Gene {
-          name
-        }
-      `,
-    }
-
-    const gene = this.apollo.client.readFragment(fragment) as {
-      name: string
-    }
-    if (!gene) {
-      console.error(`variant-input could not find cached Gene:${gid}`)
+    } else if (!gid) {
+      // if no gene id, skip subqeuent gene name query
       return
     } else {
-      // format require gene msg
-      const ph = this.props.requireGenePlaceholder.replace('GENE_NAME', gene.name)
-      this.placeholder$.next(ph)
+      lastValueFrom(
+        this.geneQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
+      ).then(({ data }) => {
+        if (!data?.gene?.name) {
+          console.error(
+            `variant-input field could not fetch gene name for Gene:${gid}.`
+          )
+        } else {
+          // format require gene msg
+          const ph = this.props.requireGenePlaceholder.replace(
+            'GENE_NAME',
+            data.gene.name
+          )
+          this.placeholder$.next(ph)
+        }
+      })
     }
   }
 
@@ -287,7 +287,7 @@ export class CvcVariantInputField
       console.log(
         `variant-input field could not find cached Variant:${vid}, fetching.`
       )
-      this.entityQuery.fetch({ variantId: vid }).subscribe(({ data }) => {
+      this.tagQuery.fetch({ variantId: vid }).subscribe(({ data }) => {
         const fetchedVariant = data.variant
         if (fetchedVariant) {
           this.tagCacheId$.next(cacheId)
