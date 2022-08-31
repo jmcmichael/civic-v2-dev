@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { evidenceSubmitFormInitialModel, EvidenceSubmitFormModel } from '@app/forms2/models/evidence-submit-form.model';
+import { evidenceSubmitFormInitialModel, EvidenceSubmitModel } from '@app/forms2/models/evidence-submit.model';
 import { EvidenceState } from '@app/forms2/states/evidence.state';
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core';
-import { evidenceSubmitFormFields } from './evidence-submit.form.config';
+import { evidenceSubmitFields } from './evidence-submit.form.config';
 
 @Component({
   selector: 'cvc-evidence-submit-form',
@@ -11,18 +11,18 @@ import { evidenceSubmitFormFields } from './evidence-submit.form.config';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEvidenceSubmitForm implements OnInit {
-  model: EvidenceSubmitFormModel = evidenceSubmitFormInitialModel
+  model: EvidenceSubmitModel = evidenceSubmitFormInitialModel
   form: FormGroup = new FormGroup({})
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 
   constructor() {
     this.model = evidenceSubmitFormInitialModel
-    this.fields = evidenceSubmitFormFields
+    this.fields = evidenceSubmitFields
     this.options = { formState: new EvidenceState() }
   }
 
-  onSubmit(model: EvidenceSubmitFormModel) {
+  onSubmit(model: EvidenceSubmitModel) {
     console.log('------ Evidence Form Submitted ------')
     console.log(model);
   }

@@ -9,12 +9,12 @@ import {
 import { EvidenceItemStateFields, evidenceItemStateFieldsDefaults } from './evidence-fields.model'
 import { FormSubmitBaseModel } from './form-submit-base.model'
 
-export interface EvidenceSubmitFormModel extends FormSubmitBaseModel {
+export interface EvidenceSubmitModel extends FormSubmitBaseModel {
   fields: EvidenceItemStateFields
 }
 
 
-export const evidenceSubmitFormInitialModel: EvidenceSubmitFormModel = {
+export const evidenceSubmitFormInitialModel: EvidenceSubmitModel = {
   clientMutationId: undefined,
   fields: evidenceItemStateFieldsDefaults,
   comment: undefined,
