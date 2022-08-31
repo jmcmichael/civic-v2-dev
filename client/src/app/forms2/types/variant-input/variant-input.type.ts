@@ -139,7 +139,9 @@ export class CvcVariantInputField
       if (this.state && this.state.fields.geneId$) {
         this.onGeneId$ = this.state.fields.geneId$
         this.onGeneId$
-          .pipe(tag('variant-input onGeneId$'), untilDestroyed(this))
+          .pipe(
+            // tag('variant-input onGeneId$'),
+            untilDestroyed(this))
           .subscribe((gid) => {
             this.onGeneId(gid)
           })
@@ -163,7 +165,7 @@ export class CvcVariantInputField
           this.field.options.fieldChanges
             .pipe(
               filter((c) => c.field.key === this.field.key),
-              tag('variant-input fields.variantId$'),
+              // tag('variant-input fields.variantId$'),
               untilDestroyed(this)
             )
             .subscribe((change) => {
@@ -251,6 +253,7 @@ export class CvcVariantInputField
       // if no gene id, skip subqeuent gene name query
       return
     } else {
+      // we have a gene id, so fetch its name and update the placeholder string
       lastValueFrom(
         this.geneQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
       ).then(({ data }) => {
@@ -259,7 +262,6 @@ export class CvcVariantInputField
             `variant-input field could not fetch gene name for Gene:${gid}.`
           )
         } else {
-          // format require gene msg
           const ph = this.props.requireGenePlaceholder.replace(
             'GENE_NAME',
             data.gene.name

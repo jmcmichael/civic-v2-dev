@@ -59,6 +59,7 @@ export class CvcGeneInputField
   // SOURCE STREAMS
   onModelChange$!: Observable<Maybe<number>> // emits all field model changes
   onValueChange$: Subject<Maybe<number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
+  onFocus$: Subject<boolean>
   onSearch$: Subject<string> // emits on typeahead keypress
   onTagClose$: Subject<MouseEvent> // emits on entity tag closed btn click
 
@@ -89,6 +90,7 @@ export class CvcGeneInputField
   ) {
     super()
     this.onSearch$ = new Subject<string>()
+    this.onFocus$ = new Subject<boolean>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.onValueChange$ = new Subject<Maybe<number>>()
     this.tagCacheId$ = new Subject<Maybe<string>>()
@@ -130,7 +132,10 @@ export class CvcGeneInputField
       if (this.state && this.state.fields.geneId$) {
         this.geneId$ = this.state.fields.geneId$
         this.onValueChange$
-          .pipe(tag('gene-input state.fields.geneId$'), untilDestroyed(this))
+          .pipe(
+            // tag('gene-input state.fields.geneId$'),
+            untilDestroyed(this)
+          )
           .subscribe((v) => {
             if (this.geneId$) this.geneId$.next(v)
           })
@@ -145,9 +150,13 @@ export class CvcGeneInputField
       if (this.geneId$) this.geneId$.next(v)
     }
 
+    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+      this.onSearch$.next('')
+    })
+
     // set up typeahead watch & fetch calls
     this.response$ = this.onSearch$.pipe(
-      skip(1), // drop empty string from initial field focus
+      // skip(1), // drop empty string from initial field focus
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
@@ -174,13 +183,16 @@ export class CvcGeneInputField
           defer(() => watchQuery(query)), // true
           defer(() => fetchQuery(query)) // false
         )
-      })
+      }),
+      tag('gene-input response$')
     ) // end this.response$
 
     this.result$ = this.response$.pipe(
       pluck('data', 'geneTypeahead'),
-      filter(isNonNulled)
+      filter(isNonNulled),
+      tag('gene-input result$')
     )
+
     // BUG: isLoading returns true a couple of times then false thereafter
     // for no good reason that I can determine
     this.isLoading$ = this.response$.pipe(
