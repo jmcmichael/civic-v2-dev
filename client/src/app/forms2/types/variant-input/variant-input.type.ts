@@ -1,40 +1,42 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    TrackByFunction,
-    Type
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  TrackByFunction,
+  Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-    LinkableVariant,
-    Maybe, VariantInputLinkableVariantGQL, VariantInputTypeaheadFieldsFragment,
-    VariantInputTypeaheadGQL,
-    VariantInputTypeaheadQuery,
-    VariantInputTypeaheadQueryVariables
+  LinkableVariant,
+  Maybe,
+  VariantInputLinkableVariantGQL,
+  VariantInputTypeaheadFieldsFragment,
+  VariantInputTypeaheadGQL,
+  VariantInputTypeaheadQuery,
+  VariantInputTypeaheadQueryVariables,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
-    FieldType,
-    FieldTypeConfig,
-    FormlyFieldConfig,
-    FormlyFieldProps
+  FieldType,
+  FieldTypeConfig,
+  FormlyFieldConfig,
+  FormlyFieldProps,
 } from '@ngx-formly/core'
 import { Apollo, gql, QueryRef } from 'apollo-angular'
 import {
-    asyncScheduler,
-    BehaviorSubject,
-    defer,
-    distinctUntilChanged,
-    filter,
-    from,
-    iif,
-    Observable,
-    Subject,
-    switchMap,
-    throttleTime,
-    withLatestFrom
+  asyncScheduler,
+  BehaviorSubject,
+  defer,
+  distinctUntilChanged,
+  filter,
+  from,
+  iif,
+  Observable,
+  Subject,
+  switchMap,
+  throttleTime,
+  withLatestFrom,
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
@@ -74,7 +76,7 @@ export class CvcVariantInputField
   // field interactions
   state: Maybe<EvidenceState>
   // receive geneId updates from state
-  onGeneId$!: Subject<Maybe<number>>
+  onGeneId$!: BehaviorSubject<Maybe<number>>
   // send variantId updates to state
   variantId$!: Subject<Maybe<number>>
 
@@ -120,38 +122,6 @@ export class CvcVariantInputField
     this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
-  private onGeneId(gid: Maybe<number>): void {
-    // if field config indicates that a geneId is required, and none is provided,
-    // set model to undefined (this resets the variant model if gene field is reset)
-    // and update the placeholder message
-    if (!gid && this.props.requireGene) {
-      this.formControl.setValue(undefined)
-      this.placeholder$.next(this.props.requireGenePrompt)
-      return
-    }
-    // if geneId is provided, get gene name from cache
-    // since formState's geneId$ will only emit when a geneId field is updated,
-    // we can assume that it is cached, and omit checking & fetching here
-    const fragment = {
-      id: `Gene:${gid}`,
-      fragment: gql`
-        fragment GeneName on Gene {
-          name
-        }
-      `,
-    }
-    const { name } = this.apollo.client.readFragment(fragment) as {
-      name: string
-    }
-    if (!name) {
-      console.error(`variant-input could not find cached Gene:${gid}`)
-      return
-    }
-    // format require gene msg
-    const ph = this.props.requireGenePlaceholder.replace('GENE_NAME', name)
-    this.placeholder$.next(ph)
-  }
-
   ngAfterViewInit(): void {
     // show prompt to select a gene if requireGene true
     // otherwise show standard placeholder
@@ -166,8 +136,10 @@ export class CvcVariantInputField
       if (this.state && this.state.fields.geneId$) {
         this.onGeneId$ = this.state.fields.geneId$
         this.onGeneId$
-          .pipe(untilDestroyed(this))
-          .subscribe((gid) => this.onGeneId(gid))
+          .pipe(tag('variant-input onGeneId$'), untilDestroyed(this))
+          .subscribe((gid) => {
+            this.onGeneId(gid)
+          })
       } else {
         if (this.props.requireGene) {
           console.error(
@@ -264,8 +236,42 @@ export class CvcVariantInputField
     })
   } // ngAfterViewInit
 
+  private onGeneId(gid: Maybe<number>): void {
+    // if field config indicates that a geneId is required, and none is provided,
+    // set model to undefined (this resets the variant model if gene field is reset)
+    // and update the placeholder message
+    if (!gid && this.props.requireGene) {
+      this.formControl.setValue(undefined)
+      this.placeholder$.next(this.props.requireGenePrompt)
+      return
+    }
+    // if geneId is provided, get gene name from cache
+    // since formState's geneId$ will only emit when a geneId field is updated,
+    // we can assume that it is cached, and omit checking & fetching here
+    const fragment = {
+      id: `Gene:${gid}`,
+      fragment: gql`
+        fragment GeneName on Gene {
+          name
+        }
+      `,
+    }
+
+    const gene = this.apollo.client.readFragment(fragment) as {
+      name: string
+    }
+    if (!gene) {
+      console.error(`variant-input could not find cached Gene:${gid}`)
+      return
+    } else {
+      // format require gene msg
+      const ph = this.props.requireGenePlaceholder.replace('GENE_NAME', gene.name)
+      this.placeholder$.next(ph)
+    }
+  }
+
   setTag(vid?: number) {
-    if(!vid) return
+    if (!vid) return
     const cacheId = `Variant:${vid}`
     // linkable variant from cache
     const fragment = {
@@ -300,7 +306,8 @@ export class CvcVariantInputField
   }
 
   optionTrackBy: TrackByFunction<VariantInputTypeaheadFieldsFragment> = (
-    _index: number, option: VariantInputTypeaheadFieldsFragment
+    _index: number,
+    option: VariantInputTypeaheadFieldsFragment
   ): number => {
     return option.id
   }

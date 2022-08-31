@@ -9,8 +9,8 @@ import { evidenceItemStateFieldsDefaults } from "../models/evidence-fields.model
 import { EntityName, EntityState } from "./entity.state";
 
 export type EvidenceFieldSubjectMap = {
-  geneId$?: Subject<Maybe<number>>
-  variantId$?: Subject<Maybe<number>>
+  geneId$?: BehaviorSubject<Maybe<number>>
+  variantId$?: BehaviorSubject<Maybe<number>>
 }
 
 class EvidenceState extends EntityState {
