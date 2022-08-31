@@ -14,7 +14,6 @@
   [formControl]="formControl"
   [formlyAttributes]="field"
   [nzOptionHeightPx]="28"
-  (ngModelChange)="onSelect$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="props.change && props.change(field, $event)">
   <ng-container *ngrxLet="onSearch$ as searchString">

@@ -1,42 +1,40 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  Component,
-  TrackByFunction,
-  Type,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    TrackByFunction,
+    Type
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-  LinkableVariant,
-  Maybe,
-  VariantInputTypeaheadFieldsFragment,
-  VariantInputTypeaheadGQL,
-  VariantInputTypeaheadQuery,
-  VariantInputTypeaheadQueryVariables,
-  VariantInputLinkableVariantGQL,
+    LinkableVariant,
+    Maybe, VariantInputLinkableVariantGQL, VariantInputTypeaheadFieldsFragment,
+    VariantInputTypeaheadGQL,
+    VariantInputTypeaheadQuery,
+    VariantInputTypeaheadQueryVariables
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldType,
-  FieldTypeConfig,
-  FormlyFieldConfig,
-  FormlyFieldProps,
+    FieldType,
+    FieldTypeConfig,
+    FormlyFieldConfig,
+    FormlyFieldProps
 } from '@ngx-formly/core'
 import { Apollo, gql, QueryRef } from 'apollo-angular'
 import {
-  asyncScheduler,
-  BehaviorSubject,
-  defer,
-  distinctUntilChanged,
-  filter,
-  from,
-  iif,
-  Observable,
-  Subject,
-  switchMap,
-  throttleTime,
-  withLatestFrom,
+    asyncScheduler,
+    BehaviorSubject,
+    defer,
+    distinctUntilChanged,
+    filter,
+    from,
+    iif,
+    Observable,
+    Subject,
+    switchMap,
+    throttleTime,
+    withLatestFrom
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
@@ -82,7 +80,6 @@ export class CvcVariantInputField
 
   // SOURCE STREAMS
   onSearch$: Subject<string>
-  onSelect$: Subject<Maybe<number>>
   onValueChange$: Subject<Maybe<number>>
   onTagClose$: Subject<MouseEvent>
   tagCacheId$: Subject<Maybe<string>>
@@ -118,7 +115,6 @@ export class CvcVariantInputField
   ) {
     super()
     this.onSearch$ = new Subject<string>()
-    this.onSelect$ = new Subject<Maybe<number>>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.onValueChange$ = new Subject<Maybe<number>>()
     this.tagCacheId$ = new Subject<Maybe<string>>()

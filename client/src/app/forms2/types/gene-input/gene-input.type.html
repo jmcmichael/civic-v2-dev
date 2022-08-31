@@ -13,7 +13,6 @@
   [formControl]="formControl"
   [formlyAttributes]="field"
   [nzOptionHeightPx]="28"
-  (ngModelChange)="onSelect$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
   [nzLoading]="isLoading$ | ngrxPush"
   (ngModelChange)="props.change && props.change(field, $event)">

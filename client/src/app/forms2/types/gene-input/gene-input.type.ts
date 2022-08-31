@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   Type,
-  TrackByFunction
+  TrackByFunction,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
@@ -70,20 +70,20 @@ export class CvcGeneInputField
   geneId$?: Subject<Maybe<number>>
 
   // SOURCE STREAMS
-  onSearch$: Subject<string>
-  onSelect$: Subject<Maybe<number>>
-  onValueChange$: Subject<Maybe<number>>
-  onTagClose$: Subject<MouseEvent>
-  tagCacheId$: Subject<Maybe<string>>
+  onModelChange$!: Observable<Maybe<number>> // emits field model changes
+  onValueChange$: Subject<Maybe<number>> // emits on model changes, if initialized w/ query param
+  onSearch$: Subject<string> // emits on typeahead keypress
+  onTagClose$: Subject<MouseEvent> // emits on entity tag closed btn click
+  tagCacheId$: Subject<Maybe<string>> // stores cache ID for entity-tag
 
   // INTERMEDIATE STREAMS
-  response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>>
+  response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>> // gql query responses
 
   // PRESENTATION STREAMS
-  result$!: Observable<GeneInputTypeaheadFieldsFragment[]>
-  isLoading$!: Observable<boolean>
+  result$!: Observable<GeneInputTypeaheadFieldsFragment[]> // gql query results
+  isLoading$!: Observable<boolean> // gqp query loading bool
 
-  queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables>
+  queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables> // gql query reference
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
@@ -94,52 +94,60 @@ export class CvcGeneInputField
   }
   constructor(
     private gql: GeneInputTypeaheadGQL,
-    private entityQuery: GeneInputLinkableGeneGQL,
+    private entityQuery: GeneInputLinkableGeneGQL, // gql query for fetching linkable tag if not cached
     private apollo: Apollo
   ) {
     super()
     this.onSearch$ = new Subject<string>()
-    this.onSelect$ = new Subject<Maybe<number>>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.onValueChange$ = new Subject<Maybe<number>>()
     this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
+  // formly's field is assigned OnInit, so field setup happens in AfterViewInit
   ngAfterViewInit(): void {
-    // get geneId$ reference from state, subscribe to field value changes
-    // and emit new geneIds from formState's geneId$
-    // and call onValueChange$
-    if (this.field?.options?.formState) {
-      this.state = this.field.options.formState
-      if (this.state && this.state.fields.geneId$) {
-        this.geneId$ = this.state.fields.geneId$
-        if (this.geneId$ && this.field.options?.fieldChanges) {
-          this.field.options.fieldChanges
-            .pipe(
-              filter((c) => c.field.key === this.field.key),
-              tag('gene-input fields.geneId$'),
-              untilDestroyed(this)
-            )
-            .subscribe((change) => {
-              this.onValueChange$.next(change.value)
-              if (this.geneId$) this.geneId$.next(change.value)
-            })
-        }
-      }
+    // create onModelChange$ observable from fieldChanges
+    if (!this.field?.options?.fieldChanges) {
+      console.error(
+        `${this.field.key} field could not find fieldChanges Observable`
+      )
+    } else {
+      this.onModelChange$ = this.field.options.fieldChanges.pipe(
+        filter((c) => c.field.key === this.field.key), // filter out other fields
+        pluck('value')
+      )
+
+      // emit value from onValueChange$ for every model change
+      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+        this.onValueChange$.next(v)
+      })
     }
 
-    // on value change, fetch linkable entity from cache, or query server
+    // on value change, call setTag
     this.onValueChange$.subscribe((gid: Maybe<number>) => {
       this.setTag(gid)
     })
 
-    // if field has been assigned a value before its initialization, fire
-    // emit geneId$ and onValueChange$ events to notify other fields and fetch
-    // the tag's linkable entity
+    // if form has a state object,
+    // get geneId$ Subject from state & emit local value updates from it
+    if (this.field?.options?.formState) {
+      this.state = this.field.options.formState
+      if (this.state && this.state.fields.geneId$) {
+        this.geneId$ = this.state.fields.geneId$
+        this.onValueChange$
+          .pipe(tag('gene-input state.fields.geneId$'), untilDestroyed(this))
+          .subscribe((v) => {
+            if (this.geneId$) this.geneId$.next(v)
+          })
+      }
+    }
+
+    // if field has been assigned a value before its initialization
+    // via query-param extension or model initialization, emit onValueChange$, geneId$ events
     if (this.field.formControl.value) {
       const v = this.field.formControl.value
+      this.onValueChange$.next(v)
       if (this.geneId$) this.geneId$.next(v)
-      if (this.onValueChange$) this.onValueChange$.next(v)
     }
 
     // set up typeahead watch & fetch calls
@@ -178,10 +186,11 @@ export class CvcGeneInputField
       pluck('data', 'geneTypeahead'),
       filter(isNonNulled)
     )
-    // BUG: isLoading returns true a couple of times then false thereafter for no apparent reason
+    // BUG: isLoading returns true a couple of times then false thereafter
+    // for no good reason that I can determine
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
-      tag('gene-input isloading$'),
+      // tag('gene-input isloading$'),
       distinctUntilChanged()
     )
 
@@ -195,7 +204,7 @@ export class CvcGeneInputField
   // NOTE: probably can use one of apollo's query modes to do the fetch-cache,
   // fetch server if needed but not 100% sure that does what I think
   setTag(gid?: number) {
-    if(!gid) return
+    if (!gid) return
     const cacheId = `Gene:${gid}`
     // linkable gene from cache
     const fragment = {
@@ -228,7 +237,8 @@ export class CvcGeneInputField
   }
 
   optionTrackBy: TrackByFunction<GeneInputTypeaheadFieldsFragment> = (
-    index: number, option: GeneInputTypeaheadFieldsFragment
+    _index: number,
+    option: GeneInputTypeaheadFieldsFragment
   ): number => {
     return option.id
   }
