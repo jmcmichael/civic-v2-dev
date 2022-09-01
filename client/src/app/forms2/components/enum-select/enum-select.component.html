@@ -5,6 +5,7 @@
   [formlyAttributes]="cvcFormlyAttributes"
   [nzOptionHeightPx]="28"
   [nzDisabled]="cvcDisabled"
+  [nzAllowClear]="cvcAllowClear"
   (ngModelChange)="cvcModelChange && cvcModelChange.next($event)">
   <ng-container
     *ngFor="let item of cvcSelectOptions">

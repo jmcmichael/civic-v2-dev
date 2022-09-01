@@ -16,6 +16,7 @@ export class CvcEnumSelectComponent {
   @Input() cvcPlaceholder: string = 'Select an option'
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled: boolean = false
+  @Input() cvcAllowClear: boolean = true
   @Input() cvcModelChange?: Subject<any>
   @Input() cvcSelectOptions?: SelectOption[]
 

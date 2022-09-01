@@ -29,7 +29,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'geneId',
             type: 'gene-input',
             props: {
-              label: 'Gene',
               required: true,
             },
           },
@@ -37,7 +36,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'variantId',
             type: 'variant-input',
             props: {
-              label: 'Variant',
               required: true,
             },
           },
@@ -45,7 +43,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'evidenceType',
             type: 'evidence-type-select',
             props: {
-              label: 'Evidence Type',
               required: true
             }
           },
@@ -53,7 +50,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'evidenceDirection',
             type: 'evidence-direction-select',
             props: {
-              label: 'Evidence Direction',
               required: true
             }
           },
@@ -61,7 +57,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'clinicalSignficance',
             type: 'clinical-significance-select',
             props: {
-              label: 'Clinical Significance',
               required: true
             }
           }
