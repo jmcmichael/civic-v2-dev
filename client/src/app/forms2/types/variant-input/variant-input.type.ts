@@ -247,8 +247,8 @@ export class CvcVariantInputField
     // and update the placeholder message
     if (!gid && this.props.requireGene) {
       this.formControl.setValue(undefined)
+      this.deleteTag()
       this.placeholder$.next(this.props.requireGenePrompt)
-      return
     } else if (!gid) {
       // if no gene id, skip subqeuent gene name query
       return
