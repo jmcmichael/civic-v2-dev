@@ -12,7 +12,7 @@
   [nzPlaceHolder]="props.placeholder"
   [formControl]="formControl"
   [formlyAttributes]="field"
-  [nzOptionHeightPx]="28"
+  [nzOptionHeightPx]="30"
   (nzFocus)="onFocus$.next(true)"
   (nzOnSearch)="onSearch$.next($event)"
   [nzLoading]="isLoading$ | ngrxPush"
@@ -22,26 +22,24 @@
       *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy"
       nzCustomContent
       [nzValue]="item.id">
-      <nz-space nzDirection="horizontal">
-        <cvc-entity-tag
-          *nzSpaceItem
-          [cvcCacheId]="item.__typename + ':' + item.id"
-          [cvcEmphasize]="searchString"></cvc-entity-tag>
-        <span
-          *nzSpaceItem
-          nz-typography
-          nzType="secondary">
-          ID: {{ item.id }}
-          <ng-container *ngIf="item.geneAliases.length > 0">
-            <span>- Aliases:</span>
-
-            <span
-              [innerHtml]="
-                item.geneAliases.join(', ') | highlightTypeahead: searchString
-              "></span>
-          </ng-container>
-        </span>
-      </nz-space>
+      <cvc-entity-tag
+        [cvcCacheId]="item.__typename + ':' + item.id"
+        [cvcEmphasize]="searchString">
+      </cvc-entity-tag>
+      <span
+        nz-typography
+        nzType="secondary">
+        <!-- ID: {{ item.id }} -->
+        <ng-container *ngIf="item.geneAliases.length > 0">
+        <!-- <span> Aliases: </span> -->
+          <span>&nbsp;</span>
+          <em>
+          <span
+            [innerHtml]="
+              item.geneAliases.join(', ') | highlightTypeahead: searchString
+            "></span></em>
+        </ng-container>
+      </span>
     </nz-option>
   </ng-container>
 </nz-select>

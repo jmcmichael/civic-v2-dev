@@ -8,7 +8,6 @@ export interface ObserveQueryParamProps {
   // boolean toggles observation
   // provide string to specify query param (field.key is default)
   paramKey: boolean | string
-  _routeSub: Subscription
 }
 
 export const defaultObserveQueryParamProps = {
@@ -30,24 +29,28 @@ export class ObserveQueryParamExtension implements FormlyExtension {
     const props = field.props || { ...defaultObserveQueryParamProps }
     if (props.paramKey === false) return
 
+    // end if no paramKey
     this.paramKey = this.getParamKey(field)
     if (!this.paramKey) return
 
     // subscribe to route queryParams
-    props._routeSub = this.getRouteSub(this.route, field)
-
-    // unsub from routeSub onDestroy
-    const _onDestroy = field.hooks?.onDestroy // preserve existing onDestroy fn
-    field.hooks = {
-      ...field.hooks,
-      onDestroy: (field) => {
-        if (field.props?._routeSub) field.props._routeSub.unsubscribe()
-        if (_onDestroy) _onDestroy(field)
-      },
+    const routeSub = this.getRouteSub(this.route, field)
+    // save any existing onDestroy fn to call later
+    const preservedOnDestroy = field.hooks?.onDestroy
+    // setup onDestroy hook to unsub from routeSub and call preservedOnDestroy
+    if (routeSub && preservedOnDestroy) {
+      field.hooks = {
+        ...field.hooks,
+        onDestroy: (field) => {
+          routeSub.unsubscribe()
+          preservedOnDestroy(field)
+        },
+      }
     }
   }
 
   getParamKey(field: FormlyFieldConfig): Maybe<string | number> {
+    // assert props existence bc this fn only called if it exists
     const props = field!.props!
     // get queryParam from props, or use field's key if it is a string
     if (typeof props.paramKey === 'string') {
@@ -59,7 +62,7 @@ export class ObserveQueryParamExtension implements FormlyExtension {
         console.warn(
           `observe-query-param cannot use field key ${JSON.stringify(
             field.key
-          )} of type ${typeof field.key} to observe a query param. Use prop.paramKey to specify a query param.`
+          )} of type ${typeof field.key} to observe a query param. Use prop.paramKey to specify a query param string, or define a string field.key.`
         )
         return
       }
@@ -71,8 +74,10 @@ export class ObserveQueryParamExtension implements FormlyExtension {
     const sub = route.queryParams
       .pipe(distinctUntilKeyChanged(this.paramKey!))
       .subscribe((params: Params) => {
-        // getRouteSub isn't called unless fieldGroup, fieldArray check passed
-        // this field's control is a FormControl
+        // getRouteSub isn't called unless fieldGroup, fieldArray check passed,
+        // hence this field's control is a FormControl
+        // (and not a FieldArray, FieldGroup or FieldRecord)
+        // so it can be confidently cast as such here
         const ctrl = field.formControl as FormControl
         // set param value, end if undefined
         const paramValue = params[this.paramKey!]

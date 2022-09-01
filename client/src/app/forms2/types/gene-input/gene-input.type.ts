@@ -142,8 +142,9 @@ export class CvcGeneInputField
       }
     }
 
-    // if field has been assigned a value before its initialization
-    // via query-param extension or model initialization, emit onValueChange$, geneId$ events
+    // if field's formControl has already been assigned a value
+    // (e.g. via query-param extension, saved form state,
+    // model initialization), emit onValueChange$, geneId$ events
     if (this.field.formControl.value) {
       const v = this.field.formControl.value
       this.onValueChange$.next(v)

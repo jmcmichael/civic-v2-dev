@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
-import { CvcGeneTagModule } from '@app/components/genes/gene-tag/gene-tag.module'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { ReactiveComponentModule } from '@ngrx/component'
@@ -12,6 +11,7 @@ import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
+import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcGeneInputField } from './gene-input.type'
 
 const typeConfig: ConfigOption = {
@@ -34,8 +34,8 @@ const typeConfig: ConfigOption = {
     FormlyNzFormFieldModule, // for form-field wrapper
     NzSelectModule,
     NzInputModule,
-    NzSpaceModule,
     NzFormModule,
+    NzTypographyModule,
     NzAutocompleteModule,
 
     CvcPipesModule,
