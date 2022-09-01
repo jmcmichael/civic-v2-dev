@@ -16,7 +16,7 @@ import { tag } from 'rxjs-spy/operators'
 interface CvcEvidenceDirectionSelectFieldProps extends FormlyFieldProps {
   placeholder: string
   requireType: boolean
-  requireTypePlaceholder: string
+  requireTypePrompt: string
 }
 
 export interface CvcEvidenceDirectionSelectFieldConfig
@@ -39,7 +39,7 @@ export class CvcEvidenceDirectionSelectField
       label: 'Evidence Type',
       placeholder: 'Select an Evidence Direction',
       requireType: true,
-      requireTypePlaceholder: 'Select an Evidence Type to choose Direction'
+      requireTypePrompt: 'Select an Evidence Type to choose Direction'
     },
   }
 
@@ -50,6 +50,7 @@ export class CvcEvidenceDirectionSelectField
 
   // PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<Maybe<SelectOption[]>>
+  placeholder$!: BehaviorSubject<string>
 
   // OUTPUT STREAMS
   evidenceDirectionChange$?: BehaviorSubject<Maybe<EvidenceDirection>>
@@ -62,6 +63,13 @@ export class CvcEvidenceDirectionSelectField
   }
 
   ngAfterViewInit(): void {
+    // show prompt to select a Type if requireType true
+    // otherwise show standard placeholder
+    const initialPlaceholder: string = this.props.requireType
+      ? this.props.requireTypePrompt
+      : this.props.placeholder
+    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
+
     // create onModelChange$ observable from fieldChanges
     if (!this.field?.options?.fieldChanges) {
       console.error(
@@ -89,6 +97,23 @@ export class CvcEvidenceDirectionSelectField
       } else {
         console.error(
           `evidence-type-select field could not find form state's evidenceDirectionOption$ to populate select.`
+        )
+      }
+
+      if (this.state && this.state.fields.evidenceType$) {
+        this.onEvidenceType$ = this.state.fields.evidenceType$
+        this.onEvidenceType$
+          .pipe(untilDestroyed(this))
+          .subscribe((et: Maybe<EvidenceType>) => {
+            if (!et && this.props.requireType) {
+              this.placeholder$.next(this.props.requireTypePrompt)
+            } else {
+              this.placeholder$.next(this.props.placeholder)
+            }
+          })
+      } else {
+        console.error(
+          `evidence-direction-select field could not find form state's evidenceType$.`
         )
       }
 

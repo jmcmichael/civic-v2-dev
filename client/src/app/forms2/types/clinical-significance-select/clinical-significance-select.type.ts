@@ -62,7 +62,7 @@ export class CvcClinicalSignificanceSelectField
       label: 'Clinical Significance',
       placeholder: 'Select a Clinical Significance',
       requireType: true,
-      requireTypePrompt: 'Select a Type to select Clinical Significance',
+      requireTypePrompt: 'Select a Type to select Significance',
     },
   }
   constructor() {

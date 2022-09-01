@@ -1,7 +1,8 @@
 <cvc-enum-select
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
-  [cvcPlaceholder]="props.placeholder"
+  [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
   [cvcSelectOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
+  [cvcDisabled]="props.requireType && !(onEvidenceType$ | ngrxPush)"
 ></cvc-enum-select>
