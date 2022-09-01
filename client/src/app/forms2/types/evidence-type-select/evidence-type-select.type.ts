@@ -64,7 +64,7 @@ export class CvcEvidenceTypeSelectField
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.key === this.field.key), // filter out other fields
-        tag('evidence-type-select onModelChange$'),
+        // tag('evidence-type-select onModelChange$'),
         pluck('value')
       )
 
@@ -91,7 +91,7 @@ export class CvcEvidenceTypeSelectField
         this.evidenceTypeChange$ = this.state.fields.evidenceType$
         this.onValueChange$
           .pipe(
-            tag('evidence-type-select evidenceTypeChange$'),
+            // tag('evidence-type-select evidenceTypeChange$'),
             untilDestroyed(this)
           )
           .subscribe((v) => {

@@ -185,7 +185,7 @@ export class CvcGeneInputField
           defer(() => fetchQuery(query)) // false
         )
       }),
-      tag('gene-input response$')
+      // tag('gene-input response$')
     ) // end this.response$
 
     this.result$ = this.response$.pipe(
@@ -203,6 +203,7 @@ export class CvcGeneInputField
     )
 
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+      this.unsetModel()
       this.deleteTag()
     })
   } // ngAfterViewInit()
@@ -224,9 +225,12 @@ export class CvcGeneInputField
     })
   }
 
+  unsetModel() {
+    this.formControl.setValue(undefined)
+  }
+
   deleteTag() {
     this.tagCacheId$.next(undefined)
-    this.formControl.setValue(undefined)
   }
 
   optionTrackBy: TrackByFunction<GeneInputTypeaheadFieldsFragment> = (

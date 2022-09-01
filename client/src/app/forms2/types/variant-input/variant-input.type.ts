@@ -85,6 +85,7 @@ export class CvcVariantInputField
   // SOURCE STREAMS
   onSearch$: Subject<string>
   onValueChange$: Subject<Maybe<number>>
+  onFocus$: Subject<boolean>
   onTagClose$: Subject<MouseEvent>
   tagCacheId$: Subject<Maybe<string>>
 
@@ -120,6 +121,7 @@ export class CvcVariantInputField
   ) {
     super()
     this.onSearch$ = new Subject<string>()
+    this.onFocus$ = new Subject<boolean>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.onValueChange$ = new Subject<Maybe<number>>()
     this.tagCacheId$ = new Subject<Maybe<string>>()
@@ -141,7 +143,8 @@ export class CvcVariantInputField
         this.onGeneId$
           .pipe(
             // tag('variant-input onGeneId$'),
-            untilDestroyed(this))
+            untilDestroyed(this)
+          )
           .subscribe((gid) => {
             this.onGeneId(gid)
           })
@@ -156,7 +159,6 @@ export class CvcVariantInputField
 
     // get variantId$ reference from state, subscribe to field value changes
     // and emit new variantIds from formState's variantId$
-    // and call onValueChange$
     if (this.field?.options?.formState) {
       this.state = this.field.options.formState
       if (this.state && this.state.fields.variantId$) {
@@ -191,6 +193,13 @@ export class CvcVariantInputField
       if (this.onValueChange$) this.onValueChange$.next(v)
     }
 
+    // if gene is required, show a list of variants when select is clicked
+    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+      if (this.props.requireGene) {
+        this.onSearch$.next('')
+      }
+    })
+
     // set up typeahead watch, fetch calls
     this.response$ = this.onSearch$.pipe(
       // wait 1/3sec after typing activity stops to query server
@@ -223,7 +232,8 @@ export class CvcVariantInputField
           defer(() => watchQuery(query)), // true
           defer(() => fetchQuery(query)) // false
         )
-      })
+      }),
+      tag('variant-input response$')
     ) // end this.response$
 
     this.isLoading$ = this.response$.pipe(
@@ -237,6 +247,7 @@ export class CvcVariantInputField
     )
 
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+      this.unsetModel()
       this.deleteTag()
     })
   } // ngAfterViewInit
@@ -246,13 +257,10 @@ export class CvcVariantInputField
     // set model to undefined (this resets the variant model if gene field is reset)
     // and update the placeholder message
     if (!gid && this.props.requireGene) {
-      this.formControl.setValue(undefined)
+      this.unsetModel()
       this.deleteTag()
       this.placeholder$.next(this.props.requireGenePrompt)
-    } else if (!gid) {
-      // if no gene id, skip subqeuent gene name query
-      return
-    } else {
+    } else if (gid) {
       // we have a gene id, so fetch its name and update the placeholder string
       lastValueFrom(
         this.geneQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
@@ -302,9 +310,12 @@ export class CvcVariantInputField
     }
   } // setTag
 
+  unsetModel() {
+    this.formControl.setValue(undefined)
+  }
+
   deleteTag() {
     this.tagCacheId$.next(undefined)
-    this.formControl.setValue(undefined)
   }
 
   optionTrackBy: TrackByFunction<VariantInputTypeaheadFieldsFragment> = (

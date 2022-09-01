@@ -21,7 +21,7 @@ interface CvcEvidenceDirectionSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcEvidenceDirectionSelectFieldConfig
   extends FormlyFieldConfig<CvcEvidenceDirectionSelectFieldProps> {
-  type: 'evidence-type-select' | Type<CvcEvidenceDirectionSelectField>
+  type: 'evidence-direction-select' | Type<CvcEvidenceDirectionSelectField>
 }
 
 @UntilDestroy()
@@ -78,7 +78,7 @@ export class CvcEvidenceDirectionSelectField
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.key === this.field.key), // filter out other fields
-        tag('evidence-type-select onModelChange$'),
+        // tag('evidence-direction-select onModelChange$'),
         pluck('value')
       )
 
@@ -96,7 +96,7 @@ export class CvcEvidenceDirectionSelectField
         this.selectOption$ = this.state.options.evidenceDirectionOption$
       } else {
         console.error(
-          `evidence-type-select field could not find form state's evidenceDirectionOption$ to populate select.`
+          `evidence-direction-select field could not find form state's evidenceDirectionOption$ to populate select.`
         )
       }
 
@@ -122,7 +122,7 @@ export class CvcEvidenceDirectionSelectField
         this.evidenceDirectionChange$ = this.state.fields.evidenceDirection$
         this.onValueChange$
           .pipe(
-            tag('evidence-type-select evidenceDirectionChange$'),
+            // tag('evidence-direction-select evidenceDirectionChange$'),
             untilDestroyed(this)
           )
           .subscribe((v) => {

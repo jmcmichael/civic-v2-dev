@@ -26,7 +26,7 @@ interface CvcClinicalSignificanceSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcClinicalSignificanceSelectFieldConfig
   extends FormlyFieldConfig<CvcClinicalSignificanceSelectFieldProps> {
-  type: 'evidence-type-select' | Type<CvcClinicalSignificanceSelectField>
+  type: 'clinical-significance-select' | Type<CvcClinicalSignificanceSelectField>
 }
 @UntilDestroy()
 @Component({
@@ -85,7 +85,7 @@ export class CvcClinicalSignificanceSelectField
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.key === this.field.key), // filter out other fields
-        tag('evidence-type-select onModelChange$'),
+        // tag('clinical-significance-select onModelChange$'),
         pluck('value')
       )
 
@@ -130,7 +130,7 @@ export class CvcClinicalSignificanceSelectField
           this.state.fields.clinicalSignificance$
         this.onValueChange$
           .pipe(
-            tag('evidence-type-select clinicalSignificanceChange$'),
+            // tag('clinical-significance-select clinicalSignificanceChange$'),
             untilDestroyed(this)
           )
           .subscribe((v) => {
