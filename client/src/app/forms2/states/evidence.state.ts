@@ -1,21 +1,23 @@
 import {
-    EvidenceClinicalSignificance,
-    EvidenceDirection,
-    EvidenceType,
-    Maybe
+  EvidenceClinicalSignificance,
+  EvidenceDirection,
+  EvidenceType,
+  Maybe,
 } from '@app/generated/civic.apollo'
 import { BehaviorSubject } from 'rxjs'
 import { evidenceItemStateFieldsDefaults } from '../models/evidence-fields.model'
 import { EntityName, EntityState, SelectOption } from './entity.state'
 
 export type EvidenceFieldSubjectMap = {
-  geneId$?: BehaviorSubject<Maybe<number>>
-  variantId$?: BehaviorSubject<Maybe<number>>
-  evidenceType$?: BehaviorSubject<Maybe<EvidenceType>>
+  geneId$: BehaviorSubject<Maybe<number>>
+  variantId$: BehaviorSubject<Maybe<number>>
+  evidenceType$: BehaviorSubject<Maybe<EvidenceType>>
+  clinicalSignificance$: BehaviorSubject<Maybe<EvidenceClinicalSignificance>>
 }
 
 export type EvidenceOptionsSubjectMap = {
   evidenceTypeOption$: BehaviorSubject<SelectOption[]>
+  clinicalSignificanceOption$: BehaviorSubject<Maybe<SelectOption[]>>
 }
 
 class EvidenceState extends EntityState {
@@ -29,13 +31,28 @@ class EvidenceState extends EntityState {
     this.fields = {
       geneId$: new BehaviorSubject<Maybe<number>>(def.geneId),
       variantId$: new BehaviorSubject<Maybe<number>>(def.variantId),
-      evidenceType$: new BehaviorSubject<Maybe<EvidenceType>>(def.evidenceType)
+      evidenceType$: new BehaviorSubject<Maybe<EvidenceType>>(def.evidenceType),
+      clinicalSignificance$: new BehaviorSubject<
+        Maybe<EvidenceClinicalSignificance>
+      >(def.clinicalSignificance),
     }
 
     this.options = {
-      // st.getOptionsFromEnums(st.getTypeOptions())
-      evidenceTypeOption$: new BehaviorSubject<SelectOption[]>(this.getOptionsFromEnums(this.getTypeOptions()))
+      evidenceTypeOption$: new BehaviorSubject<SelectOption[]>(
+        this.getOptionsFromEnums(this.getTypeOptions())
+      ),
+      clinicalSignificanceOption$: new BehaviorSubject<Maybe<SelectOption[]>>(
+        undefined
+      ),
     }
+
+    // EVIDENCE TYPE SUBSCRIBERS
+    this.fields.evidenceType$.subscribe((et: Maybe<EvidenceType>) => {
+      if(!et) return
+      this.options.clinicalSignificanceOption$.next(
+        this.getOptionsFromEnums(this.getSignificanceOptions(et))
+      )
+    })
 
     this.validStates.set(EvidenceType.Predictive, {
       entityType: EvidenceType.Predictive,

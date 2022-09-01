@@ -48,6 +48,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
               label: 'Evidence Type',
               required: true
             }
+          },
+          {
+            key: 'clinicalSignficance',
+            type: 'clinical-significance-select',
+            props: {
+              label: 'Clinical Significance',
+              required: true
+            }
           }
         ],
       },
