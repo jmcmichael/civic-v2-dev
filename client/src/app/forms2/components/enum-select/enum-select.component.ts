@@ -15,6 +15,7 @@ export class CvcEnumSelectComponent {
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
   @Input() cvcPlaceholder: string = 'Select an option'
   @Input() cvcShowError: boolean = false
+  @Input() cvcDisabled: boolean = false
   @Input() cvcModelChange?: Subject<any>
   @Input() cvcSelectOptions?: SelectOption[]
 

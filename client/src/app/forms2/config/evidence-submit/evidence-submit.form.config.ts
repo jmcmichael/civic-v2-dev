@@ -50,6 +50,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
             }
           },
           {
+            key: 'evidenceDirection',
+            type: 'evidence-direction-select',
+            props: {
+              label: 'Evidence Direction',
+              required: true
+            }
+          },
+          {
             key: 'clinicalSignficance',
             type: 'clinical-significance-select',
             props: {

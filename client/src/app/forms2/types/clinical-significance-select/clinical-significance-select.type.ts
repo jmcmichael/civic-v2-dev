@@ -1,7 +1,11 @@
 import { AfterViewInit, Component, OnInit, Type } from '@angular/core'
 import { SelectOption } from '@app/forms2/states/entity.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
-import { EvidenceClinicalSignificance, EvidenceType, Maybe } from '@app/generated/civic.apollo'
+import {
+  EvidenceClinicalSignificance,
+  EvidenceType,
+  Maybe,
+} from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldType,
@@ -14,7 +18,10 @@ import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
 interface CvcClinicalSignificanceSelectFieldProps extends FormlyFieldProps {
+  label: string
   placeholder: string
+  requireType: true
+  requireTypePrompt: string
 }
 
 export interface CvcClinicalSignificanceSelectFieldConfig
@@ -38,16 +45,38 @@ export class CvcClinicalSignificanceSelectField
 
   // PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<Maybe<SelectOption[]>>
+  placeholder$!: BehaviorSubject<string>
 
   // OUTPUT STREAMS
-  clinicalSignificanceChange$?: BehaviorSubject<Maybe<EvidenceClinicalSignificance>>
+  clinicalSignificanceChange$?: BehaviorSubject<
+    Maybe<EvidenceClinicalSignificance>
+  >
 
   state: Maybe<EvidenceState>
+
+  // FieldTypeConfig defaults
+  defaultOptions: Partial<
+    FieldTypeConfig<CvcClinicalSignificanceSelectFieldProps>
+  > = {
+    props: {
+      label: 'Clinical Significance',
+      placeholder: 'Select a Clinical Significance',
+      requireType: true,
+      requireTypePrompt: 'Select a Type to select Clinical Significance',
+    },
+  }
   constructor() {
     super()
   }
 
   ngAfterViewInit(): void {
+    // show prompt to select a Type if requireType true
+    // otherwise show standard placeholder
+    const initialPlaceholder: string = this.props.requireType
+      ? this.props.requireTypePrompt
+      : this.props.placeholder
+    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
+
     // create onModelChange$ observable from fieldChanges
     if (!this.field?.options?.fieldChanges) {
       console.error(
@@ -69,25 +98,44 @@ export class CvcClinicalSignificanceSelectField
     // set up input & output streams,
     if (this.field?.options?.formState) {
       this.state = this.field.options.formState
-      // set up input stream
+      // set up input streams
       if (this.state && this.state.options.clinicalSignificanceOption$) {
         this.selectOption$ = this.state.options.clinicalSignificanceOption$
       } else {
         console.error(
-          `evidence-type-select field could not find form state's clinicalSignificanceOption$ to populate select.`
+          `clinical-significance-select field could not find form state's clinicalSignificanceOption$ to populate select.`
+        )
+      }
+
+      if (this.state && this.state.fields.evidenceType$) {
+        this.onEvidenceType$ = this.state.fields.evidenceType$
+        this.onEvidenceType$
+          .pipe(untilDestroyed(this))
+          .subscribe((et: Maybe<EvidenceType>) => {
+            if (!et && this.props.requireType) {
+              this.placeholder$.next(this.props.requireTypePrompt)
+            } else {
+              this.placeholder$.next(this.props.placeholder)
+            }
+          })
+      } else {
+        console.error(
+          `clinical-significance-select field could not find form state's evidenceType$.`
         )
       }
 
       // set up output stream
       if (this.state && this.state.fields.clinicalSignificance$) {
-        this.clinicalSignificanceChange$ = this.state.fields.clinicalSignificance$
+        this.clinicalSignificanceChange$ =
+          this.state.fields.clinicalSignificance$
         this.onValueChange$
           .pipe(
             tag('evidence-type-select clinicalSignificanceChange$'),
             untilDestroyed(this)
           )
           .subscribe((v) => {
-            if (this.clinicalSignificanceChange$) this.clinicalSignificanceChange$.next(v)
+            if (this.clinicalSignificanceChange$)
+              this.clinicalSignificanceChange$.next(v)
           })
       }
     }
