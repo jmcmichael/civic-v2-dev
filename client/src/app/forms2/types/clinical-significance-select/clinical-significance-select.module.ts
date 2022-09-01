@@ -9,7 +9,7 @@ import { CvcClinicalSignificanceSelectField } from './clinical-significance-sele
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'evidence-type-select',
+      name: 'clinical-significance-select',
       wrappers: ['form-field'],
       component: CvcClinicalSignificanceSelectField,
     },

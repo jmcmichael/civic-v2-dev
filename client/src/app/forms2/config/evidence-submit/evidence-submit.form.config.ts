@@ -41,6 +41,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
+          {
+            key: 'evidenceType',
+            type: 'evidence-type-select',
+            props: {
+              label: 'Evidence Type',
+              required: true
+            }
+          }
         ],
       },
       {

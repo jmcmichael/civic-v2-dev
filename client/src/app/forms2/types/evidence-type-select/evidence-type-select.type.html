@@ -1,1 +1,7 @@
-<p>evidence-type works!</p>
+<cvc-enum-select
+  [cvcFormControl]="formControl"
+  [cvcFormlyAttributes]="field"
+  [cvcPlaceholder]="props.placeholder"
+  [cvcSelectOptions]="selectOption$ | ngrxPush"
+  [cvcShowError]="showError"
+></cvc-enum-select>

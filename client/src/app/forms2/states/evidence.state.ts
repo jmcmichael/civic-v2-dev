@@ -1,28 +1,40 @@
 import {
-  EvidenceClinicalSignificance,
-  EvidenceDirection,
-  EvidenceType,
-  Maybe,
-} from "@app/generated/civic.apollo";
-import { BehaviorSubject, Subject } from "rxjs";
-import { evidenceItemStateFieldsDefaults } from "../models/evidence-fields.model";
-import { EntityName, EntityState } from "./entity.state";
+    EvidenceClinicalSignificance,
+    EvidenceDirection,
+    EvidenceType,
+    Maybe
+} from '@app/generated/civic.apollo'
+import { BehaviorSubject } from 'rxjs'
+import { evidenceItemStateFieldsDefaults } from '../models/evidence-fields.model'
+import { EntityName, EntityState, SelectOption } from './entity.state'
 
 export type EvidenceFieldSubjectMap = {
   geneId$?: BehaviorSubject<Maybe<number>>
   variantId$?: BehaviorSubject<Maybe<number>>
+  evidenceType$?: BehaviorSubject<Maybe<EvidenceType>>
+}
+
+export type EvidenceOptionsSubjectMap = {
+  evidenceTypeOption$: BehaviorSubject<SelectOption[]>
 }
 
 class EvidenceState extends EntityState {
   fields: EvidenceFieldSubjectMap
+  options: EvidenceOptionsSubjectMap
 
   constructor() {
-    super(EntityName.EVIDENCE);
+    super(EntityName.EVIDENCE)
 
     const def = evidenceItemStateFieldsDefaults
     this.fields = {
       geneId$: new BehaviorSubject<Maybe<number>>(def.geneId),
       variantId$: new BehaviorSubject<Maybe<number>>(def.variantId),
+      evidenceType$: new BehaviorSubject<Maybe<EvidenceType>>(def.evidenceType)
+    }
+
+    this.options = {
+      // st.getOptionsFromEnums(st.getTypeOptions())
+      evidenceTypeOption$: new BehaviorSubject<SelectOption[]>(this.getOptionsFromEnums(this.getTypeOptions()))
     }
 
     this.validStates.set(EvidenceType.Predictive, {
@@ -36,15 +48,15 @@ class EvidenceState extends EntityState {
       ],
       entityDirection: [
         EvidenceDirection.Supports,
-        EvidenceDirection.DoesNotSupport
+        EvidenceDirection.DoesNotSupport,
       ],
       requiresDisease: true,
       requiresDrug: true,
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(EvidenceType.Diagnostic, {
       entityType: EvidenceType.Diagnostic,
@@ -54,34 +66,34 @@ class EvidenceState extends EntityState {
       ],
       entityDirection: [
         EvidenceDirection.Supports,
-        EvidenceDirection.DoesNotSupport
+        EvidenceDirection.DoesNotSupport,
       ],
       requiresDisease: true,
       requiresDrug: false,
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(EvidenceType.Prognostic, {
       entityType: EvidenceType.Prognostic,
       clinicalSignificance: [
         EvidenceClinicalSignificance.BetterOutcome,
         EvidenceClinicalSignificance.PoorOutcome,
-        EvidenceClinicalSignificance.Na
+        EvidenceClinicalSignificance.Na,
       ],
       entityDirection: [
         EvidenceDirection.Supports,
-        EvidenceDirection.DoesNotSupport
+        EvidenceDirection.DoesNotSupport,
       ],
       requiresDisease: true,
       requiresDrug: false,
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(EvidenceType.Oncogenic, {
       entityType: EvidenceType.Oncogenic,
@@ -98,8 +110,8 @@ class EvidenceState extends EntityState {
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(EvidenceType.Predisposing, {
       entityType: EvidenceType.Predisposing,
@@ -116,8 +128,8 @@ class EvidenceState extends EntityState {
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(EvidenceType.Functional, {
       entityType: EvidenceType.Functional,
@@ -131,16 +143,16 @@ class EvidenceState extends EntityState {
       ],
       entityDirection: [
         EvidenceDirection.Supports,
-        EvidenceDirection.DoesNotSupport
+        EvidenceDirection.DoesNotSupport,
       ],
       requiresDisease: false,
       requiresDrug: false,
       requiresAcmgCodes: false,
       requiresClingenCodes: false,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
   }
 }
 
-export { EvidenceState };
+export { EvidenceState }
