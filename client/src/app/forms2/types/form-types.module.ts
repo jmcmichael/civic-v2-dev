@@ -5,14 +5,14 @@ import { CvcEvidenceDirectionSelectModule } from './evidence-direction-select/ev
 import { CvcEvidenceTypeSelectModule } from './evidence-type-select/evidence-type-select.module'
 import { CvcGeneSelectModule } from './gene-select/gene-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
-import { CvcVariantInputModule } from './variant-input/variant-input.module'
+import { CvcVariantSelectModule } from './variant-select/variant-select.module'
 
 @NgModule({
   imports: [
     CommonModule,
     CvcOrgSubmitButtonTypeModule,
     CvcGeneSelectModule,
-    CvcVariantInputModule,
+    CvcVariantSelectModule,
     CvcEvidenceTypeSelectModule,
     CvcClinicalSignificanceSelectModule,
     CvcEvidenceDirectionSelectModule,

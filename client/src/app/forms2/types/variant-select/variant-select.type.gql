@@ -1,12 +1,12 @@
-query VariantInputTypeahead($name: String!, $geneId: Int) {
+query VariantSelect2($name: String!, $geneId: Int) {
   variants(name: $name, geneId: $geneId, first: 50) {
     nodes {
-      ... VariantInputTypeaheadFields
+      ... VariantSelect2Fields
     }
   }
 }
 
-fragment VariantInputTypeaheadFields on Variant {
+fragment VariantSelect2Fields on Variant {
   id
   name
   link
@@ -19,7 +19,7 @@ fragment VariantInputTypeaheadFields on Variant {
   }
 }
 
-query VariantInputLinkableVariant($variantId: Int!) {
+query VariantSelect2LinkableVariant($variantId: Int!) {
   variant(id: $variantId) {
     id
     name

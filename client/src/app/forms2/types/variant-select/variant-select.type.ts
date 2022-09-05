@@ -11,11 +11,11 @@ import {
   LinkableVariant,
   Maybe,
   LinkableVariantGQL,
-  VariantInputTypeaheadFieldsFragment,
-  VariantInputTypeaheadGQL,
-  VariantInputTypeaheadQuery,
-  VariantInputTypeaheadQueryVariables,
   LinkableGeneGQL,
+  VariantSelect2Query,
+  VariantSelect2FieldsFragment,
+  VariantSelect2QueryVariables,
+  VariantSelect2GQL,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -44,16 +44,16 @@ import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
-interface CvcVariantInputFieldProps extends FormlyFieldProps {
+interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
   requireGene: boolean // if true, disables field if no geneId$
   requireGenePlaceholder: string // placeholder if geneId required & none is set
   requireGenePrompt: string // placeholder prompt displayed when geneId set
 }
 
-export interface CvcVariantInputFieldConfig
-  extends FormlyFieldConfig<CvcVariantInputFieldProps> {
-  type: 'variant-input' | Type<CvcVariantInputField>
+export interface CvcVariantSelectFieldConfig
+  extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
+  type: 'variant-select' | Type<CvcVariantSelectField>
 }
 
 export const GET_CACHED_VARIANT = gql`
@@ -66,13 +66,13 @@ export const GET_CACHED_VARIANT = gql`
 
 @UntilDestroy()
 @Component({
-  selector: 'cvc-variant-input',
-  templateUrl: './variant-input.type.html',
-  styleUrls: ['./variant-input.type.less'],
+  selector: 'cvc-variant-select',
+  templateUrl: './variant-select.type.html',
+  styleUrls: ['./variant-select.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcVariantInputField
-  extends FieldType<FieldTypeConfig<CvcVariantInputFieldProps>>
+export class CvcVariantSelectField
+  extends FieldType<FieldTypeConfig<CvcVariantSelectFieldProps>>
   implements AfterViewInit
 {
   // field interactions
@@ -90,20 +90,20 @@ export class CvcVariantInputField
   tagCacheId$: Subject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
-  response$!: Observable<ApolloQueryResult<VariantInputTypeaheadQuery>>
+  response$!: Observable<ApolloQueryResult<VariantSelect2Query>>
 
   // PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
-  result$!: Observable<VariantInputTypeaheadFieldsFragment[]>
+  result$!: Observable<VariantSelect2FieldsFragment[]>
   isLoading$!: Observable<boolean>
 
   queryRef!: QueryRef<
-    VariantInputTypeaheadQuery,
-    VariantInputTypeaheadQueryVariables
+    VariantSelect2Query,
+    VariantSelect2QueryVariables
   >
 
   // FieldTypeConfig defaults
-  defaultOptions: Partial<FieldTypeConfig<CvcVariantInputFieldProps>> = {
+  defaultOptions: Partial<FieldTypeConfig<CvcVariantSelectFieldProps>> = {
     props: {
       label: 'Variant',
       placeholder: 'Search CIViC Variants',
@@ -114,7 +114,7 @@ export class CvcVariantInputField
   }
 
   constructor(
-    private typeaheadGQL: VariantInputTypeaheadGQL,
+    private typeaheadGQL: VariantSelect2GQL,
     private tagQuery: LinkableVariantGQL,
     private geneQuery: LinkableGeneGQL,
     private apollo: Apollo
@@ -207,17 +207,17 @@ export class CvcVariantInputField
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
       withLatestFrom(this.onGeneId$),
       switchMap(([str, geneId]: [string, Maybe<number>]) => {
-        const query: VariantInputTypeaheadQueryVariables = {
+        const query: VariantSelect2QueryVariables = {
           name: str,
           geneId: geneId,
         }
         // helper functions for iif operator:
-        const watchQuery = (query: VariantInputTypeaheadQueryVariables) => {
+        const watchQuery = (query: VariantSelect2QueryVariables) => {
           // returns observable from initial watch() query
           this.queryRef = this.typeaheadGQL.watch(query)
           return this.queryRef.valueChanges
         }
-        const fetchQuery = (query: VariantInputTypeaheadQueryVariables) => {
+        const fetchQuery = (query: VariantSelect2QueryVariables) => {
           // returns observable from refetch() promise
           return from(this.queryRef.refetch(query))
         }
@@ -318,9 +318,9 @@ export class CvcVariantInputField
     this.tagCacheId$.next(undefined)
   }
 
-  optionTrackBy: TrackByFunction<VariantInputTypeaheadFieldsFragment> = (
+  optionTrackBy: TrackByFunction<VariantSelect2FieldsFragment> = (
     _index: number,
-    option: VariantInputTypeaheadFieldsFragment
+    option: VariantSelect2FieldsFragment
   ): number => {
     return option.id
   }

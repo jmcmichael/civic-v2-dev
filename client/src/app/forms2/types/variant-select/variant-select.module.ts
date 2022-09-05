@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { CvcVariantInputField } from './variant-input.type'
+import { CvcVariantSelectField } from './variant-select.type'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { ReactiveFormsModule } from '@angular/forms'
@@ -16,15 +16,15 @@ import { NzSpaceModule } from 'ng-zorro-antd/space'
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'variant-input',
+      name: 'variant-select',
       wrappers: ['form-field'],
-      component: CvcVariantInputField,
+      component: CvcVariantSelectField,
     },
   ],
 }
 
 @NgModule({
-  declarations: [CvcVariantInputField],
+  declarations: [CvcVariantSelectField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -40,6 +40,6 @@ const typeConfig: ConfigOption = {
     CvcPipesModule,
     CvcEntityTagModule,
   ],
-  exports: [CvcVariantInputField],
+  exports: [CvcVariantSelectField],
 })
-export class CvcVariantInputModule {}
+export class CvcVariantSelectModule {}

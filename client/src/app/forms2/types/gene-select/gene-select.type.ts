@@ -43,7 +43,7 @@ interface CvcGeneSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcGeneSelectFieldConfig
   extends FormlyFieldConfig<CvcGeneSelectFieldProps> {
-  type: 'gene-input' | Type<CvcGeneSelectField>
+  type: 'gene-select' | Type<CvcGeneSelectField>
 }
 
 @UntilDestroy()

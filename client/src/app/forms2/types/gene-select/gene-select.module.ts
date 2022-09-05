@@ -16,7 +16,7 @@ import { CvcGeneSelectField } from './gene-select.type'
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'gene-input',
+      name: 'gene-select',
       wrappers: ['form-field'],
       component: CvcGeneSelectField,
     },
