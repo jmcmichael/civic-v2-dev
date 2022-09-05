@@ -6005,6 +6005,22 @@ export type GeneInputLinkableGeneQueryVariables = Exact<{
 
 export type GeneInputLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
 
+export type GeneSelectQueryVariables = Exact<{
+  entrezSymbol: Scalars['String'];
+}>;
+
+
+export type GeneSelectQuery = { __typename: 'Query', geneTypeahead: Array<{ __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string }> };
+
+export type GeneSelectFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
+
+export type GeneSelectLinkableGeneQueryVariables = Exact<{
+  geneId: Scalars['Int'];
+}>;
+
+
+export type GeneSelectLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
+
 export type VariantInputTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
   geneId?: InputMaybe<Scalars['Int']>;
@@ -7749,6 +7765,15 @@ export const RevisableVariantFieldsFragmentDoc = gql`
     ${CoordinateFieldsFragmentDoc}`;
 export const GeneInputTypeaheadFieldsFragmentDoc = gql`
     fragment GeneInputTypeaheadFields on Gene {
+  id
+  entrezId
+  name
+  geneAliases
+  link
+}
+    `;
+export const GeneSelectFieldsFragmentDoc = gql`
+    fragment GeneSelectFields on Gene {
   id
   entrezId
   name
@@ -11343,6 +11368,44 @@ export const GeneInputLinkableGeneDocument = gql`
   })
   export class GeneInputLinkableGeneGQL extends Apollo.Query<GeneInputLinkableGeneQuery, GeneInputLinkableGeneQueryVariables> {
     document = GeneInputLinkableGeneDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const GeneSelectDocument = gql`
+    query GeneSelect($entrezSymbol: String!) {
+  geneTypeahead(queryTerm: $entrezSymbol) {
+    ...GeneSelectFields
+  }
+}
+    ${GeneSelectFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class GeneSelectGQL extends Apollo.Query<GeneSelectQuery, GeneSelectQueryVariables> {
+    document = GeneSelectDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const GeneSelectLinkableGeneDocument = gql`
+    query GeneSelectLinkableGene($geneId: Int!) {
+  gene(id: $geneId) {
+    id
+    name
+    link
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class GeneSelectLinkableGeneGQL extends Apollo.Query<GeneSelectLinkableGeneQuery, GeneSelectLinkableGeneQueryVariables> {
+    document = GeneSelectLinkableGeneDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

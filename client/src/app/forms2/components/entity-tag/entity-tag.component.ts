@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { Apollo, gql } from 'apollo-angular'
+
 export interface LinkableEntity {
+  __typename: string,
   id: number,
   name: string,
   link?: string
 }
+
 @Component({
   selector: 'cvc-entity-tag',
   templateUrl: './entity-tag.component.html',

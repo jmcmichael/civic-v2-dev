@@ -4,6 +4,7 @@ import { CvcClinicalSignificanceSelectModule } from './clinical-significance-sel
 import { CvcEvidenceDirectionSelectModule } from './evidence-direction-select/evidence-direction-select.module'
 import { CvcEvidenceTypeSelectModule } from './evidence-type-select/evidence-type-select.module'
 import { CvcGeneInputModule } from './gene-input/gene-input.module'
+import { CvcGeneSelectModule } from './gene-select/gene-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
 import { CvcVariantInputModule } from './variant-input/variant-input.module'
 
@@ -16,6 +17,7 @@ import { CvcVariantInputModule } from './variant-input/variant-input.module'
     CvcEvidenceTypeSelectModule,
     CvcClinicalSignificanceSelectModule,
     CvcEvidenceDirectionSelectModule,
+    CvcGeneSelectModule,
   ],
 })
 export class CvcFormTypesModule {}

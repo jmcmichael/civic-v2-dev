@@ -1,0 +1,21 @@
+query GeneSelect($entrezSymbol: String!) {
+  geneTypeahead(queryTerm: $entrezSymbol) {
+    ...GeneSelectFields
+  }
+}
+
+fragment GeneSelectFields on Gene {
+  id
+  entrezId
+  name
+  geneAliases
+  link
+}
+
+query GeneSelectLinkableGene($geneId: Int!) {
+  gene(id: $geneId) {
+    id
+    name
+    link
+  }
+}

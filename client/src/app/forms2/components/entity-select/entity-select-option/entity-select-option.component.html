@@ -1,0 +1,9 @@
+<nz-option
+  nzCustomContent
+  [nzValue]="cvcOptionItem.id">
+  <cvc-entity-tag
+    [cvcCacheId]="cvcOptionItem.__typename + ':' + cvcOptionItem.id"
+    [cvcEmphasize]="cvcSearchString">
+  </cvc-entity-tag>
+<!-- <ng-container [ngTemplateOutlet]="cvcSelectOptionExtra"></ng-container> -->
+</nz-option>

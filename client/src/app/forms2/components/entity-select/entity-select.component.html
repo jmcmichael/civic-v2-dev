@@ -1,0 +1,31 @@
+<nz-select
+  nzShowSearch
+  nzServerSearch
+  nzAllowClear
+  [formControl]="cvcFormControl"
+  [formlyAttributes]="cvcFormlyAttributes"
+  [nzPlaceHolder]="cvcPlaceholder"
+  [nzOptionHeightPx]="30"
+  (nzFocus)="onFocus$.next(true)"
+  (nzOnSearch)="onSearch$.next($event)"
+  [nzLoading]="isLoading$ | ngrxPush"
+  [class.ng-dirty]="cvcShowError">
+
+  <ng-container *ngrxLet="onSearch$ as searchString">
+    <cvc-entity-select-option *ngFor="let item of result$ | ngrxPush"
+    [cvcOptionItem]="item" [cvcSearchString]="searchString">
+
+    </cvc-entity-select-option>
+    <!-- <nz-option
+          *ngFor="let item of result$ | ngrxPush"
+          nzCustomContent
+          [nzValue]="item.id">
+          <cvc-entity-tag
+            [cvcCacheId]="item.__typename + ':' + item.id"
+            [cvcEmphasize]="searchString">
+          </cvc-entity-tag>
+          <ng-container [ngTemplateOutlet]="cvcSelectOptionExtra"></ng-container>
+        </nz-option> -->
+  </ng-container>
+
+</nz-select>

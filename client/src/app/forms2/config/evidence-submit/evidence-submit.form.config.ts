@@ -27,7 +27,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         fieldGroup: [
           {
             key: 'geneId',
-            type: 'gene-input',
+            type: 'gene-select',
             props: {
               required: true,
             },
