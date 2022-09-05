@@ -48,7 +48,7 @@ export class CvcEntityTagComponent implements OnInit {
     const fragment = {
       id: `${typename}:${id}`,
       fragment: gql`
-        fragment LinkableEntity on ${typename} {
+        fragment Linkable${typename}Entity on ${typename} {
           id
           name
           link
