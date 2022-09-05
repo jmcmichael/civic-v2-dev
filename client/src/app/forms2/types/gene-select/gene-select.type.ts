@@ -8,10 +8,10 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-  GeneInputTypeaheadFieldsFragment,
-  GeneInputTypeaheadGQL,
-  GeneInputTypeaheadQuery,
-  GeneInputTypeaheadQueryVariables,
+    GeneSelectTypeaheadFieldsFragment,
+    GeneSelectTypeaheadGQL,
+    GeneSelectTypeaheadQuery,
+  GeneSelectTypeaheadQueryVariables,
   LinkableGeneGQL,
   Maybe,
 } from '@app/generated/civic.apollo'
@@ -37,23 +37,23 @@ import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
 import { tag } from 'rxjs-spy/operators'
 
-interface CvcGeneInputFieldProps extends FormlyFieldProps {
+interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string
 }
 
-export interface CvcGeneInputFieldConfig
-  extends FormlyFieldConfig<CvcGeneInputFieldProps> {
-  type: 'gene-input' | Type<CvcGeneInputField>
+export interface CvcGeneSelectFieldConfig
+  extends FormlyFieldConfig<CvcGeneSelectFieldProps> {
+  type: 'gene-input' | Type<CvcGeneSelectField>
 }
 
 @UntilDestroy()
 @Component({
-  selector: 'cvc-gene-input',
-  templateUrl: './gene-input.type.html',
+  selector: 'cvc-gene-select',
+  templateUrl: './gene-select.type.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcGeneInputField
-  extends FieldType<FieldTypeConfig<CvcGeneInputFieldProps>>
+export class CvcGeneSelectField
+  extends FieldType<FieldTypeConfig<CvcGeneSelectFieldProps>>
   implements AfterViewInit
 {
   // SOURCE STREAMS
@@ -64,28 +64,28 @@ export class CvcGeneInputField
   onTagClose$: Subject<MouseEvent> // emits on entity tag closed btn click
 
   // INTERMEDIATE STREAMS
-  response$!: Observable<ApolloQueryResult<GeneInputTypeaheadQuery>> // gql query responses
+  response$!: Observable<ApolloQueryResult<GeneSelectTypeaheadQuery>> // gql query responses
 
   // PRESENTATION STREAMS
-  result$!: Observable<GeneInputTypeaheadFieldsFragment[]> // gql query results
+  result$!: Observable<GeneSelectTypeaheadFieldsFragment[]> // gql query results
   isLoading$!: Observable<boolean> // gqp query loading bool
   tagCacheId$: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
 
   // STATE STREAMS
   geneId$?: Subject<Maybe<number>> // emit values from state's Subject
 
-  queryRef!: QueryRef<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables> // gql query reference
+  queryRef!: QueryRef<GeneSelectTypeaheadQuery, GeneSelectTypeaheadQueryVariables> // gql query reference
   state: Maybe<EvidenceState>
 
   // FieldTypeConfig defaults
-  defaultOptions: Partial<FieldTypeConfig<CvcGeneInputFieldProps>> = {
+  defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
     props: {
       label: 'Gene',
       placeholder: 'Search CIViC Genes',
     },
   }
   constructor(
-    private typeaheadGQL: GeneInputTypeaheadGQL,
+    private typeaheadGQL: GeneSelectTypeaheadGQL,
     private tagQuery: LinkableGeneGQL // gql query for fetching linkable tag if not cached
   ) {
     super()
@@ -162,14 +162,14 @@ export class CvcGeneInputField
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
       switchMap((str: string) => {
-        const query: GeneInputTypeaheadQueryVariables = { entrezSymbol: str }
+        const query: GeneSelectTypeaheadQueryVariables = { entrezSymbol: str }
         // helper functions for iif operator:
-        const watchQuery = (query: GeneInputTypeaheadQueryVariables) => {
+        const watchQuery = (query: GeneSelectTypeaheadQueryVariables) => {
           // returns observable from initial watch() query
           this.queryRef = this.typeaheadGQL.watch(query)
           return this.queryRef.valueChanges
         }
-        const fetchQuery = (query: GeneInputTypeaheadQueryVariables) => {
+        const fetchQuery = (query: GeneSelectTypeaheadQueryVariables) => {
           // returns observable from refetch() promise
           return from(this.queryRef.refetch(query))
         }
@@ -233,9 +233,9 @@ export class CvcGeneInputField
     this.tagCacheId$.next(undefined)
   }
 
-  optionTrackBy: TrackByFunction<GeneInputTypeaheadFieldsFragment> = (
+  optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (
     _index: number,
-    option: GeneInputTypeaheadFieldsFragment
+    option: GeneSelectTypeaheadFieldsFragment
   ): number => {
     return option.id
   }

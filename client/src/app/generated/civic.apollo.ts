@@ -5989,21 +5989,21 @@ export type LinkableVariantQueryVariables = Exact<{
 
 export type LinkableVariantQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string } | undefined };
 
-export type GeneInputTypeaheadQueryVariables = Exact<{
+export type GeneSelectTypeaheadQueryVariables = Exact<{
   entrezSymbol: Scalars['String'];
 }>;
 
 
-export type GeneInputTypeaheadQuery = { __typename: 'Query', geneTypeahead: Array<{ __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string }> };
+export type GeneSelectTypeaheadQuery = { __typename: 'Query', geneTypeahead: Array<{ __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string }> };
 
-export type GeneInputTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
+export type GeneSelectTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
-export type GeneInputLinkableGeneQueryVariables = Exact<{
+export type GeneSelectLinkableGeneQueryVariables = Exact<{
   geneId: Scalars['Int'];
 }>;
 
 
-export type GeneInputLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
+export type GeneSelectLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
 
 export type VariantInputTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
@@ -7747,8 +7747,8 @@ export const RevisableVariantFieldsFragmentDoc = gql`
   variantBases
 }
     ${CoordinateFieldsFragmentDoc}`;
-export const GeneInputTypeaheadFieldsFragmentDoc = gql`
-    fragment GeneInputTypeaheadFields on Gene {
+export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
+    fragment GeneSelectTypeaheadFields on Gene {
   id
   entrezId
   name
@@ -11310,26 +11310,26 @@ export const LinkableVariantDocument = gql`
       super(apollo);
     }
   }
-export const GeneInputTypeaheadDocument = gql`
-    query GeneInputTypeahead($entrezSymbol: String!) {
+export const GeneSelectTypeaheadDocument = gql`
+    query GeneSelectTypeahead($entrezSymbol: String!) {
   geneTypeahead(queryTerm: $entrezSymbol) {
-    ...GeneInputTypeaheadFields
+    ...GeneSelectTypeaheadFields
   }
 }
-    ${GeneInputTypeaheadFieldsFragmentDoc}`;
+    ${GeneSelectTypeaheadFieldsFragmentDoc}`;
 
   @Injectable({
     providedIn: 'root'
   })
-  export class GeneInputTypeaheadGQL extends Apollo.Query<GeneInputTypeaheadQuery, GeneInputTypeaheadQueryVariables> {
-    document = GeneInputTypeaheadDocument;
+  export class GeneSelectTypeaheadGQL extends Apollo.Query<GeneSelectTypeaheadQuery, GeneSelectTypeaheadQueryVariables> {
+    document = GeneSelectTypeaheadDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);
     }
   }
-export const GeneInputLinkableGeneDocument = gql`
-    query GeneInputLinkableGene($geneId: Int!) {
+export const GeneSelectLinkableGeneDocument = gql`
+    query GeneSelectLinkableGene($geneId: Int!) {
   gene(id: $geneId) {
     id
     name
@@ -11341,8 +11341,8 @@ export const GeneInputLinkableGeneDocument = gql`
   @Injectable({
     providedIn: 'root'
   })
-  export class GeneInputLinkableGeneGQL extends Apollo.Query<GeneInputLinkableGeneQuery, GeneInputLinkableGeneQueryVariables> {
-    document = GeneInputLinkableGeneDocument;
+  export class GeneSelectLinkableGeneGQL extends Apollo.Query<GeneSelectLinkableGeneQuery, GeneSelectLinkableGeneQueryVariables> {
+    document = GeneSelectLinkableGeneDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

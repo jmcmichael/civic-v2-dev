@@ -10,22 +10,21 @@ import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
 import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzSelectModule } from 'ng-zorro-antd/select'
-import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { CvcGeneInputField } from './gene-input.type'
+import { CvcGeneSelectField } from './gene-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
     {
       name: 'gene-input',
       wrappers: ['form-field'],
-      component: CvcGeneInputField,
+      component: CvcGeneSelectField,
     },
   ],
 }
 
 @NgModule({
-  declarations: [CvcGeneInputField],
+  declarations: [CvcGeneSelectField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -41,6 +40,6 @@ const typeConfig: ConfigOption = {
     CvcPipesModule,
     CvcEntityTagModule,
   ],
-  exports: [CvcGeneInputField],
+  exports: [CvcGeneSelectField],
 })
-export class CvcGeneInputModule {}
+export class CvcGeneSelectModule {}
