@@ -44,7 +44,7 @@ import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
-interface CvcVariantSelectFieldProps extends FormlyFieldProps {
+export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
   requireGene: boolean // if true, disables field if no geneId$
   requireGenePlaceholder: string // placeholder if geneId required & none is set

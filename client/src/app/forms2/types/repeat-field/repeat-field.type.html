@@ -1,0 +1,12 @@
+<ng-container *ngFor="let field of field.fieldGroup; let i = index">
+  <formly-field [field]="field"></formly-field>
+</ng-container>
+<ng-container>
+  <a
+    nz-button
+    nzType="link"
+    nzSize="small"
+    (click)="add()">
+    {{ props.addLabel }}
+  </a>
+</ng-container>

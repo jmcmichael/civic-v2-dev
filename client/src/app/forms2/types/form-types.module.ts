@@ -5,6 +5,7 @@ import { CvcEvidenceDirectionSelectModule } from './evidence-direction-select/ev
 import { CvcEvidenceTypeSelectModule } from './evidence-type-select/evidence-type-select.module'
 import { CvcGeneSelectModule } from './gene-select/gene-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
+import { CvcRepeatFieldModule } from './repeat-field/repeat-field.module'
 import { CvcVariantSelectModule } from './variant-select/variant-select.module'
 
 @NgModule({
@@ -16,6 +17,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcEvidenceTypeSelectModule,
     CvcClinicalSignificanceSelectModule,
     CvcEvidenceDirectionSelectModule,
+    CvcRepeatFieldModule,
   ],
 })
 export class CvcFormTypesModule {}
