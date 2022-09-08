@@ -11,7 +11,7 @@ import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { CvcGeneSelectField } from './gene-select.type'
+import { CvcGeneSelectField, CvcGeneSelectFieldProps } from './gene-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -26,7 +26,8 @@ const typeConfig: ConfigOption = {
       wrappers: ['form-field'],
       component: CvcGeneSelectField,
       defaultOptions: {
-        props: {
+        props: <CvcGeneSelectFieldProps>{
+          isRepeatItem: true,
           hideLabel: true,
         },
       },

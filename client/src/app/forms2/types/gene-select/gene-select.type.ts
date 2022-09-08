@@ -8,9 +8,9 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-    GeneSelectTypeaheadFieldsFragment,
-    GeneSelectTypeaheadGQL,
-    GeneSelectTypeaheadQuery,
+  GeneSelectTypeaheadFieldsFragment,
+  GeneSelectTypeaheadGQL,
+  GeneSelectTypeaheadQuery,
   GeneSelectTypeaheadQueryVariables,
   LinkableGeneGQL,
   Maybe,
@@ -39,6 +39,7 @@ import { tag } from 'rxjs-spy/operators'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string
+  isRepeatItem: boolean
 }
 
 export interface CvcGeneSelectFieldConfig
@@ -74,14 +75,18 @@ export class CvcGeneSelectField
   // STATE STREAMS
   geneId$?: Subject<Maybe<number>> // emit values from state's Subject
 
-  queryRef!: QueryRef<GeneSelectTypeaheadQuery, GeneSelectTypeaheadQueryVariables> // gql query reference
+  queryRef!: QueryRef<
+    GeneSelectTypeaheadQuery,
+    GeneSelectTypeaheadQueryVariables
+  > // gql query reference
   state: Maybe<EvidenceState>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
     props: {
       label: 'Gene',
-      placeholder: 'Search CIViC Genes',
+      placeholder: 'Search Genes',
+      isRepeatItem: false,
     },
   }
   constructor(
@@ -184,7 +189,7 @@ export class CvcGeneSelectField
           defer(() => watchQuery(query)), // true
           defer(() => fetchQuery(query)) // false
         )
-      }),
+      })
       // tag('gene-input response$')
     ) // end this.response$
 
@@ -202,10 +207,26 @@ export class CvcGeneSelectField
       distinctUntilChanged()
     )
 
-    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.unsetModel()
-      this.deleteTag()
-    })
+    // if this field is the child of a repeat-field type,
+    // get reference to its onRemove$ and emit its ID when tag closed,
+    // otherwise, handle model reset and tag deletion
+    if (this.props.isRepeatItem) {
+      if (!this.field.parent?.props?.onRemove$) {
+        console.error(
+          `gene-select-item field ${this.field.key} cannot find reference to parent repeat-field onRemove$.`
+        )
+      } else {
+        const onRemove$: Subject<number> = this.field.parent.props.onRemove$
+        this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_e) => {
+          onRemove$.next(Number(this.key))
+        })
+      }
+    } else {
+      this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+        this.unsetModel()
+        this.deleteTag()
+      })
+    }
   } // ngAfterViewInit()
 
   // verifies that a cached record exists for the given geneId,
