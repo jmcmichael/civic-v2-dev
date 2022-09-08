@@ -1,21 +1,28 @@
 import {
-  Component,
   AfterViewInit,
   ChangeDetectionStrategy,
+  Component,
   Type,
 } from '@angular/core'
 import { Maybe } from '@app/generated/civic.apollo'
-import { UntilDestroy } from '@ngneat/until-destroy'
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldArrayType,
+  FieldArrayTypeConfig,
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
+import { filter, Observable, Subject } from 'rxjs'
+import { pluck } from 'rxjs-etc/operators'
+import { tag } from 'rxjs-spy/operators'
 
 interface CvcRepeatFieldProps extends FormlyFieldProps {
-  placeholder: Maybe<string>
+  placeholder?: string
   addLabel: string
+  orientation?: 'horizontal' | 'vertical'
+  minWidth?: number
+  maxWidth?: number
 }
 
 export interface CvcRepeatFieldConfig
@@ -31,19 +38,71 @@ export interface CvcRepeatFieldConfig
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcRepeatField
-  extends FieldArrayType<FieldTypeConfig<CvcRepeatFieldProps>>
+  extends FieldArrayType<FieldArrayTypeConfig<CvcRepeatFieldProps>>
   implements AfterViewInit
 {
-  defaultOptions: Partial<FieldTypeConfig<CvcRepeatFieldProps>> = {
+  // SOURCE STREAMS
+  onModelChange$!: Observable<Maybe<number>> // emits all field model changes
+  onValueChange$: Subject<Maybe<number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
+
+  itemFieldType: Maybe<string>
+
+  // field default options
+  defaultOptions: Partial<FieldArrayTypeConfig<CvcRepeatFieldProps>> = {
+    defaultValue: [],
     props: {
       label: 'LABEL',
       placeholder: 'PLACEHOLDER',
-      addLabel: ''
+      addLabel: 'ADD',
+      orientation: 'horizontal',
     },
   }
   constructor() {
     super()
+    this.onValueChange$ = new Subject<Maybe<number>>()
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    // create observables for model updates, one for repeat-field model updates
+    // and another for fieldArray item model updates
+    //
+    if (!this.field?.fieldArray) {
+      console.error(
+        `${this.field.key} repeat-field could not find fieldArray config.`
+      )
+      return
+    }
+    const fieldArray = this.field.fieldArray as FormlyFieldConfig
+    if (!fieldArray.type) {
+      console.error(
+        `${this.field.key} repeat-field could not find fieldArray config type.`
+      )
+      return
+    } else {
+
+      // typeof fArray.type === 'string') {
+      // this.itemFieldType = fArray.type
+    }
+    // create onModelChange$ observable from fieldChanges
+    if (!this.field?.options?.fieldChanges) {
+      console.error(
+        `${this.field.key} field could not find fieldChanges Observable`
+      )
+    } else {
+      this.onModelChange$ = this.field.options.fieldChanges.pipe(
+        filter((f) => {
+          console.log(f)
+          return true
+        }),
+        tag('repeat-field onModelChange$'),
+        pluck('value')
+      )
+
+      // emit value from onValueChange$ for every model change
+      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+        // console.log('repeat-field onModelChange$: ', v)
+        this.onValueChange$.next(v)
+      })
+    }
+  }
 }

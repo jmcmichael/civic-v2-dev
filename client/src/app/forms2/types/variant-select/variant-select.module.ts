@@ -20,6 +20,17 @@ const typeConfig: ConfigOption = {
       wrappers: ['form-field'],
       component: CvcVariantSelectField,
     },
+    {
+      // no label, for use in repeat-field types
+      name: 'variant-select-item',
+      wrappers: ['form-field'],
+      component: CvcVariantSelectField,
+      defaultOptions: {
+        props: {
+          hideLabel: true,
+        },
+      },
+    },
   ],
 }
 

@@ -48,23 +48,47 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'evidenceType',
             type: 'evidence-type-select',
             props: {
-              required: true
-            }
+              required: true,
+            },
           },
           <CvcEvidenceDirectionSelectFieldConfig>{
             key: 'evidenceDirection',
             type: 'evidence-direction-select',
             props: {
-              required: true
-            }
+              required: true,
+            },
           },
           <CvcClinicalSignificanceSelectFieldConfig>{
             key: 'clinicalSignficance',
             type: 'clinical-significance-select',
             props: {
-              required: true
-            }
-          }
+              required: true,
+            },
+          },
+          {
+            key: 'geneIds',
+            type: 'repeat-field',
+            props: {
+              label: 'Genes',
+            },
+            fieldArray: {
+              type: 'gene-select-item',
+              props: {
+              },
+            },
+          },
+          {
+            key: 'aliases',
+            type: 'repeat-field',
+            props: {
+              label: 'Aliases',
+            },
+            fieldArray: {
+              type: 'input',
+              props: {
+              },
+            },
+          },
         ],
       },
       {

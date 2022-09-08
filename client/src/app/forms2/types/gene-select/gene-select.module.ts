@@ -20,6 +20,17 @@ const typeConfig: ConfigOption = {
       wrappers: ['form-field'],
       component: CvcGeneSelectField,
     },
+    {
+      // no label, for use in repeat-field types
+      name: 'gene-select-item',
+      wrappers: ['form-field'],
+      component: CvcGeneSelectField,
+      defaultOptions: {
+        props: {
+          hideLabel: true,
+        },
+      },
+    },
   ],
 }
 

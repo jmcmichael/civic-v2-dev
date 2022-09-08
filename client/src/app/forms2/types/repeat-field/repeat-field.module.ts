@@ -9,7 +9,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'field-list',
+      name: 'repeat-field',
       wrappers: ['form-field'],
       component: CvcRepeatField,
     },
