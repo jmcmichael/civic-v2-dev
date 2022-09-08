@@ -28,7 +28,6 @@ import {
   iif,
   lastValueFrom,
   Observable,
-  skip,
   Subject,
   switchMap,
   throttleTime,
@@ -211,15 +210,28 @@ export class CvcGeneSelectField
     // get reference to its onRemove$ and emit its ID when tag closed,
     // otherwise, handle model reset and tag deletion
     if (this.props.isRepeatItem) {
-      if (!this.field.parent?.props?.onRemove$) {
+      // check if parent field is of 'repeat-field' type
+      if (
+        !(
+          this.field.parent &&
+          this.field.parent?.type === 'repeat-field'
+        )
+      ) {
         console.error(
-          `gene-select-item field ${this.field.key} cannot find reference to parent repeat-field onRemove$.`
+          `gene-select-item field ${this.field.key} does not appear to have a parent type of 'repeat-field'.`
         )
       } else {
-        const onRemove$: Subject<number> = this.field.parent.props.onRemove$
-        this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_e) => {
-          onRemove$.next(Number(this.key))
-        })
+        // check if parent repeat-field attached the onRemove$ Subject
+        if (!this.field.parent?.props?.onRemove$) {
+          console.error(
+            `gene-select-item field ${this.field.key} cannot find reference to parent repeat-field onRemove$.`
+          )
+        } else {
+          const onRemove$: Subject<number> = this.field.parent.props.onRemove$
+          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_e) => {
+            onRemove$.next(Number(this.key))
+          })
+        }
       }
     } else {
       this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {

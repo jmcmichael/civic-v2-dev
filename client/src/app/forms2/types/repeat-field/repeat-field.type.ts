@@ -2,8 +2,6 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ContentChildren,
-  QueryList,
   Type,
 } from '@angular/core'
 import { Maybe } from '@app/generated/civic.apollo'
@@ -11,11 +9,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldArrayType,
   FieldArrayTypeConfig,
-  FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { NzTagComponent } from 'ng-zorro-antd/tag'
 import { filter, Observable, Subject } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
@@ -47,10 +43,6 @@ export class CvcRepeatField
   extends FieldArrayType<FieldArrayTypeConfig<CvcRepeatFieldProps>>
   implements AfterViewInit
 {
-  @ContentChildren(NzTagComponent) nzTagComponents?: QueryList<NzTagComponent>
-
-  //Maybe<NzTagComponent[]>
-
   // SOURCE STREAMS
   onModelChange$!: Observable<Maybe<number>> // emits all field model changes
   onValueChange$: Subject<Maybe<number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
@@ -117,20 +109,6 @@ export class CvcRepeatField
         // console.log('repeat-field onModelChange$: ', v)
         this.onValueChange$.next(v)
       })
-    }
-
-    // watch for tags
-    console.log(
-      'repeat-field ngAfterViewInit nzTagComponents: ',
-      this.nzTagComponents
-    )
-
-    if (this.nzTagComponents) {
-      this.nzTagComponents.changes
-        .pipe(untilDestroyed(this))
-        .subscribe((tags: NzTagComponent[]) => {
-          console.log('repeat-field nzTagComponents.changes tags', tags)
-        })
     }
   }
 }
