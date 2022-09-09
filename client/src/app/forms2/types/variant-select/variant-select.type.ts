@@ -49,11 +49,12 @@ export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   requireGene: boolean // if true, disables field if no geneId$
   requireGenePlaceholder: string // placeholder if geneId required & none is set
   requireGenePrompt: string // placeholder prompt displayed when geneId set
+  isRepeatItem: boolean
 }
 
 export interface CvcVariantSelectFieldConfig
   extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
-  type: 'variant-select' | Type<CvcVariantSelectField>
+  type: 'variant-select' | 'variant-select-item' | Type<CvcVariantSelectField>
 }
 
 export const GET_CACHED_VARIANT = gql`
@@ -110,6 +111,7 @@ export class CvcVariantSelectField
       requireGene: true,
       requireGenePlaceholder: 'Search GENE_NAME Variants',
       requireGenePrompt: 'Select a Gene to search Variants',
+      isRepeatItem: false
     },
   }
 

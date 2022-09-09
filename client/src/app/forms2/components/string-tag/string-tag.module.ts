@@ -1,22 +1,13 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CvcStringTagComponent } from './string-tag.component';
-import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzTypographyModule } from 'ng-zorro-antd/typography';
-import { CvcPipesModule } from '@app/core/pipes/pipes.module';
+import { CommonModule } from '@angular/common'
+import { NgModule } from '@angular/core'
+import { CvcPipesModule } from '@app/core/pipes/pipes.module'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzTagModule } from 'ng-zorro-antd/tag'
+import { CvcStringTagComponent } from './string-tag.component'
 
 @NgModule({
-  declarations: [
-    CvcStringTagComponent
-  ],
-  imports: [
-    CommonModule,
-    NzTagModule,
-    NzTypographyModule,
-    CvcPipesModule,
-  ],
-  exports: [
-    CvcStringTagComponent
-  ]
+  declarations: [CvcStringTagComponent],
+  imports: [CommonModule, NzIconModule, NzTagModule, CvcPipesModule],
+  exports: [CvcStringTagComponent],
 })
-export class CvcStringTagModule { }
+export class CvcStringTagModule {}

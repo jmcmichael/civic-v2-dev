@@ -1,22 +1,13 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CvcEntityTagComponent } from './entity-tag.component';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzTagModule } from 'ng-zorro-antd/tag';
-import { CvcPipesModule } from '@app/core/pipes/pipes.module';
+import { NgModule } from '@angular/core'
+import { CommonModule } from '@angular/common'
+import { CvcEntityTagComponent } from './entity-tag.component'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzTagModule } from 'ng-zorro-antd/tag'
+import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 
 @NgModule({
-  declarations: [
-    CvcEntityTagComponent
-  ],
-  imports: [
-    CommonModule,
-    CvcPipesModule,
-    NzIconModule,
-    NzTagModule,
-  ],
-  exports: [
-    CvcEntityTagComponent
-  ]
+  declarations: [CvcEntityTagComponent],
+  imports: [CommonModule, NzIconModule, NzTagModule, CvcPipesModule],
+  exports: [CvcEntityTagComponent],
 })
-export class CvcEntityTagModule { }
+export class CvcEntityTagModule {}

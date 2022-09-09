@@ -21,7 +21,8 @@ const typeConfig: ConfigOption = {
       component: CvcGeneSelectField,
     },
     {
-      // no label, for use in repeat-field types
+      // for use in repeat-field types,
+      // hide label and set isRepeatItem true
       name: 'gene-select-item',
       wrappers: ['form-field'],
       component: CvcGeneSelectField,

@@ -84,7 +84,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
               label: 'Aliases',
             },
             fieldArray: {
-              type: 'input',
+              type: 'base-input',
               props: {
               },
             },

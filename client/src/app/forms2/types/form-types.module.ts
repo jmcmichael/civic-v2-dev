@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
+import { CvcBaseInputFieldModule } from './base-input/base-input.module'
 import { CvcClinicalSignificanceSelectModule } from './clinical-significance-select/clinical-significance-select.module'
 import { CvcEvidenceDirectionSelectModule } from './evidence-direction-select/evidence-direction-select.module'
 import { CvcEvidenceTypeSelectModule } from './evidence-type-select/evidence-type-select.module'
@@ -18,6 +19,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcClinicalSignificanceSelectModule,
     CvcEvidenceDirectionSelectModule,
     CvcRepeatFieldModule,
+    CvcBaseInputFieldModule,
   ],
 })
 export class CvcFormTypesModule {}

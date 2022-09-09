@@ -9,10 +9,11 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldArrayType,
   FieldArrayTypeConfig,
+  FieldType,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { filter, Observable, Subject } from 'rxjs'
+import { filter, Observable, Subject, map } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
@@ -44,10 +45,10 @@ export class CvcRepeatField
   implements AfterViewInit
 {
   // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<number>> // emits all field model changes
-  onValueChange$: Subject<Maybe<number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
+  onModelChange$!: Observable<any[]> // emits all field model changes
+  onValueChange$: Subject<any[]> // emits on model changes, and other model update sources (query param, or other pre-init model value)
 
-  itemFieldType: Maybe<string>
+  itemFieldType!: string
 
   // field default options
   defaultOptions: Partial<FieldArrayTypeConfig<CvcRepeatFieldProps>> = {
@@ -62,7 +63,7 @@ export class CvcRepeatField
   }
   constructor() {
     super()
-    this.onValueChange$ = new Subject<Maybe<number>>()
+    this.onValueChange$ = new Subject<any[]>()
   }
 
   ngAfterViewInit(): void {
@@ -85,8 +86,10 @@ export class CvcRepeatField
       )
       return
     } else {
-      // typeof fArray.type === 'string') {
-      // this.itemFieldType = fArray.type
+      const type = fieldArray.type
+      if (typeof type === 'string') {
+        this.itemFieldType = fieldArray.type as string
+      }
     }
 
     // create onModelChange$ observable from fieldChanges
@@ -95,18 +98,30 @@ export class CvcRepeatField
         `${this.field.key} field could not find fieldChanges Observable`
       )
     } else {
+      // options.fieldChanges uses shallow change detection, so
+      // does not emit when child field models update - only
+      // when they're added or removed. here, changes from both this
+      // repeat-field and child fields are passed, then mapped to
+      // always return the actual repeat-field model value
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        filter((f) => {
-          console.log(f)
-          return true
+        filter((c) => {
+          // pass changes to self or child fields
+          return c.field.key === this.field.key
+          || c.field.parent?.key === this.field.key
+        }), // filter out other fields
+        map((c) => {
+          // return repeat-field value, or
+          // return repeat-field model if update is from a child field
+          if(c.field.type === 'repeat-field'){
+            return c.value
+          } else {
+            return this.model
+          }
         }),
-        tag('repeat-field onModelChange$'),
-        pluck('value')
       )
 
       // emit value from onValueChange$ for every model change
       this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-        // console.log('repeat-field onModelChange$: ', v)
         this.onValueChange$.next(v)
       })
     }
