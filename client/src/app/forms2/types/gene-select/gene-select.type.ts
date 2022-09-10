@@ -35,6 +35,7 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
+import { tag } from 'rxjs-spy/operators'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string
@@ -50,6 +51,7 @@ export interface CvcGeneSelectFieldConfig
 @Component({
   selector: 'cvc-gene-select',
   templateUrl: './gene-select.type.html',
+  styleUrls: ['./gene-select.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcGeneSelectField
@@ -89,7 +91,7 @@ export class CvcGeneSelectField
     },
   }
 
-  repeatFieldKey?: string
+  repeatFieldId?: string
 
   constructor(
     private typeaheadGQL: GeneSelectTypeaheadGQL,
@@ -103,34 +105,17 @@ export class CvcGeneSelectField
     this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
-  getChangesFilter = () => {
-    if (!this.props.isRepeatItem) {
-      return (c: FormlyValueChangeEvent) => c.field.key === this.field.key
-    } else {
-      return (c: FormlyValueChangeEvent) => c.field.key === this.field.key
-      && c.field.parent?.key === this.repeatFieldKey
-    }
-  }
-
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     // if this is a repeat-field item, store parent repeat-field key
     // to use in field changes filter
     if (this.props.isRepeatItem) {
-      if (!this.field.parent?.key) {
+      if (!this.field.parent?.id) {
         console.error(
-          `base-input field is configured as a repeat-field item, but could not locate a parent key.`
+          `base-input field is configured as a repeat-field item, but could not locate a parent id.`
         )
       } else {
-        if (!(typeof this.field.parent.key === 'string')) {
-          console.error(
-            `base-input field's parent repeat-field must use a string key. Key provided: ${JSON.stringify(
-              this.field.parent.key
-            )}`
-          )
-        } else {
-          this.repeatFieldKey = this.field.parent.key
-        }
+        this.repeatFieldId = this.field.parent.id
       }
     }
 
@@ -141,7 +126,8 @@ export class CvcGeneSelectField
       )
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        filter(this.getChangesFilter()), // filter out other fields
+        // tag(`gene-select ${this.field.id} onModelChange$`),
+        filter((c) => c.field.id === this.field.id), // filter out other fields
         pluck('value')
       )
 
@@ -156,9 +142,9 @@ export class CvcGeneSelectField
     this.onValueChange$.subscribe((gid: Maybe<number>) => {
       if (!gid) {
         this.deleteTag()
-        return
+      } else {
+        this.setTag(gid)
       }
-      this.setTag(gid)
     })
 
     // do not attach repeat-field items to state
@@ -191,8 +177,7 @@ export class CvcGeneSelectField
 
     // set up typeahead watch & fetch calls
     this.response$ = this.onSearch$.pipe(
-      // skip(1), // drop empty string from initial field focus
-      // wait 1/3sec after typing activity stops to query server
+      // wait 1/3sec after typing activity stops to query server,
       // quash leading event, emit trailing event so we only get 1 search string
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
       switchMap((str: string) => {
@@ -234,32 +219,31 @@ export class CvcGeneSelectField
       distinctUntilChanged()
     )
 
-    // if this field is the child of a repeat-field type,
-    // get reference to its onRemove$ and emit its ID when tag closed,
-    // otherwise, handle model reset and tag deletion
+    // if this is a repeat-item field, emit onRemove$ event on tag close,
+    // otherwise, just reset field locally
     if (this.props.isRepeatItem) {
       // check if parent field is of 'repeat-field' type
       if (!(this.field.parent && this.field.parent?.type === 'repeat-field')) {
         console.error(
-          `gene-select-item field ${this.field.key} does not appear to have a parent type of 'repeat-field'.`
+          `${this.field.id} does not appear to have a parent type of 'repeat-field'.`
         )
       } else {
         // check if parent repeat-field attached the onRemove$ Subject
         if (!this.field.parent?.props?.onRemove$) {
           console.error(
-            `gene-select-item field ${this.field.key} cannot find reference to parent repeat-field onRemove$.`
+            `${this.field.id} cannot find reference to parent repeat-field onRemove$.`
           )
         } else {
           const onRemove$: Subject<number> = this.field.parent.props.onRemove$
-          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_e) => {
+          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+            this.resetField()
             onRemove$.next(Number(this.key))
           })
         }
       }
     } else {
       this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-        this.unsetModel()
-        this.deleteTag()
+        this.resetField()
       })
     }
   } // ngAfterViewInit()
@@ -274,7 +258,7 @@ export class CvcGeneSelectField
       this.tagQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
     ).then(({ data }) => {
       if (!data?.gene?.id) {
-        console.error(`gene-input field could not fetch Gene:${gid}.`)
+        console.error(`${this.field.id} field could not fetch Gene:${gid}.`)
       } else {
         this.tagCacheId$.next(`Gene:${gid}`)
       }
@@ -287,6 +271,11 @@ export class CvcGeneSelectField
 
   deleteTag() {
     this.tagCacheId$.next(undefined)
+  }
+
+  resetField() {
+    this.unsetModel()
+    this.deleteTag()
   }
 
   optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (

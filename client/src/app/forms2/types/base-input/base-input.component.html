@@ -1,19 +1,23 @@
-<!-- <cvc-string-tag
-  *ngIf="field.model"
-  [cvcLabel]="field.model"></cvc-string-tag>
--->
-<input
-  *ngIf="props.type !== 'number'; else numberTmp"
-  nz-input
-  #baseInputTxt
-  [formControl]="formControl"
-  (keydown.enter)="baseInputTxt.blur()"
-  [type]="props.type || 'text'"
-  [formlyAttributes]="field" />
-<ng-template #numberTmp>
-  <nz-input-number
-    #baseInputNum
-    (keydown.enter)="baseInputNum.blur()"
+<cvc-string-tag
+  *ngIf="tagLabel$ | ngrxPush as tagLabel; else inputCtrl"
+  [cvcMode]="'closeable'"
+  [cvcLabel]="tagLabel"
+  (cvcOnClose)="onTagClose$.next($event)"></cvc-string-tag>
+
+<ng-template #inputCtrl>
+  <input
+    *ngIf="props.type !== 'number'; else numberTmp"
+    nz-input
+    #baseInputTxt
     [formControl]="formControl"
-    [formlyAttributes]="field"></nz-input-number>
+    (keydown.enter)="baseInputTxt.blur()"
+    [type]="props.type || 'text'"
+    [formlyAttributes]="field" />
+  <ng-template #numberTmp>
+    <nz-input-number
+      #baseInputNum
+      (keydown.enter)="baseInputNum.blur()"
+      [formControl]="formControl"
+      [formlyAttributes]="field"></nz-input-number>
+  </ng-template>
 </ng-template>

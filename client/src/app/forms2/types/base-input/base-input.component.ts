@@ -41,6 +41,10 @@ export class CvcBaseInputField
   // SOURCE STREAMS
   onModelChange$!: Observable<Maybe<string | number>> // emits all field model changes
   onValueChange$: Subject<Maybe<string | number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
+  onTagClose$: Subject<MouseEvent> // emits on entity tag closed btn click
+
+  // PRESENTATION STREAMS
+  tagLabel$: Subject<Maybe<string>> // emits label for tag
 
   defaultOptions: Partial<FieldTypeConfig<CvcBaseInputFieldProps>> = {
     modelOptions: {
@@ -52,19 +56,22 @@ export class CvcBaseInputField
     },
   }
 
-  repeatFieldKey?: string
+  repeatFieldId?: string
 
   constructor() {
     super()
     this.onValueChange$ = new Subject<Maybe<string | number>>()
+    this.onTagClose$ = new Subject<MouseEvent>()
+    this.tagLabel$ = new Subject<Maybe<string>>()
   }
 
   getChangesFilter = () => {
     if (!this.props.isRepeatItem) {
-      return (c: FormlyValueChangeEvent) => c.field.key === this.field.key
+      return (c: FormlyValueChangeEvent) => c.field.id === this.field.id
     } else {
-      return (c: FormlyValueChangeEvent) => c.field.key === this.field.key
-      && c.field.parent?.key === this.repeatFieldKey
+      return (c: FormlyValueChangeEvent) =>
+        c.field.id === this.field.id &&
+        c.field.parent?.id === this.repeatFieldId
     }
   }
 
@@ -72,31 +79,23 @@ export class CvcBaseInputField
     // if this is a repeat-field item, store parent repeat-field key
     // to use in field changes filter
     if (this.props.isRepeatItem) {
-      if (!this.field.parent?.key) {
+      if (!this.field.parent?.id) {
         console.error(
-          `base-input field is configured as a repeat-field item, but could not locate a parent key.`
+          `base-input field ${this.field.id} is configured as a repeat-field item, but could not locate a parent field id.`
         )
       } else {
-        if (!(typeof this.field.parent.key === 'string')) {
-          console.error(
-            `base-input field's parent repeat-field must use a string key. Key provided: ${JSON.stringify(
-              this.field.parent.key
-            )}`
-          )
-        } else {
-          this.repeatFieldKey = this.field.parent.key
-        }
+        this.repeatFieldId = this.field.parent.id
       }
     }
+
     // create onModelChange$ observable from fieldChanges
     if (!this.field?.options?.fieldChanges) {
       console.error(
-        `base-input field ${this.field.key} could not find fieldChanges Observable`
+        `base-input field ${this.field.id} could not find its fieldChanges Observable`
       )
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        filter(this.getChangesFilter()), // filter out other fields
-        tag('base-input onModelChange$'),
+        filter((c) => c.field.id === this.field.id), // filter out other fields
         pluck('value')
       )
 
@@ -104,6 +103,55 @@ export class CvcBaseInputField
       this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
         this.onValueChange$.next(v)
       })
+
+      this.onValueChange$.subscribe((str: Maybe<string | number>) => {
+        this.tagLabel$.next(str ? str.toString() : undefined)
+      })
     }
+
+    // if this is a repeat-item field, emit onRemove$ event on tag close,
+    // otherwise, just reset field locally
+    if (this.props.isRepeatItem) {
+      // check if parent field is of 'repeat-field' type
+      if (!(this.field.parent && this.field.parent?.type === 'repeat-field')) {
+        console.error(
+          `${this.field.id} does not appear to have a parent type of 'repeat-field'.`
+        )
+      } else {
+        // check if parent repeat-field attached the onRemove$ Subject
+        if (!this.field.parent?.props?.onRemove$) {
+          console.error(
+            `${this.field.id} cannot find reference to parent repeat-field onRemove$.`
+          )
+        } else {
+          const onRemove$: Subject<number> = this.field.parent.props.onRemove$
+          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+            this.resetField()
+            onRemove$.next(Number(this.key))
+          })
+        }
+      }
+    } else {
+      this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+        this.resetField()
+      })
+    }
+  } // ngAfterViewInit
+
+  tagClose(e: any) {
+    console.log('base-input tag close()', e)
+  }
+
+  unsetModel() {
+    this.formControl.setValue(undefined)
+  }
+
+  deleteTag() {
+    this.tagLabel$.next(undefined)
+  }
+
+  resetField() {
+    this.unsetModel()
+    this.deleteTag()
   }
 }

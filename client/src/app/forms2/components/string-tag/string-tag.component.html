@@ -1,4 +1,4 @@
-<nz-tag [nzMode]="cvcMode">
+<nz-tag [nzMode]="cvcMode" (nzOnClose)="cvcOnClose.next($event)">
   <i
     *ngIf="!cvcLabel"
     nz-icon

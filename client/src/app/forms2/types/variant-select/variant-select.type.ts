@@ -85,11 +85,11 @@ export class CvcVariantSelectField
   variantId$!: Subject<Maybe<number>>
 
   // SOURCE STREAMS
-  onSearch$: Subject<string>
+  onModelChange$!: Observable<Maybe<number>> // emits all field model changes
   onValueChange$: Subject<Maybe<number>>
   onFocus$: Subject<boolean>
+  onSearch$: Subject<string>
   onTagClose$: Subject<MouseEvent>
-  tagCacheId$: Subject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<VariantSelect2Query>>
@@ -98,6 +98,7 @@ export class CvcVariantSelectField
   placeholder$!: BehaviorSubject<string>
   result$!: Observable<VariantSelect2FieldsFragment[]>
   isLoading$!: Observable<boolean>
+  tagCacheId$: Subject<Maybe<string>>
 
   queryRef!: QueryRef<VariantSelect2Query, VariantSelect2QueryVariables>
 
@@ -129,17 +130,37 @@ export class CvcVariantSelectField
     this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
-  getChangesFilter = () => {
-    if (!this.props.isRepeatItem) {
-      return (c: FormlyValueChangeEvent) => c.field.key === this.field.key
-    } else {
-      return (c: FormlyValueChangeEvent) =>
-        c.field.key === this.field.key &&
-        c.field.parent?.key === this.repeatFieldKey
-    }
-  }
-
   ngAfterViewInit(): void {
+    // if this is a repeat-field item, store parent repeat-field key
+    // to use in field changes filter
+    if (this.props.isRepeatItem) {
+      if (!this.field.parent?.id) {
+        console.error(
+          `base-input field is configured as a repeat-field item, but could not locate a parent key.`
+        )
+      } else {
+        this.repeatFieldKey = this.field.parent.id
+      }
+    }
+
+    // create onModelChange$ observable from fieldChanges
+    if (!this.field?.options?.fieldChanges) {
+      console.error(
+        `${this.field.key} field could not find fieldChanges Observable`
+      )
+    } else {
+      this.onModelChange$ = this.field.options.fieldChanges.pipe(
+        // tag(`variant-select ${this.field.id} onModelChange$`),
+        filter((c) => c.field.id === this.field.id), // filter out other fields
+        pluck('value')
+      )
+
+      // emit value from onValueChange$ for every model change
+      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+        this.onValueChange$.next(v)
+      })
+    }
+
     // show prompt to select a gene if requireGene true
     // otherwise show standard placeholder
     let initialPlaceholder: string
@@ -150,25 +171,23 @@ export class CvcVariantSelectField
     }
     this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
 
-    // do not attach repeat-field items to state
-    if (!this.props.isRepeatItem) {
+    // if this is a repeat-item, attach dummy state fields that emit
+    // undefined, so that response$ query's withLatestFrom succeeds
+    if (this.props.isRepeatItem) {
+      this.onGeneId$ = new BehaviorSubject<Maybe<number>>(undefined)
+    } else {
       // find formState's geneId$ subject, subscribe to call onGeneId for new events
       if (this.field.options?.formState) {
         this.state = this.field.options.formState
         if (this.state && this.state.fields.geneId$) {
           this.onGeneId$ = this.state.fields.geneId$
-          this.onGeneId$
-            .pipe(
-              // tag('variant-input onGeneId$'),
-              untilDestroyed(this)
-            )
-            .subscribe((gid) => {
-              this.onGeneId(gid)
-            })
+          this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
+            this.onGeneId(gid)
+          })
         } else {
           if (this.props.requireGene) {
             console.error(
-              `variant-input field requires a gene to be set, but could not find a geneId$  formState fields.`
+              `variant-input ${this.field.id} requireGene is true, but could not find a geneId$ on formState.field.`
             )
           }
         }
@@ -183,12 +202,10 @@ export class CvcVariantSelectField
           if (this.variantId$ && this.field.options?.fieldChanges) {
             this.field.options.fieldChanges
               .pipe(
-                filter(this.getChangesFilter()),
-                // tag('variant-input fields.variantId$'),
+                filter((c) => c.field.id === this.field.id), // filter out other fields
                 untilDestroyed(this)
               )
               .subscribe((change) => {
-                this.onValueChange$.next(change.value)
                 this.variantId$!.next(change.value)
               })
           }
@@ -198,7 +215,11 @@ export class CvcVariantSelectField
 
     // on value change, fetch linkable entity from cache, or query server
     this.onValueChange$.subscribe((vid: Maybe<number>) => {
-      this.setTag(vid)
+      if (!vid) {
+        this.deleteTag()
+      } else {
+        this.setTag(vid)
+      }
     })
 
     // if field has been assigned a value before its initialization, fire
@@ -206,16 +227,13 @@ export class CvcVariantSelectField
     // the tag's linkable entity
     if (this.field.formControl.value) {
       const v = this.field.formControl.value
-      // TODO: get variantId$ from formState and emit field updates
-      // if (this.variantId$) this.variantId$.next(v)
       if (this.onValueChange$) this.onValueChange$.next(v)
     }
 
-    // if gene is required, show a list of variants when select is clicked
+    // perform a query with an empty string to show a list of variants
+    // when selector clicked
     this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-      if (this.props.requireGene) {
-        this.onSearch$.next('')
-      }
+      this.onSearch$.next('')
     })
 
     // set up typeahead watch, fetch calls
@@ -254,20 +272,47 @@ export class CvcVariantSelectField
       tag('variant-input response$')
     ) // end this.response$
 
+    // BUG: isLoading returns true a couple of times then false thereafter
+    // for no good reason that I can determine
     this.isLoading$ = this.response$.pipe(
       pluck('loading'),
-      filter(isNonNulled),
+      // tag('variant-input isloading$'),
       distinctUntilChanged()
     )
+
     this.result$ = this.response$.pipe(
       pluck('data', 'variants', 'nodes'),
       filter(isNonNulled)
     )
 
-    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.unsetModel()
-      this.deleteTag()
-    })
+    // if this field is the child of a repeat-field type,
+    // get reference to its onRemove$ and emit its ID when tag closed,
+    // otherwise, handle model reset and tag deletion locally
+    if (this.props.isRepeatItem) {
+      // check if parent field is of 'repeat-field' type
+      if (!(this.field.parent && this.field.parent?.type === 'repeat-field')) {
+        console.error(
+          `${this.field.id} field does not appear to have a parent type of 'repeat-field'.`
+        )
+      } else {
+        // check if parent repeat-field attached the onRemove$ Subject
+        if (!this.field.parent?.props?.onRemove$) {
+          console.error(
+            `${this.field.id} field cannot find reference to parent repeat-field onRemove$.`
+          )
+        } else {
+          const onRemove$: Subject<number> = this.field.parent.props.onRemove$
+          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+            this.resetField()
+            onRemove$.next(Number(this.key))
+          })
+        }
+      }
+    } else {
+      this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+        this.resetField()
+      })
+    }
   } // ngAfterViewInit
 
   private onGeneId(gid: Maybe<number>): void {
@@ -275,8 +320,7 @@ export class CvcVariantSelectField
     // set model to undefined (this resets the variant model if gene field is reset)
     // and update the placeholder message
     if (!gid && this.props.requireGene && this.props.requireGenePrompt) {
-      this.unsetModel()
-      this.deleteTag()
+      this.resetField()
       this.placeholder$.next(this.props.requireGenePrompt)
     } else if (gid) {
       // we have a gene id, so fetch its name and update the placeholder string
@@ -304,33 +348,43 @@ export class CvcVariantSelectField
 
   setTag(vid?: number) {
     if (!vid) return
-    const cacheId = `Variant:${vid}`
-    // linkable variant from cache
-    const fragment = {
-      id: cacheId,
-      fragment: GET_CACHED_VARIANT,
-    }
-    const cachedVariant = this.apollo.client.readFragment(
-      fragment
-    ) as LinkableVariant
-    if (cachedVariant) {
-      this.tagCacheId$.next(cacheId)
-    } else {
-      console.log(
-        `variant-input field could not find cached Variant:${vid}, fetching.`
-      )
-      this.tagQuery.fetch({ variantId: vid }).subscribe(({ data }) => {
-        const fetchedVariant = data.variant
-        if (fetchedVariant) {
-          this.tagCacheId$.next(cacheId)
-        } else {
-          console.error(
-            `variant-input field could not find cached Variant:${vid}, or fetch it from the server.`
-          )
-        }
-      })
-    }
+    lastValueFrom(
+      this.tagQuery.fetch({ variantId: vid }, { fetchPolicy: 'cache-first' })
+    ).then(({ data }) => {
+      if (!data?.variant?.id) {
+        console.error(`${this.field.id} field could not fetch Variant:${vid}.`)
+      } else {
+        this.tagCacheId$.next(`Variant:${vid}`)
+      }
+    })
+    // const cacheId = `Variant:${vid}`
+    // // linkable variant from cache
+    // const fragment = {
+    //   id: cacheId,
+    //   fragment: GET_CACHED_VARIANT,
+    // }
+    // const cachedVariant = this.apollo.client.readFragment(
+    //   fragment
+    // ) as LinkableVariant
+    // if (cachedVariant) {
+    //   this.tagCacheId$.next(cacheId)
+    // } else {
+    //   console.log(
+    //     `variant-input field could not find cached Variant:${vid}, fetching.`
+    //   )
+    //   this.tagQuery.fetch({ variantId: vid }).subscribe(({ data }) => {
+    //     const fetchedVariant = data.variant
+    //     if (fetchedVariant) {
+    //       this.tagCacheId$.next(cacheId)
+    //     } else {
+    //       console.error(
+    //         `variant-input field could not find cached Variant:${vid}, or fetch it from the server.`
+    //       )
+    //     }
+    //   })
+    // }
   } // setTag
+
 
   unsetModel() {
     this.formControl.setValue(undefined)
@@ -338,6 +392,11 @@ export class CvcVariantSelectField
 
   deleteTag() {
     this.tagCacheId$.next(undefined)
+  }
+
+  resetField() {
+    this.unsetModel()
+    this.deleteTag()
   }
 
   optionTrackBy: TrackByFunction<VariantSelect2FieldsFragment> = (

@@ -75,19 +75,22 @@ export class CvcRepeatField
     // create onModelChange$ observable from fieldChanges
     if (!this.field?.options?.fieldChanges) {
       console.error(
-        `${this.field.key} field could not find fieldChanges Observable`
+        `${this.field.id} field could not find fieldChanges Observable`
       )
     } else {
-      // options.fieldChanges uses shallow change detection, so
-      // does not emit when child field models update - only
-      // when they're added or removed. here, changes from both this
-      // repeat-field and child fields are filtered, then mapped to
-      // always return the actual repeat-field model value
+      // options.fieldChanges uses shallow change detection, so when
+      // the model is an array, it will only emit changes when items are
+      // added or removed. Therefore changes to individual elements will
+      // not be emitted. Individual elements do emit their own changes, and
+      // we can identify those by checking to see if their parent's field id matches
+      // this repeat-field's id. Either repeat-field parent or child repeat-item
+      // event are then mapped to return this repeat-field model, which
+      // includes its up-to-date elements.
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => {
           return (
-            c.field.key === this.field.key || // matches this field
-            c.field.parent?.key === this.field.key // matches this field's child fields
+            c.field.id === this.field.id || // matches this field
+            c.field.parent?.id === this.field.id // matches this field's child fields
           )
         }),
         map((_c) => this.model)
@@ -95,7 +98,7 @@ export class CvcRepeatField
 
       // emit value from onValueChange$ for every model change
       this.onModelChange$.pipe(
-        tag(`repeat-field ${this.field.key} onModelChange$`),
+        // tag(`repeat-field ${this.field.id} onModelChange$`),
         untilDestroyed(this)
       ).subscribe((v) => {
         this.onValueChange$.next(v)
