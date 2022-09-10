@@ -78,13 +78,25 @@ const formFieldConfig: FormlyFieldConfig[] = [
             },
           },
           {
+            key: 'variantIds',
+            type: 'repeat-field',
+            props: {
+              label: 'Variants',
+            },
+            fieldArray: {
+              type: 'variant-select-item',
+              props: {
+              },
+            },
+          },
+          {
             key: 'aliases',
             type: 'repeat-field',
             props: {
               label: 'Aliases',
             },
             fieldArray: {
-              type: 'base-input',
+              type: 'base-input-item',
               props: {
               },
             },

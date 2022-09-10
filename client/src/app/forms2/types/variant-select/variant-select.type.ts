@@ -24,6 +24,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
+import { FormlyValueChangeEvent } from '@ngx-formly/core/lib/models'
 import { Apollo, gql, QueryRef } from 'apollo-angular'
 import {
   asyncScheduler,
@@ -46,10 +47,10 @@ import { tag } from 'rxjs-spy/operators'
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
+  isRepeatItem: boolean // is child of a repeat-field type
   requireGene: boolean // if true, disables field if no geneId$
-  requireGenePlaceholder: string // placeholder if geneId required & none is set
-  requireGenePrompt: string // placeholder prompt displayed when geneId set
-  isRepeatItem: boolean
+  requireGenePlaceholder?: string // placeholder if geneId required & none is set
+  requireGenePrompt?: string // placeholder prompt displayed when geneId set
 }
 
 export interface CvcVariantSelectFieldConfig
@@ -98,10 +99,7 @@ export class CvcVariantSelectField
   result$!: Observable<VariantSelect2FieldsFragment[]>
   isLoading$!: Observable<boolean>
 
-  queryRef!: QueryRef<
-    VariantSelect2Query,
-    VariantSelect2QueryVariables
-  >
+  queryRef!: QueryRef<VariantSelect2Query, VariantSelect2QueryVariables>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcVariantSelectFieldProps>> = {
@@ -111,9 +109,11 @@ export class CvcVariantSelectField
       requireGene: true,
       requireGenePlaceholder: 'Search GENE_NAME Variants',
       requireGenePrompt: 'Select a Gene to search Variants',
-      isRepeatItem: false
+      isRepeatItem: false,
     },
   }
+
+  repeatFieldKey?: string
 
   constructor(
     private typeaheadGQL: VariantSelect2GQL,
@@ -129,53 +129,69 @@ export class CvcVariantSelectField
     this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
+  getChangesFilter = () => {
+    if (!this.props.isRepeatItem) {
+      return (c: FormlyValueChangeEvent) => c.field.key === this.field.key
+    } else {
+      return (c: FormlyValueChangeEvent) =>
+        c.field.key === this.field.key &&
+        c.field.parent?.key === this.repeatFieldKey
+    }
+  }
+
   ngAfterViewInit(): void {
     // show prompt to select a gene if requireGene true
     // otherwise show standard placeholder
-    const initialPlaceholder = this.props.requireGene
-      ? this.props.requireGenePrompt
-      : this.props.placeholder
+    let initialPlaceholder: string
+    if (this.props.requireGene && this.props.requireGenePrompt) {
+      initialPlaceholder = this.props.requireGenePrompt
+    } else {
+      initialPlaceholder = this.props.placeholder
+    }
     this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
 
-    // find formState's geneId$ subject, subscribe to call onGeneId for new events
-    if (this.field.options?.formState) {
-      this.state = this.field.options.formState
-      if (this.state && this.state.fields.geneId$) {
-        this.onGeneId$ = this.state.fields.geneId$
-        this.onGeneId$
-          .pipe(
-            // tag('variant-input onGeneId$'),
-            untilDestroyed(this)
-          )
-          .subscribe((gid) => {
-            this.onGeneId(gid)
-          })
-      } else {
-        if (this.props.requireGene) {
-          console.error(
-            `variant-input field requires a gene to be set, but could not find a geneId$  formState fields.`
-          )
-        }
-      }
-    }
-
-    // get variantId$ reference from state, subscribe to field value changes
-    // and emit new variantIds from formState's variantId$
-    if (this.field?.options?.formState) {
-      this.state = this.field.options.formState
-      if (this.state && this.state.fields.variantId$) {
-        this.variantId$ = this.state.fields.variantId$
-        if (this.variantId$ && this.field.options?.fieldChanges) {
-          this.field.options.fieldChanges
+    // do not attach repeat-field items to state
+    if (!this.props.isRepeatItem) {
+      // find formState's geneId$ subject, subscribe to call onGeneId for new events
+      if (this.field.options?.formState) {
+        this.state = this.field.options.formState
+        if (this.state && this.state.fields.geneId$) {
+          this.onGeneId$ = this.state.fields.geneId$
+          this.onGeneId$
             .pipe(
-              filter((c) => c.field.key === this.field.key),
-              // tag('variant-input fields.variantId$'),
+              // tag('variant-input onGeneId$'),
               untilDestroyed(this)
             )
-            .subscribe((change) => {
-              this.onValueChange$.next(change.value)
-              this.variantId$!.next(change.value)
+            .subscribe((gid) => {
+              this.onGeneId(gid)
             })
+        } else {
+          if (this.props.requireGene) {
+            console.error(
+              `variant-input field requires a gene to be set, but could not find a geneId$  formState fields.`
+            )
+          }
+        }
+      }
+
+      // get variantId$ reference from state, subscribe to field value changes
+      // and emit new variantIds from formState's variantId$
+      if (this.field?.options?.formState) {
+        this.state = this.field.options.formState
+        if (this.state && this.state.fields.variantId$) {
+          this.variantId$ = this.state.fields.variantId$
+          if (this.variantId$ && this.field.options?.fieldChanges) {
+            this.field.options.fieldChanges
+              .pipe(
+                filter(this.getChangesFilter()),
+                // tag('variant-input fields.variantId$'),
+                untilDestroyed(this)
+              )
+              .subscribe((change) => {
+                this.onValueChange$.next(change.value)
+                this.variantId$!.next(change.value)
+              })
+          }
         }
       }
     }
@@ -258,7 +274,7 @@ export class CvcVariantSelectField
     // if field config indicates that a geneId is required, and none is provided,
     // set model to undefined (this resets the variant model if gene field is reset)
     // and update the placeholder message
-    if (!gid && this.props.requireGene) {
+    if (!gid && this.props.requireGene && this.props.requireGenePrompt) {
       this.unsetModel()
       this.deleteTag()
       this.placeholder$.next(this.props.requireGenePrompt)
@@ -272,11 +288,15 @@ export class CvcVariantSelectField
             `variant-input field could not fetch gene name for Gene:${gid}.`
           )
         } else {
-          const ph = this.props.requireGenePlaceholder.replace(
-            'GENE_NAME',
-            data.gene.name
-          )
-          this.placeholder$.next(ph)
+          if (this.props.requireGenePlaceholder) {
+            const ph = this.props.requireGenePlaceholder.replace(
+              'GENE_NAME',
+              data.gene.name
+            )
+            this.placeholder$.next(ph)
+          } else {
+            this.placeholder$.next(this.props.placeholder)
+          }
         }
       })
     }

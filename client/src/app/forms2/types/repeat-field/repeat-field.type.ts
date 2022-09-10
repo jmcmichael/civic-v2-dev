@@ -48,8 +48,6 @@ export class CvcRepeatField
   onModelChange$!: Observable<any[]> // emits all field model changes
   onValueChange$: Subject<any[]> // emits on model changes, and other model update sources (query param, or other pre-init model value)
 
-  itemFieldType!: string
-
   // field default options
   defaultOptions: Partial<FieldArrayTypeConfig<CvcRepeatFieldProps>> = {
     defaultValue: [],
@@ -67,30 +65,12 @@ export class CvcRepeatField
   }
 
   ngAfterViewInit(): void {
+    // provide Subject from which child fields emit onTagClose events
+    // subscribe to call FieldArray.remove()
     this.props.onRemove$ = new Subject<number>()
     this.props.onRemove$.pipe(untilDestroyed(this)).subscribe((i: number) => {
       this.remove(i)
     })
-    // create observables for model updates, one for repeat-field model updates
-    // and another for fieldArray item model updates
-    if (!this.field?.fieldArray) {
-      console.error(
-        `${this.field.key} repeat-field could not find fieldArray config.`
-      )
-      return
-    }
-    const fieldArray = this.field.fieldArray as FormlyFieldConfig
-    if (!fieldArray.type) {
-      console.error(
-        `${this.field.key} repeat-field could not find fieldArray config type.`
-      )
-      return
-    } else {
-      const type = fieldArray.type
-      if (typeof type === 'string') {
-        this.itemFieldType = fieldArray.type as string
-      }
-    }
 
     // create onModelChange$ observable from fieldChanges
     if (!this.field?.options?.fieldChanges) {
@@ -101,27 +81,23 @@ export class CvcRepeatField
       // options.fieldChanges uses shallow change detection, so
       // does not emit when child field models update - only
       // when they're added or removed. here, changes from both this
-      // repeat-field and child fields are passed, then mapped to
+      // repeat-field and child fields are filtered, then mapped to
       // always return the actual repeat-field model value
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => {
-          // pass changes to self or child fields
-          return c.field.key === this.field.key
-          || c.field.parent?.key === this.field.key
-        }), // filter out other fields
-        map((c) => {
-          // return repeat-field value, or
-          // return repeat-field model if update is from a child field
-          if(c.field.type === 'repeat-field'){
-            return c.value
-          } else {
-            return this.model
-          }
+          return (
+            c.field.key === this.field.key || // matches this field
+            c.field.parent?.key === this.field.key // matches this field's child fields
+          )
         }),
+        map((_c) => this.model)
       )
 
       // emit value from onValueChange$ for every model change
-      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+      this.onModelChange$.pipe(
+        tag(`repeat-field ${this.field.key} onModelChange$`),
+        untilDestroyed(this)
+      ).subscribe((v) => {
         this.onValueChange$.next(v)
       })
     }

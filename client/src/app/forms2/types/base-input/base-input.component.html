@@ -1,0 +1,19 @@
+<!-- <cvc-string-tag
+  *ngIf="field.model"
+  [cvcLabel]="field.model"></cvc-string-tag>
+-->
+<input
+  *ngIf="props.type !== 'number'; else numberTmp"
+  nz-input
+  #baseInputTxt
+  [formControl]="formControl"
+  (keydown.enter)="baseInputTxt.blur()"
+  [type]="props.type || 'text'"
+  [formlyAttributes]="field" />
+<ng-template #numberTmp>
+  <nz-input-number
+    #baseInputNum
+    (keydown.enter)="baseInputNum.blur()"
+    [formControl]="formControl"
+    [formlyAttributes]="field"></nz-input-number>
+</ng-template>
