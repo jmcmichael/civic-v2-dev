@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   OnInit,
   Type,
@@ -58,7 +59,7 @@ export class CvcBaseInputField
 
   repeatFieldId?: string
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     super()
     this.onValueChange$ = new Subject<Maybe<string | number>>()
     this.onTagClose$ = new Subject<MouseEvent>()
@@ -96,6 +97,7 @@ export class CvcBaseInputField
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.id === this.field.id), // filter out other fields
+        // tag(`${this.field.id} onModelChange$`),
         pluck('value')
       )
 
@@ -137,10 +139,6 @@ export class CvcBaseInputField
       })
     }
   } // ngAfterViewInit
-
-  tagClose(e: any) {
-    console.log('base-input tag close()', e)
-  }
 
   unsetModel() {
     this.formControl.setValue(undefined)

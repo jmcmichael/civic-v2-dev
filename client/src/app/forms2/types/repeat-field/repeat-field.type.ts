@@ -4,18 +4,14 @@ import {
   Component,
   Type,
 } from '@angular/core'
-import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldArrayType,
   FieldArrayTypeConfig,
-  FieldType,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { filter, Observable, Subject, map } from 'rxjs'
-import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
+import { filter, map, Observable, Subject } from 'rxjs'
 
 interface CvcRepeatFieldProps extends FormlyFieldProps {
   placeholder?: string
@@ -97,12 +93,14 @@ export class CvcRepeatField
       )
 
       // emit value from onValueChange$ for every model change
-      this.onModelChange$.pipe(
-        // tag(`repeat-field ${this.field.id} onModelChange$`),
-        untilDestroyed(this)
-      ).subscribe((v) => {
-        this.onValueChange$.next(v)
-      })
+      this.onModelChange$
+        .pipe(
+          // tag(`repeat-field ${this.field.id} onModelChange$`),
+          untilDestroyed(this)
+        )
+        .subscribe((v) => {
+          this.onValueChange$.next(v)
+        })
     }
   }
 }

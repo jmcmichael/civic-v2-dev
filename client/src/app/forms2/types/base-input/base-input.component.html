@@ -1,10 +1,10 @@
 <cvc-string-tag
-  *ngIf="tagLabel$ | ngrxPush as tagLabel; else inputCtrl"
+  *ngIf="tagLabel$ | ngrxPush as tagLabel"
   [cvcMode]="'closeable'"
   [cvcLabel]="tagLabel"
   (cvcOnClose)="onTagClose$.next($event)"></cvc-string-tag>
 
-<ng-template #inputCtrl>
+<ng-container *ngIf="!(tagLabel$ | ngrxPush)">
   <input
     *ngIf="props.type !== 'number'; else numberTmp"
     nz-input
@@ -20,4 +20,4 @@
       [formControl]="formControl"
       [formlyAttributes]="field"></nz-input-number>
   </ng-template>
-</ng-template>
+</ng-container>

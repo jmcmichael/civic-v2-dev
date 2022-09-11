@@ -92,7 +92,7 @@ export class ObserveQueryParamExtension implements FormlyExtension {
           fieldValue = JSON.parse(paramValue)
         } catch (error) {
           console.warn(
-            `observe-query-param failed to parse query param ${this.paramKey}: ${error}`
+            `observe-query-param failed to parse query param ${this.paramKey} for field ${field.id}: ${error}`
           )
           sub.unsubscribe()
           return
