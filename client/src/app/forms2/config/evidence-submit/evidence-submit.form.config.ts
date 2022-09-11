@@ -1,8 +1,10 @@
 import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit.model'
+import { CvcBaseInputFieldConfig } from '@app/forms2/types/base-input/base-input.component'
 import { CvcClinicalSignificanceSelectFieldConfig } from '@app/forms2/types/clinical-significance-select/clinical-significance-select.type'
 import { CvcEvidenceDirectionSelectFieldConfig } from '@app/forms2/types/evidence-direction-select/evidence-direction-select.type'
 import { CvcEvidenceTypeSelectFieldConfig } from '@app/forms2/types/evidence-type-select/evidence-type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
+import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
 import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
@@ -65,40 +67,42 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          {
+          <CvcBaseInputFieldConfig>{
+            key: 'version',
+            type: 'base-input',
+            props: { label: 'Version' },
+          },
+          <CvcRepeatFieldConfig>{
             key: 'geneIds',
             type: 'repeat-field',
             props: {
               label: 'Genes',
             },
-            fieldArray: {
+            fieldArray: <CvcGeneSelectFieldConfig>{
               type: 'gene-select-item',
-              props: {
-              },
+              props: {},
             },
           },
-          {
+          <CvcRepeatFieldConfig>{
             key: 'variantIds',
             type: 'repeat-field',
             props: {
               label: 'Variants',
             },
-            fieldArray: {
+            fieldArray: <CvcVariantSelectFieldConfig>{
               type: 'variant-select-item',
-              props: {
-              },
+              props: {},
             },
           },
-          {
+          <CvcRepeatFieldConfig>{
             key: 'aliases',
             type: 'repeat-field',
             props: {
               label: 'Aliases',
             },
-            fieldArray: {
+            fieldArray: <CvcBaseInputFieldConfig>{
               type: 'base-input-item',
-              props: {
-              },
+              props: {},
             },
           },
         ],
