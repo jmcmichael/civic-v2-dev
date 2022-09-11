@@ -5,8 +5,9 @@ import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core'
 import { distinctUntilKeyChanged, Subscription } from 'rxjs'
 
 export interface ObserveQueryParamProps {
-  // boolean toggles observation
-  // provide string to specify query param (field.key is default)
+  // if false, field will not observe query parameters
+  // if true, field will watch query params for field.key values
+  // if string, field will watch query params for paramKey value
   paramKey: boolean | string
 }
 
@@ -20,11 +21,10 @@ export class ObserveQueryParamExtension implements FormlyExtension {
 
   constructor(private route: ActivatedRoute) {}
   postPopulate(field: FormlyFieldConfig) {
-    // only primitive values will be observed, so we skip
+    // only primitive values will be observed for now, so skip
     // observing params for fieldGroups, fieldArrays
-    // NOTE: it is possible to support array, object types, just want
-    // to keep things simple to start
     if (field.fieldGroup || field.fieldArray) return
+
     // merge field props, end if field config has has paramKey set to false
     const props = field.props || { ...defaultObserveQueryParamProps }
     if (props.paramKey === false) return
@@ -64,7 +64,6 @@ export class ObserveQueryParamExtension implements FormlyExtension {
             field.key
           )} of type ${typeof field.key} to observe a query param. Use prop.paramKey to specify a query param string, or define a string field.key.`
         )
-        return
       }
     }
     return
