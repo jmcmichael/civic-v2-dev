@@ -94,6 +94,9 @@ export class ObserveQueryParamExtension implements FormlyExtension {
           console.warn(
             `observe-query-param failed to parse query param ${this.paramKey} for field ${field.id}: ${error}`
           )
+          console.warn(
+            `Note: Query values are parsed as JSON, therefore enum strings must be enclosed in double-quotes, and numeric entity IDs must be bare, unquoted.`
+          )
           sub.unsubscribe()
           return
         }
