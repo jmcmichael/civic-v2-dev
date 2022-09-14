@@ -37,6 +37,7 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
+import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
@@ -115,7 +116,7 @@ export class CvcGeneSelectField
 
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
-    super.ngAfterViewInit()
+    this.configureValueChanges()
     // if this is a repeat-field item, store parent repeat-field key
     // to use in field changes filter
     if (this.props.isRepeatItem) {

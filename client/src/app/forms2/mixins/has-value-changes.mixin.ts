@@ -14,8 +14,8 @@ export function HasValueChanges<TBase extends MixinConstructor<FieldType>>(
     // SOURCE STREAMS
     mOnModelChange$!: Observable<Maybe<any>> // emits all field model changes
 
-    ngAfterViewInit(): void {
-      console.log(`${this.field.type} field ${this.field.id} ngAfterViewInit()`)
+    configureValueChanges(): void {
+      console.log(`${this.field.id} configureValueChanges()`)
       if (!this.field?.options?.fieldChanges) {
         console.error(
           `${this.field.type} field ${this.field.id} could not find its fieldChanges Observable.`
@@ -41,6 +41,7 @@ export function HasValueChanges<TBase extends MixinConstructor<FieldType>>(
       //     this.tagLabel$.next(str ? str.toString() : undefined)
       //   })
     }
+
   }
 
   return HasValueChanges

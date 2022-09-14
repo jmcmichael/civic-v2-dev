@@ -8,6 +8,7 @@ import {
 } from '@angular/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { HasValueChanges } from '@app/forms2/mixins/has-value-changes.mixin'
+import { RepeatFieldItem } from '@app/forms2/mixins/repeat-field-item.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -31,7 +32,8 @@ export interface CvcBaseInputFieldConfig
 
 const BaseInputMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>>(),
-  HasValueChanges
+  HasValueChanges,
+  RepeatFieldItem,
 )
 
 @UntilDestroy()
@@ -80,7 +82,9 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    super.ngAfterViewInit()
+    this.configureValueChanges()
+    this.configureRepeatFieldItem()
+
     // if this is a repeat-field item, store parent repeat-field key
     // to use in field changes filter
     if (this.props.isRepeatItem) {

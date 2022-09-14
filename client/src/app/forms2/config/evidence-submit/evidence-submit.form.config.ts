@@ -32,11 +32,27 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Evidence Item',
         },
         fieldGroup: [
-          <CvcGeneSelectFieldConfig>{
-            key: 'geneId',
-            type: 'gene-select',
+          // <CvcGeneSelectFieldConfig>{
+          //   key: 'geneId',
+          //   type: 'gene-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          <CvcBaseInputFieldConfig>{
+            key: 'version',
+            type: 'base-input',
+            props: { label: 'Version' },
+          },
+          <CvcRepeatFieldConfig>{
+            key: 'aliases',
+            type: 'repeat-field',
             props: {
-              required: true,
+              label: 'Aliases',
+            },
+            fieldArray: <CvcBaseInputFieldConfig>{
+              type: 'base-input-item',
+              props: {},
             },
           },
           // <CvcVariantSelectFieldConfig>{
@@ -67,11 +83,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           //     required: true,
           //   },
           // },
-          <CvcBaseInputFieldConfig>{
-            key: 'version',
-            type: 'base-input',
-            props: { label: 'Version' },
-          },
           // <CvcRepeatFieldConfig>{
           //   key: 'geneIds',
           //   type: 'repeat-field',
@@ -91,17 +102,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           //   },
           //   fieldArray: <CvcVariantSelectFieldConfig>{
           //     type: 'variant-select-item',
-          //     props: {},
-          //   },
-          // },
-          // <CvcRepeatFieldConfig>{
-          //   key: 'aliases',
-          //   type: 'repeat-field',
-          //   props: {
-          //     label: 'Aliases',
-          //   },
-          //   fieldArray: <CvcBaseInputFieldConfig>{
-          //     type: 'base-input-item',
           //     props: {},
           //   },
           // },
