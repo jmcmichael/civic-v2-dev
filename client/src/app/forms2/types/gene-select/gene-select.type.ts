@@ -2,10 +2,13 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  Injector,
   TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { HasValueChanges } from '@app/forms2/mixins/has-value-changes.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   GeneSelectTypeaheadFieldsFragment,
@@ -34,6 +37,7 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
+import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string
@@ -45,6 +49,11 @@ export interface CvcGeneSelectFieldConfig
   type: 'gene-select' | 'gene-select-item' | Type<CvcGeneSelectField>
 }
 
+const GeneSelectMixin = mixin(
+  BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>>(),
+  HasValueChanges
+)
+
 @UntilDestroy()
 @Component({
   selector: 'cvc-gene-select',
@@ -53,7 +62,7 @@ export interface CvcGeneSelectFieldConfig
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcGeneSelectField
-  extends FieldType<FieldTypeConfig<CvcGeneSelectFieldProps>>
+  extends GeneSelectMixin
   implements AfterViewInit
 {
   // SOURCE STREAMS
@@ -92,10 +101,11 @@ export class CvcGeneSelectField
   repeatFieldId?: string
 
   constructor(
+    public injector: Injector,
     private typeaheadGQL: GeneSelectTypeaheadGQL,
     private tagQuery: LinkableGeneGQL // gql query for fetching linkable tag if not cached
   ) {
-    super()
+    super(injector)
     this.onSearch$ = new Subject<string>()
     this.onFocus$ = new Subject<boolean>()
     this.onTagClose$ = new Subject<MouseEvent>()
@@ -105,6 +115,7 @@ export class CvcGeneSelectField
 
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
+    super.ngAfterViewInit()
     // if this is a repeat-field item, store parent repeat-field key
     // to use in field changes filter
     if (this.props.isRepeatItem) {
