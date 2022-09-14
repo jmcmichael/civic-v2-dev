@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  Injector,
   Type,
 } from '@angular/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
@@ -61,8 +62,8 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
 
   repeatFieldId?: string
 
-  constructor(private cdr: ChangeDetectorRef) {
-    super()
+  constructor(public injector: Injector) {
+    super(injector)
     this.onValueChange$ = new Subject<Maybe<string | number>>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.tagLabel$ = new Subject<Maybe<string>>()

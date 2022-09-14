@@ -1,9 +1,17 @@
-import { Component } from '@angular/core'
+import { Component, Injector } from '@angular/core'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
 
 export function BaseFieldType<FC extends FieldTypeConfig>() {
   @Component({ template: '' })
-  class BaseFieldType extends FieldType<FC> {}
+  class BaseFieldType extends FieldType<FC> {
+    // declare injector so that mixins may inject required
+    // dependencies with this.injector.get()
+    // NOTE: all components using this base will need to pass injector
+    // in their super() calls, e.g.
+    // constructor(public injector: Injector) { super(injector) }
+    constructor(public injector: Injector) {
+      super()
+    }
+  }
   return BaseFieldType
 }
-
