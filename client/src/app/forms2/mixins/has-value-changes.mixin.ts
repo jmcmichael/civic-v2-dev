@@ -1,6 +1,9 @@
-import { AfterViewInit, Component, Injectable } from '@angular/core'
+import { Injectable } from '@angular/core'
+import { Maybe } from '@app/generated/civic.apollo'
 import { FieldType } from '@ngx-formly/core'
-import { Subject } from 'rxjs'
+import { filter, Observable } from 'rxjs'
+import { pluck } from 'rxjs-etc/operators'
+import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
 
 export function HasValueChanges<TBase extends MixinConstructor<FieldType>>(
@@ -8,15 +11,31 @@ export function HasValueChanges<TBase extends MixinConstructor<FieldType>>(
 ) {
   @Injectable()
   abstract class HasValueChanges extends Base {
-    testValueChange$!: Subject<any>
-    // constructor(...args: any[]) {
-    //   super(...args)
-    //   this.testValueChange$ = new Subject<any>()
-    // }
+    // SOURCE STREAMS
+    mOnModelChange$!: Observable<Maybe<any>> // emits all field model changes
 
     ngAfterViewInit(): void {
-      console.log('has-value-changes ngAfterViewInit()')
-      this.testValueChange$ = new Subject<any>()
+      if (!this.field?.options?.fieldChanges) {
+        console.error(
+          `base-input field ${this.field.id} could not find its fieldChanges Observable`
+        )
+      } else {
+        this.mOnModelChange$ = this.field.options.fieldChanges.pipe(
+          filter((c) => c.field.id === this.field.id), // filter out other fields
+          pluck('value')
+        )
+
+        this.mOnModelChange$.pipe(tag(`${this.field.id} onModelChange$`)).subscribe()
+
+        //   // emit value from onValueChange$ for every model change
+        //   this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+        //     this.onValueChange$.next(v)
+        //   })
+
+        //   this.onValueChange$.subscribe((str: Maybe<string | number>) => {
+        //     this.tagLabel$.next(str ? str.toString() : undefined)
+        //   })
+      }
     }
   }
 
