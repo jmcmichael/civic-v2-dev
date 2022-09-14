@@ -1,7 +1,9 @@
 import { Component, Injector } from '@angular/core'
+import { UntilDestroy } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
 
 export function BaseFieldType<FC extends FieldTypeConfig>() {
+  @UntilDestroy()
   @Component({ template: '' })
   class BaseFieldType extends FieldType<FC> {
     // declare injector so that mixins may inject required

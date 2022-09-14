@@ -12,6 +12,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { filter, map, Observable, Subject } from 'rxjs'
+import { tag } from 'rxjs-spy/operators'
 
 interface CvcRepeatFieldProps extends FormlyFieldProps {
   placeholder?: string
@@ -74,7 +75,7 @@ export class CvcRepeatField
         `${this.field.id} field could not find fieldChanges Observable`
       )
     } else {
-      // options.fieldChanges uses shallow change detection, so when
+      // options.fieldChanges uses shallow change detection, so if
       // the model is an array, it will only emit changes when items are
       // added or removed. Therefore changes to individual elements will
       // not be emitted. Individual elements do emit their own changes, and
@@ -86,7 +87,7 @@ export class CvcRepeatField
         filter((c) => {
           return (
             c.field.id === this.field.id || // matches this field
-            c.field.parent?.id === this.field.id // matches this field's child fields
+            c.field.parent?.id === this.field.id // matches this field's child item fields
           )
         }),
         map((_c) => this.model)
@@ -95,7 +96,7 @@ export class CvcRepeatField
       // emit value from onValueChange$ for every model change
       this.onModelChange$
         .pipe(
-          // tag(`repeat-field ${this.field.id} onModelChange$`),
+          // tag(`${this.field.id} onModelChange$`),
           untilDestroyed(this)
         )
         .subscribe((v) => {

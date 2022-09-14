@@ -9,6 +9,7 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { HasValueChanges } from '@app/forms2/mixins/has-value-changes.mixin'
+import { RepeatFieldItem } from '@app/forms2/mixins/repeat-field-item.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   GeneSelectTypeaheadFieldsFragment,
@@ -52,7 +53,8 @@ export interface CvcGeneSelectFieldConfig
 
 const GeneSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>>(),
-  HasValueChanges
+  HasValueChanges,
+  RepeatFieldItem,
 )
 
 @UntilDestroy()
@@ -117,17 +119,7 @@ export class CvcGeneSelectField
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     this.configureValueChanges()
-    // if this is a repeat-field item, store parent repeat-field key
-    // to use in field changes filter
-    if (this.props.isRepeatItem) {
-      if (!this.field.parent?.id) {
-        console.error(
-          `base-input field is configured as a repeat-field item, but could not locate a parent id.`
-        )
-      } else {
-        this.repeatFieldId = this.field.parent.id
-      }
-    }
+    this.configureRepeatFieldItem()
 
     // create onModelChange$ observable from fieldChanges
     if (!this.field?.options?.fieldChanges) {

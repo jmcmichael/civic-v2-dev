@@ -9,9 +9,6 @@ export function RepeatFieldItem<TBase extends MixinConstructor<FieldType>>(
   abstract class RepeatFieldItem extends Base {
     repeatFieldId?: string
     configureRepeatFieldItem(): void {
-      console.log(
-        `${this.field.id} configureRepeatFieldItem()`
-      )
       if (this.props.isRepeatItem) {
         if (!this.field.parent?.id) {
           console.error(

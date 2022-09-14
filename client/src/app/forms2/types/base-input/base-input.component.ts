@@ -33,7 +33,7 @@ export interface CvcBaseInputFieldConfig
 const BaseInputMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>>(),
   HasValueChanges,
-  RepeatFieldItem,
+  RepeatFieldItem
 )
 
 @UntilDestroy()
@@ -45,8 +45,6 @@ const BaseInputMixin = mixin(
 })
 export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
   // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<string | number>> // emits all field model changes
-  onValueChange$: Subject<Maybe<string | number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
   onTagClose$: Subject<MouseEvent> // emits on entity tag closed btn click
 
   // PRESENTATION STREAMS
@@ -54,7 +52,7 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
 
   defaultOptions: Partial<FieldTypeConfig<CvcBaseInputFieldProps>> = {
     modelOptions: {
-      updateOn: 'blur',
+      updateOn: 'blur',// update model when focus leaves field (see enter keydown.enter EventEmitter in template)
     },
     props: {
       label: 'Enter value',
@@ -66,58 +64,17 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
 
   constructor(public injector: Injector) {
     super(injector)
-    this.onValueChange$ = new Subject<Maybe<string | number>>()
     this.onTagClose$ = new Subject<MouseEvent>()
     this.tagLabel$ = new Subject<Maybe<string>>()
-  }
-
-  getChangesFilter = () => {
-    if (!this.props.isRepeatItem) {
-      return (c: FormlyValueChangeEvent) => c.field.id === this.field.id
-    } else {
-      return (c: FormlyValueChangeEvent) =>
-        c.field.id === this.field.id &&
-        c.field.parent?.id === this.repeatFieldId
-    }
   }
 
   ngAfterViewInit(): void {
     this.configureValueChanges()
     this.configureRepeatFieldItem()
 
-    // if this is a repeat-field item, store parent repeat-field key
-    // to use in field changes filter
-    if (this.props.isRepeatItem) {
-      if (!this.field.parent?.id) {
-        console.error(
-          `base-input field ${this.field.id} is configured as a repeat-field item, but could not locate a parent field id.`
-        )
-      } else {
-        this.repeatFieldId = this.field.parent.id
-      }
-    }
-
-    // create onModelChange$ observable from fieldChanges
-    if (!this.field?.options?.fieldChanges) {
-      console.error(
-        `base-input field ${this.field.id} could not find its fieldChanges Observable`
-      )
-    } else {
-      this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        filter((c) => c.field.id === this.field.id), // filter out other fields
-        // tag(`${this.field.id} onModelChange$`),
-        pluck('value')
-      )
-
-      // emit value from onValueChange$ for every model change
-      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-        this.onValueChange$.next(v)
-      })
-
-      this.onValueChange$.subscribe((str: Maybe<string | number>) => {
-        this.tagLabel$.next(str ? str.toString() : undefined)
-      })
-    }
+    this.onValueChange$.subscribe((str: Maybe<string | number>) => {
+      this.tagLabel$.next(str ? str.toString() : undefined)
+    })
 
     // if this is a repeat-item field, emit onRemove$ event on tag close,
     // otherwise, just reset field locally
