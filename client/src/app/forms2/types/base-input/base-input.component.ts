@@ -3,9 +3,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  OnInit,
   Type,
 } from '@angular/core'
+import { BaseFieldType } from '@app/forms2/mixins/base/BaseFieldType'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -17,7 +17,7 @@ import {
 import { FormlyValueChangeEvent } from '@ngx-formly/core/lib/models'
 import { filter, Observable, Subject } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
+import mixin from 'ts-mixin-extended'
 
 export interface CvcBaseInputFieldProps extends FormlyFieldProps {
   isRepeatItem: boolean
@@ -28,6 +28,8 @@ export interface CvcBaseInputFieldConfig
   type: 'base-input' | 'base-input-item' | Type<CvcBaseInputField>
 }
 
+const BaseInputMixin = mixin(BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>>())
+
 @UntilDestroy()
 @Component({
   selector: 'cvc-base-input',
@@ -36,7 +38,7 @@ export interface CvcBaseInputFieldConfig
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcBaseInputField
-  extends FieldType<FieldTypeConfig<CvcBaseInputFieldProps>>
+  extends BaseInputMixin
   implements AfterViewInit
 {
   // SOURCE STREAMS

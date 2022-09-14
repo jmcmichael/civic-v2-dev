@@ -17,7 +17,6 @@ import {
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
-import { FormlyValueChangeEvent } from '@ngx-formly/core/lib/models'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { QueryRef } from 'apollo-angular'
 import {
@@ -35,7 +34,6 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
-import { tag } from 'rxjs-spy/operators'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string

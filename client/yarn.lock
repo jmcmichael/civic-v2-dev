@@ -8791,6 +8791,13 @@ neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+ng-mix@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/ng-mix/-/ng-mix-1.1.1.tgz#0d26bedbd63eb31cab787bf4166417c182f5e21d"
+  integrity sha512-2h2vh+0BfspInLubeq7a0S82h4Y4aHyZZtABh8Zz0odKxKYLlVUIgIb3xJmEA6c5se1iQAIB9r9QTAye+3AV0w==
+  dependencies:
+    tslib "^2.0.0"
+
 ng-zorro-antd@^13.3.2:
   version "13.4.0"
   resolved "https://registry.yarnpkg.com/ng-zorro-antd/-/ng-zorro-antd-13.4.0.tgz#a62a9df914d7241a6f5baabe1f4740ddd724b737"
@@ -11731,6 +11738,11 @@ ts-log@^2.2.3:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/ts-log/-/ts-log-2.2.4.tgz#d672cf904b33735eaba67a7395c93d45fba475b3"
   integrity sha512-DEQrfv6l7IvN2jlzc/VTdZJYsWUnQNCsueYjMkC/iXoEoi5fNan6MjeDqkvhfzbmHgdz9UxDUluX3V5HdjTydQ==
+
+ts-mixin-extended@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/ts-mixin-extended/-/ts-mixin-extended-1.1.1.tgz#123a088326054cf6bcd36c186112a4c0eba4b4f5"
+  integrity sha512-Q/qdpX/wD/9LWri/kSPYX9XYjUTzlUaJjoO8j3k+Pz+AnL+GmPajSGwpYFQw3vqW0pHTIF58axrM4jRY0OAcuA==
 
 ts-node@^10.8.1:
   version "10.9.1"

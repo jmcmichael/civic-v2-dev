@@ -39,72 +39,72 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          <CvcVariantSelectFieldConfig>{
-            key: 'variantId',
-            type: 'variant-select',
-            props: {
-              required: true,
-            },
-          },
-          <CvcEvidenceTypeSelectFieldConfig>{
-            key: 'evidenceType',
-            type: 'evidence-type-select',
-            props: {
-              required: true,
-            },
-          },
-          <CvcEvidenceDirectionSelectFieldConfig>{
-            key: 'evidenceDirection',
-            type: 'evidence-direction-select',
-            props: {
-              required: true,
-            },
-          },
-          <CvcClinicalSignificanceSelectFieldConfig>{
-            key: 'clinicalSignficance',
-            type: 'clinical-significance-select',
-            props: {
-              required: true,
-            },
-          },
+          // <CvcVariantSelectFieldConfig>{
+          //   key: 'variantId',
+          //   type: 'variant-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcEvidenceTypeSelectFieldConfig>{
+          //   key: 'evidenceType',
+          //   type: 'evidence-type-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcEvidenceDirectionSelectFieldConfig>{
+          //   key: 'evidenceDirection',
+          //   type: 'evidence-direction-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcClinicalSignificanceSelectFieldConfig>{
+          //   key: 'clinicalSignficance',
+          //   type: 'clinical-significance-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
           <CvcBaseInputFieldConfig>{
             key: 'version',
             type: 'base-input',
             props: { label: 'Version' },
           },
-          <CvcRepeatFieldConfig>{
-            key: 'geneIds',
-            type: 'repeat-field',
-            props: {
-              label: 'Genes',
-            },
-            fieldArray: <CvcGeneSelectFieldConfig>{
-              type: 'gene-select-item',
-              props: {},
-            },
-          },
-          <CvcRepeatFieldConfig>{
-            key: 'variantIds',
-            type: 'repeat-field',
-            props: {
-              label: 'Variants',
-            },
-            fieldArray: <CvcVariantSelectFieldConfig>{
-              type: 'variant-select-item',
-              props: {},
-            },
-          },
-          <CvcRepeatFieldConfig>{
-            key: 'aliases',
-            type: 'repeat-field',
-            props: {
-              label: 'Aliases',
-            },
-            fieldArray: <CvcBaseInputFieldConfig>{
-              type: 'base-input-item',
-              props: {},
-            },
-          },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'geneIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Genes',
+          //   },
+          //   fieldArray: <CvcGeneSelectFieldConfig>{
+          //     type: 'gene-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'variantIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Variants',
+          //   },
+          //   fieldArray: <CvcVariantSelectFieldConfig>{
+          //     type: 'variant-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'aliases',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Aliases',
+          //   },
+          //   fieldArray: <CvcBaseInputFieldConfig>{
+          //     type: 'base-input-item',
+          //     props: {},
+          //   },
+          // },
         ],
       },
       {
