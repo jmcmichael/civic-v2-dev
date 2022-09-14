@@ -5,11 +5,11 @@ import {
   Component,
   Type,
 } from '@angular/core'
-import { BaseFieldType } from '@app/forms2/mixins/base/BaseFieldType'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { HasValueChanges } from '@app/forms2/mixins/has-value-changes.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldType,
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
@@ -28,7 +28,10 @@ export interface CvcBaseInputFieldConfig
   type: 'base-input' | 'base-input-item' | Type<CvcBaseInputField>
 }
 
-const BaseInputMixin = mixin(BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>>())
+const BaseInputMixin = mixin(
+  BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>>(),
+  HasValueChanges
+)
 
 @UntilDestroy()
 @Component({
@@ -37,10 +40,7 @@ const BaseInputMixin = mixin(BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProp
   styleUrls: ['./base-input.component.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcBaseInputField
-  extends BaseInputMixin
-  implements AfterViewInit
-{
+export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
   // SOURCE STREAMS
   onModelChange$!: Observable<Maybe<string | number>> // emits all field model changes
   onValueChange$: Subject<Maybe<string | number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
@@ -79,6 +79,7 @@ export class CvcBaseInputField
   }
 
   ngAfterViewInit(): void {
+    super.ngAfterViewInit()
     // if this is a repeat-field item, store parent repeat-field key
     // to use in field changes filter
     if (this.props.isRepeatItem) {
