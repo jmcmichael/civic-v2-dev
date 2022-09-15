@@ -8,8 +8,7 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { ValueChanges } from '@app/forms2/mixins/value-changes.mixin'
-import { RepeatFieldItem } from '@app/forms2/mixins/repeat-field-item.mixin'
+import { DisplayEntityTag } from '@app/forms2/mixins/display-entity-tag.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   GeneSelectTypeaheadFieldsFragment,
@@ -20,7 +19,7 @@ import {
   Maybe,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
+import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { QueryRef } from 'apollo-angular'
 import {
@@ -38,7 +37,6 @@ import {
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
-import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
@@ -52,9 +50,8 @@ export interface CvcGeneSelectFieldConfig
 }
 
 const GeneSelectMixin = mixin(
-  BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>>(),
-  ValueChanges<Maybe<number>>(),
-  RepeatFieldItem,
+  BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number>>(),
+  DisplayEntityTag
 )
 
 @UntilDestroy()
@@ -116,9 +113,8 @@ export class CvcGeneSelectField
 
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
-    this.configureValueChanges()
-    this.configureRepeatFieldItem()
-
+    this.configureBaseField()
+    this.configureDisplayEntityTag()
 
     // on all value changes, deleteTag() if gid undefined,
     // setTag() if defined

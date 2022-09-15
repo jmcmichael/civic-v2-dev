@@ -6,8 +6,7 @@ import {
   Type,
 } from '@angular/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { ValueChanges } from '@app/forms2/mixins/value-changes.mixin'
-import { RepeatFieldItem } from '@app/forms2/mixins/repeat-field-item.mixin'
+import { DisplayStringTag } from '@app/forms2/mixins/display-string-tag.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -28,9 +27,8 @@ export interface CvcBaseInputFieldConfig
 }
 
 const BaseInputMixin = mixin(
-  BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>>(),
-  ValueChanges<Maybe<string | number>>(),
-  RepeatFieldItem
+  BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>, Maybe<string|number>>(),
+  DisplayStringTag
 )
 
 @UntilDestroy()
@@ -66,8 +64,8 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.configureValueChanges()
-    this.configureRepeatFieldItem()
+    this.configureBaseField()
+    this.configureDisplayStringTag()
 
     this.onValueChange$.subscribe((str: Maybe<string | number>) => {
       this.tagLabel$.next(str ? str.toString() : undefined)

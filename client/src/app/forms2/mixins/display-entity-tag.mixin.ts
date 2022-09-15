@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core'
 import { FieldType } from '@ngx-formly/core'
 import { MixinConstructor } from 'ts-mixin-extended'
 
-export function RepeatFieldItem<TBase extends MixinConstructor<FieldType>>(
+export function DisplayEntityTag<TBase extends MixinConstructor<FieldType>>(
   Base: TBase
 ) {
   @Injectable()
-  abstract class RepeatFieldItem extends Base {
+  abstract class DisplayEntityTagMixin extends Base {
     repeatFieldId?: string
-    configureRepeatFieldItem(): void {
+    configureDisplayEntityTag(): void {
       if (this.props.isRepeatItem) {
         if (!this.field.parent?.id) {
           console.error(
@@ -26,5 +26,5 @@ export function RepeatFieldItem<TBase extends MixinConstructor<FieldType>>(
     }
   }
 
-  return RepeatFieldItem
+  return DisplayEntityTagMixin
 }
