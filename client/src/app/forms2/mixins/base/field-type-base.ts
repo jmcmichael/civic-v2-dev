@@ -6,9 +6,10 @@ export function BaseFieldType<FC extends FieldTypeConfig>() {
   @UntilDestroy()
   @Component({ template: '' })
   class BaseFieldType extends FieldType<FC> {
-    // declare injector so that mixins may inject required
-    // dependencies with this.injector.get()
-    // NOTE: all components using this base will need to pass injector
+    // Type errors occur when a constructor is added to a mixin, so
+    // the injector is provided in this base component so that mixins
+    // may inject required dependencies with this.injector.get()
+    // NOTE: therefore all components using this base will need to pass injector
     // in their super() calls, e.g.
     // constructor(public injector: Injector) { super(injector) }
     constructor(public injector: Injector) {

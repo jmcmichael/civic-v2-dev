@@ -1,13 +1,12 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Injector,
   Type,
 } from '@angular/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { HasValueChanges } from '@app/forms2/mixins/has-value-changes.mixin'
+import { ValueChanges } from '@app/forms2/mixins/value-changes.mixin'
 import { RepeatFieldItem } from '@app/forms2/mixins/repeat-field-item.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
@@ -16,9 +15,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { FormlyValueChangeEvent } from '@ngx-formly/core/lib/models'
-import { filter, Observable, Subject } from 'rxjs'
-import { pluck } from 'rxjs-etc/operators'
+import { Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcBaseInputFieldProps extends FormlyFieldProps {
@@ -32,7 +29,7 @@ export interface CvcBaseInputFieldConfig
 
 const BaseInputMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcBaseInputFieldProps>>(),
-  HasValueChanges,
+  ValueChanges<Maybe<string | number>>(),
   RepeatFieldItem
 )
 
@@ -52,7 +49,7 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
 
   defaultOptions: Partial<FieldTypeConfig<CvcBaseInputFieldProps>> = {
     modelOptions: {
-      updateOn: 'blur',// update model when focus leaves field (see enter keydown.enter EventEmitter in template)
+      updateOn: 'blur', // update model when focus leaves field (see enter keydown.enter EventEmitter in template)
     },
     props: {
       label: 'Enter value',

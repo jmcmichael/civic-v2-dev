@@ -8,7 +8,7 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { HasValueChanges } from '@app/forms2/mixins/has-value-changes.mixin'
+import { ValueChanges } from '@app/forms2/mixins/value-changes.mixin'
 import { RepeatFieldItem } from '@app/forms2/mixins/repeat-field-item.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
@@ -53,7 +53,7 @@ export interface CvcGeneSelectFieldConfig
 
 const GeneSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>>(),
-  HasValueChanges,
+  ValueChanges<Maybe<number>>(),
   RepeatFieldItem,
 )
 
@@ -101,8 +101,6 @@ export class CvcGeneSelectField
     },
   }
 
-  repeatFieldId?: string
-
   constructor(
     public injector: Injector,
     private typeaheadGQL: GeneSelectTypeaheadGQL,
@@ -121,23 +119,6 @@ export class CvcGeneSelectField
     this.configureValueChanges()
     this.configureRepeatFieldItem()
 
-    // create onModelChange$ observable from fieldChanges
-    if (!this.field?.options?.fieldChanges) {
-      console.error(
-        `${this.field.key} field could not find fieldChanges Observable`
-      )
-    } else {
-      this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        // tag(`gene-select ${this.field.id} onModelChange$`),
-        filter((c) => c.field.id === this.field.id), // filter out other fields
-        pluck('value')
-      )
-
-      // emit value from onValueChange$ for every model change
-      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-        this.onValueChange$.next(v)
-      })
-    }
 
     // on all value changes, deleteTag() if gid undefined,
     // setTag() if defined
