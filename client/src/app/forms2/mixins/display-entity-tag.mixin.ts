@@ -1,18 +1,32 @@
 import { Injectable } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { Maybe } from '@app/generated/civic.apollo'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType } from '@ngx-formly/core'
-import { Query } from 'apollo-angular'
+import { Query, QueryRef } from 'apollo-angular'
 import { EmptyObject } from 'apollo-angular/types'
-import { lastValueFrom, Observable, Subject } from 'rxjs'
+import {
+  asyncScheduler,
+  defer,
+  filter,
+  from,
+  iif,
+  lastValueFrom,
+  Observable,
+  map,
+  OperatorFunction,
+  Subject,
+  switchMap,
+  throttleTime,
+} from 'rxjs'
+import { isNonNulled } from 'rxjs-etc'
+import { pluck } from 'rxjs-etc/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
 
-export type GetTagQueryVarsFn<V extends EmptyObject> = (id: number) => V
-export type GetTypeaheadVarsFn<V extends EmptyObject> = (id: number) => V
-export type GetTagCacheIdFromResponseFn<T> = (response: T) => string
-export type GetTypeaheadEntitiesFromResponseFn<F, T> = (
-  response: ApolloQueryResult<T>
-) => F[]
+export type GetTypeaheadVarsFn<TAV extends EmptyObject> = (str: string) => TAV
+export type GetTagQueryVarsFn<TV extends EmptyObject> = (id: number) => TV
+export type GetTagCacheIdFromResponseFn<TT> = (response: TT) => string
+export type GetTypeaheadQueryResultsFn<TAT, TAF> = (response: ApolloQueryResult<TAT>) => TAF[]
 
 export function DisplayEntityTag<
   // typeahead response data, vars, fragment
@@ -44,24 +58,28 @@ export function DisplayEntityTag<
       result$!: Observable<TAF[]> // typeahead query results
       isLoading$!: Observable<boolean> // typeahead query loading bool
       tagCacheId$!: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
+
       // QUERIES
       private typeaheadQuery!: Query<TAT, TAV>
       private tagQuery!: Query<TT, TV>
 
-      // getter fns for typeahead, tag query vars & query results
+      // GETTERS
       getTypeaheadQueryVars!: GetTypeaheadVarsFn<TAV>
-      getTypeaheadEntitiesFromResponse!: GetTypeaheadEntitiesFromResponseFn<
-        TAF,
-        TAT
-      >
+      getTypeahedQueryResultsFn!: GetTypeaheadQueryResultsFn<TAT, TAF>
       getTagQueryVars!: GetTagQueryVarsFn<TV>
       getTagCacheIdFromResponse!: GetTagCacheIdFromResponseFn<TT>
 
+      queryRef!: QueryRef<TAT, TAV>
       tagEntity!: TF
 
-      configureDisplayEntityTag(taq: Query<TAT, TAV>, tq: Query<TT, TV>): void {
+      configureDisplayEntityTag(
+        taq: Query<TAT, TAV>,
+        tq: Query<TT, TV>,
+        getTypeaheadQueryResultsFn: GetTypeaheadQueryResultsFn<TAT, TAF>
+      ): void {
         this.typeaheadQuery = taq
         this.tagQuery = tq
+        this.getTypeahedQueryResultsFn = getTypeaheadQueryResultsFn
 
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<boolean>()
@@ -69,7 +87,7 @@ export function DisplayEntityTag<
         this.onValueChange$ = new Subject<Maybe<number>>()
         this.tagCacheId$ = new Subject<Maybe<string>>()
 
-        // on all value changes, deleteTag() if id undefined,
+        // check if base field tag properly configured
         if (!this.onValueChange$) {
           console.error(
             `${this.field.id} cannot find onValueChange$ Subject, ensure configureBaseField() has been called before configureDisplayEntityTag in its AfterViewInit hook.`
@@ -77,6 +95,7 @@ export function DisplayEntityTag<
           return
         }
 
+        // on all value changes, deleteTag() if id undefined,
         // setTag() if defined
         this.onValueChange$.subscribe((id) => {
           if (!id) {
@@ -85,6 +104,47 @@ export function DisplayEntityTag<
             this.setTag(id)
           }
         })
+
+        // execute a search on typeahead focus so users immediately see a list of options
+        this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+          this.onSearch$.next('')
+        })
+
+        // set up typeahead watch & fetch calls
+        this.response$ = this.onSearch$.pipe(
+          // wait 1/3sec after typing activity stops to query server,
+          // quash leading event, emit trailing event so we only get 1 search string
+          throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
+          switchMap((str: string) => {
+            const query = this.getTypeaheadQueryVars(str)
+            // helper functions for iif operator:
+            const watchQuery = (query: TAV) => {
+              // returns observable from initial watch() query
+              this.queryRef = this.typeaheadQuery.watch(query)
+              return this.queryRef.valueChanges
+            }
+            const fetchQuery = (query: TAV) => {
+              // returns observable from refetch() promise
+              return from(this.queryRef.refetch(query))
+            }
+
+            // this iif operator prevents double-calling the API:
+            // if queryRef doesn't exist, create it with watchQuery observable
+            // if it does, refetch with fetchQuery observable.
+            // using defer() ensures functions are not called until
+            // values are emitted. otherwise they'll be called on subscribe.
+            return iif(
+              () => this.queryRef === undefined, // predicate
+              defer(() => watchQuery(query)), // true
+              defer(() => fetchQuery(query)) // false
+            )
+          })
+        ) // end this.response$
+
+        this.result$ = this.response$.pipe(
+          map(r => this.getTypeahedQueryResultsFn(r)),
+          filter(isNonNulled)
+        )
       }
 
       setTag(id: number) {

@@ -75,7 +75,6 @@ export class CvcGeneSelectField
   extends GeneSelectMixin
   implements AfterViewInit
 {
-
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<GeneSelectTypeaheadQuery>> // gql query responses
 
@@ -112,7 +111,14 @@ export class CvcGeneSelectField
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     this.configureBaseField()
-    this.configureDisplayEntityTag(this.taq, this.tq)
+    this.configureDisplayEntityTag(
+      // typeahead query
+      this.taq,
+      // linkable entity query
+      this.tq,
+      // typeahead query result map fn
+      (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => r.data.geneTypeahead
+    )
 
     // on all value changes, deleteTag() if gid undefined,
     // setTag() if defined
@@ -148,9 +154,9 @@ export class CvcGeneSelectField
       if (this.geneId$) this.geneId$.next(v)
     }
 
-    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.onSearch$.next('')
-    })
+    // this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+    //   this.onSearch$.next('')
+    // })
 
     // set up typeahead watch & fetch calls
     this.response$ = this.onSearch$.pipe(
