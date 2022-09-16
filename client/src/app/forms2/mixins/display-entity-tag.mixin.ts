@@ -10,21 +10,19 @@ import { MixinConstructor } from 'ts-mixin-extended'
 export type GetTagQueryVarsFn<V extends EmptyObject> = (id: number) => V
 export type GetTypeaheadVarsFn<V extends EmptyObject> = (id: number) => V
 export type GetTagCacheIdFromResponseFn<T> = (response: T) => string
-export type GetTypeaheadEntitiesFromResponseFn<E, T> = (
+export type GetTypeaheadEntitiesFromResponseFn<F, T> = (
   response: ApolloQueryResult<T>
-) => E[]
+) => F[]
 
 export function DisplayEntityTag<
-  // typeahead query, response, vars
-  TAQ extends Query<TAT, TAV>,
+  // typeahead response data, vars, fragment
   TAT extends {},
   TAV extends EmptyObject,
-  // tag query, response, vars
-  TQ extends Query<TT, TV>,
+  TAF extends EmptyObject,
+  // tag response data, vars, fragment (entity)
   TT extends {},
   TV extends EmptyObject,
-  // the civic entity type
-  E extends EmptyObject
+  TF extends EmptyObject
 >() {
   return function DisplayEntityTagConstructor<
     TBase extends MixinConstructor<FieldType>
@@ -43,26 +41,33 @@ export function DisplayEntityTag<
       response$!: Observable<ApolloQueryResult<TAT>> // gql query responses
 
       // PRESENTATION STREAMS
-      result$!: Observable<E[]> // gql query results
-      isLoading$!: Observable<boolean> // gqp query loading bool
+      result$!: Observable<TAF[]> // typeahead query results
+      isLoading$!: Observable<boolean> // typeahead query loading bool
       tagCacheId$!: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
-
       // QUERIES
-      typeaheadQuery!: TAQ
-      tagQuery!: TQ
+      private typeaheadQuery!: Query<TAT, TAV>
+      private tagQuery!: Query<TT, TV>
 
       // getter fns for typeahead, tag query vars & query results
       getTypeaheadQueryVars!: GetTypeaheadVarsFn<TAV>
       getTypeaheadEntitiesFromResponse!: GetTypeaheadEntitiesFromResponseFn<
-        E,
+        TAF,
         TAT
       >
       getTagQueryVars!: GetTagQueryVarsFn<TV>
       getTagCacheIdFromResponse!: GetTagCacheIdFromResponseFn<TT>
 
-      configureDisplayEntityTag(taq: TAQ, tq: TQ): void {
+      tagEntity!: TF
+
+      configureDisplayEntityTag(taq: Query<TAT, TAV>, tq: Query<TT, TV>): void {
         this.typeaheadQuery = taq
         this.tagQuery = tq
+
+        this.onSearch$ = new Subject<string>()
+        this.onFocus$ = new Subject<boolean>()
+        this.onTagClose$ = new Subject<MouseEvent>()
+        this.onValueChange$ = new Subject<Maybe<number>>()
+        this.tagCacheId$ = new Subject<Maybe<string>>()
 
         // on all value changes, deleteTag() if id undefined,
         if (!this.onValueChange$) {
@@ -83,6 +88,7 @@ export function DisplayEntityTag<
       }
 
       setTag(id: number) {
+        // emit last value from fetch (could emit loading events if server is queried)
         lastValueFrom(
           this.tagQuery.fetch(this.getTagQueryVars(id), {
             fetchPolicy: 'cache-first',

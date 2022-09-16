@@ -11,6 +11,9 @@ import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { DisplayEntityTag } from '@app/forms2/mixins/display-entity-tag.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
+  Gene,
+  GeneSelectLinkableGeneQuery,
+  GeneSelectLinkableGeneQueryVariables,
   GeneSelectTypeaheadFieldsFragment,
   GeneSelectTypeaheadGQL,
   GeneSelectTypeaheadQuery,
@@ -51,7 +54,14 @@ export interface CvcGeneSelectFieldConfig
 
 const GeneSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number>>(),
-  // DisplayEntityTag
+  DisplayEntityTag<
+    GeneSelectTypeaheadQuery,
+    GeneSelectTypeaheadQueryVariables,
+    GeneSelectTypeaheadFieldsFragment,
+    GeneSelectLinkableGeneQuery,
+    GeneSelectLinkableGeneQueryVariables,
+    Gene
+  >()
 )
 
 @UntilDestroy()
@@ -65,12 +75,6 @@ export class CvcGeneSelectField
   extends GeneSelectMixin
   implements AfterViewInit
 {
-  // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<number>> // emits all field model changes
-  onValueChange$: Subject<Maybe<number>> // emits on model changes, and other model update sources (query param, or other pre-init model value)
-  onFocus$: Subject<boolean>
-  onSearch$: Subject<string> // emits on typeahead keypress
-  onTagClose$: Subject<MouseEvent> // emits on entity tag closed btn click
 
   // INTERMEDIATE STREAMS
   response$!: Observable<ApolloQueryResult<GeneSelectTypeaheadQuery>> // gql query responses
@@ -78,7 +82,6 @@ export class CvcGeneSelectField
   // PRESENTATION STREAMS
   result$!: Observable<GeneSelectTypeaheadFieldsFragment[]> // gql query results
   isLoading$!: Observable<boolean> // gqp query loading bool
-  tagCacheId$: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
 
   // STATE STREAMS
   geneId$?: Subject<Maybe<number>> // emit values from state's Subject
@@ -100,31 +103,26 @@ export class CvcGeneSelectField
 
   constructor(
     public injector: Injector,
-    private typeaheadGQL: GeneSelectTypeaheadGQL,
-    private tagQuery: LinkableGeneGQL // gql query for fetching linkable tag if not cached
+    private taq: GeneSelectTypeaheadGQL,
+    private tq: LinkableGeneGQL // gql query for fetching linkable tag if not cached
   ) {
     super(injector)
-    this.onSearch$ = new Subject<string>()
-    this.onFocus$ = new Subject<boolean>()
-    this.onTagClose$ = new Subject<MouseEvent>()
-    this.onValueChange$ = new Subject<Maybe<number>>()
-    this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     this.configureBaseField()
-    // this.configureDisplayEntityTag()
+    this.configureDisplayEntityTag(this.taq, this.tq)
 
     // on all value changes, deleteTag() if gid undefined,
     // setTag() if defined
-    this.onValueChange$.subscribe((gid: Maybe<number>) => {
-      if (!gid) {
-        this.deleteTag()
-      } else {
-        this.setTag(gid)
-      }
-    })
+    // this.onValueChange$.subscribe((gid: Maybe<number>) => {
+    //   if (!gid) {
+    //     this.deleteTag()
+    //   } else {
+    //     this.setTag(gid)
+    //   }
+    // })
 
     // do not attach repeat-field items to state
     if (!this.props.isRepeatItem) {
@@ -164,7 +162,7 @@ export class CvcGeneSelectField
         // helper functions for iif operator:
         const watchQuery = (query: GeneSelectTypeaheadQueryVariables) => {
           // returns observable from initial watch() query
-          this.queryRef = this.typeaheadGQL.watch(query)
+          this.queryRef = this.taq.watch(query)
           return this.queryRef.valueChanges
         }
         const fetchQuery = (query: GeneSelectTypeaheadQueryVariables) => {
@@ -234,7 +232,7 @@ export class CvcGeneSelectField
   setTag(gid?: number) {
     if (!gid) return
     lastValueFrom(
-      this.tagQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
+      this.tq.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
     ).then(({ data }) => {
       if (!data?.gene?.id) {
         console.error(`${this.field.id} field could not fetch Gene:${gid}.`)
