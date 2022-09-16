@@ -32,13 +32,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Evidence Item',
         },
         fieldGroup: [
-          // <CvcGeneSelectFieldConfig>{
-          //   key: 'geneId',
-          //   type: 'gene-select',
-          //   props: {
-          //     required: true,
-          //   },
-          // },
+          <CvcGeneSelectFieldConfig>{
+            key: 'geneId',
+            type: 'gene-select',
+            props: {
+              required: true,
+            },
+          },
           // <CvcRepeatFieldConfig>{
           //   key: 'geneIds',
           //   type: 'repeat-field',

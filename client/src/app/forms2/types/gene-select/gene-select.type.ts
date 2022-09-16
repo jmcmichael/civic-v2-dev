@@ -51,7 +51,7 @@ export interface CvcGeneSelectFieldConfig
 
 const GeneSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number>>(),
-  DisplayEntityTag
+  // DisplayEntityTag
 )
 
 @UntilDestroy()
@@ -114,7 +114,7 @@ export class CvcGeneSelectField
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     this.configureBaseField()
-    this.configureDisplayEntityTag()
+    // this.configureDisplayEntityTag()
 
     // on all value changes, deleteTag() if gid undefined,
     // setTag() if defined
