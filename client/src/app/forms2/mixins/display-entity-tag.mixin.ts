@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core'
+import { Injectable, TrackByFunction } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
@@ -14,19 +14,22 @@ import {
   lastValueFrom,
   Observable,
   map,
-  OperatorFunction,
   Subject,
   switchMap,
   throttleTime,
+  distinctUntilChanged,
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
+import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
 
 export type GetTypeaheadVarsFn<TAV extends EmptyObject> = (str: string) => TAV
 export type GetTagQueryVarsFn<TV extends EmptyObject> = (id: number) => TV
 export type GetTagCacheIdFromResponseFn<TT> = (response: TT) => string
-export type GetTypeaheadQueryResultsFn<TAT, TAF> = (response: ApolloQueryResult<TAT>) => TAF[]
+export type GetTypeaheadQueryResultsFn<TAT, TAF> = (
+  response: ApolloQueryResult<TAT>
+) => TAF[]
 
 export function DisplayEntityTag<
   // typeahead response data, vars, fragment
@@ -64,10 +67,10 @@ export function DisplayEntityTag<
       private tagQuery!: Query<TT, TV>
 
       // GETTERS
-      getTypeaheadQueryVars!: GetTypeaheadVarsFn<TAV>
+      getTypeaheadVarsFn!: GetTypeaheadVarsFn<TAV>
       getTypeahedQueryResultsFn!: GetTypeaheadQueryResultsFn<TAT, TAF>
-      getTagQueryVars!: GetTagQueryVarsFn<TV>
-      getTagCacheIdFromResponse!: GetTagCacheIdFromResponseFn<TT>
+      getTagQueryVarsFn!: GetTagQueryVarsFn<TV>
+      getTagCacheIdFromResponseFn!: GetTagCacheIdFromResponseFn<TT>
 
       queryRef!: QueryRef<TAT, TAV>
       tagEntity!: TF
@@ -75,10 +78,12 @@ export function DisplayEntityTag<
       configureDisplayEntityTag(
         taq: Query<TAT, TAV>,
         tq: Query<TT, TV>,
+        getTypeaheadVarsFn: GetTypeaheadVarsFn<TAV>,
         getTypeaheadQueryResultsFn: GetTypeaheadQueryResultsFn<TAT, TAF>
       ): void {
         this.typeaheadQuery = taq
         this.tagQuery = tq
+        this.getTypeaheadVarsFn = getTypeaheadVarsFn
         this.getTypeahedQueryResultsFn = getTypeaheadQueryResultsFn
 
         this.onSearch$ = new Subject<string>()
@@ -106,9 +111,11 @@ export function DisplayEntityTag<
         })
 
         // execute a search on typeahead focus so users immediately see a list of options
-        this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-          this.onSearch$.next('')
-        })
+        this.onFocus$
+          .pipe(tag(`${this.field.id} onFocus$`), untilDestroyed(this))
+          .subscribe((_) => {
+            this.onSearch$.next('')
+          })
 
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(
@@ -116,7 +123,8 @@ export function DisplayEntityTag<
           // quash leading event, emit trailing event so we only get 1 search string
           throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
           switchMap((str: string) => {
-            const query = this.getTypeaheadQueryVars(str)
+            const query = this.getTypeaheadVarsFn(str)
+
             // helper functions for iif operator:
             const watchQuery = (query: TAV) => {
               // returns observable from initial watch() query
@@ -142,22 +150,31 @@ export function DisplayEntityTag<
         ) // end this.response$
 
         this.result$ = this.response$.pipe(
-          map(r => this.getTypeahedQueryResultsFn(r)),
+          filter((r) => !!r.data),
+          map((r) => this.getTypeahedQueryResultsFn(r)),
           filter(isNonNulled)
         )
-      }
+
+        // BUG: isLoading returns true a couple of times then false thereafter
+        // for no good reason that I can determine
+        this.isLoading$ = this.response$.pipe(
+          pluck('loading'),
+          tag(`${this.field.id} isLoading$`),
+          distinctUntilChanged()
+        )
+      } // end configureDisplayEntityTag()
 
       setTag(id: number) {
         // emit last value from fetch (could emit loading events if server is queried)
         lastValueFrom(
-          this.tagQuery.fetch(this.getTagQueryVars(id), {
+          this.tagQuery.fetch(this.getTagQueryVarsFn(id), {
             fetchPolicy: 'cache-first',
           })
         ).then(({ data }) => {
           if (!data) {
             console.error(`${this.field.id} field could not fetch Gene:${id}.`)
           } else {
-            this.tagCacheId$.next(this.getTagCacheIdFromResponse(data))
+            this.tagCacheId$.next(this.getTagCacheIdFromResponseFn(data))
           }
         })
       }
@@ -173,6 +190,13 @@ export function DisplayEntityTag<
       resetField() {
         this.unsetModel()
         this.deleteTag()
+      }
+
+      optionTrackBy: TrackByFunction<TAF> = (
+        _index: number,
+        option: TAF
+      ): number => {
+        return option.id
       }
     }
 

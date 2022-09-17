@@ -66,13 +66,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
               props: {},
             },
           },
-          // <CvcVariantSelectFieldConfig>{
-          //   key: 'variantId',
-          //   type: 'variant-select',
-          //   props: {
-          //     required: true,
-          //   },
-          // },
+          <CvcVariantSelectFieldConfig>{
+            key: 'variantId',
+            type: 'variant-select',
+            props: {
+              required: true,
+              requireGene: false
+            },
+          },
           // <CvcEvidenceTypeSelectFieldConfig>{
           //   key: 'evidenceType',
           //   type: 'evidence-type-select',

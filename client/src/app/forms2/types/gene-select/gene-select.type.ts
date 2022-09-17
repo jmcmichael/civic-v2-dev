@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   Injector,
-  TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
@@ -24,22 +23,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
-import { QueryRef } from 'apollo-angular'
-import {
-  asyncScheduler,
-  defer,
-  distinctUntilChanged,
-  filter,
-  from,
-  iif,
-  lastValueFrom,
-  Observable,
-  Subject,
-  switchMap,
-  throttleTime,
-} from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import { pluck } from 'rxjs-etc/dist/esm/operators'
+import { Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
@@ -75,20 +59,9 @@ export class CvcGeneSelectField
   extends GeneSelectMixin
   implements AfterViewInit
 {
-  // INTERMEDIATE STREAMS
-  response$!: Observable<ApolloQueryResult<GeneSelectTypeaheadQuery>> // gql query responses
-
-  // PRESENTATION STREAMS
-  result$!: Observable<GeneSelectTypeaheadFieldsFragment[]> // gql query results
-  isLoading$!: Observable<boolean> // gqp query loading bool
-
   // STATE STREAMS
   geneId$?: Subject<Maybe<number>> // emit values from state's Subject
 
-  queryRef!: QueryRef<
-    GeneSelectTypeaheadQuery,
-    GeneSelectTypeaheadQueryVariables
-  > // gql query reference
   state: Maybe<EvidenceState>
 
   // FieldTypeConfig defaults
@@ -116,19 +89,11 @@ export class CvcGeneSelectField
       this.taq,
       // linkable entity query
       this.tq,
+      // typeahead quer vars getter fn
+      (str: string) => { return { entrezSymbol: str } },
       // typeahead query result map fn
       (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => r.data.geneTypeahead
     )
-
-    // on all value changes, deleteTag() if gid undefined,
-    // setTag() if defined
-    // this.onValueChange$.subscribe((gid: Maybe<number>) => {
-    //   if (!gid) {
-    //     this.deleteTag()
-    //   } else {
-    //     this.setTag(gid)
-    //   }
-    // })
 
     // do not attach repeat-field items to state
     if (!this.props.isRepeatItem) {
@@ -153,54 +118,6 @@ export class CvcGeneSelectField
       this.onValueChange$.next(v)
       if (this.geneId$) this.geneId$.next(v)
     }
-
-    // this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-    //   this.onSearch$.next('')
-    // })
-
-    // set up typeahead watch & fetch calls
-    this.response$ = this.onSearch$.pipe(
-      // wait 1/3sec after typing activity stops to query server,
-      // quash leading event, emit trailing event so we only get 1 search string
-      throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      switchMap((str: string) => {
-        const query: GeneSelectTypeaheadQueryVariables = { entrezSymbol: str }
-        // helper functions for iif operator:
-        const watchQuery = (query: GeneSelectTypeaheadQueryVariables) => {
-          // returns observable from initial watch() query
-          this.queryRef = this.taq.watch(query)
-          return this.queryRef.valueChanges
-        }
-        const fetchQuery = (query: GeneSelectTypeaheadQueryVariables) => {
-          // returns observable from refetch() promise
-          return from(this.queryRef.refetch(query))
-        }
-
-        // this iif operator prevents double-calling the API:
-        // if queryRef doesn't exist, create it with watchQuery observable
-        // if it does, refetch with fetchQuery observable.
-        // using defer() ensures functions are not called until
-        // values are emitted. otherwise they'll be called on subscribe.
-        return iif(
-          () => this.queryRef === undefined, // predicate
-          defer(() => watchQuery(query)), // true
-          defer(() => fetchQuery(query)) // false
-        )
-      })
-    ) // end this.response$
-
-    this.result$ = this.response$.pipe(
-      pluck('data', 'geneTypeahead'),
-      filter(isNonNulled)
-    )
-
-    // BUG: isLoading returns true a couple of times then false thereafter
-    // for no good reason that I can determine
-    this.isLoading$ = this.response$.pipe(
-      pluck('loading'),
-      // tag('gene-input isloading$'),
-      distinctUntilChanged()
-    )
 
     // if this is a repeat-item field, emit onRemove$ event on tag close,
     // otherwise, just reset field locally
@@ -230,41 +147,4 @@ export class CvcGeneSelectField
       })
     }
   } // ngAfterViewInit()
-
-  // verifies that a cached record exists for the given geneId,
-  // and fetches from the server if not, then sends tagCacheId$ event
-  // NOTE: probably can use one of apollo's query modes to do the fetch-cache,
-  // fetch server if needed but not 100% sure that does what I think
-  setTag(gid?: number) {
-    if (!gid) return
-    lastValueFrom(
-      this.tq.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
-    ).then(({ data }) => {
-      if (!data?.gene?.id) {
-        console.error(`${this.field.id} field could not fetch Gene:${gid}.`)
-      } else {
-        this.tagCacheId$.next(`Gene:${gid}`)
-      }
-    })
-  }
-
-  unsetModel() {
-    this.formControl.setValue(undefined)
-  }
-
-  deleteTag() {
-    this.tagCacheId$.next(undefined)
-  }
-
-  resetField() {
-    this.unsetModel()
-    this.deleteTag()
-  }
-
-  optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (
-    _index: number,
-    option: GeneSelectTypeaheadFieldsFragment
-  ): number => {
-    return option.id
-  }
 }

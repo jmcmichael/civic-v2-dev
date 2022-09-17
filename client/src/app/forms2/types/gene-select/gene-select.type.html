@@ -15,7 +15,6 @@
   [nzOptionHeightPx]="30"
   (nzFocus)="onFocus$.next(true)"
   (nzOnSearch)="onSearch$.next($event)"
-  [nzLoading]="isLoading$ | ngrxPush"
   (ngModelChange)="props.change && props.change(field, $event)">
   <ng-container *ngrxLet="onSearch$ as searchString">
     <nz-option

@@ -240,6 +240,7 @@ export class CvcVariantSelectField
     this.response$ = this.onSearch$.pipe(
       // wait 1/3sec after typing activity stops to query server
       // quash leading event, emit trailing event so we only get 1 search string
+      tag(`${this.field.id} response$`),
       throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
       withLatestFrom(this.onGeneId$),
       switchMap(([str, geneId]: [string, Maybe<number>]) => {
@@ -269,7 +270,7 @@ export class CvcVariantSelectField
           defer(() => fetchQuery(query)) // false
         )
       }),
-      tag('variant-input response$')
+      tag(`${this.field.id} response$`)
     ) // end this.response$
 
     // BUG: isLoading returns true a couple of times then false thereafter
@@ -384,7 +385,6 @@ export class CvcVariantSelectField
     //   })
     // }
   } // setTag
-
 
   unsetModel() {
     this.formControl.setValue(undefined)
