@@ -5,6 +5,7 @@ import {
   Injector,
   Type,
 } from '@angular/core'
+import { tag } from 'rxjs-spy/operators'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { DisplayEntityTag } from '@app/forms2/mixins/display-entity-tag.mixin'
@@ -48,7 +49,6 @@ const GeneSelectMixin = mixin(
   >()
 )
 
-@UntilDestroy()
 @Component({
   selector: 'cvc-gene-select',
   templateUrl: './gene-select.type.html',
@@ -90,13 +90,16 @@ export class CvcGeneSelectField
       // linkable entity query
       this.tq,
       // typeahead query vars getter fn
-      (str: string) => { return { entrezSymbol: str } },
+      (str: string) => {
+        return { entrezSymbol: str }
+      },
       // typeahead query result map fn
       (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => r.data.geneTypeahead,
       // tag query vars getter fn
       (id: number) => ({ geneId: id }),
       // tag cache id getter fn
-      (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) => `Gene:${r.data.gene!.id}`
+      (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) =>
+        `Gene:${r.data.gene!.id}`
       // optional additoinal typeahead param observable from state
     )
 

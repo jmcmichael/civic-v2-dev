@@ -39,17 +39,17 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          // <CvcRepeatFieldConfig>{
-          //   key: 'geneIds',
-          //   type: 'repeat-field',
-          //   props: {
-          //     label: 'Genes',
-          //   },
-          //   fieldArray: <CvcGeneSelectFieldConfig>{
-          //     type: 'gene-select-item',
-          //     props: {},
-          //   },
-          // },
+          <CvcRepeatFieldConfig>{
+            key: 'geneIds',
+            type: 'repeat-field',
+            props: {
+              label: 'Genes',
+            },
+            fieldArray: <CvcGeneSelectFieldConfig>{
+              type: 'gene-select-item',
+              props: {},
+            },
+          },
           <CvcBaseInputFieldConfig>{
             key: 'version',
             type: 'base-input',

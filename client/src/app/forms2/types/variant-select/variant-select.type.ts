@@ -2,20 +2,21 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  Injector,
   TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-  LinkableVariant,
-  Maybe,
-  LinkableVariantGQL,
   LinkableGeneGQL,
-  VariantSelect2Query,
+  LinkableVariantGQL,
+  Maybe,
   VariantSelect2FieldsFragment,
-  VariantSelect2QueryVariables,
   VariantSelect2GQL,
+  VariantSelect2Query,
+  VariantSelect2QueryVariables,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -24,7 +25,6 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { FormlyValueChangeEvent } from '@ngx-formly/core/lib/models'
 import { Apollo, gql, QueryRef } from 'apollo-angular'
 import {
   asyncScheduler,
@@ -44,6 +44,7 @@ import {
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
+import mixin from 'ts-mixin-extended'
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
@@ -58,13 +59,9 @@ export interface CvcVariantSelectFieldConfig
   type: 'variant-select' | 'variant-select-item' | Type<CvcVariantSelectField>
 }
 
-export const GET_CACHED_VARIANT = gql`
-  fragment LinkablelGene on Gene {
-    id
-    name
-    link
-  }
-`
+const VariantSelectMixin = mixin(
+  BaseFieldType<FieldTypeConfig<CvcVariantSelectFieldProps>, Maybe<number>>(),
+)
 
 @UntilDestroy()
 @Component({
@@ -74,10 +71,10 @@ export const GET_CACHED_VARIANT = gql`
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcVariantSelectField
-  extends FieldType<FieldTypeConfig<CvcVariantSelectFieldProps>>
+  extends VariantSelectMixin
   implements AfterViewInit
 {
-  // field interactions
+  // STATE STREAMS
   state: Maybe<EvidenceState>
   // receive geneId updates from state
   onGeneId$!: BehaviorSubject<Maybe<number>>
@@ -85,8 +82,6 @@ export class CvcVariantSelectField
   variantId$!: Subject<Maybe<number>>
 
   // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<number>> // emits all field model changes
-  onValueChange$: Subject<Maybe<number>>
   onFocus$: Subject<boolean>
   onSearch$: Subject<string>
   onTagClose$: Subject<MouseEvent>
@@ -117,20 +112,21 @@ export class CvcVariantSelectField
   repeatFieldKey?: string
 
   constructor(
+    public injector: Injector,
     private typeaheadGQL: VariantSelect2GQL,
     private tagQuery: LinkableVariantGQL,
     private geneQuery: LinkableGeneGQL,
     private apollo: Apollo
   ) {
-    super()
+    super(injector)
     this.onSearch$ = new Subject<string>()
     this.onFocus$ = new Subject<boolean>()
     this.onTagClose$ = new Subject<MouseEvent>()
-    this.onValueChange$ = new Subject<Maybe<number>>()
     this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
   ngAfterViewInit(): void {
+    this.configureBaseField()
     // if this is a repeat-field item, store parent repeat-field key
     // to use in field changes filter
     if (this.props.isRepeatItem) {
@@ -143,23 +139,6 @@ export class CvcVariantSelectField
       }
     }
 
-    // create onModelChange$ observable from fieldChanges
-    if (!this.field?.options?.fieldChanges) {
-      console.error(
-        `${this.field.key} field could not find fieldChanges Observable`
-      )
-    } else {
-      this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        // tag(`variant-select ${this.field.id} onModelChange$`),
-        filter((c) => c.field.id === this.field.id), // filter out other fields
-        pluck('value')
-      )
-
-      // emit value from onValueChange$ for every model change
-      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-        this.onValueChange$.next(v)
-      })
-    }
 
     // show prompt to select a gene if requireGene true
     // otherwise show standard placeholder
