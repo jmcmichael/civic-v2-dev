@@ -89,10 +89,15 @@ export class CvcGeneSelectField
       this.taq,
       // linkable entity query
       this.tq,
-      // typeahead quer vars getter fn
+      // typeahead query vars getter fn
       (str: string) => { return { entrezSymbol: str } },
       // typeahead query result map fn
-      (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => r.data.geneTypeahead
+      (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => r.data.geneTypeahead,
+      // tag query vars getter fn
+      (id: number) => ({ geneId: id }),
+      // tag cache id getter fn
+      (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) => `Gene:${r.data.gene!.id}`
+      // optional additoinal typeahead param observable from state
     )
 
     // do not attach repeat-field items to state
