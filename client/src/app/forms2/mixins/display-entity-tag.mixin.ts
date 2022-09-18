@@ -129,7 +129,7 @@ export function DisplayEntityTag<
 
         // execute a search on typeahead focus to immediately display options
         this.onFocus$
-          .pipe(tag(`${this.field.id} onFocus$`), untilDestroyed(this))
+          .pipe(untilDestroyed(this))
           .subscribe((_) => {
             this.onSearch$.next('')
           })
@@ -140,8 +140,6 @@ export function DisplayEntityTag<
           // quash leading event, emit trailing event so we only get 1 search string
           throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
           // get additional query vars, if any
-          tag(`${this.field.id} result$`),
-          // get additional param, if any
           withLatestFrom(
             this.typeaheadParam$ !== undefined
               ? this.typeaheadParam$
@@ -180,11 +178,8 @@ export function DisplayEntityTag<
           filter(isNonNulled)
         )
 
-        // BUG: isLoading returns true a couple of times then false thereafter
-        // for no good reason that I can determine
         this.isLoading$ = this.response$.pipe(
           pluck('loading'),
-          tag(`${this.field.id} isLoading$`),
           distinctUntilChanged()
         )
       } // end configureDisplayEntityTag()
