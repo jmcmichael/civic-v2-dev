@@ -128,11 +128,9 @@ export function DisplayEntityTag<
         })
 
         // execute a search on typeahead focus to immediately display options
-        this.onFocus$
-          .pipe(untilDestroyed(this))
-          .subscribe((_) => {
-            this.onSearch$.next('')
-          })
+        this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+          this.onSearch$.next('')
+        })
 
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(
@@ -182,6 +180,38 @@ export function DisplayEntityTag<
           pluck('loading'),
           distinctUntilChanged()
         )
+
+        // if this field is the child of a repeat-field type,
+        // get reference to its onRemove$ and emit its ID when tag closed,
+        // otherwise, handle model reset and tag deletion locally
+        if (this.props.isRepeatItem) {
+          // check if parent field is of 'repeat-field' type
+          if (
+            !(this.field.parent && this.field.parent?.type === 'repeat-field')
+          ) {
+            console.error(
+              `${this.field.id} field does not appear to have a parent type of 'repeat-field'.`
+            )
+          } else {
+            // check if parent repeat-field attached the onRemove$ Subject
+            if (!this.field.parent?.props?.onRemove$) {
+              console.error(
+                `${this.field.id} field cannot find reference to parent repeat-field onRemove$.`
+              )
+            } else {
+              const onRemove$: Subject<number> =
+                this.field.parent.props.onRemove$
+              this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+                this.resetField()
+                onRemove$.next(Number(this.key))
+              })
+            }
+          }
+        } else {
+          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+            this.resetField()
+          })
+        }
       } // end configureDisplayEntityTag()
 
       setTag(id: number) {

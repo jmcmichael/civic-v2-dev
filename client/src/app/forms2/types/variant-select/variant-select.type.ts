@@ -3,47 +3,32 @@ import {
   ChangeDetectionStrategy,
   Component,
   Injector,
-  TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { DisplayEntityTag } from '@app/forms2/mixins/display-entity-tag.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
+  InputMaybe,
   LinkableGeneGQL,
   LinkableVariantGQL,
   Maybe,
   VariantSelect2FieldsFragment,
   VariantSelect2GQL,
+  VariantSelect2LinkableVariantQuery,
+  VariantSelect2LinkableVariantQueryVariables,
   VariantSelect2Query,
   VariantSelect2QueryVariables,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldType,
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { Apollo, gql, QueryRef } from 'apollo-angular'
-import {
-  asyncScheduler,
-  BehaviorSubject,
-  defer,
-  distinctUntilChanged,
-  filter,
-  from,
-  iif,
-  lastValueFrom,
-  Observable,
-  Subject,
-  switchMap,
-  throttleTime,
-  withLatestFrom,
-} from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
+import { QueryRef } from 'apollo-angular'
+import { BehaviorSubject, filter, lastValueFrom, Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
@@ -61,6 +46,15 @@ export interface CvcVariantSelectFieldConfig
 
 const VariantSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcVariantSelectFieldProps>, Maybe<number>>(),
+  DisplayEntityTag<
+    VariantSelect2Query,
+    VariantSelect2QueryVariables,
+    VariantSelect2FieldsFragment,
+    VariantSelect2LinkableVariantQuery,
+    VariantSelect2LinkableVariantQueryVariables,
+    VariantSelect2FieldsFragment,
+    InputMaybe<number>
+  >()
 )
 
 @UntilDestroy()
@@ -81,19 +75,8 @@ export class CvcVariantSelectField
   // send variantId updates to state
   variantId$!: Subject<Maybe<number>>
 
-  // SOURCE STREAMS
-  onFocus$: Subject<boolean>
-  onSearch$: Subject<string>
-  onTagClose$: Subject<MouseEvent>
-
-  // INTERMEDIATE STREAMS
-  response$!: Observable<ApolloQueryResult<VariantSelect2Query>>
-
   // PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
-  result$!: Observable<VariantSelect2FieldsFragment[]>
-  isLoading$!: Observable<boolean>
-  tagCacheId$: Subject<Maybe<string>>
 
   queryRef!: QueryRef<VariantSelect2Query, VariantSelect2QueryVariables>
 
@@ -113,42 +96,15 @@ export class CvcVariantSelectField
 
   constructor(
     public injector: Injector,
-    private typeaheadGQL: VariantSelect2GQL,
-    private tagQuery: LinkableVariantGQL,
-    private geneQuery: LinkableGeneGQL,
-    private apollo: Apollo
+    private taq: VariantSelect2GQL,
+    private tq: LinkableVariantGQL,
+    private geneQuery: LinkableGeneGQL
   ) {
     super(injector)
-    this.onSearch$ = new Subject<string>()
-    this.onFocus$ = new Subject<boolean>()
-    this.onTagClose$ = new Subject<MouseEvent>()
-    this.tagCacheId$ = new Subject<Maybe<string>>()
   }
 
   ngAfterViewInit(): void {
     this.configureBaseField()
-    // if this is a repeat-field item, store parent repeat-field key
-    // to use in field changes filter
-    if (this.props.isRepeatItem) {
-      if (!this.field.parent?.id) {
-        console.error(
-          `base-input field is configured as a repeat-field item, but could not locate a parent key.`
-        )
-      } else {
-        this.repeatFieldKey = this.field.parent.id
-      }
-    }
-
-
-    // show prompt to select a gene if requireGene true
-    // otherwise show standard placeholder
-    let initialPlaceholder: string
-    if (this.props.requireGene && this.props.requireGenePrompt) {
-      initialPlaceholder = this.props.requireGenePrompt
-    } else {
-      initialPlaceholder = this.props.placeholder
-    }
-    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
 
     // if this is a repeat-item, attach dummy state fields that emit
     // undefined, so that response$ query's withLatestFrom succeeds
@@ -192,107 +148,43 @@ export class CvcVariantSelectField
       }
     }
 
-    // on value change, fetch linkable entity from cache, or query server
-    this.onValueChange$.subscribe((vid: Maybe<number>) => {
-      if (!vid) {
-        this.deleteTag()
-      } else {
-        this.setTag(vid)
-      }
-    })
+    this.configureDisplayEntityTag(
+      // typeahead query
+      this.taq,
+      // linkable entity query
+      this.tq,
+      // typeahead query vars getter fn
+      (str: string, param: InputMaybe<number>) => ({
+        name: str,
+        geneId: param,
+      }),
+      // typeahead query result map fn
+      (r: ApolloQueryResult<VariantSelect2Query>) => r.data.variants.nodes,
+      // linkable entity query vars getter fn
+      (id: number) => ({ variantId: id }),
+      // tag cache id getter fn
+      (r: ApolloQueryResult<VariantSelect2LinkableVariantQuery>) =>
+        `Variant:${r.data.variant!.id}`,
+      // optional additional typeahead param observable from state
+      this.onGeneId$
+    )
 
-    // if field has been assigned a value before its initialization, fire
-    // emit geneId$ and onValueChange$ events to notify other fields and fetch
-    // the tag's linkable entity
+    // if field has been assigned a value before its initialization,
+    // emit onValueChanges event
     if (this.field.formControl.value) {
       const v = this.field.formControl.value
       if (this.onValueChange$) this.onValueChange$.next(v)
     }
 
-    // perform a query with an empty string to show a list of variants
-    // when selector clicked
-    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.onSearch$.next('')
-    })
-
-    // set up typeahead watch, fetch calls
-    this.response$ = this.onSearch$.pipe(
-      // wait 1/3sec after typing activity stops to query server
-      // quash leading event, emit trailing event so we only get 1 search string
-      tag(`${this.field.id} response$`),
-      throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-      withLatestFrom(this.onGeneId$),
-      switchMap(([str, geneId]: [string, Maybe<number>]) => {
-        const query: VariantSelect2QueryVariables = {
-          name: str,
-          geneId: geneId,
-        }
-        // helper functions for iif operator:
-        const watchQuery = (query: VariantSelect2QueryVariables) => {
-          // returns observable from initial watch() query
-          this.queryRef = this.typeaheadGQL.watch(query)
-          return this.queryRef.valueChanges
-        }
-        const fetchQuery = (query: VariantSelect2QueryVariables) => {
-          // returns observable from refetch() promise
-          return from(this.queryRef.refetch(query))
-        }
-
-        // this iif operator prevents double-calling the API:
-        // if queryRef doesn't exist, create it with watchQuery observable
-        // if it does, refetch with fetchQuery observable.
-        // using defer() ensures functions are not called until
-        // values are emitted. otherwise they'll be called on subscribe.
-        return iif(
-          () => this.queryRef === undefined, // predicate
-          defer(() => watchQuery(query)), // true
-          defer(() => fetchQuery(query)) // false
-        )
-      }),
-      tag(`${this.field.id} response$`)
-    ) // end this.response$
-
-    // BUG: isLoading returns true a couple of times then false thereafter
-    // for no good reason that I can determine
-    this.isLoading$ = this.response$.pipe(
-      pluck('loading'),
-      // tag('variant-input isloading$'),
-      distinctUntilChanged()
-    )
-
-    this.result$ = this.response$.pipe(
-      pluck('data', 'variants', 'nodes'),
-      filter(isNonNulled)
-    )
-
-    // if this field is the child of a repeat-field type,
-    // get reference to its onRemove$ and emit its ID when tag closed,
-    // otherwise, handle model reset and tag deletion locally
-    if (this.props.isRepeatItem) {
-      // check if parent field is of 'repeat-field' type
-      if (!(this.field.parent && this.field.parent?.type === 'repeat-field')) {
-        console.error(
-          `${this.field.id} field does not appear to have a parent type of 'repeat-field'.`
-        )
-      } else {
-        // check if parent repeat-field attached the onRemove$ Subject
-        if (!this.field.parent?.props?.onRemove$) {
-          console.error(
-            `${this.field.id} field cannot find reference to parent repeat-field onRemove$.`
-          )
-        } else {
-          const onRemove$: Subject<number> = this.field.parent.props.onRemove$
-          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-            this.resetField()
-            onRemove$.next(Number(this.key))
-          })
-        }
-      }
+    // show prompt to select a gene if requireGene true
+    // otherwise show standard placeholder
+    let initialPlaceholder: string
+    if (this.props.requireGene && this.props.requireGenePrompt) {
+      initialPlaceholder = this.props.requireGenePrompt
     } else {
-      this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-        this.resetField()
-      })
+      initialPlaceholder = this.props.placeholder
     }
+    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
   } // ngAfterViewInit
 
   private onGeneId(gid: Maybe<number>): void {
@@ -324,64 +216,5 @@ export class CvcVariantSelectField
         }
       })
     }
-  }
-
-  setTag(vid?: number) {
-    if (!vid) return
-    lastValueFrom(
-      this.tagQuery.fetch({ variantId: vid }, { fetchPolicy: 'cache-first' })
-    ).then(({ data }) => {
-      if (!data?.variant?.id) {
-        console.error(`${this.field.id} field could not fetch Variant:${vid}.`)
-      } else {
-        this.tagCacheId$.next(`Variant:${vid}`)
-      }
-    })
-    // const cacheId = `Variant:${vid}`
-    // // linkable variant from cache
-    // const fragment = {
-    //   id: cacheId,
-    //   fragment: GET_CACHED_VARIANT,
-    // }
-    // const cachedVariant = this.apollo.client.readFragment(
-    //   fragment
-    // ) as LinkableVariant
-    // if (cachedVariant) {
-    //   this.tagCacheId$.next(cacheId)
-    // } else {
-    //   console.log(
-    //     `variant-input field could not find cached Variant:${vid}, fetching.`
-    //   )
-    //   this.tagQuery.fetch({ variantId: vid }).subscribe(({ data }) => {
-    //     const fetchedVariant = data.variant
-    //     if (fetchedVariant) {
-    //       this.tagCacheId$.next(cacheId)
-    //     } else {
-    //       console.error(
-    //         `variant-input field could not find cached Variant:${vid}, or fetch it from the server.`
-    //       )
-    //     }
-    //   })
-    // }
-  } // setTag
-
-  unsetModel() {
-    this.formControl.setValue(undefined)
-  }
-
-  deleteTag() {
-    this.tagCacheId$.next(undefined)
-  }
-
-  resetField() {
-    this.unsetModel()
-    this.deleteTag()
-  }
-
-  optionTrackBy: TrackByFunction<VariantSelect2FieldsFragment> = (
-    _index: number,
-    option: VariantSelect2FieldsFragment
-  ): number => {
-    return option.id
   }
 }

@@ -5,7 +5,6 @@ import {
   Injector,
   Type,
 } from '@angular/core'
-import { tag } from 'rxjs-spy/operators'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { DisplayEntityTag } from '@app/forms2/mixins/display-entity-tag.mixin'
@@ -21,7 +20,7 @@ import {
   LinkableGeneGQL,
   Maybe,
 } from '@app/generated/civic.apollo'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { Subject } from 'rxjs'
@@ -90,9 +89,7 @@ export class CvcGeneSelectField
       // linkable entity query
       this.tq,
       // typeahead query vars getter fn
-      (str: string) => {
-        return { entrezSymbol: str }
-      },
+      (str: string) => ({ entrezSymbol: str }),
       // typeahead query result map fn
       (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => r.data.geneTypeahead,
       // tag query vars getter fn
@@ -125,34 +122,6 @@ export class CvcGeneSelectField
       const v = this.field.formControl.value
       this.onValueChange$.next(v)
       if (this.geneId$) this.geneId$.next(v)
-    }
-
-    // if this is a repeat-item field, emit onRemove$ event on tag close,
-    // otherwise, just reset field locally
-    if (this.props.isRepeatItem) {
-      // check if parent field is of 'repeat-field' type
-      if (!(this.field.parent && this.field.parent?.type === 'repeat-field')) {
-        console.error(
-          `${this.field.id} does not appear to have a parent type of 'repeat-field'.`
-        )
-      } else {
-        // check if parent repeat-field attached the onRemove$ Subject
-        if (!this.field.parent?.props?.onRemove$) {
-          console.error(
-            `${this.field.id} cannot find reference to parent repeat-field onRemove$.`
-          )
-        } else {
-          const onRemove$: Subject<number> = this.field.parent.props.onRemove$
-          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-            this.resetField()
-            onRemove$.next(Number(this.key))
-          })
-        }
-      }
-    } else {
-      this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-        this.resetField()
-      })
     }
   } // ngAfterViewInit()
 }

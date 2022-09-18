@@ -39,6 +39,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
+          <CvcVariantSelectFieldConfig>{
+            key: 'variantId',
+            type: 'variant-select',
+            props: {
+              required: true,
+              // requireGene: false
+            },
+          },
           <CvcRepeatFieldConfig>{
             key: 'geneIds',
             type: 'repeat-field',
@@ -64,14 +72,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             fieldArray: <CvcBaseInputFieldConfig>{
               type: 'base-input-item',
               props: {},
-            },
-          },
-          <CvcVariantSelectFieldConfig>{
-            key: 'variantId',
-            type: 'variant-select',
-            props: {
-              required: true,
-              requireGene: false
             },
           },
           // <CvcEvidenceTypeSelectFieldConfig>{
