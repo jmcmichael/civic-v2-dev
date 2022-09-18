@@ -39,7 +39,7 @@ export type GetTagCacheIdFromResponseFn<TT> = (
   response: ApolloQueryResult<TT>
 ) => string
 
-export function DisplayEntityTag<
+export function EntityTagField<
   // typeahead response data, vars, fragment
   TAT extends {},
   TAV extends EmptyObject,
@@ -51,11 +51,11 @@ export function DisplayEntityTag<
   // optional additional typeahead query param
   TAP = void
 >() {
-  return function DisplayEntityTagConstructor<
+  return function EntityTagFieldConstructor<
     TBase extends MixinConstructor<FieldType>
   >(Base: TBase) {
     @Injectable()
-    abstract class DisplayEntityTagMixin extends Base {
+    abstract class EntityTagFieldMixin extends Base {
       // BASE FIELD TYPE SOURCE STREAMS
       onValueChange$?: Subject<Maybe<number>>
 
@@ -86,7 +86,7 @@ export function DisplayEntityTag<
       queryRef!: QueryRef<TAT, TAV>
       tagEntity!: TF
 
-      configureDisplayEntityTag(
+      configureEntityTagField(
         taq: Query<TAT, TAV>,
         tq: Query<TT, TV>,
         getTypeaheadVars: GetTypeaheadVarsFn<TAV, TAP>,
@@ -256,6 +256,6 @@ export function DisplayEntityTag<
       }
     }
 
-    return DisplayEntityTagMixin
+    return EntityTagFieldMixin
   }
 }

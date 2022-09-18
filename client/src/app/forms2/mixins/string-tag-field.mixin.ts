@@ -6,11 +6,11 @@ import { Subject } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
 
-export function DisplayStringTag<TBase extends MixinConstructor<FieldType>>(
+export function StringTagField<TBase extends MixinConstructor<FieldType>>(
   Base: TBase
 ) {
   @Injectable()
-  abstract class DisplayStringTagMixin extends Base {
+  abstract class StringTagFieldMixin extends Base {
     // BASE FIELD TYPE SOURCE STREAMS
     onValueChange$?: Subject<Maybe<string | number>>
 
@@ -20,7 +20,7 @@ export function DisplayStringTag<TBase extends MixinConstructor<FieldType>>(
     // LOCAL PRESENTATION STREAMS
     tagLabel$!: Subject<Maybe<string>> // emits label for tag
 
-    configureDisplayStringTag(): void {
+    configureStringTagField(): void {
       if (!this.onValueChange$) {
         console.error(
           `${this.field.id} cannot find onValueChange$ Subject, ensure configureBaseField() has been called before configureDisplayStringTag in its AfterViewInit hook.`
@@ -77,5 +77,5 @@ export function DisplayStringTag<TBase extends MixinConstructor<FieldType>>(
     }
   }
 
-  return DisplayStringTagMixin
+  return StringTagFieldMixin
 }

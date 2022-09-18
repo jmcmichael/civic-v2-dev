@@ -6005,22 +6005,22 @@ export type GeneSelectLinkableGeneQueryVariables = Exact<{
 
 export type GeneSelectLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
 
-export type VariantSelect2QueryVariables = Exact<{
+export type VariantSelectTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
   geneId?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type VariantSelect2Query = { __typename: 'Query', variants: { __typename: 'VariantConnection', nodes: Array<{ __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } }> } };
+export type VariantSelectTypeaheadQuery = { __typename: 'Query', variants: { __typename: 'VariantConnection', nodes: Array<{ __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } }> } };
 
-export type VariantSelect2FieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
+export type VariantSelectTypeaheadFieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
 
-export type VariantSelect2LinkableVariantQueryVariables = Exact<{
+export type VariantSelectLinkableVariantQueryVariables = Exact<{
   variantId: Scalars['Int'];
 }>;
 
 
-export type VariantSelect2LinkableVariantQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string } | undefined };
+export type VariantSelectLinkableVariantQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string } | undefined };
 
 export type AssertionDetailQueryVariables = Exact<{
   assertionId: Scalars['Int'];
@@ -7756,8 +7756,8 @@ export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
   link
 }
     `;
-export const VariantSelect2FieldsFragmentDoc = gql`
-    fragment VariantSelect2Fields on Variant {
+export const VariantSelectTypeaheadFieldsFragmentDoc = gql`
+    fragment VariantSelectTypeaheadFields on Variant {
   id
   name
   link
@@ -11348,28 +11348,28 @@ export const GeneSelectLinkableGeneDocument = gql`
       super(apollo);
     }
   }
-export const VariantSelect2Document = gql`
-    query VariantSelect2($name: String!, $geneId: Int) {
+export const VariantSelectTypeaheadDocument = gql`
+    query VariantSelectTypeahead($name: String!, $geneId: Int) {
   variants(name: $name, geneId: $geneId, first: 50) {
     nodes {
-      ...VariantSelect2Fields
+      ...VariantSelectTypeaheadFields
     }
   }
 }
-    ${VariantSelect2FieldsFragmentDoc}`;
+    ${VariantSelectTypeaheadFieldsFragmentDoc}`;
 
   @Injectable({
     providedIn: 'root'
   })
-  export class VariantSelect2GQL extends Apollo.Query<VariantSelect2Query, VariantSelect2QueryVariables> {
-    document = VariantSelect2Document;
+  export class VariantSelectTypeaheadGQL extends Apollo.Query<VariantSelectTypeaheadQuery, VariantSelectTypeaheadQueryVariables> {
+    document = VariantSelectTypeaheadDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);
     }
   }
-export const VariantSelect2LinkableVariantDocument = gql`
-    query VariantSelect2LinkableVariant($variantId: Int!) {
+export const VariantSelectLinkableVariantDocument = gql`
+    query VariantSelectLinkableVariant($variantId: Int!) {
   variant(id: $variantId) {
     id
     name
@@ -11381,8 +11381,8 @@ export const VariantSelect2LinkableVariantDocument = gql`
   @Injectable({
     providedIn: 'root'
   })
-  export class VariantSelect2LinkableVariantGQL extends Apollo.Query<VariantSelect2LinkableVariantQuery, VariantSelect2LinkableVariantQueryVariables> {
-    document = VariantSelect2LinkableVariantDocument;
+  export class VariantSelectLinkableVariantGQL extends Apollo.Query<VariantSelectLinkableVariantQuery, VariantSelectLinkableVariantQueryVariables> {
+    document = VariantSelectLinkableVariantDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

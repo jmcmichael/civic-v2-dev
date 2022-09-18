@@ -6,7 +6,7 @@ import {
   Type,
 } from '@angular/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { DisplayStringTag } from '@app/forms2/mixins/display-string-tag.mixin'
+import { StringTagField } from '@app/forms2/mixins/string-tag-field.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy } from '@ngneat/until-destroy'
 import {
@@ -30,7 +30,7 @@ const BaseInputMixin = mixin(
     FieldTypeConfig<CvcBaseInputFieldProps>,
     Maybe<string | number>
   >(),
-  DisplayStringTag
+  StringTagField
 )
 
 @Component({
@@ -56,6 +56,6 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.configureBaseField()
-    this.configureDisplayStringTag()
+    this.configureStringTagField()
   } // ngAfterViewInit
 }

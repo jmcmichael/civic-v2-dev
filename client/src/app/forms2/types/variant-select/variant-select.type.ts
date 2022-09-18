@@ -7,19 +7,19 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { DisplayEntityTag } from '@app/forms2/mixins/display-entity-tag.mixin'
+import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   InputMaybe,
   LinkableGeneGQL,
   LinkableVariantGQL,
   Maybe,
-  VariantSelect2FieldsFragment,
-  VariantSelect2GQL,
-  VariantSelect2LinkableVariantQuery,
-  VariantSelect2LinkableVariantQueryVariables,
-  VariantSelect2Query,
-  VariantSelect2QueryVariables,
+  VariantSelectTypeaheadFieldsFragment,
+  VariantSelectTypeaheadGQL,
+  VariantSelectLinkableVariantQuery,
+  VariantSelectLinkableVariantQueryVariables,
+  VariantSelectTypeaheadQuery,
+  VariantSelectTypeaheadQueryVariables,
 } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -46,13 +46,13 @@ export interface CvcVariantSelectFieldConfig
 
 const VariantSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcVariantSelectFieldProps>, Maybe<number>>(),
-  DisplayEntityTag<
-    VariantSelect2Query,
-    VariantSelect2QueryVariables,
-    VariantSelect2FieldsFragment,
-    VariantSelect2LinkableVariantQuery,
-    VariantSelect2LinkableVariantQueryVariables,
-    VariantSelect2FieldsFragment,
+  EntityTagField<
+    VariantSelectTypeaheadQuery,
+    VariantSelectTypeaheadQueryVariables,
+    VariantSelectTypeaheadFieldsFragment,
+    VariantSelectLinkableVariantQuery,
+    VariantSelectLinkableVariantQueryVariables,
+    VariantSelectTypeaheadFieldsFragment,
     InputMaybe<number>
   >()
 )
@@ -78,13 +78,13 @@ export class CvcVariantSelectField
   // PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
 
-  queryRef!: QueryRef<VariantSelect2Query, VariantSelect2QueryVariables>
+  queryRef!: QueryRef<VariantSelectTypeaheadQuery, VariantSelectTypeaheadQueryVariables>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcVariantSelectFieldProps>> = {
     props: {
       label: 'Variant',
-      placeholder: 'Search CIViC Variants',
+      placeholder: 'Search Variants',
       requireGene: true,
       requireGenePlaceholder: 'Search GENE_NAME Variants',
       requireGenePrompt: 'Select a Gene to search Variants',
@@ -96,7 +96,7 @@ export class CvcVariantSelectField
 
   constructor(
     public injector: Injector,
-    private taq: VariantSelect2GQL,
+    private taq: VariantSelectTypeaheadGQL,
     private tq: LinkableVariantGQL,
     private geneQuery: LinkableGeneGQL
   ) {
@@ -109,7 +109,7 @@ export class CvcVariantSelectField
     // if this is a repeat-item, attach dummy state fields that emit
     // undefined, so that response$ query's withLatestFrom succeeds
     if (this.props.isRepeatItem) {
-      this.onGeneId$ = new BehaviorSubject<Maybe<number>>(undefined)
+      // this.onGeneId$ = new BehaviorSubject<Maybe<number>>(undefined)
     } else {
       // find formState's geneId$ subject, subscribe to call onGeneId for new events
       if (this.field.options?.formState) {
@@ -148,7 +148,7 @@ export class CvcVariantSelectField
       }
     }
 
-    this.configureDisplayEntityTag(
+    this.configureEntityTagField(
       // typeahead query
       this.taq,
       // linkable entity query
@@ -159,11 +159,11 @@ export class CvcVariantSelectField
         geneId: param,
       }),
       // typeahead query result map fn
-      (r: ApolloQueryResult<VariantSelect2Query>) => r.data.variants.nodes,
+      (r: ApolloQueryResult<VariantSelectTypeaheadQuery>) => r.data.variants.nodes,
       // linkable entity query vars getter fn
       (id: number) => ({ variantId: id }),
       // tag cache id getter fn
-      (r: ApolloQueryResult<VariantSelect2LinkableVariantQuery>) =>
+      (r: ApolloQueryResult<VariantSelectLinkableVariantQuery>) =>
         `Variant:${r.data.variant!.id}`,
       // optional additional typeahead param observable from state
       this.onGeneId$

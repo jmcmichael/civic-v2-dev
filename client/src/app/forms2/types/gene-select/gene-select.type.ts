@@ -7,7 +7,7 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { DisplayEntityTag } from '@app/forms2/mixins/display-entity-tag.mixin'
+import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   Gene,
@@ -38,7 +38,7 @@ export interface CvcGeneSelectFieldConfig
 
 const GeneSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number>>(),
-  DisplayEntityTag<
+  EntityTagField<
     GeneSelectTypeaheadQuery,
     GeneSelectTypeaheadQueryVariables,
     GeneSelectTypeaheadFieldsFragment,
@@ -83,7 +83,7 @@ export class CvcGeneSelectField
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     this.configureBaseField()
-    this.configureDisplayEntityTag(
+    this.configureEntityTagField(
       // typeahead query
       this.taq,
       // linkable entity query
