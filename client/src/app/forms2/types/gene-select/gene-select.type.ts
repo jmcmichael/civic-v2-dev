@@ -63,8 +63,6 @@ export class CvcGeneSelectField
   // STATE STREAMS
   geneId$?: Subject<Maybe<number>> // emit values from state's Subject
 
-  state: Maybe<EvidenceState>
-
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
     props: {

@@ -10,20 +10,24 @@ import {
   EvidenceState,
 } from '../states/evidence.state'
 
+type TypesIn<T> = {[K in keyof T]: T[K] }[keyof T];
+
 type FormState = EvidenceState
-type FieldSubject = keyof EvidenceFieldSubjectMap
-type OptionSubject = keyof EvidenceOptionsSubjectMap
-type RequiresSubject = keyof EvidenceRequiresSubjectMap
-// TODO: create type that includes all field value types -
-// something that iterates through all keys of FieldSubject
-// and includes those keys' types
-// type FieldValue = typeof
+
+type FieldSubjectName = keyof EvidenceFieldSubjectMap
+type FieldSubject = TypesIn<EvidenceFieldSubjectMap>
+
+type OptionSubjectName = keyof EvidenceOptionsSubjectMap
+type OptionSubject = TypesIn<EvidenceOptionsSubjectMap>
+
+type RequiresSubjectName = keyof EvidenceRequiresSubjectMap
+type RequiresSubject = TypesIn<EvidenceRequiresSubjectMap>
 
 export type ConnectStateOptions = {
-  emitValues?: FieldSubject
-  subscribeValues?: FieldSubject[]
-  subscribeOptions?: OptionSubject[]
-  subscribeRequires?: RequiresSubject[]
+  emitValues?: FieldSubjectName
+  subscribeValues?: FieldSubjectName[]
+  subscribeOptions?: OptionSubjectName[]
+  subscribeRequires?: RequiresSubjectName[]
 }
 
 export function ConnectState<ST extends FormState>() {
@@ -32,13 +36,15 @@ export function ConnectState<ST extends FormState>() {
   >(Base: TBase) {
     @Injectable()
     abstract class ConnectStateMixin extends Base {
-      onValueChange$!: Subject<Maybe<string | number>>
-      valueChange$?: Subject<Maybe<string | number>>
+      state!: FormState
+      onValueChange$!: FieldSubject
+      valueChange$?: FieldSubject
 
       configureConnectState(state: FormState, options: ConnectStateOptions) {
+        this.state = state
         // set up value changes emit
         if (options.emitValues) {
-          this.valueChange$ = state.fields[options.emitValues]
+          this.valueChange$ = this.state.fields[options.emitValues]
         }
       }
     }
