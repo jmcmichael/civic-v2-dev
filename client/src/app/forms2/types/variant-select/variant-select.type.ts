@@ -14,10 +14,10 @@ import {
   LinkableGeneGQL,
   LinkableVariantGQL,
   Maybe,
-  VariantSelectTypeaheadFieldsFragment,
-  VariantSelectTypeaheadGQL,
   VariantSelectLinkableVariantQuery,
   VariantSelectLinkableVariantQueryVariables,
+  VariantSelectTypeaheadFieldsFragment,
+  VariantSelectTypeaheadGQL,
   VariantSelectTypeaheadQuery,
   VariantSelectTypeaheadQueryVariables,
 } from '@app/generated/civic.apollo'
@@ -78,7 +78,10 @@ export class CvcVariantSelectField
   // PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
 
-  queryRef!: QueryRef<VariantSelectTypeaheadQuery, VariantSelectTypeaheadQueryVariables>
+  queryRef!: QueryRef<
+    VariantSelectTypeaheadQuery,
+    VariantSelectTypeaheadQueryVariables
+  >
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcVariantSelectFieldProps>> = {
@@ -159,7 +162,8 @@ export class CvcVariantSelectField
         geneId: param,
       }),
       // typeahead query result map fn
-      (r: ApolloQueryResult<VariantSelectTypeaheadQuery>) => r.data.variants.nodes,
+      (r: ApolloQueryResult<VariantSelectTypeaheadQuery>) =>
+        r.data.variants.nodes,
       // linkable entity query vars getter fn
       (id: number) => ({ variantId: id }),
       // tag cache id getter fn

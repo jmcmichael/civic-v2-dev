@@ -41,11 +41,11 @@ export type GetTagCacheIdFromResponseFn<TT> = (
 
 export function EntityTagField<
   // typeahead response data, vars, fragment
-  TAT extends {},
+  TAT extends EmptyObject,
   TAV extends EmptyObject,
   TAF extends EmptyObject,
   // tag response data, vars, fragment (entity)
-  TT extends {},
+  TT extends EmptyObject,
   TV extends EmptyObject,
   TF extends EmptyObject,
   // optional additional typeahead query param
