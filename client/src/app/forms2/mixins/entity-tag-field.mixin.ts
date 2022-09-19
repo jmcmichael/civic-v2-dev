@@ -192,22 +192,22 @@ export function EntityTagField<
             console.error(
               `${this.field.id} field does not appear to have a parent type of 'repeat-field'.`
             )
-          } else {
-            // check if parent repeat-field attached the onRemove$ Subject
-            if (!this.field.parent?.props?.onRemove$) {
-              console.error(
-                `${this.field.id} field cannot find reference to parent repeat-field onRemove$.`
-              )
-            } else {
-              const onRemove$: Subject<number> =
-                this.field.parent.props.onRemove$
-              this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-                this.resetField()
-                onRemove$.next(Number(this.key))
-              })
-            }
+            return
           }
+          // check if parent repeat-field attached the onRemove$ Subject
+          if (!this.field.parent?.props?.onRemove$) {
+            console.error(
+              `${this.field.id} specified as a repeat-item field, but no reference to parent repeat-field onRemove$ found.`
+            )
+            return
+          }
+          const onRemove$: Subject<number> = this.field.parent.props.onRemove$
+          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+            this.resetField()
+            onRemove$.next(Number(this.key))
+          })
         } else {
+          // field is not a repeat-item, so just reset the field on tag close
           this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
             this.resetField()
           })
@@ -215,8 +215,9 @@ export function EntityTagField<
       } // end configureDisplayEntityTag()
 
       setTag(id: number) {
-        // query could emit loading events, so lastValueFrom used here to only emit query response data
+        // tagQuery.fetch() was failing silently, hence this try/catch statement
         try {
+          // query could emit loading events, so lastValueFrom used here to only emit query response data
           lastValueFrom(
             this.tagQuery.fetch(this.getTagQueryVars(id), {
               fetchPolicy: 'cache-first',

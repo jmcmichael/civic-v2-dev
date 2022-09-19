@@ -16,9 +16,6 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
     // e.g. query param, tag close, restore saved form state
     onValueChange$!: Subject<Maybe<V>>
 
-    // reference to repeat-field's onRemove$, if field isRepeatItem
-    onRemove$?: Subject<number>
-
     // Mixins cannot define a constructor, so mixin base components
     // provide the ng injector that mixins may inject any required
     // dependencies with this.injector.get().
@@ -51,31 +48,6 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
         this.onValueChange$.next(v)
       })
 
-      //
-      // if field isRepeatItem, attach parent repeat-field's onRemove$ Subject
-      //
-      if (this.props.isRepeatItem) {
-        if (!this.field.parent?.id) {
-          console.error(
-            `${this.field.id} is configured as a repeat-field item, but could not locate a parent field id. Ensure configureBaseField() is called in AfterViewInit hook.`
-          )
-          return
-        }
-        if (this.field.parent.type !== 'repeat-field') {
-          console.error(
-            `${this.field.id} is configured as a repeat-field item, but its parent ${this.field.parent.id} is not a repeat-field type.`
-          )
-          return
-        }
-        // check if parent repeat-field attached the onRemove$ Subject
-        if (!this.field.parent?.props?.onRemove$) {
-          console.error(
-            `${this.field.id} cannot find reference to parent repeat-field onRemove$.`
-          )
-          return
-        }
-        this.onRemove$ = this.field.parent.props.onRemove$
-      }
     }
   }
   return BaseFieldType

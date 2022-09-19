@@ -10,7 +10,7 @@ import {
   EvidenceState,
 } from '../states/evidence.state'
 
-type TypesIn<T> = {[K in keyof T]: T[K] }[keyof T];
+type TypesIn<T> = { [K in keyof T]: T[K] }[keyof T]
 
 type FormState = EvidenceState
 
@@ -24,27 +24,30 @@ type RequiresSubjectName = keyof EvidenceRequiresSubjectMap
 type RequiresSubject = TypesIn<EvidenceRequiresSubjectMap>
 
 export type ConnectStateOptions = {
-  emitValues?: FieldSubjectName
+  // subject from which target component emits change values
+  valueChanges?: FieldSubjectName
+  // subjects to which target component subscribes to get change values
   subscribeValues?: FieldSubjectName[]
+  // subjects to which enum field types subscribe to get valid options
   subscribeOptions?: OptionSubjectName[]
+  // subjects to which field types subscribe to get required fields
   subscribeRequires?: RequiresSubjectName[]
 }
 
-export function ConnectState<ST extends FormState>() {
+export function ConnectState() {
   return function ConnectStateConstructor<
     TBase extends MixinConstructor<FieldType>
   >(Base: TBase) {
     @Injectable()
     abstract class ConnectStateMixin extends Base {
       state!: FormState
-      onValueChange$!: FieldSubject
       valueChange$?: FieldSubject
 
       configureConnectState(state: FormState, options: ConnectStateOptions) {
         this.state = state
         // set up value changes emit
-        if (options.emitValues) {
-          this.valueChange$ = this.state.fields[options.emitValues]
+        if (options.valueChanges) {
+          this.valueChange$ = this.state.fields[options.valueChanges]
         }
       }
     }

@@ -39,7 +39,7 @@ export interface CvcGeneSelectFieldConfig
 
 const GeneSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number>>(),
-  ConnectState<EvidenceState>(),
+  ConnectState(),
   EntityTagField<
     GeneSelectTypeaheadQuery,
     GeneSelectTypeaheadQueryVariables,
@@ -60,9 +60,6 @@ export class CvcGeneSelectField
   extends GeneSelectMixin
   implements AfterViewInit
 {
-  // STATE STREAMS
-  geneId$?: Subject<Maybe<number>> // emit values from state's Subject
-
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
     props: {
@@ -83,12 +80,15 @@ export class CvcGeneSelectField
   // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     this.configureBaseField()
+    // if form state object exists, configure ConnectState mixin
     if (this.field.options?.formState) {
       this.configureConnectState(this.field.options.formState, {
-        emitValues: this.props.isRepeatItem ? undefined : 'geneId$',
+        valueChanges: this.props.isRepeatItem ? undefined : 'geneId$',
       })
     } else {
-      console.warn(`${this.field.id} applies ConnectState mixin, but form does not provide a formState.`)
+      console.warn(
+        `${this.field.id} applies ConnectState mixin, but form does not provide a formState.`
+      )
     }
     this.configureEntityTagField(
       // typeahead query
@@ -104,31 +104,24 @@ export class CvcGeneSelectField
       // tag cache id getter fn
       (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) =>
         `Gene:${r.data.gene!.id}`
-      // optional additoinal typeahead param observable from state
     )
 
-    // do not attach repeat-field items to state
-    if (!this.props.isRepeatItem) {
-      // if form has a state object,
-      // get field's Subject from state & emit local value updates from it
-      if (this.field?.options?.formState) {
-        this.state = this.field.options.formState
-        if (this.state && this.state.fields.geneId$) {
-          this.geneId$ = this.state.fields.geneId$
-          this.onValueChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-            if (this.geneId$) this.geneId$.next(v)
-          })
-        }
-      }
-    }
+    // on tag close, emit undefined from state valueChange$
+    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_v) => {
+      // valueChange$ may not exist if component is a repeat-item or form state missing
+      if (!this.valueChange$) return
+      this.valueChange$.next(undefined)
+    })
 
     // if field's formControl has already been assigned a value
     // (e.g. via query-param extension, saved form state,
-    // model initialization), emit onValueChange$, geneId$ events
+    // model initialization), emit onValueChange$, state valueChange$ events
     if (this.field.formControl.value) {
       const v = this.field.formControl.value
       this.onValueChange$.next(v)
-      if (this.geneId$) this.geneId$.next(v)
+      // valueChange$ may not exist if component is a repeat-item or form state missing
+      if (!this.valueChange$) return
+      this.valueChange$.next(v)
     }
   } // ngAfterViewInit()
 }
