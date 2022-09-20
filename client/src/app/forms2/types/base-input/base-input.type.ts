@@ -35,8 +35,8 @@ const BaseInputMixin = mixin(
 
 @Component({
   selector: 'cvc-base-input',
-  templateUrl: './base-input.component.html',
-  styleUrls: ['./base-input.component.less'],
+  templateUrl: './base-input.type.html',
+  styleUrls: ['./base-input.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {

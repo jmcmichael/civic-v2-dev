@@ -1,5 +1,5 @@
 import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit.model'
-import { CvcBaseInputFieldConfig } from '@app/forms2/types/base-input/base-input.component'
+import { CvcBaseInputFieldConfig } from '@app/forms2/types/base-input/base-input.type'
 import { CvcClinicalSignificanceSelectFieldConfig } from '@app/forms2/types/clinical-significance-select/clinical-significance-select.type'
 import { CvcEvidenceDirectionSelectFieldConfig } from '@app/forms2/types/evidence-direction-select/evidence-direction-select.type'
 import { CvcEvidenceTypeSelectFieldConfig } from '@app/forms2/types/evidence-type-select/evidence-type-select.type'

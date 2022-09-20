@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import {
   CvcBaseInputField,
   CvcBaseInputFieldProps,
-} from './base-input.component'
+} from './base-input.type'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { ReactiveComponentModule } from '@ngrx/component'
