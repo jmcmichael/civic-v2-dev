@@ -1,7 +1,7 @@
 // to be based on: https://github.com/stefanoslig/xstate-angular/blob/main/apps/conduit/src/app/article-list/%2Bxstate/article-list-machine.facade.ts
 
 import { Injectable } from '@angular/core'
-import { EvidenceItemStateFields } from '@app/forms2/models/evidence-fields.model'
+import { EvidenceItemSubmitFields } from '@app/forms2/models/evidence-submit.model'
 import { Maybe } from '@app/generated/civic.apollo'
 import { Observable } from 'rxjs'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
@@ -12,7 +12,7 @@ export class EvidenceItemStateFacade {
   state$ = this.eidState.service.state$
   send = this.eidState.service.send
 
-  field$: Observable<EvidenceItemStateFields>
+  field$: Observable<EvidenceItemSubmitFields>
   geneId$: Observable<Maybe<number>>
   variantId$: Observable<Maybe<number>>
 

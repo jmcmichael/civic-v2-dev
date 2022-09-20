@@ -1,7 +1,7 @@
 // based on:
 // https://github.com/stefanoslig/xstate-angular/blob/main/apps/conduit/src/app/article-list/%2Bxstate/article-list-machine.schema.ts
 
-import { EvidenceItemStateFields } from '@app/forms2/models/evidence-fields.model'
+import { EvidenceItemSubmitFields } from '@app/forms2/models/evidence-submit.model'
 
 export interface EvidenceItemStateSchema {
   states: {
@@ -96,5 +96,5 @@ export interface EvidenceItemStateSchema {
 }
 
 export interface EvidenceItemStateContext {
-  fields: EvidenceItemStateFields
+  fields: EvidenceItemSubmitFields
 }

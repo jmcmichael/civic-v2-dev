@@ -5,7 +5,7 @@ import {
   Maybe,
 } from '@app/generated/civic.apollo'
 import { BehaviorSubject } from 'rxjs'
-import { evidenceItemStateFieldsDefaults } from '../models/evidence-fields.model'
+import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
 import { EntityName, EntityState, SelectOption } from './entity.state'
 
 export type EvidenceFieldSubjectMap = {
@@ -50,7 +50,7 @@ class EvidenceState extends EntityState {
   constructor() {
     super(EntityName.EVIDENCE)
 
-    const def = evidenceItemStateFieldsDefaults
+    const def = evidenceItemSubmitFieldsDefaults
 
     this.fields = {
       geneId$: new BehaviorSubject<Maybe<number>>(def.geneId),

@@ -1,7 +1,7 @@
 // to be based on: https://github.com/stefanoslig/xstate-angular/blob/main/apps/conduit/src/app/article-list/%2Bxstate/article-list-machine.config.ts
 
 import { Injectable } from '@angular/core'
-import { evidenceItemStateFieldsDefaults } from '@app/forms2/models/evidence-fields.model'
+import { evidenceItemSubmitFieldsDefaults } from '@app/forms2/models/evidence-submit.model'
 import { environment } from 'environments/environment'
 import {
   InterpreterOptions,
@@ -55,7 +55,7 @@ export class EvidenceItemStateService {
     this.config = <EvidenceItemStateSchema>{
       id: 'EvidenceItem',
       context: <EvidenceItemStateContext>{
-        fields: evidenceItemStateFieldsDefaults,
+        fields: evidenceItemSubmitFieldsDefaults,
       },
       initial: 'initial',
       states: {

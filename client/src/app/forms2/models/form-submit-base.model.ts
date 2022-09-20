@@ -3,7 +3,7 @@
 // a copy of its Submit...Input type with all Nullable types converted to optional
 // base enums/primitives such that all fields are enums, primitives, or arrays of
 // enums/primitives
-export interface FormSubmitBaseModel {
+export type FormSubmitBaseModel = {
   clientMutationId?: string
   fields: any
   comment?: string
