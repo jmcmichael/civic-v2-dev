@@ -10,10 +10,12 @@
   [nzDisabled]="cvcDisabled"
   (nzFocus)="cvcOnFocus && cvcOnFocus.next(true)"
   (nzOnSearch)="cvcOnSearch && cvcOnSearch.next($event)"
-  (ngModelChange)="cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)">
+  (ngModelChange)="
+    cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
+  ">
   <ng-container *ngrxLet="cvcOnSearch as searchString">
     <nz-option
-      *ngFor="let item of cvcResults | ngrxPush"
+      *ngFor="let item of cvcResults | ngrxPush; trackBy: cvcOptionTrackBy"
       nzCustomContent
       [nzValue]="item.id">
       <nz-space nzDirection="horizontal">
@@ -21,17 +23,14 @@
           *nzSpaceItem
           [cvcCacheId]="item.__typename + ':' + item.id"
           [cvcEmphasize]="searchString"></cvc-entity-tag>
-        <!-- <span
-                  *nzSpaceItem
-                  nz-typography
-                  nzType="secondary">
-                  ID: {{ item.id }}
-                  <span *ngIf="item.variantAliases.length > 0"> - Aliases: </span>
-                  <span
-                    [innerHtml]="
-                      item.variantAliases.join(', ') | highlightTypeahead: searchString
-                    "></span>
-                </span> -->
+        <ng-container
+          *nzSpaceItem
+          [ngTemplateOutlet]="cvcOptionExtra"
+          [ngTemplateOutletContext]="{
+            $implicit: item,
+            searchStr: searchString
+          }">
+        </ng-container>
       </nz-space>
     </nz-option>
   </ng-container>

@@ -13,43 +13,27 @@
   [cvcResults]="result$"
   [cvcShowError]="showError"
   [cvcDisabled]="props.disabled"
+  [cvcOptionExtra]="optionExtra"
+  [cvcOptionTrackBy]="optionTrackBy"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
-<!-- <nz-select
-  *ngIf="!(tagCacheId$ | ngrxPush)"
-  nzShowSearch
-  nzServerSearch
-  nzAllowClear
-  [class.ng-dirty]="showError"
-  [nzPlaceHolder]="props.placeholder"
-  [formControl]="formControl"
-  [formlyAttributes]="field"
-  [nzOptionHeightPx]="30"
-  (nzFocus)="onFocus$.next(true)"
-  (nzOnSearch)="onSearch$.next($event)"
-  [nzLoading]="isLoading$ | ngrxPush"
-  (ngModelChange)="props.change && props.change(field, $event)">
-  <ng-container *ngrxLet="onSearch$ as searchString">
-    <nz-option
-      *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy"
-      nzCustomContent
-      [nzValue]="item.id">
-      <cvc-entity-tag
-        [cvcCacheId]="item.__typename + ':' + item.id"
-        [cvcEmphasize]="searchString">
-      </cvc-entity-tag>
-      <span
-        nz-typography
-        nzType="secondary">
-        <ng-container *ngIf="item.geneAliases.length > 0">
-          <span>&nbsp;</span>
-          <em>
-          <span
-            [innerHtml]="
-              item.geneAliases.join(', ') | highlightTypeahead: searchString
-            "></span></em>
-        </ng-container>
-      </span>
-    </nz-option>
-  </ng-container>
-</nz-select> -->
+
+<!-- display list of aliases after gene-tag -->
+<ng-template
+  #optionExtra
+  let-item
+  let-searchString="searchStr">
+  <span
+    nz-typography
+    nzType="secondary">
+    <ng-container *ngIf="item.geneAliases.length > 0">
+      <span>&nbsp;</span>
+      <em>
+        <span
+          [innerHtml]="
+            item.geneAliases.join(', ') | highlightTypeahead: searchString
+          "></span
+      ></em>
+    </ng-container>
+  </span>
+</ng-template>

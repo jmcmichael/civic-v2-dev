@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  TemplateRef,
+  TrackByFunction,
+} from '@angular/core'
 import { FormControl } from '@angular/forms'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
@@ -8,7 +14,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs'
   selector: 'cvc-entity-select',
   templateUrl: './entity-select.component.html',
   styleUrls: ['./entity-select.component.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEntitySelectComponent {
   @Input() cvcFormControl!: FormControl
@@ -19,6 +25,8 @@ export class CvcEntitySelectComponent {
   @Input() cvcOnFocus?: Subject<boolean>
   @Input() cvcOnSearch?: Subject<string>
   @Input() cvcResults!: Observable<any[]>
+  @Input() cvcOptionExtra: TemplateRef<any> | null = null
+  @Input() cvcOptionTrackBy!: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent
 
   _placeholder = new BehaviorSubject<string>('')

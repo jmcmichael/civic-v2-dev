@@ -1,26 +1,25 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    Injector,
-    Type
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Injector,
+  TrackByFunction,
+  Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
+import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-    EvidenceState
-} from '@app/forms2/states/evidence.state'
-import {
-    Gene,
-    GeneSelectLinkableGeneQuery,
-    GeneSelectLinkableGeneQueryVariables,
-    GeneSelectTypeaheadFieldsFragment,
-    GeneSelectTypeaheadGQL,
-    GeneSelectTypeaheadQuery,
-    GeneSelectTypeaheadQueryVariables,
-    LinkableGeneGQL,
-    Maybe
+  Gene,
+  GeneSelectLinkableGeneQuery,
+  GeneSelectLinkableGeneQueryVariables,
+  GeneSelectTypeaheadFieldsFragment,
+  GeneSelectTypeaheadGQL,
+  GeneSelectTypeaheadQuery,
+  GeneSelectTypeaheadQueryVariables,
+  LinkableGeneGQL,
+  Maybe,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
@@ -137,4 +136,11 @@ export class CvcGeneSelectField
       this.stateValueChange$.next(v)
     }
   } // ngAfterViewInit()
+
+  optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (
+    _index: number,
+    option: GeneSelectTypeaheadFieldsFragment
+  ): number => {
+    return option.id
+  }
 }
