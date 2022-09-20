@@ -18,7 +18,7 @@
   [cvcModelChange]="props.change">
 </cvc-entity-select>
 
-<!-- display list of aliases after gene-tag -->
+<!-- display list of aliases after tag -->
 <ng-template
   #optionExtra
   let-item
@@ -27,7 +27,6 @@
     nz-typography
     nzType="secondary">
     <ng-container *ngIf="item.geneAliases.length > 0">
-      <span>&nbsp;</span>
       <em>
         <span
           [innerHtml]="

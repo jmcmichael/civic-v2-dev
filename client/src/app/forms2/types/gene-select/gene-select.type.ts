@@ -77,12 +77,11 @@ export class CvcGeneSelectField
   constructor(
     public injector: Injector,
     private taq: GeneSelectTypeaheadGQL,
-    private tq: LinkableGeneGQL // gql query for fetching linkable tag if not cached
+    private tq: LinkableGeneGQL
   ) {
     super(injector)
   }
 
-  // formly's field is assigned OnInit, so field setup must occur in AfterViewInit
   ngAfterViewInit(): void {
     this.configureBaseField()
     this.configureEntityTagField(
@@ -100,16 +99,15 @@ export class CvcGeneSelectField
       (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) =>
         `Gene:${r.data.gene!.id}`
     )
+    this.configureStateSubjects()
+    this.configureOnTagClose()
+    this.configureInitialValueHandler()
+  } // ngAfterViewInit()
 
-    // on tag close, emit undefined from state valueChange$
-    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_v) => {
-      // state valueChange$ may not exist if component is a repeat-item or form state missing
-      if (!this.stateValueChange$) return
-      this.stateValueChange$.next(undefined)
-    })
-
-    // attach state's geneId$ subject and emit all onValueChanges$ from it
-    if (this.field.options?.formState) {
+  private configureStateSubjects(): void {
+    // if this is not a repeat-item field, attach state's
+    // geneId$ subject and emit all onValueChanges$ from it
+    if (!this.props.isRepeatItem && this.field.options?.formState) {
       this.state = this.field.options.formState
       // attach state variantId$ to send field value updates
       if (this.state && this.state.fields.geneId$) {
@@ -124,7 +122,19 @@ export class CvcGeneSelectField
           })
       }
     }
+  }
 
+  private configureOnTagClose(): void {
+    // emit undefined from state valueChange$
+    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_v) => {
+      // state valueChange$ may not exist if
+      // component is a repeat-item or form state missing
+      if (!this.stateValueChange$) return
+      this.stateValueChange$.next(undefined)
+    })
+  }
+
+  private configureInitialValueHandler(): void {
     // if on initialization, this field's formControl has already been assigned a value
     // (e.g. via query-param extension, saved form state, model initialization), emit
     // onValueChange$, state valueChange$ events
@@ -135,7 +145,7 @@ export class CvcGeneSelectField
       if (!this.stateValueChange$) return
       this.stateValueChange$.next(v)
     }
-  } // ngAfterViewInit()
+  }
 
   optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (
     _index: number,

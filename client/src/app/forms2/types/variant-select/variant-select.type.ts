@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   Injector,
+  TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
@@ -208,5 +209,12 @@ export class CvcVariantSelectField
         }
       })
     }
+  }
+
+  optionTrackBy: TrackByFunction<VariantSelectTypeaheadFieldsFragment> = (
+    _index: number,
+    option: VariantSelectTypeaheadFieldsFragment
+  ): number => {
+    return option.id
   }
 }

@@ -12,45 +12,29 @@
   [cvcOnSearch]="onSearch$"
   [cvcResults]="result$"
   [cvcShowError]="showError"
-  [cvcDisabled]="props.disabled"
+  [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
+  [cvcOptionExtra]="optionExtra"
+  [cvcOptionTrackBy]="optionTrackBy"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
-<!-- <nz-select
-  *ngIf="!(tagCacheId$ | ngrxPush)"
-  nzShowSearch
-  nzServerSearch
-  nzAllowClear
-  [class.ng-dirty]="showError"
-  [nzDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
-  [nzPlaceHolder]="(placeholder$ | ngrxPush)!"
-  [formControl]="formControl"
-  [formlyAttributes]="field"
-  [nzOptionHeightPx]="28"
-  (nzFocus)="onFocus$.next(true)"
-  (nzOnSearch)="onSearch$.next($event)"
-  (ngModelChange)="props.change && props.change(field, $event)">
-  <ng-container *ngrxLet="onSearch$ as searchString">
-    <nz-option
-      *ngFor="let item of result$ | ngrxPush"
-      nzCustomContent
-      [nzValue]="item.id">
-      <nz-space nzDirection="horizontal">
-        <cvc-entity-tag
-          *nzSpaceItem
-          [cvcCacheId]="item.__typename + ':' + item.id"
-          [cvcEmphasize]="searchString"></cvc-entity-tag>
+
+<!-- display list of aliases after tag -->
+<ng-template
+  #optionExtra
+  let-item
+  let-searchString="searchStr">
+  <span
+    nz-typography
+    nzType="secondary">
+    <ng-container *ngIf="item.variantAliases.length > 0">
+      <em>
         <span
-          *nzSpaceItem
           nz-typography
-          nzType="secondary">
-          ID: {{ item.id }}
-          <span *ngIf="item.variantAliases.length > 0"> - Aliases: </span>
-          <span
-            [innerHtml]="
-              item.variantAliases.join(', ') | highlightTypeahead: searchString
-            "></span>
-        </span>
-      </nz-space>
-    </nz-option>
-  </ng-container>
-</nz-select> -->
+          nzType="secondary"
+          [innerHtml]="
+            item.variantAliases.join(', ') | highlightTypeahead: searchString
+          "></span
+      ></em>
+    </ng-container>
+  </span>
+</ng-template>
