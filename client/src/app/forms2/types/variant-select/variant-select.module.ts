@@ -15,6 +15,7 @@ import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
+import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -64,6 +65,7 @@ const typeConfig: ConfigOption = {
     NzFormModule,
     NzAutocompleteModule,
 
+    CvcEntitySelectModule,
     CvcPipesModule,
     CvcEntityTagModule,
   ],

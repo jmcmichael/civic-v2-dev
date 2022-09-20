@@ -3,7 +3,19 @@
   cvcMode="closeable"
   [cvcCacheId]="cacheId"
   (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
-<nz-select
+<cvc-entity-select
+  *ngIf="!(tagCacheId$ | ngrxPush)"
+  [cvcFormControl]="formControl"
+  [cvcFormlyAttributes]="field"
+  [cvcPlaceholder]="placeholder$"
+  [cvcOnFocus]="onFocus$"
+  [cvcOnSearch]="onSearch$"
+  [cvcResults]="result$"
+  [cvcShowError]="showError"
+  [cvcDisabled]="props.disabled"
+  [cvcModelChange]="props.change">
+</cvc-entity-select>
+<!-- <nz-select
   *ngIf="!(tagCacheId$ | ngrxPush)"
   nzShowSearch
   nzServerSearch
@@ -41,4 +53,4 @@
       </nz-space>
     </nz-option>
   </ng-container>
-</nz-select>
+</nz-select> -->
