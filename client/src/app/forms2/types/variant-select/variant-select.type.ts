@@ -7,6 +7,7 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { ConnectState } from '@app/forms2/mixins/connect-state.mixin'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
@@ -46,6 +47,7 @@ export interface CvcVariantSelectFieldConfig
 
 const VariantSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcVariantSelectFieldProps>, Maybe<number>>(),
+  ConnectState(),
   EntityTagField<
     VariantSelectTypeaheadQuery,
     VariantSelectTypeaheadQueryVariables,
@@ -68,8 +70,6 @@ export class CvcVariantSelectField
   extends VariantSelectMixin
   implements AfterViewInit
 {
-  // STATE STREAMS
-  state: Maybe<EvidenceState>
   // receive geneId updates from state
   onGeneId$!: BehaviorSubject<Maybe<number>>
   // send variantId updates to state
@@ -109,44 +109,24 @@ export class CvcVariantSelectField
   ngAfterViewInit(): void {
     this.configureBaseField()
 
-    // if this is a repeat-item, attach dummy state fields that emit
-    // undefined, so that response$ query's withLatestFrom succeeds
-    if (this.props.isRepeatItem) {
-      // this.onGeneId$ = new BehaviorSubject<Maybe<number>>(undefined)
-    } else {
-      // find formState's geneId$ subject, subscribe to call onGeneId for new events
-      if (this.field.options?.formState) {
-        this.state = this.field.options.formState
-        if (this.state && this.state.fields.geneId$) {
-          this.onGeneId$ = this.state.fields.geneId$
-          this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
-            this.onGeneId(gid)
-          })
-        } else {
-          if (this.props.requireGene) {
-            console.error(
-              `variant-input ${this.field.id} requireGene is true, but could not find a geneId$ on formState.field.`
-            )
-          }
-        }
-      }
-
-      // get variantId$ reference from state, subscribe to field value changes
-      // and emit new variantIds from formState's variantId$
-      if (this.field?.options?.formState) {
-        this.state = this.field.options.formState
-        if (this.state && this.state.fields.variantId$) {
-          this.variantId$ = this.state.fields.variantId$
-          if (this.variantId$ && this.field.options?.fieldChanges) {
-            this.field.options.fieldChanges
-              .pipe(
-                filter((c) => c.field.id === this.field.id), // filter out other fields
-                untilDestroyed(this)
-              )
-              .subscribe((change) => {
-                this.variantId$!.next(change.value)
-              })
-          }
+    // if form state object exists, configure ConnectState mixin
+    if (this.field.options?.formState) {
+      this.configureConnectState(this.field.options.formState, {
+        valueChanges: this.props.isRepeatItem ? undefined : 'variantId$',
+      })
+    }
+    if (this.field.options?.formState) {
+      this.state = this.field.options.formState
+      if (this.state && this.state.fields.geneId$) {
+        this.onGeneId$ = this.state.fields.geneId$
+        this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
+          this.onGeneId(gid)
+        })
+      } else {
+        if (this.props.requireGene) {
+          console.error(
+            `variant-input ${this.field.id} requireGene is true, but could not find a geneId$ on formState.field.`
+          )
         }
       }
     }
@@ -173,15 +153,7 @@ export class CvcVariantSelectField
       this.onGeneId$
     )
 
-    // if field has been assigned a value before its initialization,
-    // emit onValueChanges event
-    if (this.field.formControl.value) {
-      const v = this.field.formControl.value
-      if (this.onValueChange$) this.onValueChange$.next(v)
-    }
-
-    // show prompt to select a gene if requireGene true
-    // otherwise show standard placeholder
+    // handle placeholder display & updates
     let initialPlaceholder: string
     if (this.props.requireGene && this.props.requireGenePrompt) {
       initialPlaceholder = this.props.requireGenePrompt
@@ -189,6 +161,17 @@ export class CvcVariantSelectField
       initialPlaceholder = this.props.placeholder
     }
     this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
+
+    // if field's formControl has already been assigned a value
+    // (e.g. via query-param extension, saved form state,
+    // model initialization), emit onValueChange$, state valueChange$ events
+    if (this.field.formControl.value) {
+      const v = this.field.formControl.value
+      this.onValueChange$.next(v)
+      // valueChange$ may not exist if component is a repeat-item or form state missing
+      if (!this.valueChange$) return
+      this.valueChange$.next(v)
+    }
   } // ngAfterViewInit
 
   private onGeneId(gid: Maybe<number>): void {

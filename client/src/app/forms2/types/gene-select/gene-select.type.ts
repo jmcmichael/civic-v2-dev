@@ -108,7 +108,7 @@ export class CvcGeneSelectField
 
     // on tag close, emit undefined from state valueChange$
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_v) => {
-      // valueChange$ may not exist if component is a repeat-item or form state missing
+      // state valueChange$ may not exist if component is a repeat-item or form state missing
       if (!this.valueChange$) return
       this.valueChange$.next(undefined)
     })

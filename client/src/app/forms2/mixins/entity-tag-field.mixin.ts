@@ -117,11 +117,11 @@ export function EntityTagField<
           return
         }
 
-        // on all value changes, deleteTag() if id undefined,
+        // on all value changes, resetField() if id undefined,
         // setTag() if defined
         this.onValueChange$.subscribe((id) => {
           if (!id) {
-            this.deleteTag()
+            this.resetField()
           } else {
             this.setTag(id)
           }
@@ -236,17 +236,9 @@ export function EntityTagField<
         }
       }
 
-      unsetModel() {
-        this.formControl.setValue(undefined)
-      }
-
-      deleteTag() {
-        this.tagCacheId$.next(undefined)
-      }
-
       resetField() {
-        this.unsetModel()
-        this.deleteTag()
+        this.formControl.setValue(undefined)
+        this.tagCacheId$.next(undefined)
       }
 
       optionTrackBy: TrackByFunction<TAF> = (

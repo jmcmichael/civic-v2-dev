@@ -4,24 +4,28 @@ import { Subject } from 'rxjs'
 import { MixinConstructor } from 'ts-mixin-extended'
 import { Maybe } from '@app/generated/civic.apollo'
 import {
-  EvidenceFieldSubjectMap,
-  EvidenceOptionsSubjectMap,
-  EvidenceRequiresSubjectMap,
+    EvidenceFieldSubject,
+  EvidenceFieldSubjectName,
+  EvidenceOptionsSubject,
+  EvidenceOptionsSubjectName,
+  EvidenceRequiresSubject,
+  EvidenceRequiresSubjectName,
   EvidenceState,
 } from '../states/evidence.state'
 
-type TypesIn<T> = { [K in keyof T]: T[K] }[keyof T]
-
+// as state classes are added, append each of the below with 'or', e.g.
+// type FormState = EvidenceState | AssertionState
+// type FieldSubjectName = EvidenceFieldSubjectName | AssertionFieldSubjectName
 type FormState = EvidenceState
 
-type FieldSubjectName = keyof EvidenceFieldSubjectMap
-type FieldSubject = TypesIn<EvidenceFieldSubjectMap>
+type FieldSubject = EvidenceFieldSubject
+type FieldSubjectName = EvidenceFieldSubjectName
 
-type OptionSubjectName = keyof EvidenceOptionsSubjectMap
-type OptionSubject = TypesIn<EvidenceOptionsSubjectMap>
+type OptionsSubject = EvidenceOptionsSubject
+type OptionsSubjectName = EvidenceOptionsSubjectName
 
-type RequiresSubjectName = keyof EvidenceRequiresSubjectMap
-type RequiresSubject = TypesIn<EvidenceRequiresSubjectMap>
+type RequiresSubject = EvidenceRequiresSubject
+type RequiresSubjectName = EvidenceRequiresSubjectName
 
 export type ConnectStateOptions = {
   // subject from which target component emits change values
@@ -29,7 +33,7 @@ export type ConnectStateOptions = {
   // subjects to which target component subscribes to get change values
   subscribeValues?: FieldSubjectName[]
   // subjects to which enum field types subscribe to get valid options
-  subscribeOptions?: OptionSubjectName[]
+  subscribeOptions?: OptionsSubjectName[]
   // subjects to which field types subscribe to get required fields
   subscribeRequires?: RequiresSubjectName[]
 }
@@ -49,6 +53,7 @@ export function ConnectState() {
         if (options.valueChanges) {
           this.valueChange$ = this.state.fields[options.valueChanges]
         }
+
       }
     }
 

@@ -31,6 +31,17 @@ export type EvidenceRequiresSubjectMap = {
   allowsFdaApproval$: BehaviorSubject<boolean>
 }
 
+type TypesIn<T> = { [K in keyof T]: T[K] }[keyof T]
+
+export type EvidenceFieldSubjectName = keyof EvidenceFieldSubjectMap
+export type EvidenceFieldSubject = TypesIn<EvidenceFieldSubjectMap>
+
+export type EvidenceOptionsSubjectName = keyof EvidenceOptionsSubjectMap
+export type EvidenceOptionsSubject = TypesIn<keyof EvidenceOptionsSubjectMap>
+
+export type EvidenceRequiresSubjectName = keyof EvidenceRequiresSubjectMap
+export type EvidenceRequiresSubject = TypesIn<keyof EvidenceRequiresSubjectMap>
+
 class EvidenceState extends EntityState {
   fields: EvidenceFieldSubjectMap
   options: EvidenceOptionsSubjectMap
