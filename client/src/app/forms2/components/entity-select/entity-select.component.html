@@ -1,0 +1,38 @@
+<nz-select
+  nzShowSearch
+  nzServerSearch
+  nzAllowClear
+  [class.ng-dirty]="cvcShowError"
+  [nzPlaceHolder]="(cvcPlaceholder | ngrxPush)!"
+  [formControl]="cvcFormControl"
+  [formlyAttributes]="cvcFormlyAttributes"
+  [nzOptionHeightPx]="30"
+  [nzDisabled]="cvcDisabled"
+  (nzFocus)="cvcOnFocus && cvcOnFocus.next(true)"
+  (nzOnSearch)="cvcOnSearch && cvcOnSearch.next($event)"
+  (ngModelChange)="cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)">
+  <ng-container *ngrxLet="cvcOnSearch as searchString">
+    <nz-option
+      *ngFor="let item of cvcResults | ngrxPush"
+      nzCustomContent
+      [nzValue]="item.id">
+      <nz-space nzDirection="horizontal">
+        <cvc-entity-tag
+          *nzSpaceItem
+          [cvcCacheId]="item.__typename + ':' + item.id"
+          [cvcEmphasize]="searchString"></cvc-entity-tag>
+        <!-- <span
+                  *nzSpaceItem
+                  nz-typography
+                  nzType="secondary">
+                  ID: {{ item.id }}
+                  <span *ngIf="item.variantAliases.length > 0"> - Aliases: </span>
+                  <span
+                    [innerHtml]="
+                      item.variantAliases.join(', ') | highlightTypeahead: searchString
+                    "></span>
+                </span> -->
+      </nz-space>
+    </nz-option>
+  </ng-container>
+</nz-select>

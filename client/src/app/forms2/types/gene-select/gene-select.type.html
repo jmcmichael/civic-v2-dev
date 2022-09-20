@@ -3,7 +3,19 @@
   [cvcCacheId]="cacheId"
   cvcMode="closeable"
   (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
-<nz-select
+<cvc-entity-select
+  *ngIf="!(tagCacheId$ | ngrxPush)"
+  [cvcFormControl]="formControl"
+  [cvcFormlyAttributes]="field"
+  [cvcPlaceholder]="props.placeholder"
+  [cvcOnFocus]="onFocus$"
+  [cvcOnSearch]="onSearch$"
+  [cvcResults]="result$"
+  [cvcShowError]="showError"
+  [cvcDisabled]="props.disabled"
+  [cvcModelChange]="props.change">
+</cvc-entity-select>
+<!-- <nz-select
   *ngIf="!(tagCacheId$ | ngrxPush)"
   nzShowSearch
   nzServerSearch
@@ -29,9 +41,7 @@
       <span
         nz-typography
         nzType="secondary">
-        <!-- ID: {{ item.id }} -->
         <ng-container *ngIf="item.geneAliases.length > 0">
-        <!-- <span> Aliases: </span> -->
           <span>&nbsp;</span>
           <em>
           <span
@@ -42,4 +52,4 @@
       </span>
     </nz-option>
   </ng-container>
-</nz-select>
+</nz-select> -->
