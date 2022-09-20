@@ -58,6 +58,17 @@ const formFieldConfig: FormlyFieldConfig[] = [
               props: {},
             },
           },
+          <CvcRepeatFieldConfig>{
+            key: 'variantIds',
+            type: 'repeat-field',
+            props: {
+              label: 'Variants',
+            },
+            fieldArray: <CvcVariantSelectFieldConfig>{
+              type: 'variant-select-item',
+              props: {},
+            },
+          },
           <CvcBaseInputFieldConfig>{
             key: 'version',
             type: 'base-input',
@@ -106,17 +117,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           //     props: {},
           //   },
           // },
-          <CvcRepeatFieldConfig>{
-            key: 'variantIds',
-            type: 'repeat-field',
-            props: {
-              label: 'Variants',
-            },
-            fieldArray: <CvcVariantSelectFieldConfig>{
-              type: 'variant-select-item',
-              props: {},
-            },
-          },
         ],
       },
       {

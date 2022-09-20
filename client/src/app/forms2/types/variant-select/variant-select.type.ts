@@ -11,7 +11,6 @@ import { ConnectState } from '@app/forms2/mixins/connect-state.mixin'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
-  InputMaybe,
   LinkableGeneGQL,
   LinkableVariantGQL,
   Maybe,
@@ -29,7 +28,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, filter, lastValueFrom, Subject } from 'rxjs'
+import { BehaviorSubject, lastValueFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
@@ -44,10 +43,9 @@ export interface CvcVariantSelectFieldConfig
   extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
   type: 'variant-select' | 'variant-select-item' | Type<CvcVariantSelectField>
 }
-
 const VariantSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcVariantSelectFieldProps>, Maybe<number>>(),
-  ConnectState(),
+  // ConnectState(),
   EntityTagField<
     VariantSelectTypeaheadQuery,
     VariantSelectTypeaheadQueryVariables,
@@ -55,7 +53,7 @@ const VariantSelectMixin = mixin(
     VariantSelectLinkableVariantQuery,
     VariantSelectLinkableVariantQueryVariables,
     VariantSelectTypeaheadFieldsFragment,
-    InputMaybe<number>
+    Maybe<number>
   >()
 )
 
@@ -70,10 +68,10 @@ export class CvcVariantSelectField
   extends VariantSelectMixin
   implements AfterViewInit
 {
+  // STATE STREAMS
+  state: Maybe<EvidenceState>
   // receive geneId updates from state
   onGeneId$!: BehaviorSubject<Maybe<number>>
-  // send variantId updates to state
-  variantId$!: Subject<Maybe<number>>
 
   // PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
@@ -108,36 +106,14 @@ export class CvcVariantSelectField
 
   ngAfterViewInit(): void {
     this.configureBaseField()
-
-    // if form state object exists, configure ConnectState mixin
-    if (this.field.options?.formState) {
-      this.configureConnectState(this.field.options.formState, {
-        valueChanges: this.props.isRepeatItem ? undefined : 'variantId$',
-      })
-    }
-    if (this.field.options?.formState) {
-      this.state = this.field.options.formState
-      if (this.state && this.state.fields.geneId$) {
-        this.onGeneId$ = this.state.fields.geneId$
-        this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
-          this.onGeneId(gid)
-        })
-      } else {
-        if (this.props.requireGene) {
-          console.error(
-            `variant-input ${this.field.id} requireGene is true, but could not find a geneId$ on formState.field.`
-          )
-        }
-      }
-    }
-
+    this.configureStateSubjects()
     this.configureEntityTagField(
       // typeahead query
       this.taq,
       // linkable entity query
       this.tq,
       // typeahead query vars getter fn
-      (str: string, param: InputMaybe<number>) => ({
+      (str: string, param: Maybe<number>) => ({
         name: str,
         geneId: param,
       }),
@@ -149,11 +125,18 @@ export class CvcVariantSelectField
       // tag cache id getter fn
       (r: ApolloQueryResult<VariantSelectLinkableVariantQuery>) =>
         `Variant:${r.data.variant!.id}`,
-      // optional additional typeahead param observable from state
-      this.onGeneId$
+      // attach state's geneId$ optional typeahead param
+      this.onGeneId$ ? this.onGeneId$ : undefined
     )
 
-    // handle placeholder display & updates
+    // hook up state geneId$ observable
+    if (this.onGeneId$) {
+      this.onGeneId$.subscribe((gid) => {
+        this.onGeneId(gid)
+      })
+    }
+
+    // set initial placeholder & subject
     let initialPlaceholder: string
     if (this.props.requireGene && this.props.requireGenePrompt) {
       initialPlaceholder = this.props.requireGenePrompt
@@ -169,10 +152,29 @@ export class CvcVariantSelectField
       const v = this.field.formControl.value
       this.onValueChange$.next(v)
       // valueChange$ may not exist if component is a repeat-item or form state missing
-      if (!this.valueChange$) return
-      this.valueChange$.next(v)
+      if (!this.onGeneId$) return
+      this.onGeneId$.next(v)
     }
   } // ngAfterViewInit
+
+  private configureStateSubjects() {
+    // if requireGene set, and form state object exists, attach state's geneId$ subject
+    if (this.props.requireGene && this.field.options?.formState) {
+      this.state = this.field.options.formState
+      if (this.state && this.state.fields.geneId$) {
+        this.onGeneId$ = this.state.fields.geneId$
+        this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
+          this.onGeneId(gid)
+        })
+      } else {
+        if (this.props.requireGene) {
+          console.error(
+            `${this.field.id} requireGene is true, but could not find a geneId$ on formState.field.`
+          )
+        }
+      }
+    }
+  }
 
   private onGeneId(gid: Maybe<number>): void {
     // if field config indicates that a geneId is required, and none is provided,

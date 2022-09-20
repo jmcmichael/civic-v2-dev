@@ -9,7 +9,7 @@ import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { ConnectState } from '@app/forms2/mixins/connect-state.mixin'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EvidenceState } from '@app/forms2/states/evidence.state'
+import { EvidenceFieldSubject, EvidenceOptionsSubject, EvidenceRequiresSubject, EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   Gene,
   GeneSelectLinkableGeneQuery,
@@ -22,7 +22,7 @@ import {
   Maybe,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
-import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'

@@ -4,7 +4,7 @@ import { Subject } from 'rxjs'
 import { MixinConstructor } from 'ts-mixin-extended'
 import { Maybe } from '@app/generated/civic.apollo'
 import {
-    EvidenceFieldSubject,
+  EvidenceFieldSubject,
   EvidenceFieldSubjectName,
   EvidenceOptionsSubject,
   EvidenceOptionsSubjectName,
@@ -16,16 +16,16 @@ import {
 // as state classes are added, append each of the below with 'or', e.g.
 // type FormState = EvidenceState | AssertionState
 // type FieldSubjectName = EvidenceFieldSubjectName | AssertionFieldSubjectName
-type FormState = EvidenceState
+export type FormState = EvidenceState
 
-type FieldSubject = EvidenceFieldSubject
-type FieldSubjectName = EvidenceFieldSubjectName
+export type FieldSubject = EvidenceFieldSubject
+export type FieldSubjectName = EvidenceFieldSubjectName
 
-type OptionsSubject = EvidenceOptionsSubject
-type OptionsSubjectName = EvidenceOptionsSubjectName
+export type OptionsSubject = EvidenceOptionsSubject
+export type OptionsSubjectName = EvidenceOptionsSubjectName
 
-type RequiresSubject = EvidenceRequiresSubject
-type RequiresSubjectName = EvidenceRequiresSubjectName
+export type RequiresSubject = EvidenceRequiresSubject
+export type RequiresSubjectName = EvidenceRequiresSubjectName
 
 export type ConnectStateOptions = {
   // subject from which target component emits change values
@@ -38,6 +38,13 @@ export type ConnectStateOptions = {
   subscribeRequires?: RequiresSubjectName[]
 }
 
+export type FieldStateSubjects = {
+  values: { [key in FieldSubjectName]?: FieldSubject }
+  options: { [key in OptionsSubjectName]?: OptionsSubject }
+  requires: { [key in RequiresSubjectName]?: RequiresSubject }
+}
+
+// FT = FieldType, FS = FieldSubject, OS = OptionsSubject, RS = RequiresSubject
 export function ConnectState() {
   return function ConnectStateConstructor<
     TBase extends MixinConstructor<FieldType>
@@ -46,14 +53,27 @@ export function ConnectState() {
     abstract class ConnectStateMixin extends Base {
       state!: FormState
       valueChange$?: FieldSubject
-
-      configureConnectState(state: FormState, options: ConnectStateOptions) {
+      stateSubjects: FieldStateSubjects = {
+        values: {},
+        options: {},
+        requires: {},
+      }
+      configureConnectState(
+        state: FormState,
+        options: ConnectStateOptions
+      ) {
         this.state = state
         // set up value changes emit
         if (options.valueChanges) {
           this.valueChange$ = this.state.fields[options.valueChanges]
         }
 
+        // set up subscribe changes
+        if (options.subscribeValues) {
+          options.subscribeValues.forEach((s: FieldSubjectName) => {
+            this.stateSubjects.values[s] = state.fields[s]
+          })
+        }
       }
     }
 

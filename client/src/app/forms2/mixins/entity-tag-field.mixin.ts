@@ -1,14 +1,16 @@
 import { Injectable, TrackByFunction } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { Maybe } from '@app/generated/civic.apollo'
+import { InputMaybe, Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType } from '@ngx-formly/core'
 import { Query, QueryRef } from 'apollo-angular'
 import { EmptyObject } from 'apollo-angular/types'
 import {
   asyncScheduler,
+  BehaviorSubject,
   defer,
   distinctUntilChanged,
+  EMPTY,
   filter,
   from,
   iif,
@@ -66,7 +68,7 @@ export function EntityTagField<
 
       // INTERMEDIATE STREAMS
       response$!: Observable<ApolloQueryResult<TAT>> // gql query responses
-      typeaheadParam$?: Observable<Maybe<TAP>> // additional param for typeahead query
+      typeaheadParam$?: Observable<any> // additional param for typeahead query
 
       // PRESENTATION STREAMS
       result$!: Observable<TAF[]> // typeahead query results
@@ -93,7 +95,7 @@ export function EntityTagField<
         getTypeaheadQueryResults: GetTypeaheadResultsFn<TAT, TAF>,
         getTagQueryVars: GetTagQueryVarsFn<TV>,
         getTagCacheIdFromResponse: GetTagCacheIdFromResponseFn<TT>,
-        typeaheadParam$?: Observable<Maybe<TAP>>
+        typeaheadParam$?: Observable<any>
       ): void {
         this.typeaheadQuery = taq
         this.tagQuery = tq
