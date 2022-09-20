@@ -7,7 +7,6 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
-import { ConnectState } from '@app/forms2/mixins/connect-state.mixin'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
@@ -69,7 +68,9 @@ export class CvcVariantSelectField
   implements AfterViewInit
 {
   // STATE STREAMS
-  state: Maybe<EvidenceState>
+  state?: EvidenceState
+  // sent variantId updates to state
+  stateValueChange$?: BehaviorSubject<Maybe<number>>
   // receive geneId updates from state
   onGeneId$!: BehaviorSubject<Maybe<number>>
 
@@ -106,7 +107,7 @@ export class CvcVariantSelectField
 
   ngAfterViewInit(): void {
     this.configureBaseField()
-    this.configureStateSubjects()
+    this.configureStateListeners()
     this.configureEntityTagField(
       // typeahead query
       this.taq,
@@ -157,21 +158,21 @@ export class CvcVariantSelectField
     }
   } // ngAfterViewInit
 
-  private configureStateSubjects() {
-    // if requireGene set, and form state object exists, attach state's geneId$ subject
-    if (this.props.requireGene && this.field.options?.formState) {
-      this.state = this.field.options.formState
+  private configureStateListeners() {
+    if (this.props.requireGene && !this.field.options?.formState) {
+      console.error(
+        `${this.field.id} requireGene is set, but no formState found.`
+      )
+      return
+    } else if (!this.field.options?.formState) return
+    this.state = this.field.options.formState
+    // attach state geneId$ to get gene field value updates
+    if (this.props.requireGene) {
       if (this.state && this.state.fields.geneId$) {
         this.onGeneId$ = this.state.fields.geneId$
         this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
           this.onGeneId(gid)
         })
-      } else {
-        if (this.props.requireGene) {
-          console.error(
-            `${this.field.id} requireGene is true, but could not find a geneId$ on formState.field.`
-          )
-        }
       }
     }
   }
@@ -179,12 +180,13 @@ export class CvcVariantSelectField
   private onGeneId(gid: Maybe<number>): void {
     // if field config indicates that a geneId is required, and none is provided,
     // set model to undefined (this resets the variant model if gene field is reset)
-    // and update the placeholder message
+    // and set placeholder to the 'requires gene' placeholder
     if (!gid && this.props.requireGene && this.props.requireGenePrompt) {
       this.resetField()
       this.placeholder$.next(this.props.requireGenePrompt)
     } else if (gid) {
-      // we have a gene id, so fetch its name and update the placeholder string
+      // id provided, so fetch its name and update the placeholder string
+      // lastValueFrom is used b/c fetch could return 'loading' events
       lastValueFrom(
         this.geneQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
       ).then(({ data }) => {
@@ -193,6 +195,7 @@ export class CvcVariantSelectField
             `variant-input field could not fetch gene name for Gene:${gid}.`
           )
         } else {
+          // apply regex to include gene name in placeholder string
           if (this.props.requireGenePlaceholder) {
             const ph = this.props.requireGenePlaceholder.replace(
               'GENE_NAME',

@@ -44,6 +44,10 @@ export type FieldStateSubjects = {
   requires: { [key in RequiresSubjectName]?: RequiresSubject }
 }
 
+// NOTE: this mixin isn't currently used but has some convenience types that might
+// be made useful in a form state module, or barrell index.ts
+// e.g. 'FieldSubject' could be a useful type as it will contain all state field subject types
+
 // FT = FieldType, FS = FieldSubject, OS = OptionsSubject, RS = RequiresSubject
 export function ConnectState() {
   return function ConnectStateConstructor<
