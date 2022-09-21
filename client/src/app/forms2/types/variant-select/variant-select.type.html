@@ -13,6 +13,8 @@
   [cvcResults]="result$"
   [cvcShowError]="showError"
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
+  [cvcLoading]="isLoading$"
+  [cvcNotFound]="'No Variants Found'"
   [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
   [cvcModelChange]="props.change">

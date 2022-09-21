@@ -24,7 +24,9 @@ export class CvcEntitySelectComponent {
   @Input() cvcAllowClear: boolean = true
   @Input() cvcOnFocus?: Subject<boolean>
   @Input() cvcOnSearch?: Subject<string>
+  @Input() cvcLoading?: Observable<boolean>
   @Input() cvcResults!: Observable<any[]>
+  @Input() cvcNotFound: string | TemplateRef<any> | undefined = undefined
   @Input() cvcOptionExtra: TemplateRef<any> | null = null
   @Input() cvcOptionTrackBy!: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent

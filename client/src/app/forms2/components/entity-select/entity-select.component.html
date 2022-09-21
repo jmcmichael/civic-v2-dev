@@ -8,30 +8,44 @@
   [formlyAttributes]="cvcFormlyAttributes"
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
+  [nzNotFoundContent]="cvcNotFound"
   (nzFocus)="cvcOnFocus && cvcOnFocus.next(true)"
   (nzOnSearch)="cvcOnSearch && cvcOnSearch.next($event)"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
   ">
   <ng-container *ngrxLet="cvcOnSearch as searchString">
-    <nz-option
-      *ngFor="let item of cvcResults | ngrxPush; trackBy: cvcOptionTrackBy"
-      nzCustomContent
-      [nzValue]="item.id">
-      <nz-space nzDirection="horizontal">
-        <cvc-entity-tag
-          *nzSpaceItem
-          [cvcCacheId]="item.__typename + ':' + item.id"
-          [cvcEmphasize]="searchString"></cvc-entity-tag>
-        <ng-container
-          *nzSpaceItem
-          [ngTemplateOutlet]="cvcOptionExtra"
-          [ngTemplateOutletContext]="{
-            $implicit: item,
-            searchStr: searchString
-          }">
-        </ng-container>
-      </nz-space>
-    </nz-option>
+    <ng-container
+      *ngFor="let item of cvcResults | ngrxPush; trackBy: cvcOptionTrackBy">
+      <nz-option
+        *ngIf="cvcLoading && !(cvcLoading | ngrxPush)"
+        nzCustomContent
+        [nzValue]="item.id">
+        <nz-space nzDirection="horizontal">
+          <cvc-entity-tag
+            *nzSpaceItem
+            [cvcCacheId]="item.__typename + ':' + item.id"
+            [cvcEmphasize]="searchString"></cvc-entity-tag>
+          <ng-container
+            *nzSpaceItem
+            [ngTemplateOutlet]="cvcOptionExtra"
+            [ngTemplateOutletContext]="{
+              $implicit: item,
+              searchStr: searchString
+            }">
+          </ng-container>
+        </nz-space>
+      </nz-option>
+    </ng-container>
   </ng-container>
+  <nz-option
+    *ngIf="cvcLoading && (cvcLoading | ngrxPush)"
+    nzDisabled
+    nzCustomContent>
+    <span
+      nz-icon
+      nzType="loading"
+      class="loading-icon"></span>
+    Searching...
+  </nz-option>
 </nz-select>

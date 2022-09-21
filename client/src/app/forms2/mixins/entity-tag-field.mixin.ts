@@ -175,6 +175,7 @@ export function EntityTagField<
         this.result$ = this.response$.pipe(
           filter((r) => !!r.data),
           map((r) => this.getTypeahedResults(r)),
+          tag(`${this.field.id} result$`),
           filter(isNonNulled)
         )
 
