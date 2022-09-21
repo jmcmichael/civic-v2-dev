@@ -4,7 +4,7 @@ import {
   evidenceSubmitFormInitialModel,
   EvidenceSubmitModel,
 } from '@app/forms2/models/evidence-submit.model'
-import { EvidenceState } from '@app/forms2/states'
+import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
 import { evidenceSubmitFields } from './evidence-submit.form.config'
 

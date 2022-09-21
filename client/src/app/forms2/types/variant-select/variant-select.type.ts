@@ -9,7 +9,7 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityState } from '@app/forms2/states'
+import { EntityState } from '@app/forms2/states/entity.state'
 import {
   LinkableGeneGQL,
   LinkableVariantGQL,
@@ -43,6 +43,7 @@ export interface CvcVariantSelectFieldConfig
   extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
   type: 'variant-select' | 'variant-select-item' | Type<CvcVariantSelectField>
 }
+
 const VariantSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcVariantSelectFieldProps>, Maybe<number>>(),
   // ConnectState(),
@@ -57,7 +58,6 @@ const VariantSelectMixin = mixin(
   >()
 )
 
-@UntilDestroy()
 @Component({
   selector: 'cvc-variant-select',
   templateUrl: './variant-select.type.html',
@@ -108,9 +108,9 @@ export class CvcVariantSelectField
   }
 
   ngAfterViewInit(): void {
-    this.configureBaseField()
-    this.configureStateListeners()
-    this.configureEntityTagField(
+    this.configureBaseField() // mixin fn
+    this.configureStateListeners() // local fn
+    this.configureEntityTagField( // mixin fn
       // typeahead query
       this.taq,
       // linkable entity query

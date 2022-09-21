@@ -85,6 +85,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
               props: {},
             },
           },
+          <CvcClinicalSignificanceSelectFieldConfig>{
+            key: 'clinicalSignficance',
+            type: 'clinical-significance-select',
+            props: {
+              required: true,
+            },
+          },
           // <CvcEvidenceTypeSelectFieldConfig>{
           //   key: 'evidenceType',
           //   type: 'evidence-type-select',
@@ -95,13 +102,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           // <CvcEvidenceDirectionSelectFieldConfig>{
           //   key: 'evidenceDirection',
           //   type: 'evidence-direction-select',
-          //   props: {
-          //     required: true,
-          //   },
-          // },
-          // <CvcClinicalSignificanceSelectFieldConfig>{
-          //   key: 'clinicalSignficance',
-          //   type: 'clinical-significance-select',
           //   props: {
           //     required: true,
           //   },

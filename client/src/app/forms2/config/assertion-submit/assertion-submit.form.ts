@@ -4,7 +4,7 @@ import {
   assertionSubmitFormInitialModel,
   AssertionSubmitModel,
 } from '@app/forms2/models/assertion-submit.model'
-import { AssertionState } from '@app/forms2/states'
+import { AssertionState } from '@app/forms2/states/assertion.state'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
 import { assertionSubmitFields } from './assertion-submit.form.config'
 

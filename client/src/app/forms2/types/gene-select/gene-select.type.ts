@@ -9,7 +9,7 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityState } from '@app/forms2/states'
+import { EntityState } from '@app/forms2/states/entity.state'
 import {
   Gene,
   GeneSelectLinkableGeneQuery,
