@@ -53,18 +53,16 @@ export class CvcClinicalSignificanceSelectField
   state: Maybe<EntityState>
 
   // STATE SOURCE STREAMS
-  onEvidenceType$!: Subject<Maybe<EntityType>>
+  onEntityType$!: Subject<Maybe<EntityType>>
 
   // LOCAL SOURCE STREAMS
-
-  // PRESENTATION STREAMS
+  // LOCAL INTERMEDIATE STREAMS
+  // LOCAL PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<Maybe<SelectOption[]>>
   placeholder$!: BehaviorSubject<string>
 
   // STATE OUTPUT STREAMS
-  clinicalSignificanceChange$?: BehaviorSubject<
-    Maybe<EntityClinicalSignificance>
-  >
+  stateValueChange$?: BehaviorSubject<Maybe<EntityClinicalSignificance>>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<
@@ -82,28 +80,11 @@ export class CvcClinicalSignificanceSelectField
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
-    this.configureStateListeners() // local fn
-
-    // set up input & output streams,
-    if (this.field?.options?.formState) {
-      // set up output stream
-      if (this.state && this.state.fields.clinicalSignificance$) {
-        this.clinicalSignificanceChange$ =
-          this.state.fields.clinicalSignificance$
-        this.onValueChange$
-          .pipe(
-            // tag('clinical-significance-select clinicalSignificanceChange$'),
-            untilDestroyed(this)
-          )
-          .subscribe((v) => {
-            if (this.clinicalSignificanceChange$)
-              this.clinicalSignificanceChange$.next(v)
-          })
-      }
-    }
+    this.configureStateConnections() // local fn
+    this.configureInitialValueHandler() // local fn
   } // ngAfterViewInit()
 
-  configureStateListeners(): void {
+  configureStateConnections(): void {
     this.state = this.field.options?.formState
     if (!this.state) {
       console.error(
@@ -114,39 +95,74 @@ export class CvcClinicalSignificanceSelectField
       )
       return
     }
-    // set up input streams
-    if (this.state && this.state.options.clinicalSignificanceOption$) {
-      this.selectOption$ = this.state.options.clinicalSignificanceOption$
-    } else {
-      console.error(
-        `${this.field.id} could not find form state's clinicalSignificanceOption$ to populate select.`
-      )
-    }
 
-    // if (this.state && this.state.fields.evidenceType$) {
-    //   this.onEvidenceType$ = this.state.fields.evidenceType$
-    //   this.onEvidenceType$
-    //     .pipe(untilDestroyed(this))
-    //     .subscribe((et: Maybe<EntityType>) => {
-    //       if (!et && this.props.requireType) {
-    //         this.placeholder$.next(this.props.requireTypePrompt)
-    //       } else {
-    //         this.placeholder$.next(this.props.placeholder)
-    //       }
-    //     })
-    // } else {
-    //   console.error(
-    //     `clinical-significance-select field could not find form state's evidenceType$.`
-    //   )
-    // }
-
-    // set initial placeholder
-    // show prompt to select a Type if requireType true
-    // otherwise show standard placeholder
-    const ph = this.props.requireTypePrompt.replace(
+    // CONFIGURE PLACEHOLDER PROMPT
+    this.props.requireTypePrompt = this.props.requireTypePrompt.replace(
       'ENTITY_TYPE',
       this.state.entityName
     )
-    this.placeholder$ = new BehaviorSubject<string>(ph)
+    this.placeholder$ = new BehaviorSubject<string>(
+      this.props.requireTypePrompt
+    )
+
+    // CONFIGURE STATE INPUTS
+    // connect to state clinicalSignificanceOptions$
+    if (!this.state.options.clinicalSignificanceOption$) {
+      console.error(
+        `${this.field.id} could not find form state's clinicalSignificanceOption$ to populate select.`
+      )
+      return
+    }
+    this.selectOption$ = this.state.options.clinicalSignificanceOption$
+
+    // connect to state entityType$
+    const etName = `${this.state.entityName.toLowerCase()}Type$`
+    if (!this.state.fields[etName]) {
+      console.error(
+        `${this.field.id} could not find form state's ${etName} to populate select.`
+      )
+      return
+    }
+    this.onEntityType$ = this.state.fields[etName]
+
+    this.onEntityType$
+      .pipe(untilDestroyed(this))
+      .subscribe((et: Maybe<EntityType>) => {
+        if (!et) {
+          this.placeholder$.next(this.props.requireTypePrompt)
+        } else {
+          this.placeholder$.next(this.props.placeholder)
+        }
+      })
+
+    // CONFIGURE STATE OUTPUT
+    this.stateValueChange$ = this.state.fields.clinicalSignificance$
+    if (!this.stateValueChange$) {
+      console.warn(
+        `${this.field.id} could not find state field's clinicalSignifince$ to emit its value changes.`
+      )
+      return
+    }
+    this.onValueChange$
+      .pipe(
+        // tag('clinical-significance-select clinicalSignificanceChange$'),
+        untilDestroyed(this)
+      )
+      .subscribe((v) => {
+        if(this.stateValueChange$) this.stateValueChange$.next(v)
+      })
   }
+    private configureInitialValueHandler(): void {
+    // if on initialization, this field's formControl has already been assigned a value
+    // (e.g. via query-param extension, saved form state, model initialization), emit
+    // onValueChange$, state valueChange$ events
+    if (this.field.formControl.value) {
+      const v = this.field.formControl.value
+      this.onValueChange$.next(v)
+      // valueChange$ may not exist if component is a repeat-item or form state missing
+      if (!this.stateValueChange$) return
+      this.stateValueChange$.next(v)
+    }
+  }
+
 }

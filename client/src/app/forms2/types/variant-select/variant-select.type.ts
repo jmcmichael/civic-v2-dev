@@ -68,16 +68,19 @@ export class CvcVariantSelectField
   extends VariantSelectMixin
   implements AfterViewInit
 {
-  // STATE STREAMS
   state?: EntityState
 
-  // sent variantId updates to state
-  stateValueChange$?: BehaviorSubject<Maybe<number>>
-  // receive geneId updates from state
+  // STATE SOURCE STREAMS
   onGeneId$!: BehaviorSubject<Maybe<number>>
 
-  // PRESENTATION STREAMS
+  // LOCAL SOURCE STREAMS
+  // LOCAL INTERMEDIATE STREAMS
+
+  // LOCAL PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
+
+  // STATE OUTPUT STREAMS
+  stateValueChange$?: BehaviorSubject<Maybe<number>>
 
   queryRef!: QueryRef<
     VariantSelectTypeaheadQuery,
@@ -109,7 +112,7 @@ export class CvcVariantSelectField
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
-    this.configureStateListeners() // local fn
+    this.configureStateConnections() // local fn
     this.configureEntityTagField( // mixin fn
       // typeahead query
       this.taq,
@@ -160,7 +163,7 @@ export class CvcVariantSelectField
     }
   } // ngAfterViewInit
 
-  private configureStateListeners() {
+  private configureStateConnections() {
     if (!this.props.requireGene) return
     if (!this.field.options?.formState) {
       console.error(

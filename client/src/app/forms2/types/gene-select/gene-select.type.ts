@@ -60,9 +60,13 @@ export class CvcGeneSelectField
   extends GeneSelectMixin
   implements AfterViewInit
 {
-  // STATE STREAMS
   state?: EntityState
-  // send geneId updates to state
+  // STATE SOURCE STREAMS
+  // LOCAL SOURCE STREAMS
+  // LOCAL INTERMEDIATE STREAMS
+  // LOCAL PRESENTATION STREAMS
+
+  // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
 
   // FieldTypeConfig defaults
@@ -99,12 +103,12 @@ export class CvcGeneSelectField
       (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) =>
         `Gene:${r.data.gene!.id}`
     )
-    this.configureStateSubjects()
+    this.configureStateConnections()
     this.configureOnTagClose()
     this.configureInitialValueHandler()
   } // ngAfterViewInit()
 
-  private configureStateSubjects(): void {
+  private configureStateConnections(): void {
     // if this is not a repeat-item field, attach state's
     // geneId$ subject and emit all onValueChanges$ from it
     if (!this.props.isRepeatItem && this.field.options?.formState) {
