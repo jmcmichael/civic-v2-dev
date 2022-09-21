@@ -4,5 +4,5 @@
   [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
   [cvcSelectOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
-  [cvcDisabled]="props.requireType && !(onEvidenceType$ | ngrxPush)"
+  [cvcDisabled]="!(onEvidenceType$ | ngrxPush)"
 ></cvc-enum-select>

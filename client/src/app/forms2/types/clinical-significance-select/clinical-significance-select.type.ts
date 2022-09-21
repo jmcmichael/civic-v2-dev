@@ -23,7 +23,6 @@ import mixin from 'ts-mixin-extended'
 interface CvcClinicalSignificanceSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
-  requireType: true
   requireTypePrompt: string
 }
 
@@ -74,8 +73,7 @@ export class CvcClinicalSignificanceSelectField
     props: {
       label: 'Clinical Significance',
       placeholder: 'Select a Clinical Significance',
-      requireType: true,
-      requireTypePrompt: 'Select an Evidence Type to select Significance',
+      requireTypePrompt: 'Select an ENTITY_TYPE Type to select Significance',
     },
   }
   constructor(injector: Injector) {
@@ -85,13 +83,6 @@ export class CvcClinicalSignificanceSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateListeners() // local fn
-
-    // show prompt to select a Type if requireType true
-    // otherwise show standard placeholder
-    const initialPlaceholder: string = this.props.requireType
-      ? this.props.requireTypePrompt
-      : this.props.placeholder
-    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
 
     // set up input & output streams,
     if (this.field?.options?.formState) {
@@ -113,7 +104,8 @@ export class CvcClinicalSignificanceSelectField
   } // ngAfterViewInit()
 
   configureStateListeners(): void {
-    if (!this.field?.options?.formState) {
+    this.state = this.field.options?.formState
+    if (!this.state) {
       console.error(
         `${this.field.id} requires a form state to populate its options, none was found.`
       )
@@ -122,7 +114,6 @@ export class CvcClinicalSignificanceSelectField
       )
       return
     }
-    this.state = this.field.options.formState
     // set up input streams
     if (this.state && this.state.options.clinicalSignificanceOption$) {
       this.selectOption$ = this.state.options.clinicalSignificanceOption$
@@ -132,21 +123,30 @@ export class CvcClinicalSignificanceSelectField
       )
     }
 
-    if (this.state && this.state.fields.evidenceType$) {
-      this.onEvidenceType$ = this.state.fields.evidenceType$
-      this.onEvidenceType$
-        .pipe(untilDestroyed(this))
-        .subscribe((et: Maybe<EntityType>) => {
-          if (!et && this.props.requireType) {
-            this.placeholder$.next(this.props.requireTypePrompt)
-          } else {
-            this.placeholder$.next(this.props.placeholder)
-          }
-        })
-    } else {
-      console.error(
-        `clinical-significance-select field could not find form state's evidenceType$.`
-      )
-    }
+    // if (this.state && this.state.fields.evidenceType$) {
+    //   this.onEvidenceType$ = this.state.fields.evidenceType$
+    //   this.onEvidenceType$
+    //     .pipe(untilDestroyed(this))
+    //     .subscribe((et: Maybe<EntityType>) => {
+    //       if (!et && this.props.requireType) {
+    //         this.placeholder$.next(this.props.requireTypePrompt)
+    //       } else {
+    //         this.placeholder$.next(this.props.placeholder)
+    //       }
+    //     })
+    // } else {
+    //   console.error(
+    //     `clinical-significance-select field could not find form state's evidenceType$.`
+    //   )
+    // }
+
+    // set initial placeholder
+    // show prompt to select a Type if requireType true
+    // otherwise show standard placeholder
+    const ph = this.props.requireTypePrompt.replace(
+      'ENTITY_TYPE',
+      this.state.entityName
+    )
+    this.placeholder$ = new BehaviorSubject<string>(ph)
   }
 }
