@@ -6,18 +6,15 @@ import {
   EntityState,
   SelectOption,
 } from '@app/forms2/states/entity.state'
-import {
-  EvidenceClinicalSignificance,
-  EvidenceType,
-  Maybe,
-} from '@app/generated/civic.apollo'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
+import { Maybe } from '@app/generated/civic.apollo'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { BehaviorSubject, Subject } from 'rxjs'
+import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 interface CvcClinicalSignificanceSelectFieldProps extends FormlyFieldProps {
@@ -40,7 +37,6 @@ const ClinicalSignificanceSelectMixin = mixin(
   >()
 )
 
-@UntilDestroy()
 @Component({
   selector: 'cvc-clinical-significance-select',
   templateUrl: './clinical-significance-select.type.html',
@@ -54,11 +50,11 @@ export class CvcClinicalSignificanceSelectField
 
   // STATE SOURCE STREAMS
   onEntityType$!: Subject<Maybe<EntityType>>
+  selectOption$!: BehaviorSubject<Maybe<SelectOption[]>>
 
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<Maybe<SelectOption[]>>
   placeholder$!: BehaviorSubject<string>
 
   // STATE OUTPUT STREAMS
@@ -71,7 +67,7 @@ export class CvcClinicalSignificanceSelectField
     props: {
       label: 'Clinical Significance',
       placeholder: 'Select a Clinical Significance',
-      requireTypePrompt: 'Select an ENTITY_TYPE Type to select Significance',
+      requireTypePrompt: 'Select an ENTITY_NAME Type to select Significance',
     },
   }
   constructor(injector: Injector) {
@@ -98,7 +94,7 @@ export class CvcClinicalSignificanceSelectField
 
     // CONFIGURE PLACEHOLDER PROMPT
     this.props.requireTypePrompt = this.props.requireTypePrompt.replace(
-      'ENTITY_TYPE',
+      'ENTITY_NAME',
       this.state.entityName
     )
     this.placeholder$ = new BehaviorSubject<string>(
@@ -149,10 +145,10 @@ export class CvcClinicalSignificanceSelectField
         untilDestroyed(this)
       )
       .subscribe((v) => {
-        if(this.stateValueChange$) this.stateValueChange$.next(v)
+        if (this.stateValueChange$) this.stateValueChange$.next(v)
       })
   }
-    private configureInitialValueHandler(): void {
+  private configureInitialValueHandler(): void {
     // if on initialization, this field's formControl has already been assigned a value
     // (e.g. via query-param extension, saved form state, model initialization), emit
     // onValueChange$, state valueChange$ events
@@ -164,5 +160,4 @@ export class CvcClinicalSignificanceSelectField
       this.stateValueChange$.next(v)
     }
   }
-
 }

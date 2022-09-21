@@ -1,5 +1,6 @@
-import { AfterViewInit, Component, OnInit, Type } from '@angular/core'
+import { AfterViewInit, Component, Injector, OnInit, Type } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityState, SelectOption } from '@app/forms2/states/entity.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { Maybe } from '@app/generated/civic.apollo'
@@ -13,8 +14,10 @@ import {
 import { BehaviorSubject, filter, Observable, Subject } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
+import mixin from 'ts-mixin-extended'
 
 interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
+  label: string
   placeholder: string
 }
 
@@ -22,83 +25,116 @@ export interface CvcEntityTypeSelectFieldConfig
   extends FormlyFieldConfig<CvcEntityTypeSelectFieldProps> {
   type: 'entity-type-select' | Type<CvcEntityTypeSelectField>
 }
-@UntilDestroy()
+
+const EntityTypeSelectMixin = mixin(
+  BaseFieldType<
+    FieldTypeConfig<CvcEntityTypeSelectFieldProps>,
+    Maybe<EntityType>
+  >()
+)
+
 @Component({
   selector: 'cvc-entity-type-select',
   templateUrl: './entity-type-select.type.html',
   styleUrls: ['./entity-type-select.type.less'],
 })
 export class CvcEntityTypeSelectField
-  extends FieldType<FieldTypeConfig<CvcEntityTypeSelectFieldProps>>
+  extends EntityTypeSelectMixin
   implements AfterViewInit
 {
+  state: Maybe<EntityState>
+
+  // STATE SOURCE STREAMS
+  // LOCAL SOURCE STREAMS
+  // LOCAL INTERMEDIATE STREAMS
+  // LOCAL PRESENTATION STREAMS
+  selectOption$!: BehaviorSubject<SelectOption[]>
+  label$!: BehaviorSubject<string>
+  placeholder$!: BehaviorSubject<string>
+
+  // STATE OUTPUT STREAMS
+  stateValueChange$?: BehaviorSubject<Maybe<EntityType>>
+
   defaultOptions: Partial<FieldTypeConfig<CvcEntityTypeSelectFieldProps>> = {
     props: {
-      label: 'Evidence Type',
-      placeholder: 'Select an Evidence Type',
+      label: 'ENTITY_NAME Type',
+      placeholder: 'Select an ENTITY_NAME Type',
     },
   }
 
-  // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<EntityType>>
-  onValueChange$!: Subject<Maybe<EntityType>>
-
-  // PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<SelectOption[]>
-
-  // OUTPUT STREAMS
-  evidenceTypeChange$?: BehaviorSubject<Maybe<EntityType>>
-
-  state: Maybe<EntityState>
-
-  constructor() {
-    super()
-    this.onValueChange$ = new Subject<Maybe<EntityType>>()
+  constructor(injector: Injector) {
+    super(injector)
   }
 
   ngAfterViewInit(): void {
-    // create onModelChange$ observable from fieldChanges
-    if (!this.field?.options?.fieldChanges) {
-      console.error(
-        `${this.field.key} field could not find fieldChanges Observable`
-      )
-    } else {
-      this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        filter((c) => c.field.key === this.field.key), // filter out other fields
-        // tag('entity-type-select onModelChange$'),
-        pluck('value')
-      )
+    this.configureBaseField() // mixin fn
+    this.configureStateConnections() // local fn
+    this.configureInitialValueHandler() // local fn
+  } // ngAfterViewInit
 
-      // emit value from onValueChange$ for every model change
-      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-        this.onValueChange$.next(v)
-      })
+  configureStateConnections(): void {
+    this.state = this.field.options?.formState
+    if (!this.state) {
+      console.error(
+        `${this.field.id} requires a form state to configure itself, none was found.`
+      )
+      this.placeholder$ = new BehaviorSubject<string>(
+        'ERROR: Form state not found'
+      )
+      return
     }
 
-    // set up input & output streams,
-    if (this.field?.options?.formState) {
-      this.state = this.field.options.formState
-      // set up input stream
-      if (this.state && this.state.options.evidenceTypeOption$) {
-        this.selectOption$ = this.state.options.evidenceTypeOption$
-      } else {
-        console.error(
-          `evidence-type-select field could not find form state's evidenceTypeOption$ to populate select.`
-        )
-      }
+    // CONFIGURE LABEL, PLACEHOLDER PROMPT
+    this.props.placeholder = this.props.placeholder.replace(
+      'ENTITY_NAME',
+      this.state.entityName
+    )
+    this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
+    this.props.label = this.props.label.replace(
+      'ENTITY_NAME',
+      this.state.entityName
+    )
+    this.label$ = new BehaviorSubject<string>(this.props.label)
 
-      // set up output stream
-      if (this.state && this.state.fields.evidenceType$) {
-        this.evidenceTypeChange$ = this.state.fields.evidenceType$
-        this.onValueChange$
-          .pipe(
-            // tag('entity-type-select evidenceTypeChange$'),
-            untilDestroyed(this)
-          )
-          .subscribe((v) => {
-            if (this.evidenceTypeChange$) this.evidenceTypeChange$.next(v)
-          })
-      }
+    // CONFIGURE STATE INPUTS
+    const etoName = `${this.state.entityName.toLowerCase()}TypeOption$`
+    this.selectOption$ = this.state.options[etoName]
+    if (!this.selectOption$) {
+      console.error(
+        `${this.field.id} could not find state's ${etoName} to populate select options.`
+      )
+      return
+    }
+
+    // CONFIGURE STATE OUTPUT
+    const etName = `${this.state.entityName.toLowerCase()}Type$`
+    this.stateValueChange$ = this.state.fields[etName]
+    if (!this.stateValueChange$) {
+      console.warn(
+        `${this.field.id} could not find state's ${etName} to emit its value changes.`
+      )
+      return
+    }
+    this.onValueChange$
+      .pipe(
+        // tag('clinical-significance-select clinicalSignificanceChange$'),
+        untilDestroyed(this)
+      )
+      .subscribe((v) => {
+        if (this.stateValueChange$) this.stateValueChange$.next(v)
+      })
+  }
+
+  private configureInitialValueHandler(): void {
+    // if on initialization, this field's formControl has already been assigned a value
+    // (e.g. via query-param extension, saved form state, model initialization), emit
+    // onValueChange$, state valueChange$ events
+    if (this.field.formControl.value) {
+      const v = this.field.formControl.value
+      this.onValueChange$.next(v)
+      // valueChange$ may not exist if component is a repeat-item or form state missing
+      if (!this.stateValueChange$) return
+      this.stateValueChange$.next(v)
     }
   }
 }
