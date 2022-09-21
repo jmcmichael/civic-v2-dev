@@ -10,7 +10,7 @@ import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-sel
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'clinical-significance-select',
+      name: 'entity-significance-select',
       wrappers: ['form-field'],
       component: CvcClinicalSignificanceSelectField,
     },

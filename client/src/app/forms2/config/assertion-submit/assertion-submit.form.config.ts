@@ -1,4 +1,6 @@
 import { assertionSubmitFormInitialModel } from '@app/forms2/models/assertion-submit.model'
+import { CvcClinicalSignificanceSelectFieldConfig } from '@app/forms2/types/clinical-significance-select/clinical-significance-select.type'
+import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
@@ -40,6 +42,40 @@ const formFieldConfig: FormlyFieldConfig[] = [
             props: {
               required: true,
               // requireGene: false
+            },
+          },
+          <CvcEntityTypeSelectFieldConfig>{
+            key: 'assertionType',
+            type: 'entity-type-select',
+            props: {
+              required: true,
+            },
+          },
+          <CvcClinicalSignificanceSelectFieldConfig>{
+            key: 'clinicalSignficance',
+            type: 'entity-significance-select',
+            props: {
+              required: true,
+            },
+          },
+        ],
+      },
+      {
+        wrappers: ['form-footer'],
+        fieldGroup: [
+          {
+            key: 'comment',
+            type: 'textarea',
+            props: {
+              label: 'Comment',
+              // required: true,
+            },
+          },
+          {
+            key: 'organizationId',
+            type: 'org-submit-button',
+            props: {
+              submitLabel: 'Submit Evidence Item',
             },
           },
         ],

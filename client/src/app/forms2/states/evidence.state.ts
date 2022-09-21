@@ -85,16 +85,13 @@ class EvidenceState extends EntityState {
       allowsFdaApproval$: new BehaviorSubject<boolean>(false),
     }
 
-    // EVIDENCE TYPE SUBSCRIBERS
+    // TODO: must determine best way to unsubscribe from this
+    // EVIDENCE TYPE SUBSCRIBER
     this.fields.evidenceType$.subscribe((et: Maybe<EvidenceType>) => {
       if (!et) return
       this.options.clinicalSignificanceOption$.next(
         this.getOptionsFromEnums(this.getSignificanceOptions(et))
       )
-    })
-
-    this.fields.evidenceType$.subscribe((et: Maybe<EvidenceType>) => {
-      if (!et) return
       this.options.evidenceDirectionOption$.next(
         this.getOptionsFromEnums(this.getDirectionOptions(et))
       )

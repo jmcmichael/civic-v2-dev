@@ -10,8 +10,6 @@ import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { EvidenceAddRoutingModule } from './evidence-add-routing.module';
 import { EvidenceAddView } from './evidence-add.view';
 
-
-
 @NgModule({
   declarations: [EvidenceAddView],
   imports: [

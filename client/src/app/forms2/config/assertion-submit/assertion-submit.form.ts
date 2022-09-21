@@ -11,7 +11,6 @@ import { assertionSubmitFields } from './assertion-submit.form.config'
 @Component({
   selector: 'cvc-assertion-submit-form',
   templateUrl: './assertion-submit.form.html',
-  styleUrls: ['./assertion-submit.form.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcAssertionSubmitForm {

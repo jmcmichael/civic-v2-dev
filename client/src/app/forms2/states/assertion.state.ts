@@ -3,19 +3,63 @@ import {
   AssertionDirection,
   AssertionType,
   Maybe,
-} from "@app/generated/civic.apollo";
-import {  BehaviorSubject } from "rxjs";
-import { assertionSubmitFieldsDefaults } from "../models/assertion-submit.model";
-import { EntityName, EntityState } from "./entity.state";
+} from '@app/generated/civic.apollo'
+import { BehaviorSubject } from 'rxjs'
+import { assertionSubmitFieldsDefaults } from '../models/assertion-submit.model'
+import { EntityName, EntityState, SelectOption } from './entity.state'
 
 class AssertionState extends EntityState {
   constructor() {
-    super(EntityName.ASSERTION);
+    super(EntityName.ASSERTION)
     const def = assertionSubmitFieldsDefaults
+
     this.fields = {
       geneId$: new BehaviorSubject<Maybe<number>>(def.geneId),
       variantId$: new BehaviorSubject<Maybe<number>>(def.variantId),
+      assertionType$: new BehaviorSubject<Maybe<AssertionType>>(
+        def.assertionType
+      ),
+      assertionDirection$: new BehaviorSubject<Maybe<AssertionDirection>>(
+        def.assertionDirection
+      ),
+      clinicalSignificance$: new BehaviorSubject<
+        Maybe<AssertionClinicalSignificance>
+      >(def.clinicalSignificance),
     }
+
+    this.options = {
+      assertionTypeOption$: new BehaviorSubject<SelectOption[]>(
+        this.getOptionsFromEnums(this.getTypeOptions())
+      ),
+      assertionDirectionOption$: new BehaviorSubject<Maybe<SelectOption[]>>(
+        undefined
+      ),
+      clinicalSignificanceOption$: new BehaviorSubject<Maybe<SelectOption[]>>(
+        undefined
+      ),
+    }
+
+    this.requires = {
+      requiresDisease$: new BehaviorSubject<boolean>(false),
+      requiresDrug$: new BehaviorSubject<boolean>(false),
+      requiresClingenCodes$: new BehaviorSubject<boolean>(false),
+      requiresAcmgCodes$: new BehaviorSubject<boolean>(false),
+      requiresAmpLevel$: new BehaviorSubject<boolean>(false),
+      allowsFdaApproval$: new BehaviorSubject<boolean>(false),
+    }
+
+    // TODO: must determine best way to unsubscribe from these
+    // ASSERTION TYPE SUBSCRIBERS
+    this.fields.assertionType$.subscribe((et: Maybe<AssertionType>) => {
+      if (!et) return
+      this.options.clinicalSignificanceOption$.next(
+        this.getOptionsFromEnums(this.getSignificanceOptions(et))
+      )
+      this.options.assertionDirectionOption$.next(
+        this.getOptionsFromEnums(this.getDirectionOptions(et))
+      )
+    })
+
     this.validStates.set(AssertionType.Predictive, {
       entityType: AssertionType.Predictive,
       clinicalSignificance: [
@@ -27,15 +71,15 @@ class AssertionState extends EntityState {
       ],
       entityDirection: [
         AssertionDirection.Supports,
-        AssertionDirection.DoesNotSupport
+        AssertionDirection.DoesNotSupport,
       ],
       requiresDisease: true,
       requiresDrug: true,
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: true,
-      allowsFdaApproval: true
-    });
+      allowsFdaApproval: true,
+    })
 
     this.validStates.set(AssertionType.Diagnostic, {
       entityType: AssertionType.Diagnostic,
@@ -45,34 +89,34 @@ class AssertionState extends EntityState {
       ],
       entityDirection: [
         AssertionDirection.Supports,
-        AssertionDirection.DoesNotSupport
+        AssertionDirection.DoesNotSupport,
       ],
       requiresDisease: true,
       requiresDrug: false,
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: true,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(AssertionType.Prognostic, {
       entityType: AssertionType.Prognostic,
       clinicalSignificance: [
         AssertionClinicalSignificance.BetterOutcome,
         AssertionClinicalSignificance.PoorOutcome,
-        AssertionClinicalSignificance.Na
+        AssertionClinicalSignificance.Na,
       ],
       entityDirection: [
         AssertionDirection.Supports,
-        AssertionDirection.DoesNotSupport
+        AssertionDirection.DoesNotSupport,
       ],
       requiresDisease: true,
       requiresDrug: false,
       requiresClingenCodes: false,
       requiresAcmgCodes: false,
       requiresAmpLevel: true,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(AssertionType.Predisposing, {
       entityType: AssertionType.Predisposing,
@@ -92,8 +136,8 @@ class AssertionState extends EntityState {
       requiresClingenCodes: false,
       requiresAcmgCodes: true,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
 
     this.validStates.set(AssertionType.Oncogenic, {
       entityType: AssertionType.Oncogenic,
@@ -113,9 +157,9 @@ class AssertionState extends EntityState {
       requiresClingenCodes: true,
       requiresAcmgCodes: false,
       requiresAmpLevel: false,
-      allowsFdaApproval: false
-    });
+      allowsFdaApproval: false,
+    })
   }
 }
 
-export { AssertionState };
+export { AssertionState }

@@ -25,9 +25,7 @@ interface CvcClinicalSignificanceSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcClinicalSignificanceSelectFieldConfig
   extends FormlyFieldConfig<CvcClinicalSignificanceSelectFieldProps> {
-  type:
-    | 'clinical-significance-select'
-    | Type<CvcClinicalSignificanceSelectField>
+  type: 'entity-significance-select' | Type<CvcClinicalSignificanceSelectField>
 }
 
 const ClinicalSignificanceSelectMixin = mixin(
@@ -66,7 +64,7 @@ export class CvcClinicalSignificanceSelectField
   > = {
     props: {
       label: 'Clinical Significance',
-      placeholder: 'Select a Clinical Significance',
+      placeholder: 'Select ENTITY_TYPE Clinical Significance',
       requireTypePrompt: 'Select an ENTITY_NAME Type to select Significance',
     },
   }
@@ -97,9 +95,7 @@ export class CvcClinicalSignificanceSelectField
       'ENTITY_NAME',
       this.state.entityName
     )
-    this.placeholder$ = new BehaviorSubject<string>(
-      this.props.requireTypePrompt
-    )
+    this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
     // CONFIGURE STATE INPUTS
     // connect to state clinicalSignificanceOptions$
@@ -127,7 +123,12 @@ export class CvcClinicalSignificanceSelectField
         if (!et) {
           this.placeholder$.next(this.props.requireTypePrompt)
         } else {
-          this.placeholder$.next(this.props.placeholder)
+          this.formControl.setValue(undefined)
+          const ph = this.props.placeholder.replace(
+            'ENTITY_TYPE',
+            et.charAt(0).toUpperCase() + et.slice(1).toLowerCase()
+          )
+          this.placeholder$.next(ph)
         }
       })
 

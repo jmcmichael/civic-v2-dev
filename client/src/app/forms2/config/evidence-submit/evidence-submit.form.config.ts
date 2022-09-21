@@ -94,7 +94,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           <CvcClinicalSignificanceSelectFieldConfig>{
             key: 'clinicalSignficance',
-            type: 'clinical-significance-select',
+            type: 'entity-significance-select',
             props: {
               required: true,
             },
