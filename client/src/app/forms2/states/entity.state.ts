@@ -9,11 +9,9 @@ import {
   EvidenceClinicalSignificance,
   EvidenceDirection,
   EvidenceType,
-  Maybe,
 } from '@app/generated/civic.apollo'
-import { Subject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import { $enum } from 'ts-enum-util'
-import { EvidenceFieldSubjectMap } from './evidence.state'
 
 export type EntityType = EvidenceType | AssertionType
 
@@ -47,9 +45,12 @@ export enum SelectType {
   ED = 'entityDirection',
 }
 
-export type EntityFieldSubjectMap = {[key: string]: Subject<any>}
+export type EntityFieldSubjectMap = { [key: string]: BehaviorSubject<any> }
 
 export interface IEntityState {
+  fields: EntityFieldSubjectMap
+  options: EntityFieldSubjectMap
+  requires: EntityFieldSubjectMap
   validStates: Map<EntityType, ValidEntity>
   getTypeOptions: () => EntityType[]
   getSignificanceOptions: (et: EntityType) => EntityClinicalSignificance[]
@@ -78,6 +79,9 @@ export interface IEntityState {
 }
 
 class EntityState implements IEntityState {
+  fields: EntityFieldSubjectMap
+  options: EntityFieldSubjectMap
+  requires: EntityFieldSubjectMap
   validStates = new Map<EntityType, ValidEntity>()
   entityName: EntityName
   pluralNames: Map<EntityName, string>
@@ -93,6 +97,10 @@ class EntityState implements IEntityState {
   allowsFdaApproval$ = new Subject<boolean>()
 
   constructor(en: EntityName) {
+    this.fields = {}
+    this.options = {}
+    this.requires = {}
+
     this.entityName = en
     this.pluralNames = new Map<EntityName, string>()
 

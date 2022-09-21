@@ -9,7 +9,7 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EvidenceState } from '@app/forms2/states/evidence.state'
+import { EntityState } from '@app/forms2/states'
 import {
   Gene,
   GeneSelectLinkableGeneQuery,
@@ -61,7 +61,7 @@ export class CvcGeneSelectField
   implements AfterViewInit
 {
   // STATE STREAMS
-  state?: EvidenceState
+  state?: EntityState
   // send geneId updates to state
   stateValueChange$?: BehaviorSubject<Maybe<number>>
 

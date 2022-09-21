@@ -6,10 +6,9 @@ import {
   DrugInteraction,
   VariantOrigin,
 } from '@app/generated/civic.apollo'
-import { Optional } from 'ts-toolbelt/out/Object/Optional'
 import { FormSubmitBaseModel } from './form-submit-base.model'
 
-export interface EvidenceSubmitModel extends FormSubmitBaseModel {
+export interface AssertionSubmitModel extends FormSubmitBaseModel {
   fields: AssertionSubmitFields
 }
 
@@ -76,7 +75,7 @@ export const assertionSubmitFieldsDefaults = <AssertionSubmitFields>{
   variantOrigin: undefined,
 }
 
-export const evidenceSubmitFormInitialModel: EvidenceSubmitModel = {
+export const assertionSubmitFormInitialModel: AssertionSubmitModel = {
   clientMutationId: undefined,
   fields: assertionSubmitFieldsDefaults,
   comment: undefined,
