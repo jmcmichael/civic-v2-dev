@@ -13,25 +13,25 @@ import { BehaviorSubject, filter, Observable, Subject } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
-interface CvcEvidenceTypeSelectFieldProps extends FormlyFieldProps {
+interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
   placeholder: string
 }
 
-export interface CvcEvidenceTypeSelectFieldConfig
-  extends FormlyFieldConfig<CvcEvidenceTypeSelectFieldProps> {
-  type: 'evidence-type-select' | Type<CvcEvidenceTypeSelectField>
+export interface CvcEntityTypeSelectFieldConfig
+  extends FormlyFieldConfig<CvcEntityTypeSelectFieldProps> {
+  type: 'entity-type-select' | Type<CvcEntityTypeSelectField>
 }
 @UntilDestroy()
 @Component({
-  selector: 'cvc-evidence-type-select',
-  templateUrl: './evidence-type-select.type.html',
-  styleUrls: ['./evidence-type-select.type.less'],
+  selector: 'cvc-entity-type-select',
+  templateUrl: './entity-type-select.type.html',
+  styleUrls: ['./entity-type-select.type.less'],
 })
-export class CvcEvidenceTypeSelectField
-  extends FieldType<FieldTypeConfig<CvcEvidenceTypeSelectFieldProps>>
+export class CvcEntityTypeSelectField
+  extends FieldType<FieldTypeConfig<CvcEntityTypeSelectFieldProps>>
   implements AfterViewInit
 {
-  defaultOptions: Partial<FieldTypeConfig<CvcEvidenceTypeSelectFieldProps>> = {
+  defaultOptions: Partial<FieldTypeConfig<CvcEntityTypeSelectFieldProps>> = {
     props: {
       label: 'Evidence Type',
       placeholder: 'Select an Evidence Type',
@@ -64,7 +64,7 @@ export class CvcEvidenceTypeSelectField
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.key === this.field.key), // filter out other fields
-        // tag('evidence-type-select onModelChange$'),
+        // tag('entity-type-select onModelChange$'),
         pluck('value')
       )
 
@@ -91,7 +91,7 @@ export class CvcEvidenceTypeSelectField
         this.evidenceTypeChange$ = this.state.fields.evidenceType$
         this.onValueChange$
           .pipe(
-            // tag('evidence-type-select evidenceTypeChange$'),
+            // tag('entity-type-select evidenceTypeChange$'),
             untilDestroyed(this)
           )
           .subscribe((v) => {

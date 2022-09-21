@@ -134,7 +134,7 @@ export class AssertionSubmitForm implements OnDestroy {
           },
           {
             key: 'evidenceType',
-            type: 'evidence-type-select',
+            type: 'entity-type-select',
             templateOptions: {
               label: 'Assertion Type',
               required: true,
@@ -201,14 +201,14 @@ export class AssertionSubmitForm implements OnDestroy {
           {
             key: 'fdaRegulatoryApproval',
             type: 'fda-approval-checkbox',
-            templateOptions: { 
+            templateOptions: {
               modelCallback: fdaApprovalCallback
             }
           },
           {
             key: 'fdaCompanionTest',
             type: 'fda-test-checkbox',
-            templateOptions: { 
+            templateOptions: {
               modelCallback: fdaCompanionCallback
             }
           },

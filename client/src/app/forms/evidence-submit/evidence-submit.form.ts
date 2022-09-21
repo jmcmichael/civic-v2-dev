@@ -133,7 +133,7 @@ export class EvidenceSubmitForm implements AfterViewInit, OnDestroy {
           // },
           // {
           //   key: 'evidenceType',
-          //   type: 'evidence-type-select',
+          //   type: 'entity-type-select',
           //   templateOptions: {
           //     required: true,
           //   },

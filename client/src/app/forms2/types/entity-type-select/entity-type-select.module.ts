@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { CvcEvidenceTypeSelectField } from './evidence-type-select.type'
+import { CvcEntityTypeSelectField } from './entity-type-select.type'
 import { ReactiveFormsModule } from '@angular/forms'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
@@ -10,15 +10,15 @@ import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-sel
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'evidence-type-select',
+      name: 'entity-type-select',
       wrappers: ['form-field'],
-      component: CvcEvidenceTypeSelectField,
+      component: CvcEntityTypeSelectField,
     },
   ],
 }
 
 @NgModule({
-  declarations: [CvcEvidenceTypeSelectField],
+  declarations: [CvcEntityTypeSelectField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -27,6 +27,6 @@ const typeConfig: ConfigOption = {
     FormlyNzFormFieldModule, // for form-field wrapper
     CvcEnumSelectModule,
   ],
-  exports: [CvcEvidenceTypeSelectField],
+  exports: [CvcEntityTypeSelectField],
 })
-export class CvcEvidenceTypeSelectModule {}
+export class CvcEntityTypeSelectModule {}

@@ -185,7 +185,7 @@ export class EvidenceReviseForm implements OnInit, AfterViewInit, OnDestroy {
           },
           {
             key: 'evidenceType',
-            type: 'evidence-type-select',
+            type: 'entity-type-select',
             templateOptions: {
               required: true,
             },

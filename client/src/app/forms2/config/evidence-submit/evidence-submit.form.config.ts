@@ -2,7 +2,7 @@ import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-subm
 import { CvcBaseInputFieldConfig } from '@app/forms2/types/base-input/base-input.type'
 import { CvcClinicalSignificanceSelectFieldConfig } from '@app/forms2/types/clinical-significance-select/clinical-significance-select.type'
 import { CvcEvidenceDirectionSelectFieldConfig } from '@app/forms2/types/evidence-direction-select/evidence-direction-select.type'
-import { CvcEvidenceTypeSelectFieldConfig } from '@app/forms2/types/evidence-type-select/evidence-type-select.type'
+import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
 import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
@@ -85,6 +85,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
               props: {},
             },
           },
+          <CvcEntityTypeSelectFieldConfig>{
+            key: 'evidenceType',
+            type: 'entity-type-select',
+            props: {
+              required: true,
+            },
+          },
           <CvcClinicalSignificanceSelectFieldConfig>{
             key: 'clinicalSignficance',
             type: 'clinical-significance-select',
@@ -92,13 +99,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          // <CvcEvidenceTypeSelectFieldConfig>{
-          //   key: 'evidenceType',
-          //   type: 'evidence-type-select',
-          //   props: {
-          //     required: true,
-          //   },
-          // },
           // <CvcEvidenceDirectionSelectFieldConfig>{
           //   key: 'evidenceDirection',
           //   type: 'evidence-direction-select',
