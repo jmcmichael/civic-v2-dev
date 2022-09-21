@@ -10,7 +10,6 @@ import { ApolloQueryResult } from '@apollo/client/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states'
-import { EvidenceState } from '@app/forms2/states/evidence.state'
 import {
   LinkableGeneGQL,
   LinkableVariantGQL,
@@ -162,22 +161,25 @@ export class CvcVariantSelectField
   } // ngAfterViewInit
 
   private configureStateListeners() {
-    if (this.props.requireGene && !this.field.options?.formState) {
+    if (!this.props.requireGene) return
+    if (!this.field.options?.formState) {
       console.error(
         `${this.field.id} requireGene is set, but no formState found.`
       )
       return
-    } else if (!this.field.options?.formState) return
-    this.state = this.field.options.formState
-    // attach state geneId$ to get gene field value updates
-    if (this.props.requireGene) {
-      if (this.state && this.state.fields.geneId$) {
-        this.onGeneId$ = this.state.fields.geneId$
-        this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
-          this.onGeneId(gid)
-        })
-      }
     }
+    this.state = this.field.options.formState
+    if (!this.state?.fields.geneId$) {
+      console.error(
+        `${this.field.id} requireGene is set, but no geneId$ subject found on state.`
+      )
+      return
+    }
+    // attach state geneId$ to get gene field value updates
+    this.onGeneId$ = this.state.fields.geneId$
+    this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
+      this.onGeneId(gid)
+    })
   }
 
   private onGeneId(gid: Maybe<number>): void {
