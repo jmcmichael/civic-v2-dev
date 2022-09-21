@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, OnInit, Type } from '@angular/core'
-import { SelectOption } from '@app/forms2/states/entity.state'
+import { EntityType } from '@app/forms/config/states/entity.state'
+import { EntityState, SelectOption } from '@app/forms2/states/entity.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
-import { EvidenceType, Maybe } from '@app/generated/civic.apollo'
+import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldType,
@@ -39,20 +40,20 @@ export class CvcEntityTypeSelectField
   }
 
   // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<EvidenceType>>
-  onValueChange$!: Subject<Maybe<EvidenceType>>
+  onModelChange$!: Observable<Maybe<EntityType>>
+  onValueChange$!: Subject<Maybe<EntityType>>
 
   // PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<SelectOption[]>
 
   // OUTPUT STREAMS
-  evidenceTypeChange$?: BehaviorSubject<Maybe<EvidenceType>>
+  evidenceTypeChange$?: BehaviorSubject<Maybe<EntityType>>
 
-  state: Maybe<EvidenceState>
+  state: Maybe<EntityState>
 
   constructor() {
     super()
-    this.onValueChange$ = new Subject<Maybe<EvidenceType>>()
+    this.onValueChange$ = new Subject<Maybe<EntityType>>()
   }
 
   ngAfterViewInit(): void {
