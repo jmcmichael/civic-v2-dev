@@ -46,8 +46,6 @@
     "ts-mixin-extended": "^1.1.1",
     "ts-toolbelt": "^9.6.0",
     "tslib": "^2.3.1",
-    "xstate": "^4.30.3",
-    "xstate-angular": "^0.0.2",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
