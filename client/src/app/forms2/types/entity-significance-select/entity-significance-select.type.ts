@@ -17,31 +17,31 @@ import { BehaviorSubject, Subject } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
-interface CvcClinicalSignificanceSelectFieldProps extends FormlyFieldProps {
+interface CvcEntitySignificanceSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   requireTypePrompt: string
 }
 
-export interface CvcClinicalSignificanceSelectFieldConfig
-  extends FormlyFieldConfig<CvcClinicalSignificanceSelectFieldProps> {
-  type: 'entity-significance-select' | Type<CvcClinicalSignificanceSelectField>
+export interface CvcEntitySignificanceSelectFieldConfig
+  extends FormlyFieldConfig<CvcEntitySignificanceSelectFieldProps> {
+  type: 'entity-significance-select' | Type<CvcEntitySignificanceSelectField>
 }
 
-const ClinicalSignificanceSelectMixin = mixin(
+const EntitySignificanceSelectMixin = mixin(
   BaseFieldType<
-    FieldTypeConfig<CvcClinicalSignificanceSelectFieldProps>,
+    FieldTypeConfig<CvcEntitySignificanceSelectFieldProps>,
     Maybe<EntityClinicalSignificance>
   >()
 )
 
 @Component({
-  selector: 'cvc-clinical-significance-select',
-  templateUrl: './clinical-significance-select.type.html',
-  styleUrls: ['./clinical-significance-select.type.less'],
+  selector: 'cvc-entity-significance-select',
+  templateUrl: './entity-significance-select.type.html',
+  styleUrls: ['./entity-significance-select.type.less'],
 })
-export class CvcClinicalSignificanceSelectField
-  extends ClinicalSignificanceSelectMixin
+export class CvcEntitySignificanceSelectField
+  extends EntitySignificanceSelectMixin
   implements AfterViewInit
 {
   state: Maybe<EntityState>
@@ -60,7 +60,7 @@ export class CvcClinicalSignificanceSelectField
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<
-    FieldTypeConfig<CvcClinicalSignificanceSelectFieldProps>
+    FieldTypeConfig<CvcEntitySignificanceSelectFieldProps>
   > = {
     props: {
       label: 'Clinical Significance',
@@ -120,10 +120,10 @@ export class CvcClinicalSignificanceSelectField
     this.onEntityType$
       .pipe(untilDestroyed(this))
       .subscribe((et: Maybe<EntityType>) => {
+        this.formControl.setValue(undefined)
         if (!et) {
           this.placeholder$.next(this.props.requireTypePrompt)
         } else {
-          this.formControl.setValue(undefined)
           const ph = this.props.placeholder.replace(
             'ENTITY_TYPE',
             et.charAt(0).toUpperCase() + et.slice(1).toLowerCase()
@@ -142,7 +142,7 @@ export class CvcClinicalSignificanceSelectField
     }
     this.onValueChange$
       .pipe(
-        // tag('clinical-significance-select clinicalSignificanceChange$'),
+        // tag('entity-significance-select clinicalSignificanceChange$'),
         untilDestroyed(this)
       )
       .subscribe((v) => {

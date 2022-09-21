@@ -4,7 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
-import { CvcClinicalSignificanceSelectField } from './clinical-significance-select.type'
+import { CvcEntitySignificanceSelectField } from './entity-significance-select.type'
 import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
 
 const typeConfig: ConfigOption = {
@@ -12,14 +12,14 @@ const typeConfig: ConfigOption = {
     {
       name: 'entity-significance-select',
       wrappers: ['form-field'],
-      component: CvcClinicalSignificanceSelectField,
+      component: CvcEntitySignificanceSelectField,
     },
   ],
 }
 
 @NgModule({
   declarations: [
-    CvcClinicalSignificanceSelectField
+    CvcEntitySignificanceSelectField
   ],
   imports: [
     CommonModule,
@@ -30,7 +30,7 @@ const typeConfig: ConfigOption = {
     CvcEnumSelectModule,
   ],
   exports: [
-    CvcClinicalSignificanceSelectField
+    CvcEntitySignificanceSelectField
   ]
 })
 export class CvcClinicalSignificanceSelectModule { }

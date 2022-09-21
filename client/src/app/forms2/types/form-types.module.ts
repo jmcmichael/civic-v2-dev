@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { CvcBaseInputFieldModule } from './base-input/base-input.module'
-import { CvcClinicalSignificanceSelectModule } from './clinical-significance-select/clinical-significance-select.module'
+import { CvcClinicalSignificanceSelectModule } from './entity-significance-select/entity-significance-select.module'
 import { CvcEvidenceDirectionSelectModule } from './evidence-direction-select/evidence-direction-select.module'
 import { CvcEntityTypeSelectModule } from './entity-type-select/entity-type-select.module'
 import { CvcGeneSelectModule } from './gene-select/gene-select.module'

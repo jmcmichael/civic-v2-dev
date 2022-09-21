@@ -117,7 +117,7 @@ export class CvcEntityTypeSelectField
     }
     this.onValueChange$
       .pipe(
-        // tag('clinical-significance-select clinicalSignificanceChange$'),
+        // tag('entity-significance-select clinicalSignificanceChange$'),
         untilDestroyed(this)
       )
       .subscribe((v) => {

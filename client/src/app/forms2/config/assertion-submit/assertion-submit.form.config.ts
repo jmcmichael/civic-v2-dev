@@ -1,5 +1,5 @@
 import { assertionSubmitFormInitialModel } from '@app/forms2/models/assertion-submit.model'
-import { CvcClinicalSignificanceSelectFieldConfig } from '@app/forms2/types/clinical-significance-select/clinical-significance-select.type'
+import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/entity-significance-select/entity-significance-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
@@ -26,7 +26,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         key: 'fields',
         wrappers: ['fields-layout'],
         props: <CvcFieldsLayoutWrapperProps>{
-          title: 'New Evidence Item',
+          title: 'New Assertion',
         },
         fieldGroup: [
           <CvcGeneSelectFieldConfig>{
@@ -51,7 +51,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          <CvcClinicalSignificanceSelectFieldConfig>{
+          <CvcEntitySignificanceSelectFieldConfig>{
             key: 'clinicalSignficance',
             type: 'entity-significance-select',
             props: {
