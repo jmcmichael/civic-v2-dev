@@ -197,7 +197,7 @@ export class CvcVariantSelectField
       ).then(({ data }) => {
         if (!data?.gene?.name) {
           console.error(
-            `variant-input field could not fetch gene name for Gene:${gid}.`
+            `${this.field.id} could not fetch gene name for Gene:${gid}.`
           )
         } else {
           // apply regex to include gene name in placeholder string

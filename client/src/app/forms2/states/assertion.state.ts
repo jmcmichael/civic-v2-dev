@@ -2,12 +2,20 @@ import {
   AssertionClinicalSignificance,
   AssertionDirection,
   AssertionType,
+  Maybe,
 } from "@app/generated/civic.apollo";
+import {  BehaviorSubject } from "rxjs";
+import { assertionSubmitFieldsDefaults } from "../models/assertion-submit.model";
 import { EntityName, EntityState } from "./entity.state";
 
 class AssertionState extends EntityState {
   constructor() {
     super(EntityName.ASSERTION);
+    const def = assertionSubmitFieldsDefaults
+    this.fields = {
+      geneId$: new BehaviorSubject<Maybe<number>>(def.geneId),
+      variantId$: new BehaviorSubject<Maybe<number>>(def.variantId),
+    }
     this.validStates.set(AssertionType.Predictive, {
       entityType: AssertionType.Predictive,
       clinicalSignificance: [
