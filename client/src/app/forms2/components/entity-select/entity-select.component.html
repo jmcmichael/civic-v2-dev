@@ -50,10 +50,10 @@
         !cvcResults &&
         !cvcLoading
       ">
-      Enter query to search Gene Entrez names and aliases
+      Enter at least {{ cvcSearchMinLength }} character{{ cvcSearchMinLength > 1 ? 's' : '' }} to search.
     </ng-container>
     <ng-container *ngIf="cvcResults && cvcResults.length === 0">
-      None found containing "{{ searchString }}"
+      No {{ cvcEntityName }} found that matches "{{ searchString }}"
     </ng-container>
   </ng-template>
   <!-- <ng-container *ngrxLet="cvcOnSearch as searchString">

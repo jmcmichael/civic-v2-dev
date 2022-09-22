@@ -23,6 +23,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs'
 export class CvcEntitySelectComponent {
   @Input() cvcFormControl!: FormControl
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
+  @Input() cvcEntityName: string = 'entity'
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = true
