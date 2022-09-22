@@ -8,7 +8,7 @@
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
   [cvcPlaceholder]="props.placeholder"
-  [cvcOnFocus]="onFocus$"
+  (cvcOnFocus)="onFocus$.next()"
   [cvcOnSearch]="onSearch$"
   [cvcResults]="result$"
   [cvcShowError]="showError"

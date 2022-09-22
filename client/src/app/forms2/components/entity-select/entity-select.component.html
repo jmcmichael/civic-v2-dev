@@ -9,7 +9,7 @@
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
   [nzNotFoundContent]="notFoundContent"
-  (nzFocus)="cvcOnFocus && cvcOnFocus.next(true)"
+  (nzFocus)="cvcOnFocus && cvcOnFocus.next()"
   (nzOnSearch)="cvcOnSearch && cvcOnSearch.next($event)"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)

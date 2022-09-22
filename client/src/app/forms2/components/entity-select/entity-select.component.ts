@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
   Input,
+  Output,
   TemplateRef,
   TrackByFunction,
 } from '@angular/core'
@@ -22,7 +24,8 @@ export class CvcEntitySelectComponent {
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = true
-  @Input() cvcOnFocus?: Subject<boolean>
+  @Output() readonly cvcOnFocus= new EventEmitter<void>()
+  // @Input() cvcOnFocus?: Subject<boolean>
   @Input() cvcOnSearch?: Subject<string>
   @Input() cvcLoading?: Observable<boolean>
   @Input() cvcResults!: Observable<any[]>

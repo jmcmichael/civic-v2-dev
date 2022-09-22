@@ -62,7 +62,7 @@ export function EntityTagField<
       onValueChange$?: Subject<Maybe<number>>
 
       // LOCAL SOURCE STREAMS
-      onFocus$!: Subject<boolean>
+      onFocus$!: Subject<void>
       onSearch$!: Subject<string> // emits on typeahead keypress
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
 
@@ -106,7 +106,7 @@ export function EntityTagField<
         this.typeaheadParam$ = typeaheadParam$
 
         this.onSearch$ = new Subject<string>()
-        this.onFocus$ = new Subject<boolean>()
+        this.onFocus$ = new Subject<void>()
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onValueChange$ = new Subject<Maybe<number>>()
         this.tagCacheId$ = new Subject<Maybe<string>>()
