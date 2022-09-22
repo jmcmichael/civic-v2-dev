@@ -8,7 +8,7 @@
   [formlyAttributes]="cvcFormlyAttributes"
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
-  [nzNotFoundContent]="cvcNotFound"
+  [nzNotFoundContent]="notFoundContent"
   (nzFocus)="cvcOnFocus && cvcOnFocus.next(true)"
   (nzOnSearch)="cvcOnSearch && cvcOnSearch.next($event)"
   (ngModelChange)="
@@ -49,3 +49,15 @@
     Searching...
   </nz-option>
 </nz-select>
+<ng-template #notFoundContent>
+  <ng-container *ngIf="cvcLoading && (cvcLoading | ngrxPush)">
+    <span
+      nz-icon
+      nzType="loading"
+      class="loading-icon"></span>
+    Searching...
+  </ng-container>
+  <ng-container *ngIf="cvcLoading && !(cvcLoading | ngrxPush)">
+    None found.
+  </ng-container>
+</ng-template>

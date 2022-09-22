@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, Type } from '@angular/core'
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, Type } from '@angular/core'
 import { SelectOption } from '@app/forms2/states/entity.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { EvidenceDirection, EvidenceType, Maybe } from '@app/generated/civic.apollo'
@@ -29,6 +29,7 @@ export interface CvcEvidenceDirectionSelectFieldConfig
   selector: 'cvc-evidence-direction-select',
   templateUrl: './evidence-direction-select.type.html',
   styleUrls: ['./evidence-direction-select.type.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEvidenceDirectionSelectField
   extends FieldType<FieldTypeConfig<CvcEvidenceDirectionSelectFieldProps>>
