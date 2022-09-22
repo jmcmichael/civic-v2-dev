@@ -30,6 +30,7 @@ import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string
+  searchMinLength: number // # chars required to query
   isRepeatItem: boolean
 }
 
@@ -75,6 +76,7 @@ export class CvcGeneSelectField
       label: 'Gene',
       placeholder: 'Search Genes',
       isRepeatItem: false,
+      searchMinLength: 1
     },
   }
 
@@ -96,7 +98,9 @@ export class CvcGeneSelectField
       // typeahead query vars getter fn
       (str: string) => ({ entrezSymbol: str }),
       // typeahead query result map fn
-      (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => r.data.geneTypeahead,
+      (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => {
+        return r.data.geneTypeahead
+      },
       // tag query vars getter fn
       (id: number) => ({ geneId: id }),
       // tag cache id getter fn

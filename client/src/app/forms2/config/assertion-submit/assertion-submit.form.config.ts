@@ -45,20 +45,20 @@ const formFieldConfig: FormlyFieldConfig[] = [
               // requireGene: false
             },
           },
-          <CvcEntityTypeSelectFieldConfig>{
-            key: 'assertionType',
-            type: 'entity-type-select',
-            props: {
-              required: true,
-            },
-          },
-          <CvcEntitySignificanceSelectFieldConfig>{
-            key: 'clinicalSignficance',
-            type: 'entity-significance-select',
-            props: {
-              required: true,
-            },
-          },
+          // <CvcEntityTypeSelectFieldConfig>{
+          //   key: 'assertionType',
+          //   type: 'entity-type-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcEntitySignificanceSelectFieldConfig>{
+          //   key: 'clinicalSignficance',
+          //   type: 'entity-significance-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
         ],
       },
       {

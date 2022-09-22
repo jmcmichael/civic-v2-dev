@@ -140,7 +140,6 @@ export function EntityTagField<
           // wait 1/3sec after typing activity stops to query server,
           // quash leading event, emit trailing event so we only get 1 search string
           throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-          filter((str) => str.length >= this.props.searchOnChars),
           // get additional query vars, if any
           withLatestFrom(
             this.typeaheadParam$ !== undefined
@@ -154,10 +153,13 @@ export function EntityTagField<
             const watchQuery = (query: TAV) => {
               // returns observable from initial watch() query
               this.queryRef = this.typeaheadQuery.watch(query)
+              // emit loading events from isLoading$
               this.queryRef.valueChanges
                 .pipe(
                   pluck('loading'),
-                  untilDestroyed(this)
+                  distinctUntilChanged(),
+                  untilDestroyed(this),
+                  tag(`${this.field.id} queryRef.valueChanges 'loading'`)
                 )
                 .subscribe((l) => this.isLoading$.next(l))
 

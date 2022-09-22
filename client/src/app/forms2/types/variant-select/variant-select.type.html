@@ -8,19 +8,18 @@
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
   [cvcPlaceholder]="placeholder$"
-  (cvcOnFocus)="onFocus$.next()"
-  [cvcOnSearch]="onSearch$"
-  [cvcResults]="result$"
+  [cvcResults]="result$ | ngrxPush"
   [cvcShowError]="showError"
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
-  [cvcLoading]="isLoading$"
+  [cvcLoading]="(isLoading$ | ngrxPush)!"
   [cvcNotFound]="'No Variants Found'"
   [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
+  (cvcOnSearch)="onSearch$.next($event)"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
 
-<!-- display list of aliases after tag -->
+<!-- option extra tpl to display list of aliases after tag -->
 <ng-template
   #optionExtra
   let-item

@@ -8,13 +8,55 @@
   [formlyAttributes]="cvcFormlyAttributes"
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
-  [nzNotFoundContent]="notFoundContent"
-  (nzFocus)="cvcOnFocus && cvcOnFocus.next()"
-  (nzOnSearch)="cvcOnSearch && cvcOnSearch.next($event)"
+  [nzLoading]="cvcLoading"
+  [nzNotFoundContent]="notFound"
+  [nzAllowClear]="cvcAllowClear"
+  (nzFocus)="cvcOnFocus.next()"
+  (nzOnSearch)="onSearch($event)"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
-  ">
-  <ng-container *ngrxLet="cvcOnSearch as searchString">
+  "
+  [nzDropdownClassName]="'cvc-select-dropdown'">
+  <ng-container *ngFor="let item of cvcResults">
+    <nz-option
+      nzCustomContent
+      [nzValue]="item.id">
+      <nz-space nzDirection="horizontal">
+        <cvc-entity-tag
+          *nzSpaceItem
+          [cvcCacheId]="item.__typename + ':' + item.id"
+          [cvcEmphasize]="searchString"></cvc-entity-tag>
+        <ng-container
+          *nzSpaceItem
+          [ngTemplateOutlet]="cvcOptionExtra"
+          [ngTemplateOutletContext]="{
+            $implicit: item,
+            searchStr: searchString
+          }">
+        </ng-container>
+      </nz-space>
+    </nz-option>
+  </ng-container>
+  <ng-template #notFound>
+    <ng-container *ngIf="cvcLoading">
+      <span
+        nz-icon
+        nzType="loading"
+        class="loading-icon"></span>
+      Searching...
+    </ng-container>
+    <ng-container
+      *ngIf="
+        !cvcResults &&
+        !cvcLoading
+      ">
+      Enter query to search Gene Entrez names and aliases
+    </ng-container>
+    <ng-container *ngIf="cvcResults && cvcResults.length === 0">
+      None found containing "{{ searchString }}"
+    </ng-container>
+  </ng-template>
+  <!-- <ng-container *ngrxLet="cvcOnSearch as searchString">
     <ng-container
       *ngFor="let item of cvcResults | ngrxPush; trackBy: cvcOptionTrackBy">
       <nz-option
@@ -60,4 +102,5 @@
   <ng-container *ngIf="cvcLoading && !(cvcLoading | ngrxPush)">
     None found.
   </ng-container>
-</ng-template>
+</ng-template> -->
+</nz-select>
