@@ -2,6 +2,7 @@ import { assertionSubmitFormInitialModel } from '@app/forms2/models/assertion-su
 import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/entity-significance-select/entity-significance-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
+import { CvcOrgSubmitButtonFieldConfig } from '@app/forms2/types/org-submit-button/org-submit-button.type'
 import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
@@ -71,11 +72,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
               // required: true,
             },
           },
-          {
+          <CvcOrgSubmitButtonFieldConfig>{
             key: 'organizationId',
             type: 'org-submit-button',
             props: {
-              submitLabel: 'Submit Evidence Item',
+              submitLabel: 'Submit Assertion',
             },
           },
         ],

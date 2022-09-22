@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ViewerService } from '@app/core/services/viewer/viewer.service';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';

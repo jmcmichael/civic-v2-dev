@@ -1,45 +1,55 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    OnInit,
-    ViewChild
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  Type,
+  ViewChild,
 } from '@angular/core'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import { Maybe, Organization } from '@app/generated/civic.apollo'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import { FieldType, FieldTypeConfig, FormlyFieldProps } from '@ngx-formly/core'
+import {
+  FieldType,
+  FieldTypeConfig,
+  FormlyFieldConfig,
+  FormlyFieldProps,
+} from '@ngx-formly/core'
 import { Apollo, gql } from 'apollo-angular'
 import {
-    BehaviorSubject, filter, Observable,
-    Subject,
-    Subscription,
-    withLatestFrom
+  BehaviorSubject,
+  filter,
+  Observable,
+  Subject,
+  Subscription,
+  withLatestFrom,
 } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
-import { pluck } from 'rxjs-etc/dist/esm/operators'
+import { pluck } from 'rxjs-etc/operators'
 import {
-    ButtonMutation,
-    CvcOrgSubmitButtonDirective
+  ButtonMutation,
+  CvcOrgSubmitButtonDirective,
 } from './org-submit-button.directive'
 
-export interface CvcOrgSubmitButtonTypeProps extends FormlyFieldProps {
+interface CvcOrgSubmitButtonProps extends FormlyFieldProps {
   submitLabel: string
 }
 
-const defaultProps = {
-  submitLabel: 'Submit',
+export interface CvcOrgSubmitButtonFieldConfig
+  extends FormlyFieldConfig<CvcOrgSubmitButtonProps> {
+  type: 'org-submit-button' | Type<CvcOrgSubmitButtonComponent>
 }
+
 @UntilDestroy({ arrayName: 'subscriptions' })
 @Component({
-  selector: 'cvc-org-submit-button-type',
+  selector: 'cvc-org-submit-button',
   templateUrl: './org-submit-button.type.html',
   styleUrls: ['./org-submit-button.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcOrgSubmitButtonComponent
-  extends FieldType<FieldTypeConfig>
+  extends FieldType<FieldTypeConfig<CvcOrgSubmitButtonProps>>
   implements OnInit, AfterViewInit
 {
   // get a reference to submit button
@@ -65,6 +75,12 @@ export class CvcOrgSubmitButtonComponent
 
   formUpdate$!: BehaviorSubject<any>
   subscriptions: Subscription[]
+  defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
+    props: {
+      submitLabel: 'Submit',
+    },
+  }
+
   constructor(
     private viewerService: ViewerService,
     private cdr: ChangeDetectorRef,
@@ -82,7 +98,7 @@ export class CvcOrgSubmitButtonComponent
 
   ngOnInit(): void {
     // set defaults
-    this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel
+    // this.props.submitLabel = this.props.submitLabel || defaultProps.submitLabel
     this.menuSelection$
       .pipe(withLatestFrom(this.viewer$))
       .subscribe(([mroId, viewer]: [number, Viewer]) => {
@@ -113,9 +129,11 @@ export class CvcOrgSubmitButtonComponent
     const scSub = this.formUpdate$.subscribe((_) => this.cdr.detectChanges())
 
     // set field value to emitted orgId$ updates
-    const mroSub = this.mostRecentOrg$.pipe(pluck('id'), filter(isNonNulled)).subscribe((id) => {
-      this.formControl.setValue(id)
-    })
+    const mroSub = this.mostRecentOrg$
+      .pipe(pluck('id'), filter(isNonNulled))
+      .subscribe((id) => {
+        this.formControl.setValue(id)
+      })
     this.subscriptions = this.subscriptions.concat([fcSub, scSub, mroSub])
   }
 
