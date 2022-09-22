@@ -72,7 +72,7 @@ export function EntityTagField<
 
       // PRESENTATION STREAMS
       result$!: Observable<TAF[]> // typeahead query results
-      isLoading$!: Observable<boolean> // typeahead query loading bool
+      isLoading$!: Subject<boolean> // typeahead query loading bool
       tagCacheId$!: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
 
       // QUERIES
@@ -107,6 +107,7 @@ export function EntityTagField<
 
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
+        this.isLoading$ = new Subject<boolean>()
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onValueChange$ = new Subject<Maybe<number>>()
         this.tagCacheId$ = new Subject<Maybe<string>>()
@@ -131,7 +132,7 @@ export function EntityTagField<
 
         // execute a search on typeahead focus to immediately display options
         this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-          this.onSearch$.next('')
+          // this.onSearch$.next('')
         })
 
         // set up typeahead watch & fetch calls
@@ -139,6 +140,7 @@ export function EntityTagField<
           // wait 1/3sec after typing activity stops to query server,
           // quash leading event, emit trailing event so we only get 1 search string
           throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
+          filter((str) => str.length >= this.props.searchOnChars),
           // get additional query vars, if any
           withLatestFrom(
             this.typeaheadParam$ !== undefined
@@ -152,6 +154,13 @@ export function EntityTagField<
             const watchQuery = (query: TAV) => {
               // returns observable from initial watch() query
               this.queryRef = this.typeaheadQuery.watch(query)
+              this.queryRef.valueChanges
+                .pipe(
+                  pluck('loading'),
+                  untilDestroyed(this)
+                )
+                .subscribe((l) => this.isLoading$.next(l))
+
               return this.queryRef.valueChanges
             }
             const fetchQuery = (query: TAV) => {
@@ -173,15 +182,8 @@ export function EntityTagField<
         ) // end this.response$
 
         this.result$ = this.response$.pipe(
-          filter((r) => !!r.data),
+          filter((r) => !r.loading),
           map((r) => this.getTypeahedResults(r)),
-          tag(`${this.field.id} result$`),
-          filter(isNonNulled)
-        )
-
-        this.isLoading$ = this.response$.pipe(
-          pluck('loading'),
-          distinctUntilChanged()
         )
 
         // if this field is the child of a repeat-field type,
@@ -254,4 +256,9 @@ export function EntityTagField<
 
     return EntityTagFieldMixin
   }
+}
+function startWith(
+  arg0: boolean
+): import('rxjs').OperatorFunction<boolean, boolean> {
+  throw new Error('Function not implemented.')
 }
