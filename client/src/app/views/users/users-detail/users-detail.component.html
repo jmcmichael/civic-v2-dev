@@ -116,7 +116,7 @@
                 <nz-descriptions-item [nzSpan]="2"
                   nzTitle="Country">
                   <ng-container *ngIf="user.country">
-                    {{ user.country?.name }}
+                    {{ user.country.name }}
                   </ng-container>
                   <ng-container *ngIf="!user.country">
                     <span nz-typography

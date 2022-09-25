@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { SelectOption } from '@app/forms2/states/entity.state';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Subject } from 'rxjs';
@@ -11,7 +11,7 @@ import { Subject } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CvcEnumSelectComponent {
-  @Input() cvcFormControl!: FormControl
+  @Input() cvcFormControl!: UntypedFormControl
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
   @Input() cvcPlaceholder: string = 'Select an option'
   @Input() cvcShowError: boolean = false

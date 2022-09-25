@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { FieldType } from "@ngx-formly/core";
 import { TypeOption } from "@ngx-formly/core/lib/models";
 
@@ -14,11 +14,11 @@ interface BoolOpt {
   styleUrls: ['./boolean-search-select.type.less'],
 })
 export class BooleanSearchSelectType extends FieldType implements OnInit {
-  valueControl!: FormControl;
+  valueControl!: UntypedFormControl;
   comparisonOptions!: BoolOpt[]
 
   ngOnInit(): void {
-    this.valueControl = <FormControl> this.formControl.get('value')
+    this.valueControl = <UntypedFormControl> this.formControl.get('value')
     this.comparisonOptions = [
       {value: true, label: 'True'},
       {value: false, label: 'False'},

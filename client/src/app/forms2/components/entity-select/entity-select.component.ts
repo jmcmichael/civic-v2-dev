@@ -8,7 +8,7 @@ import {
   TemplateRef,
   TrackByFunction,
 } from '@angular/core'
-import { FormControl } from '@angular/forms'
+import { UntypedFormControl } from '@angular/forms'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -43,7 +43,7 @@ export type CvcSelectMessageOptions = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEntitySelectComponent implements AfterViewInit {
-  @Input() cvcFormControl!: FormControl
+  @Input() cvcFormControl!: UntypedFormControl
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
   @Input() cvcEntityName: { singular: string; plural: string } = {
     singular: 'Entity',

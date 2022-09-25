@@ -3,7 +3,10 @@
   "version": 1,
   "cli": {
     "packageManager": "yarn",
-    "defaultCollection": "@angular-eslint/schematics"
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ],
+    "analytics": false
   },
   "newProjectRoot": "lib",
   "projects": {
@@ -88,7 +91,7 @@
             },
             "development": {
               // NOTE: uncomment to compile with rxjs-insights
-              // "customWebpackConfig": { "path": "development.config.js" },
+              "customWebpackConfig": { "path": "development.config.js" },
               "buildOptimizer": false,
               "optimization": false,
               "vendorChunk": true,
@@ -101,8 +104,8 @@
         },
         "serve": {
           // NOTE: uncomment to compile with rxjs-insights
-          // "builder": "@angular-builders/custom-webpack:dev-server",
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular-builders/custom-webpack:dev-server",
+          // "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "proxyConfig": "proxy.config.json"
           },
@@ -154,6 +157,5 @@
         }
       }
     }
-  },
-  "defaultProject": "main"
+  }
 }

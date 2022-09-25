@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import {
   BooleanOperator,
   GeneSearchFilter,
@@ -24,7 +24,7 @@ export class GeneSearchForm implements OnDestroy {
   private destroy$: Subject<void> = new Subject();
 
   formModel!: FormModel;
-  formGroup: FormGroup = new FormGroup({});
+  formGroup: UntypedFormGroup = new UntypedFormGroup({});
   formFields: FormlyFieldConfig[];
   formOptions: FormlyFormOptions = {};
 

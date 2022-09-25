@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
-import { FormGroup } from '@angular/forms'
+import { UntypedFormGroup } from '@angular/forms'
 import {
   evidenceSubmitFormInitialModel,
   EvidenceSubmitModel,
@@ -15,7 +15,7 @@ import { evidenceSubmitFields } from './evidence-submit.form.config'
 })
 export class CvcEvidenceSubmitForm {
   model: EvidenceSubmitModel = evidenceSubmitFormInitialModel
-  form: FormGroup = new FormGroup({})
+  form: UntypedFormGroup = new UntypedFormGroup({})
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 

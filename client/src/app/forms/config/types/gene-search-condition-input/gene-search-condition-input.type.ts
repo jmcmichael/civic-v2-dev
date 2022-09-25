@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { FieldType, FormlyFieldConfig } from "@ngx-formly/core";
 import { TypeOption } from "@ngx-formly/core/lib/models";
 
@@ -10,7 +10,7 @@ import { TypeOption } from "@ngx-formly/core/lib/models";
 })
 export class GeneSearchConditionInputType extends FieldType {
   selectedField?: string
-  selectedFieldFormControl?: FormControl
+  selectedFieldFormControl?: UntypedFormControl
   selectedFieldFormConfig?: FormlyFieldConfig
 
   fieldOptions = [
@@ -27,7 +27,7 @@ export class GeneSearchConditionInputType extends FieldType {
     if(this.selectedFieldFormControl) {
       this.formControl.reset();
     }
-    this.selectedFieldFormControl = <FormControl> this.formControl.get(fieldName)
+    this.selectedFieldFormControl = <UntypedFormControl> this.formControl.get(fieldName)
     this.selectedFieldFormConfig = this.field.fieldGroup?.filter(fg => fg.key == fieldName)[0] 
   }
 }

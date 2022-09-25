@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { FormControl } from "@angular/forms";
+import { UntypedFormControl } from "@angular/forms";
 import { IntSearchOperator } from "@app/generated/civic.apollo";
 import { FieldType, FieldTypeConfig } from "@ngx-formly/core";
 import { TypeOption } from "@ngx-formly/core/lib/models";
@@ -25,13 +25,13 @@ interface ComparisonSelectOption {
   styleUrls: ['./int-search-select.type.less'],
 })
 export class IntSearchSelectType extends FieldType<FieldTypeConfig> implements OnInit {
-  valueControl!: FormControl
-  comparisonControl!: FormControl
+  valueControl!: UntypedFormControl
+  comparisonControl!: UntypedFormControl
   comparisonOptions!: ComparisonSelectOption[]
 
   ngOnInit(): void {
-    this.valueControl = <FormControl> this.formControl.get('value')
-    this.comparisonControl = <FormControl> this.formControl.get('comparisonOperator')
+    this.valueControl = <UntypedFormControl> this.formControl.get('value')
+    this.comparisonControl = <UntypedFormControl> this.formControl.get('comparisonOperator')
     this.comparisonOptions = $enum(IntSearchOperator).map((val) => {
         return { value: val, label: intOpts.get(val)! };
       })

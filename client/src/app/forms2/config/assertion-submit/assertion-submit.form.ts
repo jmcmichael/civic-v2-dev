@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
-import { FormGroup } from '@angular/forms'
+import { UntypedFormGroup } from '@angular/forms'
 import {
   assertionSubmitFormInitialModel,
   AssertionSubmitModel,
@@ -15,7 +15,7 @@ import { assertionSubmitFields } from './assertion-submit.form.config'
 })
 export class CvcAssertionSubmitForm {
   model: AssertionSubmitModel = assertionSubmitFormInitialModel
-  form: FormGroup = new FormGroup({})
+  form: UntypedFormGroup = new UntypedFormGroup({})
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 

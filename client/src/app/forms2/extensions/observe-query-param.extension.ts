@@ -1,4 +1,4 @@
-import { FormControl } from '@angular/forms'
+import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Params } from '@angular/router'
 import { Maybe } from '@app/generated/civic.apollo'
 import { FormlyExtension, FormlyFieldConfig } from '@ngx-formly/core'
@@ -77,7 +77,7 @@ export class ObserveQueryParamExtension implements FormlyExtension {
         // hence this field's control is a FormControl
         // (and not a FieldArray, FieldGroup or FieldRecord)
         // so it can be confidently cast as such here
-        const ctrl = field.formControl as FormControl
+        const ctrl = field.formControl as UntypedFormControl
         // set param value, end if undefined
         const paramValue = params[this.paramKey!]
         if (!paramValue) {
