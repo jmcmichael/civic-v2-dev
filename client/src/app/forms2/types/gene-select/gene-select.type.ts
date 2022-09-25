@@ -76,7 +76,7 @@ export class CvcGeneSelectField
       label: 'Gene',
       placeholder: 'Search Genes',
       isRepeatItem: false,
-      searchMinLength: 1
+      searchMinLength: 3
     },
   }
 
