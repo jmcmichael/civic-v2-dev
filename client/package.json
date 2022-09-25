@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --hmr",
+    "start": "ng serve",
     "start:production": "ng serve --hmr --configuration production --watch --port 4210",
     "build": "ng build --configuration production",
     "build:stats": "ng build --configuration production --stats-json && webpack-bundle-analyzer ../server/public/stats.json",
@@ -49,6 +49,7 @@
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
+    "@angular-builders/custom-webpack": "^13.1.0",
     "@angular-devkit/build-angular": "~13.3.8",
     "@angular-eslint/builder": "13.2.1",
     "@angular-eslint/eslint-plugin": "13.2.1",
@@ -69,6 +70,8 @@
     "@graphql-eslint/eslint-plugin": "3.10.3",
     "@graphql-inspector/cli": "3.1.2",
     "@ngx-formly/schematics": "^6.0.0-rc.2",
+    "@rxjs-insights/plugin-webpack5": "^0.4.2",
+    "@rxjs-insights/rxjs7": "^0.4.3",
     "@types/jasmine": "~3.6.0",
     "@types/node": "^12.11.1",
     "@typescript-eslint/eslint-plugin": "5.17.0",
