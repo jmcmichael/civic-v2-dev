@@ -45,7 +45,7 @@
             "stylePreprocessorOptions": {
               "includePaths": ["src/themes/", "node_modules"]
             },
-            "scripts": [],
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -87,7 +87,8 @@
               ]
             },
             "development": {
-              "customWebpackConfig": { "path": "development.config.js" },
+              // NOTE: uncomment to compile with rxjs-insights
+              // "customWebpackConfig": { "path": "development.config.js" },
               "buildOptimizer": false,
               "optimization": false,
               "vendorChunk": true,
@@ -99,7 +100,9 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
+          // NOTE: uncomment to compile with rxjs-insights
+          // "builder": "@angular-builders/custom-webpack:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "proxyConfig": "proxy.config.json"
           },

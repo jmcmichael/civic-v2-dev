@@ -164,17 +164,6 @@
     "@angular-eslint/utils" "13.2.1"
     "@typescript-eslint/experimental-utils" "5.17.0"
 
-"@angular-eslint/schematics@13.2.1":
-  version "13.2.1"
-  resolved "https://registry.yarnpkg.com/@angular-eslint/schematics/-/schematics-13.2.1.tgz#20a2ecda4d6a8319aaa58c654abccd31ee0915f4"
-  integrity sha512-uejXuV9mGzjxw/WY7T3FBpm3HWmOtjnA3eFXzY2VssqaYbEcBl9DakBh9h+KivV86iH3F3ElY8WC0Ka25TCCsg==
-  dependencies:
-    "@angular-eslint/eslint-plugin" "13.2.1"
-    "@angular-eslint/eslint-plugin-template" "13.2.1"
-    ignore "5.2.0"
-    strip-json-comments "3.1.1"
-    tmp "0.2.1"
-
 "@angular-eslint/template-parser@13.2.1":
   version "13.2.1"
   resolved "https://registry.yarnpkg.com/@angular-eslint/template-parser/-/template-parser-13.2.1.tgz#c931b79532b5230c771cd8344e7ddecb6b01512f"
@@ -7149,7 +7138,7 @@ ignore-walk@^4.0.1:
   dependencies:
     minimatch "^3.0.4"
 
-ignore@5.2.0, ignore@^5.0.4, ignore@^5.1.4, ignore@^5.1.8, ignore@^5.1.9, ignore@^5.2.0:
+ignore@^5.0.4, ignore@^5.1.4, ignore@^5.1.8, ignore@^5.1.9, ignore@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.2.0.tgz#6d3bac8fa7fe0d45d9f9be7bac2fc279577e345a"
   integrity sha512-CmxgYGiEPCLhfLnpPp1MoRmifwEIOgjcHXxOBjv7mY96c+eWScsOP9c112ZyLdWHi0FxHjI+4uVhKYp/gcdRmQ==
@@ -11491,7 +11480,7 @@ strip-final-newline@^2.0.0:
   resolved "https://registry.yarnpkg.com/strip-final-newline/-/strip-final-newline-2.0.0.tgz#89b852fb2fcbe936f6f4b3187afb0a12c1ab58ad"
   integrity sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==
 
-strip-json-comments@3.1.1, strip-json-comments@^3.1.0, strip-json-comments@^3.1.1:
+strip-json-comments@^3.1.0, strip-json-comments@^3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
