@@ -24,16 +24,6 @@ const typeConfig: ConfigOption = {
       name: 'variant-select',
       wrappers: ['form-field'],
       component: CvcVariantSelectField,
-      defaultOptions: {
-        props: <CvcVariantSelectFieldProps>{
-          label: 'Variant',
-          placeholder: 'Search CIViC Variants',
-          requireGene: true,
-          requireGenePlaceholder: 'Search GENE_NAME Variants',
-          requireGenePrompt: 'Select a Gene to search Variants',
-          isRepeatItem: false,
-        },
-      },
     },
     {
       // no label, for use in repeat-field types
@@ -41,10 +31,9 @@ const typeConfig: ConfigOption = {
       wrappers: ['form-field'],
       component: CvcVariantSelectField,
       defaultOptions: {
-        props: <CvcVariantSelectFieldProps>{
+        props: {
           isRepeatItem: true,
           hideLabel: true,
-          placeholder: 'Search Variants',
           requireGene: false,
         },
       },

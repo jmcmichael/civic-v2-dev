@@ -22,8 +22,6 @@ import { tag } from 'rxjs-spy/operators'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 export type CvcSelectMessageOptions = {
-  // a prompt to click and search, e.g. 'Search Entities'
-  placeholder: string
   // displayed after click or select, helptext indicating
   // the the field(s) searched, e.g. 'Searches Gene names and aliases'
   focus: string
@@ -58,8 +56,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   // or the NotFound template area under the input after
   // the field obtains focus
   @Input() cvcSelectMessages: CvcSelectMessageOptions = {
-    // initial placeholder
-    placeholder: 'Search Entities',
     // displayed under input, after focus, before any search query entered
     focus: 'Enter search query',
     // displayed while API requests complete
@@ -69,6 +65,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // displayed if search results empty and select has been provided cvcAddEntity template
     create: 'Create a new Entity named "SEARCH_STRING"?',
   }
+  @Input() cvcPlaceholder: string = `Search ${this.cvcEntityName.plural}`
   @Input() cvcLoading?: boolean = false
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
@@ -97,7 +94,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   onResult$: BehaviorSubject<Maybe<any[]>>
   onLoading$: BehaviorSubject<boolean>
 
-  placeholder$: BehaviorSubject<string>
   focusMessage$: BehaviorSubject<Maybe<string>>
   notFoundMessage$: BehaviorSubject<Maybe<string>>
   loadingMessage$: BehaviorSubject<Maybe<string>>
@@ -110,9 +106,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onResult$ = new BehaviorSubject<Maybe<any[]>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
 
-    this.placeholder$ = new BehaviorSubject<string>(
-      this.cvcSelectMessages.placeholder
-    )
     this.loadingMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.focusMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.notFoundMessage$ = new BehaviorSubject<Maybe<string>>(undefined)

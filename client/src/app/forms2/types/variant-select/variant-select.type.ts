@@ -7,6 +7,10 @@ import {
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
+import {
+  CvcSelectEntityName,
+  CvcSelectMessageOptions,
+} from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
@@ -21,7 +25,7 @@ import {
   VariantSelectTypeaheadQuery,
   VariantSelectTypeaheadQueryVariables,
 } from '@app/generated/civic.apollo'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
@@ -32,9 +36,11 @@ import { BehaviorSubject, lastValueFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
-  placeholder: string // default placeholder
   isRepeatItem: boolean // is child of a repeat-field type
+  entityName: CvcSelectEntityName
+  selectMessages: CvcSelectMessageOptions
   requireGene: boolean // if true, disables field if no geneId$
+  placeholder: string // default placeholder
   requireGenePlaceholder?: string // placeholder if geneId required & none is set
   requireGenePrompt?: string // placeholder prompt displayed when geneId set
 }
@@ -96,10 +102,15 @@ export class CvcVariantSelectField
       requireGenePlaceholder: 'Search GENE_NAME Variants',
       requireGenePrompt: 'Select a Gene to search Variants',
       isRepeatItem: false,
+      entityName: { singular: 'Variant', plural: 'Variant' },
+      selectMessages: {
+        focus: 'Enter query to search',
+        loading: 'Searching Variants',
+        notfound: 'No Variants found matching "SEARCH_STRING"',
+        create: 'Create a new Variant named "SEARCH_STRING"?',
+      },
     },
   }
-
-  repeatFieldKey?: string
 
   constructor(
     public injector: Injector,
@@ -113,7 +124,8 @@ export class CvcVariantSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
-    this.configureEntityTagField( // mixin fn
+    this.configureEntityTagField(
+      // mixin fn
       // typeahead query
       this.taq,
       // linkable entity query

@@ -12,7 +12,7 @@ import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { CvcGeneSelectField, CvcGeneSelectFieldProps } from './gene-select.type'
+import { CvcGeneSelectField, CvcGeneSelectFieldConfig, CvcGeneSelectFieldProps } from './gene-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -22,12 +22,12 @@ const typeConfig: ConfigOption = {
       component: CvcGeneSelectField,
     },
     {
-      // for use in repeat-field types,
+      // for use in repeat-field types, label hidden
       name: 'gene-select-item',
       wrappers: ['form-field'],
       component: CvcGeneSelectField,
       defaultOptions: {
-        props: <CvcGeneSelectFieldProps>{
+        props: {
           isRepeatItem: true,
           hideLabel: true,
         },

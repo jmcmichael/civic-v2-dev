@@ -38,14 +38,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
             },
           },
 
-          // <CvcVariantSelectFieldConfig>{
-          //   key: 'variantId',
-          //   type: 'variant-select',
-          //   props: {
-          //     required: true,
-          //     // requireGene: false
-          //   },
-          // },
+          <CvcVariantSelectFieldConfig>{
+            key: 'variantId',
+            type: 'variant-select',
+            props: {
+              required: true,
+              // requireGene: false
+            },
+          },
 
           // <CvcEntityTypeSelectFieldConfig>{
           //   key: 'assertionType',

@@ -30,7 +30,7 @@ import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
-  searchMinLength: number // # chars required to query
+  placeholder: string
   isRepeatItem: boolean
   entityName: CvcSelectEntityName
   selectMessages: CvcSelectMessageOptions
@@ -76,11 +76,10 @@ export class CvcGeneSelectField
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
     props: {
       label: 'Gene',
+      placeholder: 'Search Genes',
       isRepeatItem: false,
-      searchMinLength: 3,
       entityName: { singular: 'Gene', plural: 'Genes' },
       selectMessages: {
-        placeholder: 'Search Genes',
         focus: 'Enter query to search',
         loading: 'Searching Genes',
         notfound: 'No Genes found matching "SEARCH_STRING"',

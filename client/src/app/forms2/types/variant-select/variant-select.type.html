@@ -8,6 +8,7 @@
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
   [cvcResults]="result$ | ngrxPush"
+  [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
   [cvcShowError]="showError"
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
