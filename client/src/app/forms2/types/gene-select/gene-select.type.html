@@ -3,14 +3,17 @@
   [cvcCacheId]="cacheId"
   cvcMode="closeable"
   (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
+
 <cvc-entity-select
   *ngIf="!(tagCacheId$ | ngrxPush)"
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
-  [cvcResults]="result$"
+  [cvcEntityName]="props.entityName"
+  [cvcSelectMessages]="props.selectMessages"
+  [cvcResults]="result$ | ngrxPush"
   [cvcShowError]="showError"
   [cvcDisabled]="props.disabled"
-  [cvcLoading]="isLoading$"
+  [cvcLoading]="isLoading$ | ngrxPush"
   [cvcNotFound]="'No Genes Found'"
   [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
@@ -19,6 +22,7 @@
   (cvcOnFocus)="onFocus$.next()"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
+
 <!-- option extra tpl to display list of aliases after tag -->
 <ng-template
   #optionExtra

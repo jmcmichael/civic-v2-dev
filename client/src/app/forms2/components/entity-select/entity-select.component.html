@@ -8,7 +8,7 @@
   [formlyAttributes]="cvcFormlyAttributes"
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
-  [nzLoading]="cvcLoading | ngrxPush"
+  [nzLoading]="cvcLoading"
   [nzAllowClear]="cvcAllowClear"
   (nzFocus)="cvcOnFocus.next()"
   (nzOnSearch)="onSearch$.next($event)"
@@ -17,8 +17,8 @@
   "
   [nzDropdownClassName]="'cvc-select-dropdown'">
   <ng-container *ngrxLet="onSearch$ as searchString">
-    <ng-container *ngrxLet="cvcResults as results">
-      <ng-container *ngFor="let item of cvcResults | ngrxPush">
+    <ng-container *ngrxLet="onResult$ as results">
+      <ng-container *ngFor="let item of results">
         <nz-option
           nzCustomContent
           [nzValue]="item.id">

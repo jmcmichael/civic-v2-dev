@@ -7,6 +7,7 @@ import {
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
+import { CvcSelectEntityName, CvcSelectMessageOptions } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
@@ -29,9 +30,10 @@ import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
-  placeholder: string
   searchMinLength: number // # chars required to query
   isRepeatItem: boolean
+  entityName: CvcSelectEntityName
+  selectMessages: CvcSelectMessageOptions
 }
 
 export interface CvcGeneSelectFieldConfig
@@ -74,9 +76,16 @@ export class CvcGeneSelectField
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
     props: {
       label: 'Gene',
-      placeholder: 'Search Genes',
       isRepeatItem: false,
-      searchMinLength: 3
+      searchMinLength: 3,
+      entityName: { singular: 'Gene', plural: 'Genes' },
+      selectMessages: {
+        placeholder: 'Search Genes',
+        focus: 'Enter query to search',
+        searching: 'Searching Genes',
+        notfound: 'No Genes found matching "SEARCH_STRING"',
+        create: 'Create a new Gene named "SEARCH_STRING"?',
+      },
     },
   }
 
@@ -131,7 +140,10 @@ export class CvcGeneSelectField
       }
     }
   }
-
+  onSearch(str: string): void {
+    console.log(str)
+    this.onSearch$.next(str)
+  }
   private configureOnTagClose(): void {
     // emit undefined from state valueChange$
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_v) => {

@@ -4,7 +4,10 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   Output,
+  SimpleChange,
+  SimpleChanges,
   TemplateRef,
   TrackByFunction,
 } from '@angular/core'
@@ -17,9 +20,10 @@ import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
 import { combineLatestArray, combineLatestObject } from 'rxjs-etc'
 import { tag } from 'rxjs-spy/operators'
 
+export type CvcSelectEntityName = { singular: string; plural: string }
 export type CvcSelectMessageOptions = {
   // a prompt to click and search, e.g. 'Search Entities'
-  initial: string
+  placeholder: string
   // displayed after click or select, helptext indicating
   // the the field(s) searched, e.g. 'Searches Gene names and aliases'
   focus: string
@@ -42,55 +46,82 @@ export type CvcSelectMessageOptions = {
   styleUrls: ['./entity-select.component.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcEntitySelectComponent implements AfterViewInit {
+export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcFormControl!: FormControl
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
-  @Input() cvcEntityName: { singular: string; plural: string } = {
+
+  @Input() cvcEntityName: CvcSelectEntityName = {
     singular: 'Entity',
     plural: 'Entities',
   }
+  // these select messages are displayed in the input area
+  // or the NotFound template area under the input after
+  // the field obtains focus
+  @Input() cvcSelectMessages: CvcSelectMessageOptions = {
+    // initial placeholder
+    placeholder: 'Search Entities',
+    // displayed under input, after focus, before any search query entered
+    focus: 'Enter search query',
+    // displayed while API requests complete
+    searching: 'Searching Entities',
+    // displayed if research results empty
+    notfound: 'No Entities found matching "SEARCH_STRING"',
+    // displayed if search results empty and select has been provided cvcAddEntity template
+    create: 'Create a new Entity named "SEARCH_STRING"?',
+  }
+  @Input() cvcLoading?: boolean = false
+  @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = true
-  @Input() cvcLoading!: Observable<boolean>
-  @Input() cvcResults!: Observable<Maybe<any[]>>
-  @Input() cvcNotFound: string | TemplateRef<any> | undefined = undefined
-  @Input() cvcOptionExtra: TemplateRef<any> | null = null
   @Input() cvcSearchMinLength: number = 1
-  @Input() cvcOptionTrackBy!: TrackByFunction<any>
+  @Input() cvcOptionTrackBy?: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent
-
+  @Input() cvcOptionExtra: TemplateRef<any> | null = null
+  @Input() cvcNotFound: string | TemplateRef<any> | undefined = undefined
+  @Input() cvcAddEntity: TemplateRef<any> | null = null
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
   @Output() readonly cvcOnFocus = new EventEmitter<void>()
-  @Input() cvcSelectMessages: CvcSelectMessageOptions = {
-    initial: 'Search Entities',
-    focus: 'Query matches Entity names',
-    searching: 'Searching Entities',
-    notfound: 'No Entities found matching "SEARCH_STRING"',
-    create: 'Create a new Entity named "SEARCH_STRING"?',
-  }
 
   // COMPONENT INPUT STREAMS
   // cvcResults - array of typeahead query results
   // cvcOnLoading - boolean of loading state
-  placeholder$: BehaviorSubject<string>
+
   // SOURCE STREAMS
-  onSearch$: BehaviorSubject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
 
   // PRESENTATION STREAMS
-  notFoundPrompt$: BehaviorSubject<Maybe<string>>
-  enterSearchPrompt$: BehaviorSubject<Maybe<string>>
+  onSearch$: BehaviorSubject<Maybe<string>>
+  onResult$: BehaviorSubject<Maybe<any[]>>
+  onLoading$: BehaviorSubject<boolean>
+
+  placeholder$: BehaviorSubject<string>
+  focusMessage$: BehaviorSubject<string>
+  notFoundMessage$: BehaviorSubject<string>
+  searchingMessage$: BehaviorSubject<string>
+  createMessage$: BehaviorSubject<string>
 
   constructor() {
-    this.placeholder$ = new BehaviorSubject<string>(
-      this.cvcSelectMessages.initial
-    )
+    // create presentation streams
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
-    this.enterSearchPrompt$ = new BehaviorSubject<Maybe<string>>(undefined)
-    this.notFoundPrompt$ = new BehaviorSubject<Maybe<string>>(
-      'Enter a search query string.'
+    this.onResult$ = new BehaviorSubject<Maybe<any[]>>(undefined)
+    this.onLoading$ = new BehaviorSubject<boolean>(false)
+
+    this.placeholder$ = new BehaviorSubject<string>(
+      this.cvcSelectMessages.placeholder
+    )
+    this.searchingMessage$ = new BehaviorSubject<string>(
+      this.cvcSelectMessages.searching
+    )
+    this.focusMessage$ = new BehaviorSubject<string>(
+      this.cvcSelectMessages.focus
+    )
+    this.notFoundMessage$ = new BehaviorSubject<string>(
+      this.cvcSelectMessages.notfound
+    )
+    this.createMessage$ = new BehaviorSubject<string>(
+      this.cvcSelectMessages.create
     )
   }
   // TODO: implement dropdown prompt Subject to handle the messages
@@ -133,37 +164,28 @@ export class CvcEntitySelectComponent implements AfterViewInit {
   //   // results.length === 0, return 'No entity found...' prompt
   // }
 
+  // form fields do all their config in AfterViewInit
   ngAfterViewInit(): void {
-    if (!this.cvcEntityName) {
-      console.error(
-        `${this.cvcFormlyAttributes.id} entity-select's cvcEntityName input requires valid string, none provided.`
-      )
-      return
-    }
-    if (!this.cvcEntityName) {
-      console.error(
-        `${this.cvcFormlyAttributes.id} entity-select's cvcEntityName input requires valid string, none provided.`
-      )
-      return
-    }
-    if (!this.cvcResults) {
-      console.error(
-        `${this.cvcFormlyAttributes.id} entity-select's cvcResults input requires valid Observable<Maybe<any[]>>, none provided.`
-      )
-      return
-    }
-    if (!this.cvcLoading) {
-      console.error(
-        `${this.cvcFormlyAttributes.id} entity-select's cvcLoading input requires valid Observable<boolean>, none provided.`
-      )
-      return
-    }
-    this.placeholder$.next(this.cvcSelectMessages.initial)
+    // set messages
+    this.placeholder$.next(this.cvcSelectMessages.placeholder)
+    this.focusMessage$.next(this.cvcSelectMessages.focus)
+    this.searchingMessage$.next(this.cvcSelectMessages.searching)
+    this.notFoundMessage$.next(this.cvcSelectMessages.notfound)
+    this.createMessage$.next(this.cvcSelectMessages.create)
+
     combineLatest([
       this.onSearch$,
-      this.cvcResults,
-      this.cvcLoading,
-      of(this.cvcSearchMinLength),
-    ]).pipe(tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`))
+      this.onLoading$,
+      this.onResult$,
+    ]).pipe(tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`)).subscribe()
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.cvcResults) {
+      this.onResult$.next(changes.cvcResults.currentValue)
+    }
+    if (changes.cvcLoading) {
+      this.onLoading$.next(changes.cvcLoading.currentValue)
+    }
   }
 }

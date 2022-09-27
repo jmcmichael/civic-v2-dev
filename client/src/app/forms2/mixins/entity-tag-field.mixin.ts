@@ -132,7 +132,7 @@ export function EntityTagField<
 
         // execute a search on typeahead focus to immediately display options
         this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-          // this.onSearch$.next('')
+          this.onSearch$.next('')
         })
 
         // set up typeahead watch & fetch calls
@@ -146,6 +146,7 @@ export function EntityTagField<
               ? this.typeaheadParam$
               : of(undefined)
           ),
+          tag(`${this.field.id} onSearch$`),
           switchMap(([str, param]: [string, Maybe<TAP>]) => {
             const query = this.getTypeaheadVars(str, param)
 
