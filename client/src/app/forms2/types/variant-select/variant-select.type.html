@@ -11,7 +11,7 @@
   [cvcShowError]="showError"
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcNotFound]="'No Variants Found'"
+  [cvcAddEntity]="addVariant"
   [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
@@ -38,3 +38,4 @@
     </ng-container>
   </span>
 </ng-template>
+<ng-template #addVariant>Create a new variant?</ng-template>

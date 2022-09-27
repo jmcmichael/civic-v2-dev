@@ -14,12 +14,9 @@
   [cvcShowError]="showError"
   [cvcDisabled]="props.disabled"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcNotFound]="'No Genes Found'"
   [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
-  [cvcSearchMinLength]="props.searchMinLength"
   (cvcOnSearch)="onSearch$.next($event)"
-  (cvcOnFocus)="onFocus$.next()"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
 

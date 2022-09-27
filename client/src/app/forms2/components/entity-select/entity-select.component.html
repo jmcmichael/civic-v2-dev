@@ -10,6 +10,7 @@
   [nzDisabled]="cvcDisabled"
   [nzLoading]="cvcLoading"
   [nzAllowClear]="cvcAllowClear"
+  [nzNotFoundContent]="notFound"
   (nzFocus)="cvcOnFocus.next()"
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="
@@ -17,52 +18,40 @@
   "
   [nzDropdownClassName]="'cvc-select-dropdown'">
   <ng-container *ngrxLet="onSearch$ as searchString">
-    <ng-container *ngrxLet="onResult$ as results">
-      <ng-container *ngFor="let item of results">
-        <nz-option
-          nzCustomContent
-          [nzValue]="item.id">
-          <nz-space nzDirection="horizontal">
-            <cvc-entity-tag
-              *nzSpaceItem
-              [cvcCacheId]="item.__typename + ':' + item.id"
-              [cvcEmphasize]="searchString"></cvc-entity-tag>
-            <ng-container
-              *nzSpaceItem
-              [ngTemplateOutlet]="cvcOptionExtra"
-              [ngTemplateOutletContext]="{
-                $implicit: item,
-                searchStr: searchString
-              }">
-            </ng-container>
-          </nz-space>
-        </nz-option>
-      </ng-container>
-      <ng-template #notFound>
-        <ng-container *ngIf="cvcLoading">
-          <span
-            nz-icon
-            nzType="loading"
-            class="loading-icon"></span>
-          Searching...
-        </ng-container>
-        <!-- TODO: implement Subject to handle the following messages instead of all the messy template expressions -->
-        <ng-container
-          *ngIf="
-            !cvcResults &&
-            !cvcLoading &&
-          searchString &&
-            searchString.length < cvcSearchMinLength
-          ">
-          Enter at least {{ cvcSearchMinLength }} character{{
-            cvcSearchMinLength > 1 ? 's' : ''
-          }}
-          to search.
-        </ng-container>
-        <ng-container *ngIf="results && results.length === 0">
-          No {{ cvcEntityName }} found that matches "{{ searchString }}"
-        </ng-container>
-      </ng-template>
-    </ng-container></ng-container
-  >
+    <ng-container *ngFor="let item of cvcResults">
+      <nz-option
+        nzCustomContent
+        [nzValue]="item.id">
+        <nz-space nzDirection="horizontal">
+          <cvc-entity-tag
+            *nzSpaceItem
+            [cvcCacheId]="item.__typename + ':' + item.id"
+            [cvcEmphasize]="searchString"></cvc-entity-tag>
+          <ng-container
+            *nzSpaceItem
+            [ngTemplateOutlet]="cvcOptionExtra"
+            [ngTemplateOutletContext]="{
+              $implicit: item,
+              searchStr: searchString
+            }">
+          </ng-container>
+        </nz-space>
+      </nz-option>
+    </ng-container>
+  </ng-container>
 </nz-select>
+<ng-template #notFound>
+  <ng-container *ngIf="loadingMessage$ | ngrxPush as loadingMsg">
+    <span
+      nz-icon
+      nzType="loading"
+      class="loading-icon"></span>
+    {{ loadingMsg }}
+  </ng-container>
+  <ng-container *ngIf="focusMessage$ | ngrxPush as focusMsg">
+    {{ focusMsg }}
+  </ng-container>
+  <ng-container *ngIf="notFoundMessage$ | ngrxPush as notFoundMsg">
+    {{ notFoundMsg }}
+  </ng-container>
+</ng-template>

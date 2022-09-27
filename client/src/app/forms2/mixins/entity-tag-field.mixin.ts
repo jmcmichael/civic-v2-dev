@@ -131,9 +131,11 @@ export function EntityTagField<
         })
 
         // execute a search on typeahead focus to immediately display options
-        this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-          this.onSearch$.next('')
-        })
+        this.onFocus$
+          .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
+          .subscribe(([_, searchStr]) => {
+            this.onSearch$.next(searchStr)
+          })
 
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(
@@ -146,7 +148,7 @@ export function EntityTagField<
               ? this.typeaheadParam$
               : of(undefined)
           ),
-          tag(`${this.field.id} onSearch$`),
+          // tag(`${this.field.id} onSearch$`),
           switchMap(([str, param]: [string, Maybe<TAP>]) => {
             const query = this.getTypeaheadVars(str, param)
 
@@ -159,8 +161,7 @@ export function EntityTagField<
                 .pipe(
                   pluck('loading'),
                   distinctUntilChanged(),
-                  untilDestroyed(this),
-                  tag(`${this.field.id} queryRef.valueChanges 'loading'`)
+                  untilDestroyed(this)
                 )
                 .subscribe((l) => this.isLoading$.next(l))
 
@@ -187,6 +188,7 @@ export function EntityTagField<
         this.result$ = this.response$.pipe(
           filter((r) => !r.loading),
           map((r) => this.getTypeahedResults(r)),
+          tag(`${this.field.id} entity-tag-field.mixin result$`)
         )
 
         // if this field is the child of a repeat-field type,

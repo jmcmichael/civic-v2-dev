@@ -82,7 +82,7 @@ export class CvcGeneSelectField
       selectMessages: {
         placeholder: 'Search Genes',
         focus: 'Enter query to search',
-        searching: 'Searching Genes',
+        loading: 'Searching Genes',
         notfound: 'No Genes found matching "SEARCH_STRING"',
         create: 'Create a new Gene named "SEARCH_STRING"?',
       },
@@ -131,7 +131,7 @@ export class CvcGeneSelectField
         this.stateValueChange$ = this.state.fields.geneId$
         this.onValueChange$
           .pipe(
-            tag(`${this.field.id} onValueChange$ stateValueChange$`),
+            // tag(`${this.field.id} onValueChange$ stateValueChange$`),
             untilDestroyed(this)
           )
           .subscribe((v) => {
