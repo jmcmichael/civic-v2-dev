@@ -109,45 +109,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.notFoundMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.createMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
-  // TODO: implement dropdown prompt Subject to handle the messages
-  // - Enter at least {{ cvcSearchMinLength }} character{{cvcSearchMinLength > 1 ? 's' : ''}}
-  // - No {{ cvcEntityName }} found that matches "{{ searchString }}"
-
-  // onSearch(str: string) {
-  //   // send search str if greater than or equal to specified min length
-  //   if (str.length >= this.cvcSearchMinLength) {
-  //     this.cvcOnSearch.next(str)
-  //     this.notFoundPrompt$.next(
-  //       `Enter at least ${this.cvcSearchMinLength} character ${
-  //         this.cvcSearchMinLength > 1 ? 's' : ''
-  //       } to search.`
-  //     )
-  //   }
-  //   // clear results if search string less than min length and results exist
-  //   if (
-  //     str.length < this.cvcSearchMinLength &&
-  //     this.cvcResults &&
-  //     this.cvcResults.length > 0
-  //   ) {
-  //     console.log(
-  //       `str < cvcSearchMinLength of ${this.cvcSearchMinLength}, clearing results.'`
-  //     )
-  //     // this.cvcResults = undefined
-  //   }
-  // }
-
-  // getSearchPrompt(str: string): string {
-  //   // if searchString.length < cvcSearchMinLength, return 'Enter at least...' prompt
-  //   if (
-  //     !this.cvcResults &&
-  //     !this.cvcLoading &&
-  //     str.length <= this.cvcSearchMinLength
-  //   ) {
-  //     // return
-  //   }
-  //   // if searchstring.length > cvcSearchMinLength, results exist, and
-  //   // results.length === 0, return 'No entity found...' prompt
-  // }
 
   // form fields do all their config in AfterViewInit
   ngAfterViewInit(): void {
@@ -272,22 +233,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           this.focusMessage$.next(undefined)
           this.createMessage$.next(msg)
         }
-      })
-  }
 
-  // private noResultsExist(
-  // loading: boolean,
-  // search: string,
-  // results: Maybe<any[]>
-  // ): boolean {
-  //   return (
-  //     !loading &&
-  //     search !== undefined &&
-  //     search.length > 0 &&
-  //     this.cvcResults &&
-  //     this.cvcResults.length === 0
-  //   )
-  // }
+      }) // combineLatest.subscribe()
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.cvcLoading) {

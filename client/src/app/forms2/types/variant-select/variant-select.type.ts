@@ -107,7 +107,7 @@ export class CvcVariantSelectField
         focus: 'Enter query to search',
         loading: 'Searching Variants',
         notfound: 'No Variants found matching "SEARCH_STRING"',
-        create: 'Create a new Variant named "SEARCH_STRING"?',
+        create: 'No Variant found matching "SEARCH_STRING", create a new one?',
       },
     },
   }

@@ -7,6 +7,8 @@
   *ngIf="!(tagCacheId$ | ngrxPush)"
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
+  [cvcEntityName]="props.entityName"
+  [cvcSelectMessages]="props.selectMessages"
   [cvcResults]="result$ | ngrxPush"
   [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
   [cvcShowError]="showError"
@@ -39,4 +41,15 @@
     </ng-container>
   </span>
 </ng-template>
-<ng-template #addVariant>Create a new variant?</ng-template>
+
+<!-- add variant tpl, to display when no results found for query -->
+<ng-template
+  #addVariant
+  let-searchStr>
+  <a
+    nz-button
+    nzType="primary"
+    nzSize="small">
+    Create a new Variant
+  </a>
+</ng-template>

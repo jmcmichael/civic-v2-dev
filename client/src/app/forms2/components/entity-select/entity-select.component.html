@@ -15,8 +15,7 @@
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
-  "
-  [nzDropdownClassName]="'cvc-select-dropdown'">
+  ">
   <ng-container *ngrxLet="onSearch$ as searchString">
     <ng-container *ngFor="let item of cvcResults">
       <nz-option
@@ -41,6 +40,7 @@
   </ng-container>
 </nz-select>
 <ng-template #notFound>
+
   <!-- loading msg -->
   <ng-container *ngIf="loadingMessage$ | ngrxPush as loadingMsg">
     <span
@@ -49,13 +49,31 @@
       class="loading-icon"></span>
     {{ loadingMsg }}
   </ng-container>
+
   <!-- 'enter search query' msg -->
   <ng-container *ngIf="focusMessage$ | ngrxPush as focusMsg">
     {{ focusMsg }}
   </ng-container>
+
   <!-- none found msg -->
   <ng-container *ngIf="notFoundMessage$ | ngrxPush as notFoundMsg">
     {{ notFoundMsg }}
   </ng-container>
-  <!-- create new entity msg -->
+
+  <!-- create new entity template-->
+  <ng-container *ngIf="createMessage$ | ngrxPush as createMsg">
+    <nz-row [nzGutter]="[8,8]">
+      <nz-col nzSpan="24">{{ createMsg }}</nz-col>
+      <nz-col nzSpan="24">
+        <ng-container
+          *ngrxLet="onSearch$ as searchString"
+          [ngTemplateOutlet]="cvcAddEntity"
+          [ngTemplateOutletContext]="{
+            $implicit: searchString
+          }">
+        </ng-container>
+      </nz-col>
+    </nz-row>
+  </ng-container>
+
 </ng-template>

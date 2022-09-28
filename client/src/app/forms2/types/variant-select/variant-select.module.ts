@@ -17,6 +17,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
+import { NzButtonModule } from 'ng-zorro-antd/button'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -49,6 +50,7 @@ const typeConfig: ConfigOption = {
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
     FormlyNzFormFieldModule, // for form-field wrapper
+    NzButtonModule,
     NzSelectModule,
     NzInputModule,
     NzSpaceModule,
