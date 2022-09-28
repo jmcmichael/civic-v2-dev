@@ -162,13 +162,26 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     combineLatest([this.onFocus$, this.onSearch$, this.onLoading$])
       .pipe(tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`))
       .subscribe(([_focus, search, loading]) => {
+        // if not loading and results exist, show no status messages, return
+        if (!loading && this.cvcResults && this.cvcResults.length > 0) {
+          this.focusMessage$.next(undefined)
+          this.loadingMessage$.next(undefined)
+          this.notFoundMessage$.next(undefined)
+          this.createMessage$.next(undefined)
+        }
+
         // select focused, no search string entered, no results
         // show search prompt msg, e.g. "Enter search query"
+        //
+        // NOTE: This will only be useful if we need to implement a
+        // minimum search query length feature, by replacing below all
+        // instances of 'search.length > 0' for 'search.length >= minSearchLength'
+        // (and implementing logic to prevent lengths < minSearchLength from being emitted)
         if (
           !loading &&
           !this.cvcResults &&
           search !== undefined &&
-          search.length === 0
+          search.length > 0
         ) {
           this.focusMessage$.next(this.cvcSelectMessages.focus)
           this.loadingMessage$.next(undefined)
@@ -179,7 +192,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         // show loading message, e.g. "Search for Entities..."
         if (
           loading &&
-          (!search || (search !== undefined && search.length > 0))
+          (!search || (search !== undefined && search.length === 0))
         ) {
           this.loadingMessage$.next(this.cvcSelectMessages.loading)
           this.focusMessage$.next(undefined)
@@ -204,11 +217,22 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           this.focusMessage$.next(undefined)
           this.createMessage$.next(undefined)
         }
-        // if not loading and results exist, show no status messages
-        if (!loading && this.cvcResults && this.cvcResults.length > 0) {
-          this.focusMessage$.next(undefined)
+        // search performed, no results exist
+        // show not found message, e.g. "No Entities found"
+        if (
+          !loading &&
+          search !== undefined &&
+          search.length > 0 &&
+          this.cvcResults &&
+          this.cvcResults.length === 0
+        ) {
+          const msg = this.cvcSelectMessages.notfound.replace(
+            'SEARCH_STRING',
+            search
+          )
+          this.notFoundMessage$.next(msg)
           this.loadingMessage$.next(undefined)
-          this.notFoundMessage$.next(undefined)
+          this.focusMessage$.next(undefined)
           this.createMessage$.next(undefined)
         }
       })

@@ -41,6 +41,7 @@
   </ng-container>
 </nz-select>
 <ng-template #notFound>
+  <!-- loading msg -->
   <ng-container *ngIf="loadingMessage$ | ngrxPush as loadingMsg">
     <span
       nz-icon
@@ -48,10 +49,13 @@
       class="loading-icon"></span>
     {{ loadingMsg }}
   </ng-container>
+  <!-- 'enter search query' msg -->
   <ng-container *ngIf="focusMessage$ | ngrxPush as focusMsg">
     {{ focusMsg }}
   </ng-container>
+  <!-- none found msg -->
   <ng-container *ngIf="notFoundMessage$ | ngrxPush as notFoundMsg">
     {{ notFoundMsg }}
   </ng-container>
+  <!-- create new entity msg -->
 </ng-template>
