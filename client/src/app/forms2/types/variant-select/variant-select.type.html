@@ -14,7 +14,7 @@
   [cvcShowError]="showError"
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcAddEntity]="addVariant"
+  [cvcAddEntity]="props.requireGene ? addVariant : null"
   [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
@@ -47,9 +47,10 @@
   #addVariant
   let-searchStr>
   <a
+    *ngrxLet="onGeneId$ as geneId"
     nz-button
     nzType="primary"
     nzSize="small">
-    Create a new Variant
+    Create a new Variant in Gene ID {{ geneId }}
   </a>
 </ng-template>

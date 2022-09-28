@@ -43,7 +43,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'variant-select',
             props: {
               required: true,
-              requireGene: false
+              // requireGene: false
             },
           },
 
