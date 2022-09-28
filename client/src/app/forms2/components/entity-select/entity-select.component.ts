@@ -6,7 +6,6 @@ import {
   Input,
   OnChanges,
   Output,
-  SimpleChange,
   SimpleChanges,
   TemplateRef,
   TrackByFunction,
@@ -16,8 +15,7 @@ import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
-import { BehaviorSubject, combineLatest, Observable, of, Subject } from 'rxjs'
-import { combineLatestArray, combineLatestObject } from 'rxjs-etc'
+import { BehaviorSubject, combineLatest } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
@@ -158,56 +156,91 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       if (s !== undefined) this.cvcOnSearch.next(s)
     })
 
+    //
+    // SELECT MSG HELPER FUNCTIONS
+    // roughly in the order of their occurence interacting w/ the select
+    //
+
+    // select focused, no search string entered, no results
+    // NOTE: This will only be useful if we need to implement a
+    // minimum search query length feature, by replacing in all msg fn
+    // instances the comparator 'search.length > 0' for 'search.length >= minSearchLength'
+    // (and implementing logic to prevent lengths < minSearchLength from being emitted)
+    function inputHasFocus(
+      loading: boolean,
+      search: Maybe<string>,
+      results: Maybe<any[]>
+    ): boolean {
+      return !loading && !results && search !== undefined && search.length > 0
+    }
+
+    // search string does not exist or is > 0 length, loading true
+    function isLoading(loading: boolean, search: Maybe<string>): boolean {
+      return (
+        loading && (!search || (search !== undefined && search.length === 0))
+      )
+    }
+
+    // if not loading and results exist
+    function resultsExist(loading: boolean, results: Maybe<any[]>) {
+      return !loading && results && results.length > 0
+    }
+
+    // if not loading, search string exists, results exist with 0 length
+    function noResultsExist(
+      loading: boolean,
+      search: Maybe<string>,
+      results: Maybe<any[]>
+    ): boolean {
+      return (
+        !loading &&
+        search !== undefined &&
+        search.length > 0 &&
+        results !== undefined &&
+        results.length === 0
+      )
+    }
+
+    function noResultsCreateEntity(
+      loading: boolean,
+      search: Maybe<string>,
+      results: Maybe<any[]>,
+      addTpl: Maybe<TemplateRef<any> | null>
+    ): boolean {
+      return noResultsExist(loading, search, results) && addTpl !== null
+    }
+
     // set messages
     combineLatest([this.onFocus$, this.onSearch$, this.onLoading$])
       .pipe(tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`))
       .subscribe(([_focus, search, loading]) => {
-        // if not loading and results exist, show no status messages, return
-        if (!loading && this.cvcResults && this.cvcResults.length > 0) {
+        // show search prompt msg, e.g. "Enter search query"
+        if (inputHasFocus(loading, search, this.cvcResults)) {
+          this.focusMessage$.next(this.cvcSelectMessages.focus)
+          this.loadingMessage$.next(undefined)
+          this.notFoundMessage$.next(undefined)
+          this.createMessage$.next(undefined)
+        }
+
+        // show no select messages
+        if (resultsExist(loading, this.cvcResults)) {
           this.focusMessage$.next(undefined)
           this.loadingMessage$.next(undefined)
           this.notFoundMessage$.next(undefined)
           this.createMessage$.next(undefined)
         }
 
-        // select focused, no search string entered, no results
-        // show search prompt msg, e.g. "Enter search query"
-        //
-        // NOTE: This will only be useful if we need to implement a
-        // minimum search query length feature, by replacing below all
-        // instances of 'search.length > 0' for 'search.length >= minSearchLength'
-        // (and implementing logic to prevent lengths < minSearchLength from being emitted)
-        if (
-          !loading &&
-          !this.cvcResults &&
-          search !== undefined &&
-          search.length > 0
-        ) {
-          this.focusMessage$.next(this.cvcSelectMessages.focus)
-          this.loadingMessage$.next(undefined)
-          this.notFoundMessage$.next(undefined)
-          this.createMessage$.next(undefined)
-        }
-        // loading results,
         // show loading message, e.g. "Search for Entities..."
-        if (
-          loading &&
-          (!search || (search !== undefined && search.length === 0))
-        ) {
+        if (isLoading(loading, search)) {
           this.loadingMessage$.next(this.cvcSelectMessages.loading)
           this.focusMessage$.next(undefined)
           this.notFoundMessage$.next(undefined)
           this.createMessage$.next(undefined)
         }
-        // search performed, no results exist
+
         // show not found message, e.g. "No Entities found"
-        if (
-          !loading &&
-          search !== undefined &&
-          search.length > 0 &&
-          this.cvcResults &&
-          this.cvcResults.length === 0
-        ) {
+        if (noResultsExist(loading, search, this.cvcResults)) {
+          if (!search) return
           const msg = this.cvcSelectMessages.notfound.replace(
             'SEARCH_STRING',
             search
@@ -217,26 +250,44 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           this.focusMessage$.next(undefined)
           this.createMessage$.next(undefined)
         }
+
+        // no results exist, cvcAddEntity template exists
         // search performed, no results exist
         // show not found message, e.g. "No Entities found"
         if (
-          !loading &&
-          search !== undefined &&
-          search.length > 0 &&
-          this.cvcResults &&
-          this.cvcResults.length === 0
+          noResultsCreateEntity(
+            loading,
+            search,
+            this.cvcResults,
+            this.cvcAddEntity
+          )
         ) {
-          const msg = this.cvcSelectMessages.notfound.replace(
+          if (!search) return
+          const msg = this.cvcSelectMessages.create.replace(
             'SEARCH_STRING',
             search
           )
-          this.notFoundMessage$.next(msg)
+          this.notFoundMessage$.next(undefined)
           this.loadingMessage$.next(undefined)
           this.focusMessage$.next(undefined)
-          this.createMessage$.next(undefined)
+          this.createMessage$.next(msg)
         }
       })
   }
+
+  // private noResultsExist(
+  // loading: boolean,
+  // search: string,
+  // results: Maybe<any[]>
+  // ): boolean {
+  //   return (
+  //     !loading &&
+  //     search !== undefined &&
+  //     search.length > 0 &&
+  //     this.cvcResults &&
+  //     this.cvcResults.length === 0
+  //   )
+  // }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.cvcLoading) {
