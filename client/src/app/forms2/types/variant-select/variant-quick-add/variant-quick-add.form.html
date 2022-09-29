@@ -1,0 +1,18 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="onSubmit$.next(model)">
+  <nz-row [nzGutter]="0">
+    <nz-col nzSpan="24">
+      <formly-form
+        [form]="form"
+        [fields]="fields"
+        [model]="model"
+        [options]="options"
+        (modelChange)="model = $event">
+      </formly-form>
+    </nz-col>
+    <nz-col nzSpan="24">
+      <button nz-button nzType="primary" nzBlock>Add New Variant</button>
+    </nz-col>
+  </nz-row>
+</form>

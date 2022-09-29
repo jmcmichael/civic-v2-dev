@@ -46,11 +46,14 @@
 <ng-template
   #addVariant
   let-searchStr>
-  <a
-    *ngrxLet="onGeneId$ as geneId"
-    nz-button
-    nzType="primary"
-    nzSize="small">
-    Create a new Variant
-  </a>
+  <cvc-variant-quick-add-form
+    [cvcGeneId]="onGeneId$ | ngrxPush"
+    [cvcSearchString]="searchStr"></cvc-variant-quick-add-form>
+  <!-- <a
+       *ngrxLet="onGeneId$ as geneId"
+       nz-button
+       nzType="primary"
+       nzSize="small">
+       Create a new Variant
+       </a> -->
 </ng-template>

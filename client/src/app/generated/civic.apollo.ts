@@ -6005,6 +6005,16 @@ export type GeneSelectLinkableGeneQueryVariables = Exact<{
 
 export type GeneSelectLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
 
+export type QuickAddVariantMutationVariables = Exact<{
+  name: Scalars['String'];
+  geneId: Scalars['Int'];
+}>;
+
+
+export type QuickAddVariantMutation = { __typename: 'Mutation', addVariant?: { __typename: 'AddVariantPayload', clientMutationId?: string | undefined, new: boolean, variant: { __typename: 'Variant', id: number, name: string, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } } } | undefined };
+
+export type QuickAddVariantFieldsFragment = { __typename: 'AddVariantPayload', clientMutationId?: string | undefined, new: boolean, variant: { __typename: 'Variant', id: number, name: string, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } } };
+
 export type VariantSelectTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
   geneId?: InputMaybe<Scalars['Int']>;
@@ -7754,6 +7764,22 @@ export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
   name
   geneAliases
   link
+}
+    `;
+export const QuickAddVariantFieldsFragmentDoc = gql`
+    fragment QuickAddVariantFields on AddVariantPayload {
+  clientMutationId
+  new
+  variant {
+    id
+    name
+    singleVariantMolecularProfileId
+    singleVariantMolecularProfile {
+      id
+      name
+      link
+    }
+  }
 }
     `;
 export const VariantSelectTypeaheadFieldsFragmentDoc = gql`
@@ -11343,6 +11369,24 @@ export const GeneSelectLinkableGeneDocument = gql`
   })
   export class GeneSelectLinkableGeneGQL extends Apollo.Query<GeneSelectLinkableGeneQuery, GeneSelectLinkableGeneQueryVariables> {
     document = GeneSelectLinkableGeneDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const QuickAddVariantDocument = gql`
+    mutation QuickAddVariant($name: String!, $geneId: Int!) {
+  addVariant(input: {name: $name, geneId: $geneId}) {
+    ...AddVariantFields
+  }
+}
+    ${AddVariantFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class QuickAddVariantGQL extends Apollo.Mutation<QuickAddVariantMutation, QuickAddVariantMutationVariables> {
+    document = QuickAddVariantDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

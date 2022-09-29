@@ -17,7 +17,9 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.form'
+import { NzGridModule } from 'ng-zorro-antd/grid'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -43,7 +45,7 @@ const typeConfig: ConfigOption = {
 }
 
 @NgModule({
-  declarations: [CvcVariantSelectField],
+  declarations: [CvcVariantSelectField, CvcVariantQuickAddForm],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -53,6 +55,7 @@ const typeConfig: ConfigOption = {
     NzButtonModule,
     NzSelectModule,
     NzInputModule,
+    NzGridModule,
     NzSpaceModule,
     NzFormModule,
     NzAutocompleteModule,
@@ -62,6 +65,6 @@ const typeConfig: ConfigOption = {
     CvcPipesModule,
     CvcEntityTagModule,
   ],
-  exports: [CvcVariantSelectField],
+  exports: [CvcVariantSelectField, CvcVariantQuickAddForm],
 })
 export class CvcVariantSelectModule {}
