@@ -32,7 +32,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, lastValueFrom } from 'rxjs'
+import { BehaviorSubject, lastValueFrom, Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
@@ -80,7 +80,8 @@ export class CvcVariantSelectField
   onGeneId$!: BehaviorSubject<Maybe<number>>
 
   // LOCAL SOURCE STREAMS
-  // LOCAL INTERMEDIATE STREAMS
+  onShowAdd$: Subject<boolean>
+  onGeneName$: BehaviorSubject<Maybe<string>>
 
   // LOCAL PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
@@ -119,6 +120,8 @@ export class CvcVariantSelectField
     private geneQuery: LinkableGeneGQL
   ) {
     super(injector)
+    this.onShowAdd$ = new Subject<boolean>()
+    this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 
   ngAfterViewInit(): void {
@@ -225,6 +228,8 @@ export class CvcVariantSelectField
           } else {
             this.placeholder$.next(this.props.placeholder)
           }
+          // emit gene name for quick-add form Input
+          this.onGeneName$.next(data.gene.name)
         }
       })
     }

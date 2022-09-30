@@ -47,7 +47,8 @@
   #addVariant
   let-searchStr>
   <cvc-variant-quick-add-form
-    [cvcGeneId]="onGeneId$ | ngrxPush"
+    [cvcGeneId]="(onGeneId$ | ngrxPush)!"
+    [cvcGeneName]="(onGeneName$ | ngrxPush)!"
     [cvcSearchString]="searchStr"></cvc-variant-quick-add-form>
   <!-- <a
        *ngrxLet="onGeneId$ as geneId"

@@ -20,6 +20,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.form'
 import { NzGridModule } from 'ng-zorro-antd/grid'
+import { NzModalModule } from 'ng-zorro-antd/modal'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -54,6 +55,7 @@ const typeConfig: ConfigOption = {
     FormlyNzFormFieldModule, // for form-field wrapper
     NzButtonModule,
     NzSelectModule,
+    NzModalModule,
     NzInputModule,
     NzGridModule,
     NzSpaceModule,
