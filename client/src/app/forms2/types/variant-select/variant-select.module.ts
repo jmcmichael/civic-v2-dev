@@ -21,6 +21,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.form'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzModalModule } from 'ng-zorro-antd/modal'
+import { NzAlertModule } from 'ng-zorro-antd/alert'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -53,6 +54,7 @@ const typeConfig: ConfigOption = {
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
     FormlyNzFormFieldModule, // for form-field wrapper
+    NzAlertModule,
     NzButtonModule,
     NzSelectModule,
     NzModalModule,

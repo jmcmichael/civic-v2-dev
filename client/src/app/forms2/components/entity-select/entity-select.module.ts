@@ -13,6 +13,7 @@ import { FormlyModule } from '@ngx-formly/core'
 import { CvcEntityTagModule } from '../entity-tag/entity-tag.module'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzAlertModule } from 'ng-zorro-antd/alert'
 
 @NgModule({
   declarations: [CvcEntitySelectComponent],
@@ -21,6 +22,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
     ReactiveFormsModule,
     ReactiveComponentModule,
     FormlyModule.forChild(),
+    NzAlertModule,
     NzIconModule,
     NzSelectModule,
     NzInputModule,

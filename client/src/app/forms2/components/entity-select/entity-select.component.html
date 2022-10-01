@@ -40,7 +40,6 @@
   </ng-container>
 </nz-select>
 <ng-template #notFound>
-
   <!-- loading msg -->
   <ng-container *ngIf="loadingMessage$ | ngrxPush as loadingMsg">
     <span
@@ -62,18 +61,16 @@
 
   <!-- create new entity template-->
   <ng-container *ngIf="createMessage$ | ngrxPush as createMsg">
-    <nz-row [nzGutter]="[8,8]">
-      <nz-col nzSpan="24">{{ createMsg }}</nz-col>
-      <nz-col nzSpan="24">
-        <ng-container
-          *ngrxLet="onSearch$ as searchString"
-          [ngTemplateOutlet]="cvcAddEntity"
-          [ngTemplateOutletContext]="{
-            $implicit: searchString
-          }">
-        </ng-container>
-      </nz-col>
-    </nz-row>
+    <nz-alert
+      nzType="info"
+      [nzMessage]="createMsg"
+      nzShowIcon></nz-alert>
+    <ng-container
+      *ngrxLet="onSearch$ as searchString"
+      [ngTemplateOutlet]="cvcAddEntity"
+      [ngTemplateOutletContext]="{
+        $implicit: searchString
+      }">
+    </ng-container>
   </ng-container>
-
 </ng-template>
