@@ -22,7 +22,6 @@ module Types::Entities
     field :reference_bases, String, null: true
     field :variant_bases, String, null: true
     field :allele_registry_id, String, null: true
-    field :evidence_score, Float, null: false
     field :variant_aliases, [String], null: false
     field :variant_types, [Types::Entities::VariantTypeType], null: false
     field :clinvar_ids, [String], null: false
@@ -31,6 +30,11 @@ module Types::Entities
     field :link, String, null: false
     field :single_variant_molecular_profile, Types::Entities::MolecularProfileType, null: false
     field :single_variant_molecular_profile_id, Int, null: false
+    field :deprecated, Boolean, null: false
+    field :deprecation_reason, Types::DeprecationReasonType, null: true
+    field :deprecation_comment, Types::Entities::CommentType, null: true
+    field :deprecation_event, Types::Entities::EventType, null: true
+    field :molecular_profiles, [Types::Entities::MolecularProfileType], null: false
 
     def gene
       Loaders::RecordLoader.for(Gene).load(object.gene_id)
@@ -44,8 +48,20 @@ module Types::Entities
       Loaders::AssociationLoader.for(Variant, :variant_types).load(object)
     end
 
+    def molecular_profiles
+      Loaders::AssociationLoader.for(Variant, :molecular_profiles).load(object)
+    end
+
     def single_variant_molecular_profile
       Loaders::AssociationLoader.for(Variant, :single_variant_molecular_profile).load(object)
+    end
+
+    def deprecation_comment
+      Loaders::AssociationLoader.for(Variant, :deprecation_comment).load(object)
+    end
+
+    def deprecation_event
+      Loaders::AssociationLoader.for(Variant, :deprecation_event).load(object)
     end
 
     def primary_coordinates
@@ -88,10 +104,6 @@ module Types::Entities
       else
         return object.reference_bases
       end
-    end
-
-    def evidence_score
-      object.civic_actionability_score
     end
 
     def variant_aliases

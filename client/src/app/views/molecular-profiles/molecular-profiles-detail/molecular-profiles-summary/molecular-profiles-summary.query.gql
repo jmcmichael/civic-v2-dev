@@ -10,6 +10,7 @@ fragment MolecularProfileSummaryFields on MolecularProfile {
   name
   description
   molecularProfileAliases
+  evidenceScore
   sources {
     id
     citation
@@ -37,6 +38,7 @@ fragment MolecularProfileParsedName on MolecularProfileSegment {
       id
       name
       link
+      deprecated
     }
 }
 

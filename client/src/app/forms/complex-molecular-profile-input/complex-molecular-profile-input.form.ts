@@ -41,8 +41,7 @@ import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { LinkableMolecularProfile } from '@app/components/molecular-profiles/molecular-profile-tag/molecular-profile-tag.component';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FormMolecularProfile } from '../forms.interfaces';
-import { tag } from 'rxjs-spy/operators';
-import { pluck } from 'rxjs-etc/dist/esm/operators';
+import { LinkableVariantType } from '@app/components/variant-types/variant-type-tag/variant-type-tag.component';
 
 interface WithDisplayNameAndValue {
   displayName: string
@@ -66,8 +65,9 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
   previewQueryRef!: QueryRef<PreviewMolecularProfileNameQuery, PreviewMolecularProfileNameQueryVariables>
   typeaheadQueryRef?: QueryRef<QuicksearchQuery, QuicksearchQueryVariables>
 
-  previewMpName$!: Observable<PreviewMpNameFragment[]>
-  previewMpAlreadyExists$!: Observable<Maybe<LinkableMolecularProfile>>
+  previewMpName$?: Observable<PreviewMpNameFragment[]>
+  previewMpAlreadyExists$?: Observable<Maybe<LinkableMolecularProfile>>
+  previewDeprecatedVariants$?: Observable<LinkableVariantType[]>
 
   suggestions: WithDisplayNameAndValue[] = []
   loading: boolean = false
@@ -116,6 +116,13 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
       map((data) => data.existingMolecularProfile),
       takeUntil(this.destroy$)
     );
+
+    this.previewDeprecatedVariants$ = this.previewQueryRef.valueChanges.pipe(
+      pluck('data', 'previewMolecularProfileName'),
+      filter(isNonNulled),
+      map((data) => data.deprecatedVariants),
+      takeUntil(this.destroy$)
+    )
 
     if (this.formConfig?.formControl?.value) {
       this.selectedMp = this.formConfig?.formControl?.value

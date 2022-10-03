@@ -1,4 +1,4 @@
-import { Component, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { CvcComplexMolecularProfileInputForm } from '@app/forms/complex-molecular-profile-input/complex-molecular-profile-input.form';
 import { FormMolecularProfile } from '@app/forms/forms.interfaces';
@@ -15,6 +15,15 @@ export class MolecularProfileInputType extends FieldType<FieldTypeConfig> {
   @ViewChild('complexMolecularProfileInputForm', { static: false}) complexMpForm?: CvcComplexMolecularProfileInputForm
 
   mpId?: number;
+
+  ngOnInit() {
+    if(this.field.formControl?.value) {
+      if(!this.field.templateOptions) {
+        this.field.templateOptions = {}
+      }
+      this.field.templateOptions.nzSelectedIndex = 1
+    }
+  }
 
   onVariantSelected(v: SelectedVariant): void {
     this.field.formControl!.setValue(v.molecularProfile);

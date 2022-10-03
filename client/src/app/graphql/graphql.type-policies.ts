@@ -74,6 +74,10 @@ export const CvcTypePolicies: TypePolicies = {
       variants: relayStylePagination([
         'geneId',
         'name',
+      ]),
+      molecularProfiles: relayStylePagination([
+        'geneId',
+        'name',
         'evidenceStatusFilter',
       ]),
       comments: relayStylePagination(['originatingUserId', 'subject']),
