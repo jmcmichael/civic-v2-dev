@@ -75,8 +75,12 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcOptionExtra: TemplateRef<any> | null = null
   // template containing UI to add an entity, display if no results returned from search
   @Input() cvcAddEntity: TemplateRef<any> | null = null
+  @Input() cvcMutator?: any
+  @Input() cvcFormConfig?: any
+  @Input() cvcOnCreate?: any
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
   @Output() readonly cvcOnFocus = new EventEmitter<void>()
+
 
   // COMPONENT INPUT STREAMS
   // cvcResults - array of typeahead query results

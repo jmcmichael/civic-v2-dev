@@ -1,7 +1,7 @@
 <form
   [formGroup]="form"
   (ngSubmit)="onSubmit$.next(model)">
-  <nz-row [nzGutter]="[8,8]">
+  <nz-row [nzGutter]="[8, 8]">
     <nz-col nzSpan="24">
       <formly-form
         [form]="form"
@@ -11,7 +11,9 @@
         (modelChange)="model = $event">
       </formly-form>
     </nz-col>
-    <nz-col nzSpan="24" *ngIf="!form.valid">
+    <nz-col
+      nzSpan="24"
+      *ngIf="!form.valid">
       <nz-alert
         nzType="error"
         nzMessage="Error intializing Create Variant form, missing geneId or variant name."
@@ -23,6 +25,10 @@
         nzType="primary"
         [disabled]="!form.valid"
         nzBlock>
+        <span
+          nz-icon
+          nzType="plus-circle"
+          nzTheme="outline"></span>
         Create New&nbsp;<strong>{{ geneName$ | ngrxPush }}</strong
         >&nbsp;Variant&nbsp;<i>{{ searchString$ | ngrxPush }}</i>
       </button>

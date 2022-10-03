@@ -68,9 +68,7 @@
     <ng-container
       *ngrxLet="onSearch$ as searchString"
       [ngTemplateOutlet]="cvcAddEntity"
-      [ngTemplateOutletContext]="{
-        $implicit: searchString
-      }">
+      [ngTemplateOutletContext]="{ $implicit: searchString }">
     </ng-container>
   </ng-container>
 </ng-template>

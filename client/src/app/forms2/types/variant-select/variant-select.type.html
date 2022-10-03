@@ -3,6 +3,7 @@
   cvcMode="closeable"
   [cvcCacheId]="cacheId"
   (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
+
 <cvc-entity-select
   *ngIf="!(tagCacheId$ | ngrxPush)"
   [cvcFormControl]="formControl"
@@ -43,18 +44,15 @@
 </ng-template>
 
 <!-- add variant tpl, to display when no results found for query -->
+<!-- TODO: include mutator, form config, onCreate fn to #addVariant template context -->
 <ng-template
   #addVariant
   let-searchStr>
+  <!-- TODO: implement a generic quick-add-form that takes args
+  cvcAddMutator: MutatorWithState, cvcAddFormConfig: FormlyFormConfig, cvcAddOnCreate: EventEmitter -->
   <cvc-variant-quick-add-form
+    [cvcSearchString]="searchStr"
     [cvcGeneId]="(onGeneId$ | ngrxPush)!"
     [cvcGeneName]="(onGeneName$ | ngrxPush)!"
-    [cvcSearchString]="searchStr"></cvc-variant-quick-add-form>
-  <!-- <a
-       *ngrxLet="onGeneId$ as geneId"
-       nz-button
-       nzType="primary"
-       nzSize="small">
-       Create a new Variant
-       </a> -->
+    (cvcOnCreate)="onVariantCreate$.next($event)"></cvc-variant-quick-add-form>
 </ng-template>

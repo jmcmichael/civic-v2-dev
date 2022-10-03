@@ -1,13 +1,15 @@
 import {
+  Output,
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
   Input,
-  OnInit,
 } from '@angular/core'
 import { FormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import {
+  AddVariantGQL,
   Maybe,
   QuickAddVariantGQL,
   QuickAddVariantMutation,
@@ -33,38 +35,25 @@ const variantQuickAddInitialModel: VariantQuickAddModel = {
   templateUrl: './variant-quick-add.form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcVariantQuickAddForm implements OnInit {
+export class CvcVariantQuickAddForm {
   @Input()
   set cvcGeneId(id: number) {
-    if (!id) {
-      console.error(
-        'variant-quick-add form requires cvcGeneId Input, none provided.'
-      )
-      return
-    }
+    if (!id) return
     this.geneId$.next(id)
   }
   @Input()
   set cvcGeneName(name: string) {
-    if (!name) {
-      console.error(
-        'variant-quick-add form requires cvcGeneName Input, none provided.'
-      )
-      return
-    }
+    if (!name) return
     this.geneName$.next(name)
   }
 
   @Input()
   set cvcSearchString(str: string) {
-    if (!str) {
-      console.error(
-        'variant-quick-add form requires cvcSearchString Input, none provided.'
-      )
-      return
-    }
+    if (!str) return
     this.searchString$.next(str)
   }
+
+  @Output() cvcOnCreate = new EventEmitter<number>()
 
   model: VariantQuickAddModel = variantQuickAddInitialModel
   form: FormGroup = new FormGroup({})
@@ -88,6 +77,12 @@ export class CvcVariantQuickAddForm implements OnInit {
   submitSuccess$: BehaviorSubject<boolean>
   submitError$: BehaviorSubject<string[]>
 
+  addVariantMutator: MutatorWithState<
+    QuickAddVariantGQL,
+    QuickAddVariantMutation,
+    QuickAddVariantMutationVariables
+  >
+
   constructor(
     private query: QuickAddVariantGQL,
     private errors: NetworkErrorsService
@@ -102,23 +97,26 @@ export class CvcVariantQuickAddForm implements OnInit {
     this.submitSuccess$ = new BehaviorSubject<boolean>(false)
     this.submitError$ = new BehaviorSubject<any[]>([])
 
+    this.addVariantMutator = new MutatorWithState(this.errors)
+
     this.fields = [
       {
         key: 'geneId',
         props: {
           hidden: true,
-          required: true
+          required: true,
         },
       },
       {
         key: 'name',
         props: {
           hidden: true,
-          required: true
+          required: true,
         },
       },
     ]
 
+    // keep form module updated w/ Inputs
     this.geneId$.pipe(untilDestroyed(this)).subscribe((id: Maybe<number>) => {
       this.model.geneId = id
     })
@@ -129,22 +127,48 @@ export class CvcVariantQuickAddForm implements OnInit {
         this.model.name = str
       })
 
+    // handle submit events from form
     this.onSubmit$.pipe(untilDestroyed(this)).subscribe((model) => {
       console.log('variant-quick-add form model submitted.', model)
-      this.submit(model)
+      this.submitVariant(model)
     })
   }
 
-  ngOnInit(): void {
-    if (!this.cvcGeneId) {
+  submitVariant(model: VariantQuickAddModel) {
+    if (!(model.name && model.geneId)) {
       console.error(
-        `variant-quick-add form requires valid cvcGeneId Input, none provided.`
+        `variant-quick-add form submitVariant requires model with valid name and geneId.`
       )
       return
     }
-  }
+    let state = this.addVariantMutator.mutate(
+      this.query,
+      {
+        name: model.name,
+        geneId: model.geneId,
+      },
+      {},
+      (data) => {
+        console.log('variant-quick-add submit data callback', data)
+      }
+    )
 
-  submit(model: VariantQuickAddModel) {
+    state.submitSuccess$.pipe(untilDestroyed(this)).subscribe((res) => {
+      console.log('variant-quick-add submitSuccess$', res)
+      this.submitSuccess$.next(res)
+    })
 
+    state.submitError$.pipe(untilDestroyed(this)).subscribe((errs) => {
+      console.log('variant-quick-add submitError$', errs)
+      this.submitError$.next(errs)
+      // if (errs) {
+      //   this.errorMessages = errs
+      //   this.success = false
+      // }
+    })
+
+    state.isSubmitting$.pipe(untilDestroyed(this)).subscribe((loading) => {
+      this.isSubmitting$.next(loading)
+    })
   }
 }

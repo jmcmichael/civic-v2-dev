@@ -82,6 +82,7 @@ export class CvcVariantSelectField
   // LOCAL SOURCE STREAMS
   onShowAdd$: Subject<boolean>
   onGeneName$: BehaviorSubject<Maybe<string>>
+  onVariantCreate$: Subject<number>
 
   // LOCAL PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
@@ -122,6 +123,7 @@ export class CvcVariantSelectField
     super(injector)
     this.onShowAdd$ = new Subject<boolean>()
     this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
+    this.onVariantCreate$ = new Subject<number>()
   }
 
   ngAfterViewInit(): void {
@@ -176,6 +178,11 @@ export class CvcVariantSelectField
       if (!this.onGeneId$) return
       this.onGeneId$.next(v)
     }
+
+    // emit value change if new variant created by quick-add form
+    this.onVariantCreate$.pipe(untilDestroyed(this)).subscribe(v => {
+      this.onValueChange$.next(v)
+    })
   } // ngAfterViewInit
 
   private configureStateConnections() {

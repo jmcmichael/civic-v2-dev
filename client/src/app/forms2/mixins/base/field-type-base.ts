@@ -19,7 +19,7 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
     // Mixins cannot define a constructor, so mixin base components
     // provide the ng injector that mixins may inject any required
     // dependencies with this.injector.get().
-    // NOTE: therefore all components using this base will need to pass the
+    // NOTE: all components using this base will need to pass the
     // injector with their super() calls, e.g.
     // constructor(public injector: Injector) { super(injector) }
     constructor(public injector: Injector) {
@@ -33,7 +33,7 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
       this.onValueChange$ = new Subject<Maybe<V>>()
       if (!this.field?.options?.fieldChanges) {
         console.error(
-          `${this.field.id} could not find its fieldChanges Observable, ensure configureBaseField() is called in AfterViewInit hook.`
+          `${this.field.id} could not find its fieldChanges Observable, ensure configureBaseField() is called in FieldType's AfterViewInit hook.`
         )
         return
       }
