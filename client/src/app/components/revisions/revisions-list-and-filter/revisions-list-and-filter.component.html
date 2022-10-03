@@ -1,4 +1,4 @@
-<ng-container *ngIf="unfilteredCount$ | ngrxPush as unfilteredCount; else noRevisions">
+<ng-container *ngIf="unfilteredCount$! | ngrxPush as unfilteredCount; else noRevisions">
   <nz-row [nzGutter]="16">
     <nz-col nzSpan="18">
       <nz-space nzDirection="vertical">
@@ -33,7 +33,7 @@
         </ng-template>
       </cvc-participant-list>
       <cvc-participant-list listTitle="Revisors"
-        [participantList]="(uniqueRevisors$ | ngrxPush)!"
+        [participantList]="(uniqueRevisors$! | ngrxPush)!"
         (participantSelectedEvent)="onRevisorSelected($event)">
         <ng-template #itemTemplate
           let-user>

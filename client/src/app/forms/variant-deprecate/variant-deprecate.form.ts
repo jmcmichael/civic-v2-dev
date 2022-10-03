@@ -47,7 +47,7 @@ export class VariantDeprecateForm implements OnDestroy, OnInit {
 
   mpsToDeprecate$?: Observable<LinkableMolecularProfile[]>
   mpsWithEvidence$?: Observable<LinkableMolecularProfile[]>
-  mpListLoading$?: Observable<boolean>
+  mpListLoading$!: Observable<boolean>
 
 
   constructor(
@@ -140,7 +140,7 @@ export class VariantDeprecateForm implements OnDestroy, OnInit {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
+    this.destroy$.next(void 0);
     this.destroy$.complete();
   }
 }

@@ -105,8 +105,8 @@
           [nzMessage]=deprecationMessageTemplate
           nzType="error"></nz-alert>
         <ng-template #deprecationMessageTemplate>
-          This Variant has been deprecated for reason: {{ variant.deprecationReason | enumToTitle }}.
-          <cvc-comment-body [commentBodySegments]="variant.deprecationComment.parsedComment"></cvc-comment-body>
+          This Variant has been deprecated for reason: {{ variant.deprecationReason! | enumToTitle }}.
+          <cvc-comment-body [commentBodySegments]="variant.deprecationComment!.parsedComment"></cvc-comment-body>
         </ng-template>
         <cvc-tab-navigation [tabs]="this.tabs$ | ngrxPush">
           <ng-template #tabBarExtraContent>

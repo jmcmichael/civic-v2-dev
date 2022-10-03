@@ -1,9 +1,9 @@
-<ng-container *ngIf="menuMolecularProfiles$ | ngrxPush as mps">
+<ng-container *ngIf="menuMolecularProfiles$! | ngrxPush as mps">
   <nz-card [nzTitle]="cardTitle"
     [nzExtra]="cardExtra">
 
     <ng-template #cardTitle>
-      <ng-container *ngIf="totalMolecularProfiles$ | ngrxPush as total">
+      <ng-container *ngIf="totalMolecularProfiles$! | ngrxPush as total">
         <span nz-typography
           nzType="secondary">{{ total }} Total</span>
         <span nz-typography
@@ -72,19 +72,19 @@
       <nz-col nzSpan="24">
         <cvc-tag-list size="sm">
           <ng-container *ngFor="let mp of mps">
-            <cvc-molecular-profile-tag [molecularProfile]="mp"></cvc-molecular-profile-tag>
+            <cvc-molecular-profile-tag [molecularProfile]="mp!"></cvc-molecular-profile-tag>
           </ng-container>
         </cvc-tag-list>
       </nz-col>
     </nz-row>
-    <ng-container *ngIf="pageInfo$ | ngrxPush as pageInfo">
+    <ng-container *ngIf="pageInfo$! | ngrxPush as pageInfo">
       <nz-row id="load-more-btn"
         *ngIf="pageInfo.hasNextPage">
         <button nz-button
           nzType="default"
           nzSize="small"
           nzBlock
-          (click)="fetchMore(pageInfo.endCursor)">Load More
+          (click)="fetchMore(pageInfo.endCursor!)">Load More
         </button>
       </nz-row>
     </ng-container>

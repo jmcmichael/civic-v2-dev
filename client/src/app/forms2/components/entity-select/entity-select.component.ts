@@ -177,7 +177,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
     // set messages
     combineLatest([this.onFocus$, this.onSearch$, this.onLoading$])
-      .pipe(tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`))
+      // .pipe(tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`))
       .subscribe(([_focus, search, loading]) => {
         // show search prompt msg, e.g. "Enter search query"
         if (inputHasFocus(loading, search, this.cvcResults)) {

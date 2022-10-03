@@ -42,6 +42,7 @@ import { LinkableMolecularProfile } from '@app/components/molecular-profiles/mol
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FormMolecularProfile } from '../forms.interfaces';
 import { LinkableVariantType } from '@app/components/variant-types/variant-type-tag/variant-type-tag.component';
+import { pluck } from 'rxjs-etc/operators';
 
 interface WithDisplayNameAndValue {
   displayName: string
@@ -65,8 +66,8 @@ export class CvcComplexMolecularProfileInputForm implements OnDestroy, OnInit {
   previewQueryRef!: QueryRef<PreviewMolecularProfileNameQuery, PreviewMolecularProfileNameQueryVariables>
   typeaheadQueryRef?: QueryRef<QuicksearchQuery, QuicksearchQueryVariables>
 
-  previewMpName$?: Observable<PreviewMpNameFragment[]>
-  previewMpAlreadyExists$?: Observable<Maybe<LinkableMolecularProfile>>
+  previewMpName$!: Observable<PreviewMpNameFragment[]>
+  previewMpAlreadyExists$!: Observable<Maybe<LinkableMolecularProfile>>
   previewDeprecatedVariants$?: Observable<LinkableVariantType[]>
 
   suggestions: WithDisplayNameAndValue[] = []

@@ -81,8 +81,8 @@
           This Molecular Profile has been deprecated because one or more of its underlying variants are deprecated
           <ng-container *ngFor="let v of mp.deprecatedVariants">
             <br />
-            <cvc-variant-tag [variant]="v"></cvc-variant-tag> {{ v.deprecationReason | enumToTitle}}. 
-            <cvc-comment-body [commentBodySegments]="v.deprecationComment.parsedComment"></cvc-comment-body>
+            <cvc-variant-tag [variant]="v"></cvc-variant-tag> {{ v.deprecationReason! | enumToTitle}}.
+            <cvc-comment-body [commentBodySegments]="v.deprecationComment!.parsedComment"></cvc-comment-body>
           </ng-container>
         </ng-template>
         <cvc-tab-navigation [tabs]="this.tabs$ | ngrxPush">

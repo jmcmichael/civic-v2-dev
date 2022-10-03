@@ -188,7 +188,7 @@ export function EntityTagField<
         this.result$ = this.response$.pipe(
           filter((r) => !r.loading),
           map((r) => this.getTypeahedResults(r)),
-          tag(`${this.field.id} entity-tag-field.mixin result$`)
+          // tag(`${this.field.id} entity-tag-field.mixin result$`)
         )
 
         // if this field is the child of a repeat-field type,

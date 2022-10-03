@@ -3,9 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import { RevisionsGQL, RevisionsQuery, RevisionsQueryVariables, Maybe, RevisionFragment, ModeratedEntities, RevisionStatus, PageInfo, VariantDetailGQL, AssertionDetailGQL, GeneDetailGQL, EvidenceDetailGQL, VariantGroupDetailGQL, VariantSummaryGQL, VariantGroupsSummaryGQL, AssertionSummaryGQL, GenesSummaryGQL, EvidenceSummaryGQL, MolecularProfileDetailGQL, MolecularProfileSummaryGQL } from '@app/generated/civic.apollo';
 import { Observable, Subscription } from 'rxjs';
 import { QueryRef } from 'apollo-angular';
-import { filter, map, pluck, startWith } from 'rxjs/operators';
+import { filter, map, startWith } from 'rxjs/operators';
 import { InternalRefetchQueryDescriptor } from '@apollo/client/core/types';
 import { isNonNulled } from 'rxjs-etc';
+import { pluck } from 'rxjs-etc/operators';
 
 export interface SelectableFieldName {
   id: number
@@ -34,13 +35,13 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
   @Input() id!: number;
   @Input() entityType!: ModeratedEntities;
 
-  revisions$?: Observable<Maybe<RevisionFragment>[]>;
+  revisions$!: Observable<RevisionFragment[]>;
   pageInfo$?: Observable<Maybe<PageInfo>>;
-  revisionFields$: Maybe<Observable<Maybe<SelectableFieldName[]>>>;
-  uniqueRevisors$: Maybe<Observable<Maybe<UniqueUsers[]>>>;
-  uniqueResolvers$: Maybe<Observable<Maybe<UniqueUsers[]>>>;
-  unfilteredCount$: Maybe<Observable<Maybe<number>>>;
-  isLoading$: Maybe<Observable<boolean>>;
+  revisionFields$!: Observable<Maybe<SelectableFieldName[]>>;
+  uniqueRevisors$!: Observable<Maybe<UniqueUsers[]>>;
+  uniqueResolvers$!: Observable<Maybe<UniqueUsers[]>>;
+  unfilteredCount$!: Observable<Maybe<number>>;
+  isLoading$!: Observable<boolean>;
 
   filteredSet: undefined | string = undefined;
 
@@ -101,7 +102,7 @@ export class RevisionsListAndFilterComponent implements OnDestroy, OnInit {
         this.revisions$ = observable.pipe(
           pluck('data', 'revisions', 'edges'),
           map((edges) => {
-            return edges.map((e) => e.node);
+            return edges.map((e) => e.node as RevisionFragment);
           })
         );
 
