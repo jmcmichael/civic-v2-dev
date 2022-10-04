@@ -17,9 +17,10 @@ import { EntityState } from '@app/forms2/states/entity.state'
 import {
   LinkableGeneGQL,
   LinkableVariantGQL,
+  LinkableVariantQuery,
+  LinkableVariantQueryVariables,
   Maybe,
-  VariantSelectLinkableVariantQuery,
-  VariantSelectLinkableVariantQueryVariables,
+  Variant,
   VariantSelectTypeaheadFieldsFragment,
   VariantSelectTypeaheadGQL,
   VariantSelectTypeaheadQuery,
@@ -52,20 +53,19 @@ export interface CvcVariantSelectFieldConfig
 
 const VariantSelectMixin = mixin(
   BaseFieldType<FieldTypeConfig<CvcVariantSelectFieldProps>, Maybe<number>>(),
-  // ConnectState(),
   EntityTagField<
     VariantSelectTypeaheadQuery,
     VariantSelectTypeaheadQueryVariables,
     VariantSelectTypeaheadFieldsFragment,
-    VariantSelectLinkableVariantQuery,
-    VariantSelectLinkableVariantQueryVariables,
-    VariantSelectTypeaheadFieldsFragment,
+    LinkableVariantQuery,
+    LinkableVariantQueryVariables,
+    Variant,
     Maybe<number>
   >()
 )
 
 @Component({
-  selector: 'cvc-variant-select',
+  selector: '',
   templateUrl: './variant-select.type.html',
   styleUrls: ['./variant-select.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,7 +80,6 @@ export class CvcVariantSelectField
   onGeneId$!: BehaviorSubject<Maybe<number>>
 
   // LOCAL SOURCE STREAMS
-  onShowAdd$: Subject<boolean>
   onGeneName$: BehaviorSubject<Maybe<string>>
   onVariantCreate$: Subject<number>
 
@@ -121,7 +120,6 @@ export class CvcVariantSelectField
     private geneQuery: LinkableGeneGQL
   ) {
     super(injector)
-    this.onShowAdd$ = new Subject<boolean>()
     this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onVariantCreate$ = new Subject<number>()
   }
@@ -146,13 +144,14 @@ export class CvcVariantSelectField
       // linkable entity query vars getter fn
       (id: number) => ({ variantId: id }),
       // tag cache id getter fn
-      (r: ApolloQueryResult<VariantSelectLinkableVariantQuery>) =>
+      (r: ApolloQueryResult<LinkableVariantQuery>) =>
         `Variant:${r.data.variant!.id}`,
       // attach state's geneId$ optional typeahead param
       this.onGeneId$ ? this.onGeneId$ : undefined
     )
 
-    // hook up state geneId$ observable
+    // hook up state geneId$ observable, possibly attached in
+    // configureStateConnections()
     if (this.onGeneId$) {
       this.onGeneId$.subscribe((gid) => {
         this.onGeneId(gid)
@@ -174,9 +173,6 @@ export class CvcVariantSelectField
     if (this.field.formControl.value) {
       const v = this.field.formControl.value
       this.onValueChange$.next(v)
-      // valueChange$ may not exist if component is a repeat-item or form state missing
-      if (!this.onGeneId$) return
-      this.onGeneId$.next(v)
     }
 
     // emit value change if new variant created by quick-add form

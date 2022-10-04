@@ -5,8 +5,17 @@ query LinkableGene($geneId: Int!) {
     link
   }
 }
+
 query LinkableVariant($variantId: Int!) {
   variant(id: $variantId) {
+    id
+    name
+    link
+  }
+}
+
+query LinkableDrug($drugId: Int!) {
+  drug(id: $drugId) {
     id
     name
     link

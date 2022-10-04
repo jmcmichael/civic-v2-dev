@@ -50,13 +50,28 @@ class AssertionState extends EntityState {
 
     // TODO: must determine best way to unsubscribe from these
     // ASSERTION TYPE SUBSCRIBERS
-    this.fields.assertionType$.subscribe((et: Maybe<AssertionType>) => {
-      if (!et) return
+    this.fields.assertionType$.subscribe((at: Maybe<AssertionType>) => {
+      if (!at) return
       this.options.clinicalSignificanceOption$.next(
-        this.getOptionsFromEnums(this.getSignificanceOptions(et))
+        this.getOptionsFromEnums(this.getSignificanceOptions(at))
       )
       this.options.assertionDirectionOption$.next(
-        this.getOptionsFromEnums(this.getDirectionOptions(et))
+        this.getOptionsFromEnums(this.getDirectionOptions(at))
+      )
+      this.requires.requiresDisease$.next(
+        this.requiresDisease(at)
+      )
+      this.requires.requiresDrug$.next(
+        this.requiresDrug(at)
+      )
+      this.requires.requiresClingenCodes$.next(
+        this.requiresClingenCodes(at)
+      )
+      this.requires.requiresAcmgCodes$.next(
+        this.requiresAcmgCodes(at)
+      )
+      this.requires.allowsFdaApproval$.next(
+        this.allowsFdaApproval(at)
       )
     })
 

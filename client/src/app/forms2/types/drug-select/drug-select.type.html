@@ -13,9 +13,9 @@
   [cvcResults]="result$ | ngrxPush"
   [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
   [cvcShowError]="showError"
-  [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
+  [cvcDisabled]="!(onRequiresDrug$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcAddEntity]="props.requireGene ? addVariant : null"
+  [cvcAddEntity]="addDrug"
   [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
@@ -30,29 +30,29 @@
   <span
     nz-typography
     nzType="secondary">
-    <ng-container *ngIf="item.variantAliases.length > 0">
+    <ng-container *ngIf="item.drugAliases.length > 0">
       <em>
         <span
           nz-typography
           nzType="secondary"
           [innerHtml]="
-            item.variantAliases.join(', ') | highlightTypeahead: searchString
+            item.drugAliases.join(', ') | highlightTypeahead: searchString
           "></span
       ></em>
     </ng-container>
   </span>
 </ng-template>
 
-<!-- add variant tpl, to display when no results found for query -->
+<!-- add drug tpl, to display when no results found for query -->
 <ng-template
-  #addVariant
+  #addDrug
   let-searchStr
   let-createMsg>
-  <!-- TODO: create an "Created Variant" success alert to take the place of the createMsg alert after a variant is created. alert should be displayed for a couple of seconds, then field's valueChange$.next(id) called. -->
-  <cvc-variant-quick-add-form
+  ADD DRUG FORM
+<!-- <cvc-drug-quick-add-form
     [cvcSearchString]="searchStr"
     [cvcGeneId]="(onGeneId$ | ngrxPush)!"
     [cvcGeneName]="(onGeneName$ | ngrxPush)!"
-    (cvcOnCreate)="onVariantCreate$.next($event)">
-  </cvc-variant-quick-add-form>
+    (cvcOnCreate)="onDrugCreate$.next($event)">
+  </cvc-drug-quick-add-form> -->
 </ng-template>

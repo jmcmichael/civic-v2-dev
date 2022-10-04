@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
+import { CommonModule } from '@angular/common'
 import { ReactiveFormsModule } from '@angular/forms'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
@@ -18,26 +18,24 @@ import { NzModalModule } from 'ng-zorro-antd/modal'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.form'
-import { CvcVariantSelectField } from './variant-select.type'
+import { CvcDrugSelectField } from './drug-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'variant-select',
+      name: 'drug-select',
       wrappers: ['form-field'],
-      component: CvcVariantSelectField,
+      component: CvcDrugSelectField,
     },
     {
       // no label, for use in repeat-field types
-      name: 'variant-select-item',
+      name: 'drug-select-item',
       wrappers: ['form-field'],
-      component: CvcVariantSelectField,
+      component: CvcDrugSelectField,
       defaultOptions: {
         props: {
           isRepeatItem: true,
           hideLabel: true,
-          requireGene: false,
         },
       },
     },
@@ -45,7 +43,7 @@ const typeConfig: ConfigOption = {
 }
 
 @NgModule({
-  declarations: [CvcVariantSelectField, CvcVariantQuickAddForm],
+  declarations: [CvcDrugSelectField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -63,11 +61,10 @@ const typeConfig: ConfigOption = {
     NzFormModule,
     NzAutocompleteModule,
     NzTypographyModule,
-
     CvcEntitySelectModule,
     CvcPipesModule,
     CvcEntityTagModule,
   ],
-  exports: [CvcVariantSelectField, CvcVariantQuickAddForm],
+  exports: [CvcDrugSelectField],
 })
-export class CvcVariantSelectModule {}
+export class CvcDrugSelectModule {}

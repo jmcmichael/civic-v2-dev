@@ -1,0 +1,14 @@
+mutation QuickAddDrug($name: String!, $ncitId: String) {
+  addDrug(input: { name: $name, ncitId: $ncitId }) {
+    ...QuickAddDrugFields
+  }
+}
+
+fragment QuickAddDrugFields on AddDrugPayload {
+  new
+  drug {
+    id
+    ncitId
+    name
+  }
+}

@@ -8,6 +8,7 @@ import { CvcGeneSelectModule } from './gene-select/gene-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
 import { CvcRepeatFieldModule } from './repeat-field/repeat-field.module'
 import { CvcVariantSelectModule } from './variant-select/variant-select.module'
+import { CvcDrugSelectModule } from './drug-select/drug-select.module'
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcOrgSubmitButtonTypeModule,
     CvcGeneSelectModule,
     CvcVariantSelectModule,
+    CvcDrugSelectModule,
     CvcEntityTypeSelectModule,
     CvcClinicalSignificanceSelectModule,
     CvcEvidenceDirectionSelectModule,

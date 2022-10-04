@@ -139,10 +139,12 @@ export class CvcGeneSelectField
       }
     }
   }
+
   onSearch(str: string): void {
     console.log(str)
     this.onSearch$.next(str)
   }
+
   private configureOnTagClose(): void {
     // emit undefined from state valueChange$
     this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_v) => {

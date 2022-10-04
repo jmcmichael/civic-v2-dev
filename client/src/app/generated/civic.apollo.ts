@@ -6124,6 +6124,32 @@ export type LinkableVariantQueryVariables = Exact<{
 
 export type LinkableVariantQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string } | undefined };
 
+export type LinkableDrugQueryVariables = Exact<{
+  drugId: Scalars['Int'];
+}>;
+
+
+export type LinkableDrugQuery = { __typename: 'Query', drug?: { __typename: 'Drug', id: number, name: string, link: string } | undefined };
+
+export type QuickAddDrugMutationVariables = Exact<{
+  name: Scalars['String'];
+  ncitId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type QuickAddDrugMutation = { __typename: 'Mutation', addDrug?: { __typename: 'AddDrugPayload', new: boolean, drug: { __typename: 'Drug', id: number, ncitId?: string | undefined, name: string } } | undefined };
+
+export type QuickAddDrugFieldsFragment = { __typename: 'AddDrugPayload', new: boolean, drug: { __typename: 'Drug', id: number, ncitId?: string | undefined, name: string } };
+
+export type DrugSelectTypeaheadQueryVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type DrugSelectTypeaheadQuery = { __typename: 'Query', drugTypeahead: Array<{ __typename: 'Drug', id: number, name: string, ncitId?: string | undefined, drugAliases: Array<string> }> };
+
+export type DrugSelectTypeaheadFieldsFragment = { __typename: 'Drug', id: number, name: string, ncitId?: string | undefined, drugAliases: Array<string> };
+
 export type GeneSelectTypeaheadQueryVariables = Exact<{
   entrezSymbol: Scalars['String'];
 }>;
@@ -7873,6 +7899,24 @@ export const RevisableVariantFieldsFragmentDoc = gql`
   variantBases
 }
     ${CoordinateFieldsFragmentDoc}`;
+export const QuickAddDrugFieldsFragmentDoc = gql`
+    fragment QuickAddDrugFields on AddDrugPayload {
+  new
+  drug {
+    id
+    ncitId
+    name
+  }
+}
+    `;
+export const DrugSelectTypeaheadFieldsFragmentDoc = gql`
+    fragment DrugSelectTypeaheadFields on Drug {
+  id
+  name
+  ncitId
+  drugAliases
+}
+    `;
 export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
     fragment GeneSelectTypeaheadFields on Gene {
   id
@@ -11607,6 +11651,62 @@ export const LinkableVariantDocument = gql`
   })
   export class LinkableVariantGQL extends Apollo.Query<LinkableVariantQuery, LinkableVariantQueryVariables> {
     document = LinkableVariantDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const LinkableDrugDocument = gql`
+    query LinkableDrug($drugId: Int!) {
+  drug(id: $drugId) {
+    id
+    name
+    link
+  }
+}
+    `;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class LinkableDrugGQL extends Apollo.Query<LinkableDrugQuery, LinkableDrugQueryVariables> {
+    document = LinkableDrugDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const QuickAddDrugDocument = gql`
+    mutation QuickAddDrug($name: String!, $ncitId: String) {
+  addDrug(input: {name: $name, ncitId: $ncitId}) {
+    ...QuickAddDrugFields
+  }
+}
+    ${QuickAddDrugFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class QuickAddDrugGQL extends Apollo.Mutation<QuickAddDrugMutation, QuickAddDrugMutationVariables> {
+    document = QuickAddDrugDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const DrugSelectTypeaheadDocument = gql`
+    query DrugSelectTypeahead($name: String!) {
+  drugTypeahead(queryTerm: $name) {
+    ...DrugSelectTypeaheadFields
+  }
+}
+    ${DrugSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class DrugSelectTypeaheadGQL extends Apollo.Query<DrugSelectTypeaheadQuery, DrugSelectTypeaheadQueryVariables> {
+    document = DrugSelectTypeaheadDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

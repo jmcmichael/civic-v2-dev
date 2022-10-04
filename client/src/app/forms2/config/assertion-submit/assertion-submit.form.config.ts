@@ -1,4 +1,5 @@
 import { assertionSubmitFormInitialModel } from '@app/forms2/models/assertion-submit.model'
+import { CvcDrugSelectFieldConfig } from '@app/forms2/types/drug-select/drug-select.type'
 import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/entity-significance-select/entity-significance-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
@@ -43,7 +44,22 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'variant-select',
             props: {
               required: true,
-              // requireGene: false
+            },
+          },
+
+          <CvcEntityTypeSelectFieldConfig>{
+            key: 'assertionType',
+            type: 'entity-type-select',
+            props: {
+              required: true,
+            },
+          },
+
+          <CvcDrugSelectFieldConfig>{
+            key: 'drugId',
+            type: 'drug-select',
+            props: {
+              required: true,
             },
           },
 
