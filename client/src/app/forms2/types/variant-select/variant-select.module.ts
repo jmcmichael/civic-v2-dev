@@ -22,6 +22,7 @@ import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.fo
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzModalModule } from 'ng-zorro-antd/modal'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
+import { NzIconModule } from 'ng-zorro-antd/icon'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -58,6 +59,7 @@ const typeConfig: ConfigOption = {
     NzButtonModule,
     NzSelectModule,
     NzModalModule,
+    NzIconModule,
     NzInputModule,
     NzGridModule,
     NzSpaceModule,

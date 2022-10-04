@@ -150,6 +150,8 @@ export class CvcVariantQuickAddForm {
       {},
       (data) => {
         console.log('variant-quick-add submit data callback', data)
+        const vid = data.addVariant.variant.id
+        this.cvcOnCreate.next(vid)
       }
     )
 
