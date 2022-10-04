@@ -44,15 +44,19 @@
 </ng-template>
 
 <!-- add variant tpl, to display when no results found for query -->
-<!-- TODO: include mutator, form config, onCreate fn to #addVariant template context -->
 <ng-template
   #addVariant
-  let-searchStr>
-  <!-- TODO: implement a generic quick-add-form that takes args
-  cvcAddMutator: MutatorWithState, cvcAddFormConfig: FormlyFormConfig, cvcAddOnCreate: EventEmitter -->
+  let-searchStr
+  let-createMsg>
+  <!-- TODO: create an "Created Variant" success alert to take the place of the createMsg alert after a variant is created. alert should be displayed for a couple of seconds, then field's valueChange$.next(id) called. -->
+  <nz-alert
+    [nzType]="'info'"
+    [nzMessage]="createMsg"
+    nzShowIcon></nz-alert>
   <cvc-variant-quick-add-form
     [cvcSearchString]="searchStr"
     [cvcGeneId]="(onGeneId$ | ngrxPush)!"
     [cvcGeneName]="(onGeneName$ | ngrxPush)!"
-    (cvcOnCreate)="onVariantCreate$.next($event)"></cvc-variant-quick-add-form>
+    (cvcOnCreate)="onVariantCreate$.next($event)">
+  </cvc-variant-quick-add-form>
 </ng-template>

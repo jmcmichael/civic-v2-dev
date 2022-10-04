@@ -15,7 +15,7 @@ import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
-import { BehaviorSubject, combineLatest } from 'rxjs'
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
@@ -75,34 +75,29 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcOptionExtra: TemplateRef<any> | null = null
   // template containing UI to add an entity, display if no results returned from search
   @Input() cvcAddEntity: TemplateRef<any> | null = null
-  @Input() cvcMutator?: any
-  @Input() cvcFormConfig?: any
-  @Input() cvcOnCreate?: any
+  @Input() cvcOnCreate?: Subject<number>
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
   @Output() readonly cvcOnFocus = new EventEmitter<void>()
 
 
-  // COMPONENT INPUT STREAMS
-  // cvcResults - array of typeahead query results
-  // cvcOnLoading - boolean of loading state
-
   // SOURCE STREAMS
+  onFocus$: BehaviorSubject<void>
+  onSearch$: BehaviorSubject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
 
   // PRESENTATION STREAMS
-  onFocus$: BehaviorSubject<void>
-  onSearch$: BehaviorSubject<Maybe<string>>
   onResult$: BehaviorSubject<Maybe<any[]>>
   onLoading$: BehaviorSubject<boolean>
 
+  // UI message streams
   focusMessage$: BehaviorSubject<Maybe<string>>
   notFoundMessage$: BehaviorSubject<Maybe<string>>
   loadingMessage$: BehaviorSubject<Maybe<string>>
   createMessage$: BehaviorSubject<Maybe<string>>
 
   constructor() {
-    // create presentation streams
+    // create streams
     this.onFocus$ = new BehaviorSubject<void>(void 0)
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onResult$ = new BehaviorSubject<Maybe<any[]>>(undefined)
@@ -114,7 +109,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.createMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 
-  // form fields do all their config in AfterViewInit
+  // formly fields do all their config in AfterViewInit, so components with
+  // FormControl or FormConfig Inputs need to do all their config in AfterViewInit, too
   ngAfterViewInit(): void {
     // emit search queries
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((s) => {
@@ -131,6 +127,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // minimum search query length feature, by replacing in all msg fn
     // instances the comparator 'search.length > 0' for 'search.length >= minSearchLength'
     // (and implementing logic to prevent lengths < minSearchLength from being emitted)
+    // NOTE: all this would probably be more elegantly implemented as a state machine?
     function inputHasFocus(
       loading: boolean,
       search: Maybe<string>,
@@ -241,6 +238,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       }) // combineLatest.subscribe()
   }
 
+  // attach some Inputs to Subjects for use in observable chains
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.cvcLoading) {
       this.onLoading$.next(changes.cvcLoading.currentValue)
