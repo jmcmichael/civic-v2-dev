@@ -4,6 +4,7 @@ import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/entity
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcOrgSubmitButtonFieldConfig } from '@app/forms2/types/org-submit-button/org-submit-button.type'
+import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
 import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
@@ -54,7 +55,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-
           <CvcDrugSelectFieldConfig>{
             key: 'drugId',
             type: 'drug-select',
@@ -62,7 +62,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-
+          <CvcDrugSelectFieldConfig>{
+            key: 'drugIds',
+            type: 'drug-select',
+            props: {
+              required: true,
+            },
+          },
           // <CvcEntityTypeSelectFieldConfig>{
           //   key: 'assertionType',
           //   type: 'entity-type-select',

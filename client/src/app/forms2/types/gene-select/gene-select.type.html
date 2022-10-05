@@ -1,11 +1,12 @@
-<cvc-entity-tag
-  *ngIf="tagCacheId$ | ngrxPush as cacheId"
-  [cvcCacheId]="cacheId"
-  cvcMode="closeable"
-  (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
-
+<ng-template #customTemplate>
+  <cvc-entity-tag
+    *ngIf="tagCacheId$ | ngrxPush as cacheId"
+    [cvcCacheId]="cacheId"
+    cvcMode="closeable"
+    (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
+</ng-template>
 <cvc-entity-select
-  *ngIf="!(tagCacheId$ | ngrxPush)"
+  [cvcCustomTemplate]="customTemplate"
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
   [cvcEntityName]="props.entityName"

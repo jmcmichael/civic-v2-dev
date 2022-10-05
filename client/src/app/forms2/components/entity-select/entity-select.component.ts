@@ -71,6 +71,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcAllowClear: boolean = true
   @Input() cvcOptionTrackBy?: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent
+  @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
+  // custom template for field value render
+  @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
   // template for extra content after entity tag in option row
   @Input() cvcOptionExtra: TemplateRef<any> | null = null
   // template containing UI to add an entity, display if no results returned from search
