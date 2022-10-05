@@ -10,6 +10,7 @@ import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-d
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
+import { CvcDrugSelectFieldConfig } from '@app/forms2/types/drug-select/drug-select.type'
 
 const formFieldConfig: FormlyFieldConfig[] = [
   {
@@ -66,6 +67,17 @@ const formFieldConfig: FormlyFieldConfig[] = [
             },
             fieldArray: <CvcVariantSelectFieldConfig>{
               type: 'variant-select-item',
+              props: {},
+            },
+          },
+          <CvcRepeatFieldConfig>{
+            key: 'drugIds',
+            type: 'repeat-field',
+            props: {
+              label: 'Drugs',
+            },
+            fieldArray: <CvcDrugSelectFieldConfig>{
+              type: 'drug-select-item',
               props: {},
             },
           },

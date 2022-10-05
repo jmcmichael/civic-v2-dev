@@ -4,6 +4,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
 import { Observable, Subject, filter } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
+import { tag } from 'rxjs-spy/operators'
 
 export function BaseFieldType<FC extends FieldTypeConfig, V>() {
   @UntilDestroy()
@@ -48,6 +49,9 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
         this.onValueChange$.next(v)
       })
 
+      // this.onValueChange$
+      //   .pipe(tag(`${this.field.id} field-type-base onValueChange$`))
+      //   .subscribe()
     }
   }
   return BaseFieldType

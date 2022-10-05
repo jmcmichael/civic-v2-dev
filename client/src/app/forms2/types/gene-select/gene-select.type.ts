@@ -97,7 +97,7 @@ export class CvcGeneSelectField
   }
 
   ngAfterViewInit(): void {
-    this.configureBaseField()
+    this.configureBaseField() // mixin fn
     this.configureEntityTagField(
       // typeahead query
       this.taq,
@@ -115,9 +115,9 @@ export class CvcGeneSelectField
       (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) =>
         `Gene:${r.data.gene!.id}`
     )
-    this.configureStateConnections()
-    this.configureOnTagClose()
-    this.configureInitialValueHandler()
+    this.configureStateConnections() // local fn
+    this.configureOnTagClose() // local fn
+    this.configureInitialValueHandler() // local fn
   } // ngAfterViewInit()
 
   private configureStateConnections(): void {

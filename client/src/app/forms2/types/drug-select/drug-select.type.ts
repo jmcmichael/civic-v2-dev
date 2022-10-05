@@ -135,10 +135,7 @@ export class CvcDrugSelectField
       // linkable entity query vars getter fn
       (id: number) => ({ drugId: id }),
       // tag cache id getter fn
-      (r: ApolloQueryResult<LinkableDrugQuery>) => {
-        console.log('drug-select tag getter fn', r)
-        return `Drug:${r.data.drug!.id}`
-      },
+      (r: ApolloQueryResult<LinkableDrugQuery>) => `Drug:${r.data.drug!.id}`,
       // no optional typeahead parameter
       undefined
     )
