@@ -20,6 +20,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcDrugSelectField } from './drug-select.type'
 import { CvcDrugQuickAddForm } from './drug-quick-add/drug-quick-add.form'
+import { NzTagModule } from 'ng-zorro-antd/tag'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -62,6 +63,7 @@ const typeConfig: ConfigOption = {
     NzFormModule,
     NzAutocompleteModule,
     NzTypographyModule,
+    NzTagModule,
     CvcEntitySelectModule,
     CvcPipesModule,
     CvcEntityTagModule,

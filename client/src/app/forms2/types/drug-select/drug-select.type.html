@@ -9,15 +9,37 @@
   [formlyAttributes]="field"
   [nzOptionHeightPx]="30"
   (nzOnSearch)="onSearch$.next($event)"
+  [nzCustomTemplate]="selectedTemplate"
   [nzLoading]="isLoading$ | ngrxPush"
   (ngModelChange)="props.change && props.change(field, $event)">
   <ng-container *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy">
     <nz-option
+      nzCustomContent
       [nzValue]="item.id"
-      [nzLabel]="item.name"></nz-option>
+      [nzLabel]="item.name">
+      <nz-tag>
+        <i
+          nz-icon
+          [nzType]="'Drug' | typenameToIcon"
+          nzTheme="twotone"
+          [nzTwotoneColor]="'Drug' | entityColor"></i>
+        {{ item.id }}!
+      </nz-tag>
+    </nz-option>
   </ng-container>
 </nz-select>
-
+<ng-template
+  #selectedTemplate
+  let-selected>
+  <div class="ant-select-selection-item-content">
+    <i
+      nz-icon
+      [nzType]="'Drug' | typenameToIcon"
+      nzTheme="twotone"
+      [nzTwotoneColor]="'Drug' | entityColor"></i>
+    {{ selected.nzLabel }}
+  </div>
+</ng-template>
 <!-- <ng-template #customTemplate>
   <cvc-entity-tag
     *ngIf="tagCacheId$ | ngrxPush as cacheId"
