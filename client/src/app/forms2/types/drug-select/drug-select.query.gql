@@ -1,13 +1,13 @@
 query DrugSelectTypeahead($name: String!) {
-  drugTypeahead(queryTerm:$name){
+  drugTypeahead(queryTerm: $name) {
     ...DrugSelectTypeaheadFields
   }
 }
 
 fragment DrugSelectTypeaheadFields on Drug {
-      id
-    name
-    ncitId
-    drugAliases
+  id
+  name
+  link
+  ncitId
+  drugAliases
 }
-

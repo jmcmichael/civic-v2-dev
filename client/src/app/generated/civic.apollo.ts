@@ -6146,9 +6146,9 @@ export type DrugSelectTypeaheadQueryVariables = Exact<{
 }>;
 
 
-export type DrugSelectTypeaheadQuery = { __typename: 'Query', drugTypeahead: Array<{ __typename: 'Drug', id: number, name: string, ncitId?: string | undefined, drugAliases: Array<string> }> };
+export type DrugSelectTypeaheadQuery = { __typename: 'Query', drugTypeahead: Array<{ __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> }> };
 
-export type DrugSelectTypeaheadFieldsFragment = { __typename: 'Drug', id: number, name: string, ncitId?: string | undefined, drugAliases: Array<string> };
+export type DrugSelectTypeaheadFieldsFragment = { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> };
 
 export type GeneSelectTypeaheadQueryVariables = Exact<{
   entrezSymbol: Scalars['String'];
@@ -7913,6 +7913,7 @@ export const DrugSelectTypeaheadFieldsFragmentDoc = gql`
     fragment DrugSelectTypeaheadFields on Drug {
   id
   name
+  link
   ncitId
   drugAliases
 }
