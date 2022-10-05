@@ -19,6 +19,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcDrugSelectField } from './drug-select.type'
+import { CvcDrugQuickAddForm } from './drug-quick-add/drug-quick-add.form'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -43,7 +44,7 @@ const typeConfig: ConfigOption = {
 }
 
 @NgModule({
-  declarations: [CvcDrugSelectField],
+  declarations: [CvcDrugSelectField, CvcDrugQuickAddForm],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -65,6 +66,6 @@ const typeConfig: ConfigOption = {
     CvcPipesModule,
     CvcEntityTagModule,
   ],
-  exports: [CvcDrugSelectField],
+  exports: [CvcDrugSelectField, CvcDrugQuickAddForm],
 })
 export class CvcDrugSelectModule {}

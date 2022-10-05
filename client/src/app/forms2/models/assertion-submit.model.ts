@@ -13,9 +13,10 @@ export interface AssertionSubmitModel extends FormSubmitBaseModel {
 }
 
 export type AssertionSubmitFields = {
-  // gene, variant included for initial input type development
+  // gene, variant drug included for initial input type development
   geneId?: number
   variantId?: number
+  drugId?: number
 
   /** List of CIViC IDs for the ACMG/AMP codes associated with this Assertion */
   acmgCodeIds?: number[]
@@ -58,9 +59,10 @@ export type AssertionSubmitFields = {
 }
 
 export const assertionSubmitFieldsDefaults = <AssertionSubmitFields>{
-  // gene, variant included for initial input type development
+  // gene, variant drug, included for initial input type development
   geneId: undefined,
   variantId: undefined,
+  drugId: undefined,
   acmgCodeIds: [],
   ampLevel: undefined,
   assertionDirection: undefined,
