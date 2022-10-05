@@ -32,36 +32,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Assertion',
         },
         fieldGroup: [
-          <CvcGeneSelectFieldConfig>{
-            key: 'geneId',
-            type: 'gene-select',
-            props: {
-              required: true,
-            },
-          },
-
-          <CvcVariantSelectFieldConfig>{
-            key: 'variantId',
-            type: 'variant-select',
-            props: {
-              required: true,
-            },
-          },
-
-          <CvcEntityTypeSelectFieldConfig>{
-            key: 'assertionType',
-            type: 'entity-type-select',
-            props: {
-              required: true,
-            },
-          },
-          <CvcDrugSelectFieldConfig>{
-            key: 'drugId',
-            type: 'drug-select',
-            props: {
-              required: true,
-            },
-          },
           <CvcDrugSelectFieldConfig>{
             key: 'drugIds',
             type: 'drug-select',
@@ -69,6 +39,36 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
+          // <CvcGeneSelectFieldConfig>{
+          //   key: 'geneId',
+          //   type: 'gene-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+
+          // <CvcVariantSelectFieldConfig>{
+          //   key: 'variantId',
+          //   type: 'variant-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+
+          // <CvcEntityTypeSelectFieldConfig>{
+          //   key: 'assertionType',
+          //   type: 'entity-type-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcDrugSelectFieldConfig>{
+          //   key: 'drugId',
+          //   type: 'drug-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
           // <CvcEntityTypeSelectFieldConfig>{
           //   key: 'assertionType',
           //   type: 'entity-type-select',

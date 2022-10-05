@@ -33,84 +33,91 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Evidence Item',
         },
         fieldGroup: [
-          <CvcGeneSelectFieldConfig>{
-            key: 'geneId',
-            type: 'gene-select',
-            props: {
-              required: true,
-            },
-          },
-          <CvcVariantSelectFieldConfig>{
-            key: 'variantId',
-            type: 'variant-select',
-            props: {
-              required: true,
-              // requireGene: false
-            },
-          },
-          <CvcRepeatFieldConfig>{
-            key: 'geneIds',
-            type: 'repeat-field',
-            props: {
-              label: 'Genes',
-            },
-            fieldArray: <CvcGeneSelectFieldConfig>{
-              type: 'gene-select-item',
-              props: {},
-            },
-          },
-          <CvcRepeatFieldConfig>{
-            key: 'variantIds',
-            type: 'repeat-field',
-            props: {
-              label: 'Variants',
-            },
-            fieldArray: <CvcVariantSelectFieldConfig>{
-              type: 'variant-select-item',
-              props: {},
-            },
-          },
-          <CvcRepeatFieldConfig>{
+          <CvcDrugSelectFieldConfig>{
             key: 'drugIds',
-            type: 'repeat-field',
-            props: {
-              label: 'Drugs',
-            },
-            fieldArray: <CvcDrugSelectFieldConfig>{
-              type: 'drug-select-item',
-              props: {},
-            },
-          },
-          <CvcBaseInputFieldConfig>{
-            key: 'version',
-            type: 'base-input',
-            props: { label: 'Version' },
-          },
-          <CvcRepeatFieldConfig>{
-            key: 'aliases',
-            type: 'repeat-field',
-            props: {
-              label: 'Aliases',
-            },
-            fieldArray: <CvcBaseInputFieldConfig>{
-              type: 'base-input-item',
-              props: {},
-            },
-          },
-          <CvcEntityTypeSelectFieldConfig>{
-            key: 'evidenceType',
-            type: 'entity-type-select',
+            type: 'drug-select',
             props: {
               required: true,
             },
           },
-          <CvcEntitySignificanceSelectFieldConfig>{
-            key: 'clinicalSignficance',
-            type: 'entity-significance-select',
-            props: {
-              required: true,
-            },
-          },
+          // <CvcGeneSelectFieldConfig>{
+          //   key: 'geneId',
+          //   type: 'gene-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcVariantSelectFieldConfig>{
+          //   key: 'variantId',
+          //   type: 'variant-select',
+          //   props: {
+          //     required: true,
+          //     // requireGene: false
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'geneIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Genes',
+          //   },
+          //   fieldArray: <CvcGeneSelectFieldConfig>{
+          //     type: 'gene-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'variantIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Variants',
+          //   },
+          //   fieldArray: <CvcVariantSelectFieldConfig>{
+          //     type: 'variant-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'drugIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Drugs',
+          //   },
+          //   fieldArray: <CvcDrugSelectFieldConfig>{
+          //     type: 'drug-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcBaseInputFieldConfig>{
+          //   key: 'version',
+          //   type: 'base-input',
+          //   props: { label: 'Version' },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'aliases',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Aliases',
+          //   },
+          //   fieldArray: <CvcBaseInputFieldConfig>{
+          //     type: 'base-input-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcEntityTypeSelectFieldConfig>{
+          //   key: 'evidenceType',
+          //   type: 'entity-type-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcEntitySignificanceSelectFieldConfig>{
+          //   key: 'clinicalSignficance',
+          //   type: 'entity-significance-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
           // <CvcEvidenceDirectionSelectFieldConfig>{
           //   key: 'evidenceDirection',
           //   type: 'evidence-direction-select',

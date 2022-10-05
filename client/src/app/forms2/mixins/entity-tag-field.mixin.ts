@@ -262,8 +262,3 @@ export function EntityTagField<
     return EntityTagFieldMixin
   }
 }
-function startWith(
-  arg0: boolean
-): import('rxjs').OperatorFunction<boolean, boolean> {
-  throw new Error('Function not implemented.')
-}

@@ -1,11 +1,31 @@
-<ng-template #customTemplate>
+<nz-select
+  nzShowSearch
+  nzServerSearch
+  nzAllowClear
+  [class.ng-dirty]="showError"
+  [nzMode]="'multiple'"
+  [nzPlaceHolder]="props.placeholder"
+  [formControl]="formControl"
+  [formlyAttributes]="field"
+  [nzOptionHeightPx]="30"
+  (nzOnSearch)="onSearch$.next($event)"
+  [nzLoading]="isLoading$ | ngrxPush"
+  (ngModelChange)="props.change && props.change(field, $event)">
+  <ng-container *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy">
+    <nz-option
+      [nzValue]="item.id"
+      [nzLabel]="item.name"></nz-option>
+  </ng-container>
+</nz-select>
+
+<!-- <ng-template #customTemplate>
   <cvc-entity-tag
     *ngIf="tagCacheId$ | ngrxPush as cacheId"
     cvcMode="closeable"
     [cvcCacheId]="cacheId"
     (cvcOnClose)="onTagClose$.next($event)"></cvc-entity-tag>
-</ng-template>
-<cvc-entity-select
+</ng-template> -->
+<!-- <cvc-entity-select
   [cvcCustomTemplate]="customTemplate"
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
@@ -21,10 +41,10 @@
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
   [cvcModelChange]="props.change">
-</cvc-entity-select>
+</cvc-entity-select> -->
 
 <!-- option extra tpl to display list of aliases after tag -->
-<ng-template
+<!-- <ng-template
   #optionExtra
   let-item
   let-searchString="searchStr">
@@ -42,10 +62,10 @@
       ></em>
     </ng-container>
   </span>
-</ng-template>
+</ng-template> -->
 
 <!-- add drug tpl, to display when no results found for query -->
-<ng-template
+<!-- <ng-template
   #addDrug
   let-searchStr
   let-createMsg>
@@ -53,4 +73,4 @@
     [cvcSearchString]="searchStr"
     (cvcOnCreate)="onDrugCreate$.next($event)">
   </cvc-drug-quick-add-form>
-</ng-template>
+</ng-template> -->

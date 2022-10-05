@@ -14,14 +14,14 @@ import { CvcDrugSelectModule } from './drug-select/drug-select.module'
   imports: [
     CommonModule,
     CvcOrgSubmitButtonTypeModule,
-    CvcGeneSelectModule,
-    CvcVariantSelectModule,
     CvcDrugSelectModule,
-    CvcEntityTypeSelectModule,
-    CvcClinicalSignificanceSelectModule,
-    CvcEvidenceDirectionSelectModule,
-    CvcRepeatFieldModule,
-    CvcBaseInputFieldModule,
+    // CvcGeneSelectModule,
+    // CvcVariantSelectModule,
+    // CvcEntityTypeSelectModule,
+    // CvcClinicalSignificanceSelectModule,
+    // CvcEvidenceDirectionSelectModule,
+    // CvcRepeatFieldModule,
+    // CvcBaseInputFieldModule,
   ],
 })
 export class CvcFormTypesModule {}

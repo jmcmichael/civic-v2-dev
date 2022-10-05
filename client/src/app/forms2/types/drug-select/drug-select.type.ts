@@ -70,33 +70,28 @@ export class CvcDrugSelectField
   extends DrugSelectMixin
   implements AfterViewInit
 {
+  queryRef!: QueryRef<
+    DrugSelectTypeaheadQuery,
+    DrugSelectTypeaheadQueryVariables
+  >
+
   state?: EntityState
 
   // STATE SOURCE STREAMS
-  onRequiresDrug$: BehaviorSubject<boolean>
 
   // LOCAL SOURCE STREAMS
-  onDrugCreate$: Subject<number>
 
   // LOCAL PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
 
   // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
-
-  queryRef!: QueryRef<
-    DrugSelectTypeaheadQuery,
-    DrugSelectTypeaheadQueryVariables
-  >
-
   constructor(
     public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
     private tq: LinkableDrugGQL
   ) {
     super(injector)
-    this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
-    this.onDrugCreate$ = new Subject<number>()
   }
 
   // FieldTypeConfig defaults
@@ -117,7 +112,6 @@ export class CvcDrugSelectField
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
-    this.configureStateConnections() // local fn
 
     this.configureEntityTagField(
       // mixin fn
@@ -145,41 +139,5 @@ export class CvcDrugSelectField
     // "Choose Evidence / Assertion Type before selection Drug(s)" placeholder
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
-    // if field's formControl has already been assigned a value
-    // (e.g. via query-param extension, saved form state,
-    // model initialization), emit onValueChange$, state valueChange$ events
-    if (this.field.formControl.value) {
-      const v = this.field.formControl.value
-      this.onValueChange$.next(v)
-    }
-
-    // emit value change if new variant created by quick-add form
-    this.onDrugCreate$.pipe(untilDestroyed(this)).subscribe(v => {
-      this.onValueChange$.next(v)
-    })
-  }
-
-  configureStateConnections(): void {
-    // do not attach state connections if field is a repeat-item
-    if(this.props.isRepeatItem) return
-    if (!this.field.options?.formState) {
-      console.warn(
-        `${this.field.id} is not a repeat-item, but no formState found.`
-      )
-      return
-    }
-    this.state = this.field.options.formState
-    if (!this.state?.requires.requiresDrug$) {
-      console.warn(
-        `${this.field.id} is not a repeat-item, but no requiresDrug$ subject found on state.`
-      )
-      return
-    }
-    this.onRequiresDrug$ = this.state.requires.requiresDrug$
-    this.onRequiresDrug$.pipe(untilDestroyed(this), tag(
-      `${this.field.id} onRequiresDrug$`
-    )).subscribe((rd) => {
-      // this.
-    })
   }
 }
