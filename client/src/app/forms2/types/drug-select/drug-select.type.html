@@ -32,12 +32,14 @@
   #selectedTemplate
   let-selected>
   <div class="ant-select-selection-item-content">
-    <i
-      nz-icon
-      [nzType]="'Drug' | typenameToIcon"
-      nzTheme="twotone"
-      [nzTwotoneColor]="'Drug' | entityColor"></i>
-    {{ selected.nzLabel }}
+    <span nz-tooltip [nzTooltipTitle]="'Drug:' + selected.nzValue">
+      <i
+        nz-icon
+        [nzType]="'Drug' | typenameToIcon"
+        nzTheme="twotone"
+        [nzTwotoneColor]="'Drug' | entityColor"></i>
+      {{ selected.nzLabel }}
+    </span>
   </div>
 </ng-template>
 <!-- <ng-template #customTemplate>
