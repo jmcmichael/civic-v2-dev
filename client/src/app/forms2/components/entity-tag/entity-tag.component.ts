@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { Apollo, gql } from 'apollo-angular'
+import { Subject } from 'rxjs'
 export interface LinkableEntity {
   id: number,
   name: string,
@@ -11,19 +12,12 @@ export interface LinkableEntity {
   styleUrls: ['./entity-tag.component.less'],
 })
 export class CvcEntityTagComponent implements OnInit {
-  _cacheId!: string
   @Input()
   set cvcCacheId(cacheId: string) {
-    if (!cacheId) {
-      console.error(`cvc-entity-tag requires valid cacheId Input string.`)
-      return
-    }
-    this._cacheId = cacheId
+    if(!cacheId) return
     this.setLinkableEntity(cacheId)
   }
-  get cvcCacheId(): string {
-    return this._cacheId
-  }
+  @Input() cvcContext: 'default' | 'select-item' = 'default'
   @Input() cvcMode: 'default' | 'closeable' | 'checkable' = 'default'
   @Input() cvcEmphasize?: string
   @Output() cvcOnClose: EventEmitter<MouseEvent>

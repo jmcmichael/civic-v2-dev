@@ -1,20 +1,37 @@
+<!-- by default, display tag content within its own nz-tag -->
 <nz-tag
+  *ngIf="cvcContext === 'default'"
   [nzMode]="cvcMode"
   (nzOnClose)="cvcOnClose.next($event)">
-  <i
-    *ngIf="typename else noIcon"
+  <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
+</nz-tag>
+
+<!-- in form context, display only the tag content -->
+<span
+  *ngIf="cvcContext === 'select-item'"
+  class="select-item-context">
+  <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
+</span>
+
+<ng-template #tagContent>
+  <span
+    *ngIf="typename; else noIcon"
     nz-icon
     [nzType]="typename | typenameToIcon"
     nzTheme="twotone"
-    [nzTwotoneColor]="typename | entityColor"></i>
-  <ng-container *ngIf="entity else noEntity">
-    <span [innerHtml]="entity.name | highlightTypeahead:cvcEmphasize"></span>
+    class="tag-icon"
+    [nzTwotoneColor]="typename | entityColor"></span>
+  <ng-container *ngIf="entity; else noEntity">
+    <span
+      class="tag-label"
+      [innerHtml]="entity.name | highlightTypeahead: cvcEmphasize"></span>
   </ng-container>
-</nz-tag>
-<ng-template #noIcon>
-  <i
-    nz-icon
-    nzType="question-circle"
-    nzTheme="outline"></i
-></ng-template>
-<ng-template #noEntity>?ENTITY?</ng-template>
+  <ng-template #noIcon>
+    <span
+      nz-icon
+      class="tag-icon"
+      nzType="question-circle"
+      nzTheme="outline"></span>
+  </ng-template>
+</ng-template>
+<ng-template #noEntity>??{{ cvcCacheId }}??</ng-template>

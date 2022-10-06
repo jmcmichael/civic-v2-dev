@@ -3,43 +3,52 @@
   nzServerSearch
   nzAllowClear
   [class.ng-dirty]="showError"
-  [nzMode]="'multiple'"
+  [nzMode]="'tags'"
   [nzPlaceHolder]="props.placeholder"
   [formControl]="formControl"
   [formlyAttributes]="field"
   [nzOptionHeightPx]="30"
+  [nzAutoClearSearchValue]="false"
   (nzOnSearch)="onSearch$.next($event)"
   [nzCustomTemplate]="selectedTemplate"
   [nzLoading]="isLoading$ | ngrxPush"
   (ngModelChange)="props.change && props.change(field, $event)">
-  <ng-container *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy">
-    <nz-option
-      nzCustomContent
-      [nzValue]="item.id"
-      [nzLabel]="item.name">
-      <nz-tag>
-        <i
-          nz-icon
-          [nzType]="'Drug' | typenameToIcon"
-          nzTheme="twotone"
-          [nzTwotoneColor]="'Drug' | entityColor"></i>
-        {{ item.id }}!
-      </nz-tag>
-    </nz-option>
+  <ng-container *ngrxLet="onSearch$ as searchString">
+    <ng-container
+      *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy">
+      <nz-option
+        nzCustomContent
+        [nzValue]="item.id"
+        [nzHide]="formControl.value.includes(item.id)">
+        <cvc-entity-tag
+          [cvcCacheId]="item.__typename + ':' + item.id"
+          [cvcEmphasize]="searchString">
+        </cvc-entity-tag>
+        <span
+          *ngIf="item.drugAliases.length > 0"
+          nz-typography
+          nzType="secondary" style="margin-left: 8px;">
+          <em>
+            <span
+              nz-typography
+              nzType="secondary"
+              [innerHtml]="
+                item.drugAliases.join(', ') | highlightTypeahead: searchString
+              ">
+            </span>
+          </em>
+        </span>
+      </nz-option>
+    </ng-container>
   </ng-container>
 </nz-select>
 <ng-template
   #selectedTemplate
   let-selected>
   <div class="ant-select-selection-item-content">
-    <span nz-tooltip [nzTooltipTitle]="'Drug:' + selected.nzValue">
-      <i
-        nz-icon
-        [nzType]="'Drug' | typenameToIcon"
-        nzTheme="twotone"
-        [nzTwotoneColor]="'Drug' | entityColor"></i>
-      {{ selected.nzLabel }}
-    </span>
+    <cvc-entity-tag
+      [cvcCacheId]="'Drug:' + selected.nzValue"
+      cvcContext="select-item"></cvc-entity-tag>
   </div>
 </ng-template>
 <!-- <ng-template #customTemplate>

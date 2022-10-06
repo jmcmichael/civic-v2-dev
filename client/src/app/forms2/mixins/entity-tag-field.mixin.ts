@@ -120,16 +120,6 @@ export function EntityTagField<
           return
         }
 
-        // on all value changes, resetField() if id undefined,
-        // setTag() if defined
-        this.onValueChange$.subscribe((id) => {
-          if (!id) {
-            this.resetField()
-          } else {
-            this.setTag(id)
-          }
-        })
-
         // execute a search on typeahead focus to immediately display options
         this.onFocus$
           .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
@@ -187,10 +177,12 @@ export function EntityTagField<
 
         this.result$ = this.response$.pipe(
           filter((r) => !r.loading),
-          map((r) => this.getTypeahedResults(r)),
+          map((r) => this.getTypeahedResults(r))
           // tag(`${this.field.id} entity-tag-field.mixin result$`)
         )
 
+        // NOTE: probably to be deprecated after switching to native nz-select tag mode
+        // to handle multiple entities/tags
         // if this field is the child of a repeat-field type,
         // get reference to its onRemove$ and emit its ID when tag closed,
         // otherwise, handle model reset and tag deletion locally
@@ -224,6 +216,8 @@ export function EntityTagField<
         }
       } // end configureDisplayEntityTag()
 
+      // NOTE: probably to be deprecated after switching to native nz-select tag mode
+      // to display tags
       setTag(id: number) {
         // tagQuery.fetch() was failing silently, hence this try/catch statement
         try {

@@ -3,6 +3,25 @@
     margin-right: 0;
   }
 }
+
+.tag-label {
+  font-weight: 400;
+}
+
+.select-item-context {
+  // pull content margins to the edges of the tag, to increase
+  // popover hover area
+  display: inline-block;
+  margin-top: -3px;
+  margin-bottom: -3px;
+  margin-left: -4px;
+  padding-left: 4px;
+  // add space between nz-select's pseudo-tag icon & label
+  .tag-icon::after {
+    content: ' ';
+  }
+}
+
 .typeahead-match {
   font-weight: bold;
 }
