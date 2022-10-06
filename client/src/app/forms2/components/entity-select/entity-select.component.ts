@@ -70,7 +70,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = false
-  @Input() cvcOptionTrackBy?: TrackByFunction<any>
+  @Input() cvcOptionTrackBy!: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null

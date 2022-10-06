@@ -142,6 +142,15 @@ export class CvcDrugSelectField
     // TODO: implement 'requiresEvidence/Assertion Type' option that will display a
     // "Choose Evidence / Assertion Type before selection Drug(s)" placeholder
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
+
+    this.onCreate$.pipe(untilDestroyed(this)).subscribe((id: number) => {
+      console.log(`${this.field.id} onCreate$ called; id: ${id}`)
+      if(this.props.isMultiSelect) {
+        console.log('is multiSelect')
+      } else {
+        console.log('is not multiSelect')
+      }
+    })
   } // ngAfterViewInit()
 
   configureStateConnections(): void {
