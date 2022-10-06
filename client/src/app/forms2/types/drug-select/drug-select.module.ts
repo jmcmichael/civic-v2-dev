@@ -22,6 +22,7 @@ import { CvcDrugSelectField } from './drug-select.type'
 import { CvcDrugQuickAddForm } from './drug-quick-add/drug-quick-add.form'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipDirective, NzToolTipModule } from 'ng-zorro-antd/tooltip'
+import { NzPopoverModule } from 'ng-zorro-antd/popover'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -56,6 +57,7 @@ const typeConfig: ConfigOption = {
     NzAlertModule,
     NzButtonModule,
     NzSelectModule,
+    NzPopoverModule,
     NzModalModule,
     NzIconModule,
     NzInputModule,

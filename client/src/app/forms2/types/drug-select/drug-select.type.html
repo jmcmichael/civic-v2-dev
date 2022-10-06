@@ -1,21 +1,38 @@
-<cvc-entity-select
-  [cvcSelectMode]="props.isMultiSelect ? 'tags' : 'default'"
-  [cvcCustomTemplate]="selectedTemplate"
-  [cvcFormControl]="formControl"
-  [cvcFormlyAttributes]="field"
-  [cvcEntityName]="props.entityName"
-  [cvcSelectMessages]="props.selectMessages"
-  [cvcResults]="result$ | ngrxPush"
-  [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
-  [cvcShowError]="showError"
-  [cvcDisabled]="!(onRequiresDrug$ | ngrxPush)"
-  [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcAddEntity]="addDrug"
-  [cvcOptionExtra]="optionExtra"
-  [cvcOptionTrackBy]="optionTrackBy"
-  (cvcOnSearch)="onSearch$.next($event)"
-  [cvcModelChange]="props.change">
-</cvc-entity-select>
+<nz-row [nzGutter]="[8, 8]">
+  <nz-col nzFlex="auto">
+    <cvc-entity-select
+      [cvcSelectMode]="props.isMultiSelect ? 'tags' : 'default'"
+      [cvcCustomTemplate]="selectedTemplate"
+      [cvcFormControl]="formControl"
+      [cvcFormlyAttributes]="field"
+      [cvcEntityName]="props.entityName"
+      [cvcSelectMessages]="props.selectMessages"
+      [cvcResults]="result$ | ngrxPush"
+      [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
+      [cvcShowError]="showError"
+      [cvcDisabled]="!(onRequiresDrug$ | ngrxPush)"
+      [cvcLoading]="isLoading$ | ngrxPush"
+      [cvcOptionExtra]="optionExtra"
+      [cvcOptionTrackBy]="optionTrackBy"
+      (cvcOnSearch)="onSearch$.next($event)"
+      [cvcModelChange]="props.change">
+    </cvc-entity-select>
+  </nz-col>
+  <nz-col nzFlex="32px">
+    <a
+      nz-button
+      nzShape="circle"
+      nzBlock
+      nz-popover
+      [nzPopoverContent]="addDrug"
+      [nzPopoverTrigger]="'click'"
+      ><span
+        nz-icon
+        nzType="plus-circle"
+        nzTheme="outline"></span
+    ></a>
+  </nz-col>
+</nz-row>
 <ng-template
   #selectedTemplate
   let-selected>

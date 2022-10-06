@@ -47,13 +47,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          <CvcDrugSelectFieldConfig>{
-            key: 'drugIds',
-            type: 'drug-select-multi',
-            props: {
-              required: true,
-            },
-          },
+          // <CvcDrugSelectFieldConfig>{
+          //   key: 'drugIds',
+          //   type: 'drug-select-multi',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
           // <CvcGeneSelectFieldConfig>{
           //   key: 'geneId',
           //   type: 'gene-select',

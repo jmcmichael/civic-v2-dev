@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Injector,
   Type,
@@ -91,7 +92,8 @@ export class CvcDrugSelectField
   constructor(
     public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
-    private tq: LinkableDrugGQL
+    private tq: LinkableDrugGQL,
+    private cdr: ChangeDetectorRef
   ) {
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
@@ -151,6 +153,7 @@ export class CvcDrugSelectField
         console.log('is not multiSelect')
       }
     })
+
   } // ngAfterViewInit()
 
   configureStateConnections(): void {

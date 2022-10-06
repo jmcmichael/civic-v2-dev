@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -98,7 +99,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   loadingMessage$: BehaviorSubject<Maybe<string>>
   createMessage$: BehaviorSubject<Maybe<string>>
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     // create streams
     this.onFocus$ = new BehaviorSubject<void>(void 0)
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
@@ -238,7 +239,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         }
 
       }) // combineLatest.subscribe()
-  }
+  } // ngAfterViewInit()
 
   // attach some Inputs to Subjects for use in observable chains
   ngOnChanges(changes: SimpleChanges): void {

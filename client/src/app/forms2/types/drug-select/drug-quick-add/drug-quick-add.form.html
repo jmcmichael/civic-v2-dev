@@ -1,7 +1,7 @@
 <form
   [formGroup]="form"
   (ngSubmit)="onSubmit$.next(model)">
-  <nz-row [nzGutter]="[8, 8]">
+  <nz-row [nzGutter]="[0, 0]">
     <nz-col nzSpan="24">
       <formly-form
         [form]="form"
@@ -17,14 +17,6 @@
     - submit success: checkmark icon, "Created..." msg on button, 2-3 second pause then emit onCreate to parent
     - submit error: error icon, "Error Creating..." msg on button, errors displayed
     -->
-    <nz-col
-      nzSpan="24"
-      *ngIf="!form.valid">
-      <nz-alert
-        nzType="error"
-        nzMessage="Error intializing Create Drug form, missing drug name."
-        nzShowIcon></nz-alert>
-    </nz-col>
     <nz-col nzSpan="24">
       <button
         nz-button

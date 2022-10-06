@@ -85,8 +85,9 @@ export class CvcDrugQuickAddForm {
     this.fields = [
       {
         key: 'name',
+        type: 'input',
         props: {
-          hidden: true,
+          label: 'Drug Name',
           required: true,
         },
       },
