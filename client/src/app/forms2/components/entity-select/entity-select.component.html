@@ -24,7 +24,6 @@
   <ng-container *ngrxLet="onSearch$ as searchString">
     <ng-container *ngFor="let item of cvcResults; trackBy: cvcOptionTrackBy">
       <nz-option
-        nzCustomContent
         [nzValue]="item.id"
         [nzHide]="
           cvcSelectMode !== 'default' && cvcFormControl.value.includes(item.id)

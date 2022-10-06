@@ -3180,6 +3180,7 @@ export type QueryDrugsArgs = {
   before?: InputMaybe<Scalars['String']>;
   first?: InputMaybe<Scalars['Int']>;
   id?: InputMaybe<Scalars['Int']>;
+  ids?: InputMaybe<Array<Scalars['Int']>>;
   last?: InputMaybe<Scalars['Int']>;
   name?: InputMaybe<Scalars['String']>;
   ncitId?: InputMaybe<Scalars['String']>;
@@ -6147,6 +6148,13 @@ export type DrugSelectTypeaheadQueryVariables = Exact<{
 
 
 export type DrugSelectTypeaheadQuery = { __typename: 'Query', drugTypeahead: Array<{ __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> }> };
+
+export type DrugSelectPrepopulateQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type DrugSelectPrepopulateQuery = { __typename: 'Query', drug?: { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> } | undefined };
 
 export type DrugSelectTypeaheadFieldsFragment = { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> };
 
@@ -11708,6 +11716,24 @@ export const DrugSelectTypeaheadDocument = gql`
   })
   export class DrugSelectTypeaheadGQL extends Apollo.Query<DrugSelectTypeaheadQuery, DrugSelectTypeaheadQueryVariables> {
     document = DrugSelectTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const DrugSelectPrepopulateDocument = gql`
+    query DrugSelectPrepopulate($id: Int!) {
+  drug(id: $id) {
+    ...DrugSelectTypeaheadFields
+  }
+}
+    ${DrugSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class DrugSelectPrepopulateGQL extends Apollo.Query<DrugSelectPrepopulateQuery, DrugSelectPrepopulateQueryVariables> {
+    document = DrugSelectPrepopulateDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

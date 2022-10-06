@@ -239,6 +239,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         }
 
       }) // combineLatest.subscribe()
+    if(this.cvcFormControl.value) {
+      // this.cvcFormControl.setValue(this.cvcFormControl.value)
+      this.cdr.detectChanges()
+    }
   } // ngAfterViewInit()
 
   // attach some Inputs to Subjects for use in observable chains

@@ -181,63 +181,13 @@ export function EntityTagField<
           // tag(`${this.field.id} entity-tag-field.mixin result$`)
         )
 
-        // NOTE: probably to be deprecated after switching to native nz-select tag mode
-        // to handle multiple entities/tags
-        // if this field is the child of a repeat-field type,
-        // get reference to its onRemove$ and emit its ID when tag closed,
-        // otherwise, handle model reset and tag deletion locally
-        if (this.props.isRepeatItem) {
-          // check if parent field is of 'repeat-field' type
-          if (
-            !(this.field.parent && this.field.parent?.type === 'repeat-field')
-          ) {
-            console.error(
-              `${this.field.id} field does not appear to have a parent type of 'repeat-field'.`
-            )
-            return
-          }
-          // check if parent repeat-field attached the onRemove$ Subject
-          if (!this.field.parent?.props?.onRemove$) {
-            console.error(
-              `${this.field.id} specified as a repeat-item field, but no reference to parent repeat-field onRemove$ found.`
-            )
-            return
-          }
-          const onRemove$: Subject<number> = this.field.parent.props.onRemove$
-          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-            this.resetField()
-            onRemove$.next(Number(this.key))
-          })
-        } else {
-          // field is not a repeat-item, so just reset the field on tag close
-          this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-            this.resetField()
-          })
-        }
+        this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+          this.resetField()
+        })
       } // end configureDisplayEntityTag()
 
-      // NOTE: probably to be deprecated after switching to native nz-select tag mode
-      // to display tags
-      setTag(id: number) {
-        // tagQuery.fetch() was failing silently, hence this try/catch statement
-        try {
-          // query could emit loading events, so lastValueFrom used here to only emit query response data
-          lastValueFrom(
-            this.tagQuery.fetch(this.getTagQueryVars(id), {
-              fetchPolicy: 'cache-first',
-            })
-          ).then((response) => {
-            if (!response.data) {
-              console.error(
-                `${this.field.id} field could not fetch entity ${id} from cache or server.`
-              )
-            } else {
-              this.tagCacheId$.next(this.getTagCacheIdFromResponse(response))
-            }
-          })
-        } catch (err) {
-          console.error(err)
-        }
+      prepopulateOptions(vars: TV) {
+
       }
 
       resetField() {

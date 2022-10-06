@@ -24,6 +24,9 @@ import {
   LinkableDrugGQL,
   Maybe,
   Drug,
+  DrugSelectPrepopulateQuery,
+  DrugSelectPrepopulateGQL,
+  DrugSelectPrepopulateQueryVariables,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -54,9 +57,9 @@ const DrugSelectMixin = mixin(
     DrugSelectTypeaheadQuery,
     DrugSelectTypeaheadQueryVariables,
     DrugSelectTypeaheadFieldsFragment,
-    LinkableDrugQuery,
-    LinkableDrugQueryVariables,
-    Drug,
+    DrugSelectPrepopulateQuery,
+    DrugSelectPrepopulateQueryVariables,
+    DrugSelectTypeaheadFieldsFragment,
     Maybe<number>
   >()
 )
@@ -92,8 +95,7 @@ export class CvcDrugSelectField
   constructor(
     public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
-    private tq: LinkableDrugGQL,
-    private cdr: ChangeDetectorRef
+    private tq: DrugSelectPrepopulateGQL
   ) {
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
@@ -133,7 +135,8 @@ export class CvcDrugSelectField
       // typeahead query result map fn
       (r: ApolloQueryResult<DrugSelectTypeaheadQuery>) => r.data.drugTypeahead,
       // linkable entity query vars getter fn
-      (id: number) => ({ drugId: id }),
+      // TODO: Probably can remove this parameter
+      (id: number) => ({ id: id }),
       // tag cache id getter fn
       (r: ApolloQueryResult<LinkableDrugQuery>) => `Drug:${r.data.drug!.id}`,
       // no optional typeahead parameter
@@ -141,24 +144,24 @@ export class CvcDrugSelectField
     )
 
     // set initial placeholder & subject
-    // TODO: implement 'requiresEvidence/Assertion Type' option that will display a
-    // "Choose Evidence / Assertion Type before selection Drug(s)" placeholder
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
     this.onCreate$.pipe(untilDestroyed(this)).subscribe((id: number) => {
       console.log(`${this.field.id} onCreate$ called; id: ${id}`)
-      if(this.props.isMultiSelect) {
+      if (this.props.isMultiSelect) {
         console.log('is multiSelect')
       } else {
         console.log('is not multiSelect')
       }
     })
 
+    if (this.formControl.value) {
+    }
   } // ngAfterViewInit()
 
   configureStateConnections(): void {
     this.state = this.field.options?.formState
-    if(!this.state) return
+    if (!this.state) return
     if (!this.state.requires.requiresDrug$) {
       console.warn(
         `${this.field.id} field's form provides a state, but could not find requiresDrug$ subject to attach.`

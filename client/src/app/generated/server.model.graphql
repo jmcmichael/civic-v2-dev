@@ -5045,6 +5045,7 @@ type Query {
     Filter on a Drug's internal CIViC id
     """
     id: Int
+    ids: [Int!]
 
     """
     Returns the last _n_ elements from the list.
