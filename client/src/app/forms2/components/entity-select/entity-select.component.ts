@@ -63,15 +63,15 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // displayed if search results empty and select has been provided cvcAddEntity template
     create: 'Create a new Entity named "SEARCH_STRING"?',
   }
+  @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder: string = `Search ${this.cvcEntityName.plural}`
   @Input() cvcLoading?: boolean = false
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
-  @Input() cvcAllowClear: boolean = true
+  @Input() cvcAllowClear: boolean = false
   @Input() cvcOptionTrackBy?: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent
-  @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
   // template for extra content after entity tag in option row

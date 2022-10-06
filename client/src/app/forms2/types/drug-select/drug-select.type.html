@@ -1,49 +1,5 @@
-<nz-select
-  nzShowSearch
-  nzServerSearch
-  nzAllowClear
-  [class.ng-dirty]="showError"
-  [nzMode]="props.isMultiSelect ? 'tags' : 'default'"
-  [nzPlaceHolder]="props.placeholder"
-  [formControl]="formControl"
-  [formlyAttributes]="field"
-  [nzOptionHeightPx]="30"
-  [nzAutoClearSearchValue]="false"
-  (nzOnSearch)="onSearch$.next($event)"
-  [nzCustomTemplate]="selectedTemplate"
-  [nzLoading]="isLoading$ | ngrxPush"
-  (ngModelChange)="props.change && props.change(field, $event)">
-  <ng-container *ngrxLet="onSearch$ as searchString">
-    <ng-container
-      *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy">
-      <nz-option
-        nzCustomContent
-        [nzValue]="item.id"
-        [nzHide]="props.isMultiSelect && formControl.value.includes(item.id)">
-        <cvc-entity-tag
-          [cvcCacheId]="item.__typename + ':' + item.id"
-          [cvcEmphasize]="searchString">
-        </cvc-entity-tag>
-        <span
-          *ngIf="item.drugAliases.length > 0"
-          nz-typography
-          nzType="secondary"
-          style="margin-left: 8px">
-          <em>
-            <span
-              nz-typography
-              nzType="secondary"
-              [innerHtml]="
-                item.drugAliases.join(', ') | highlightTypeahead: searchString
-              ">
-            </span>
-          </em>
-        </span>
-      </nz-option>
-    </ng-container>
-  </ng-container>
-</nz-select>
-<!-- <cvc-entity-select
+<cvc-entity-select
+  [cvcSelectMode]="props.isMultiSelect ? 'tags' : 'default'"
   [cvcCustomTemplate]="selectedTemplate"
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
@@ -59,7 +15,7 @@
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
   [cvcModelChange]="props.change">
-</cvc-entity-select> -->
+</cvc-entity-select>
 <ng-template
   #selectedTemplate
   let-selected>
@@ -103,3 +59,49 @@
     (cvcOnCreate)="onCreate$.next($event)">
   </cvc-drug-quick-add-form>
 </ng-template>
+
+<!-- <nz-select
+  nzShowSearch
+  nzServerSearch
+  nzAllowClear
+  [class.ng-dirty]="showError"
+  [nzMode]="props.isMultiSelect ? 'tags' : 'default'"
+  [nzPlaceHolder]="props.placeholder"
+  [formControl]="formControl"
+  [formlyAttributes]="field"
+  [nzOptionHeightPx]="30"
+  [nzAutoClearSearchValue]="false"
+  (nzOnSearch)="onSearch$.next($event)"
+  [nzCustomTemplate]="selectedTemplate"
+  [nzLoading]="isLoading$ | ngrxPush"
+  (ngModelChange)="props.change && props.change(field, $event)">
+  <ng-container *ngrxLet="onSearch$ as searchString">
+    <ng-container
+      *ngFor="let item of result$ | ngrxPush; trackBy: optionTrackBy">
+      <nz-option
+        nzCustomContent
+        [nzValue]="item.id"
+        [nzHide]="props.isMultiSelect && formControl.value.includes(item.id)">
+        <cvc-entity-tag
+          [cvcCacheId]="item.__typename + ':' + item.id"
+          [cvcEmphasize]="searchString">
+        </cvc-entity-tag>
+        <span
+          *ngIf="item.drugAliases.length > 0"
+          nz-typography
+          nzType="secondary"
+          style="margin-left: 8px">
+          <em>
+            <span
+              nz-typography
+              nzType="secondary"
+              [innerHtml]="
+                item.drugAliases.join(', ') | highlightTypeahead: searchString
+              ">
+            </span>
+          </em>
+        </span>
+      </nz-option>
+    </ng-container>
+  </ng-container>
+</nz-select> -->
