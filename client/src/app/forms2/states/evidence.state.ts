@@ -95,6 +95,21 @@ class EvidenceState extends EntityState {
       this.options.evidenceDirectionOption$.next(
         this.getOptionsFromEnums(this.getDirectionOptions(et))
       )
+      this.requires.requiresDisease$.next(
+        this.requiresDisease(et)
+      )
+      this.requires.requiresDrug$.next(
+        this.requiresDrug(et)
+      )
+      this.requires.requiresClingenCodes$.next(
+        this.requiresClingenCodes(et)
+      )
+      this.requires.requiresAcmgCodes$.next(
+        this.requiresAcmgCodes(et)
+      )
+      this.requires.allowsFdaApproval$.next(
+        this.allowsFdaApproval(et)
+      )
     })
 
     this.validStates.set(EvidenceType.Predictive, {

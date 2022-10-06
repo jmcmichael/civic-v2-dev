@@ -36,7 +36,7 @@ import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
-  isRepeatItem: boolean // is child of a repeat-field type
+  isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
   selectMessages: CvcSelectMessageOptions
   placeholder: string // default placeholder
@@ -44,7 +44,7 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcDrugSelectFieldConfig
   extends FormlyFieldConfig<CvcDrugSelectFieldProps> {
-  type: 'drug-select' | 'drug-select-item' | Type<CvcDrugSelectField>
+  type: 'drug-select' | 'drug-select-multi' | Type<CvcDrugSelectField>
 }
 
 const DrugSelectMixin = mixin(
@@ -78,8 +78,10 @@ export class CvcDrugSelectField
   state?: EntityState
 
   // STATE SOURCE STREAMS
+  onRequiresDrug$: BehaviorSubject<boolean>
 
   // LOCAL SOURCE STREAMS
+  onCreate$: Subject<number>
 
   // LOCAL PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
@@ -92,6 +94,8 @@ export class CvcDrugSelectField
     private tq: LinkableDrugGQL
   ) {
     super(injector)
+    this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
+    this.onCreate$ = new Subject<number>()
   }
 
   // FieldTypeConfig defaults
@@ -99,7 +103,7 @@ export class CvcDrugSelectField
     props: {
       label: 'Drug',
       placeholder: 'Search Drugs',
-      isRepeatItem: false,
+      isMultiSelect: false,
       entityName: { singular: 'Drug', plural: 'Drugs' },
       selectMessages: {
         focus: 'Enter query to search',
@@ -112,8 +116,9 @@ export class CvcDrugSelectField
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
-
+    this.configureStateConnections()
     this.configureEntityTagField(
+      // mixin fn
       // mixin fn
       // typeahead query
       this.taq,
@@ -124,8 +129,7 @@ export class CvcDrugSelectField
         name: str,
       }),
       // typeahead query result map fn
-      (r: ApolloQueryResult<DrugSelectTypeaheadQuery>) =>
-        r.data.drugTypeahead,
+      (r: ApolloQueryResult<DrugSelectTypeaheadQuery>) => r.data.drugTypeahead,
       // linkable entity query vars getter fn
       (id: number) => ({ drugId: id }),
       // tag cache id getter fn
@@ -138,6 +142,22 @@ export class CvcDrugSelectField
     // TODO: implement 'requiresEvidence/Assertion Type' option that will display a
     // "Choose Evidence / Assertion Type before selection Drug(s)" placeholder
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
+  } // ngAfterViewInit()
 
+  configureStateConnections(): void {
+    this.state = this.field.options?.formState
+    if(!this.state) return
+    if (!this.state.requires.requiresDrug$) {
+      console.warn(
+        `${this.field.id} field's form provides a state, but could not find requiresDrug$ subject to attach.`
+      )
+      return
+    }
+    this.onRequiresDrug$ = this.state.requires.requiresDrug$
+    this.onRequiresDrug$
+      .pipe(untilDestroyed(this), tag(`${this.field.id} onRequiresDrug$`))
+      .subscribe((rd) => {
+        // this.
+      })
   }
 }

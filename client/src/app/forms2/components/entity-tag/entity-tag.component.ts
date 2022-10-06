@@ -17,7 +17,7 @@ export class CvcEntityTagComponent implements OnInit {
     if(!cacheId) return
     this.setLinkableEntity(cacheId)
   }
-  @Input() cvcContext: 'default' | 'select-item' = 'default'
+  @Input() cvcContext: 'default' | 'multi-select-item' = 'default'
   @Input() cvcMode: 'default' | 'closeable' | 'checkable' = 'default'
   @Input() cvcEmphasize?: string
   @Output() cvcOnClose: EventEmitter<MouseEvent>

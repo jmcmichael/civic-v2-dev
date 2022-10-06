@@ -33,9 +33,23 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Evidence Item',
         },
         fieldGroup: [
+          <CvcEntityTypeSelectFieldConfig>{
+            key: 'evidenceType',
+            type: 'entity-type-select',
+            props: {
+              required: true,
+            },
+          },
+          <CvcDrugSelectFieldConfig>{
+            key: 'drugId',
+            type: 'drug-select',
+            props: {
+              required: true,
+            },
+          },
           <CvcDrugSelectFieldConfig>{
             key: 'drugIds',
-            type: 'drug-select',
+            type: 'drug-select-multi',
             props: {
               required: true,
             },
@@ -102,13 +116,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           //   fieldArray: <CvcBaseInputFieldConfig>{
           //     type: 'base-input-item',
           //     props: {},
-          //   },
-          // },
-          // <CvcEntityTypeSelectFieldConfig>{
-          //   key: 'evidenceType',
-          //   type: 'entity-type-select',
-          //   props: {
-          //     required: true,
           //   },
           // },
           // <CvcEntitySignificanceSelectFieldConfig>{

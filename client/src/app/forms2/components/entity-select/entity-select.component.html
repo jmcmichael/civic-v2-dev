@@ -3,6 +3,8 @@
   nzServerSearch
   nzAllowClear
   [class.ng-dirty]="cvcShowError"
+  [nzMode]="'tags'"
+  [nzAutoClearSearchValue]="false"
   [nzPlaceHolder]="cvcPlaceholder"
   [formControl]="cvcFormControl"
   [formlyAttributes]="cvcFormlyAttributes"
@@ -22,7 +24,8 @@
     <ng-container *ngFor="let item of cvcResults">
       <nz-option
         nzCustomContent
-        [nzValue]="item.id">
+        [nzValue]="item.id"
+        [nzHide]="cvcSelectMode !== 'default' && cvcFormControl.value.includes(item.id)">
         <nz-space nzDirection="horizontal">
           <cvc-entity-tag
             *nzSpaceItem
@@ -70,7 +73,10 @@
     <ng-container
       *ngrxLet="onSearch$ as searchString"
       [ngTemplateOutlet]="cvcAddEntity"
-      [ngTemplateOutletContext]="{ $implicit: searchString, createMsg: createMsg }">
+      [ngTemplateOutletContext]="{
+        $implicit: searchString,
+        createMsg: createMsg
+      }">
     </ng-container>
   </ng-container>
 </ng-template>

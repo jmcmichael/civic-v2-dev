@@ -82,7 +82,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
   @Output() readonly cvcOnFocus = new EventEmitter<void>()
 
-
   // SOURCE STREAMS
   onFocus$: BehaviorSubject<void>
   onSearch$: BehaviorSubject<Maybe<string>>
