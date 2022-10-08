@@ -14,6 +14,7 @@
   [nzDisabled]="cvcDisabled"
   [nzLoading]="cvcLoading"
   [nzAllowClear]="cvcAllowClear"
+  [nzOptions]="cvcOptions"
   [nzCustomTemplate]="cvcCustomTemplate ? cvcCustomTemplate : null"
   [nzNotFoundContent]="notFound"
   (nzFocus)="cvcOnFocus.next()"
@@ -21,9 +22,10 @@
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
   ">
-  <ng-container *ngrxLet="onSearch$ as searchString">
+<!-- <ng-container *ngrxLet="onSearch$ as searchString">
     <ng-container *ngFor="let item of cvcResults; trackBy: cvcOptionTrackBy">
       <nz-option
+        nzCustomContent
         [nzValue]="item.id"
         [nzHide]="
           cvcSelectMode !== 'default' && cvcFormControl.value.includes(item.id)
@@ -44,7 +46,7 @@
         </nz-space>
       </nz-option>
     </ng-container>
-  </ng-container>
+  </ng-container> -->
 </nz-select>
 <ng-template #notFound>
   <!-- loading msg -->

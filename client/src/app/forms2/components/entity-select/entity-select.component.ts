@@ -16,6 +16,7 @@ import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 
@@ -67,6 +68,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder: string = `Search ${this.cvcEntityName.plural}`
   @Input() cvcLoading?: boolean = false
+
+  @Input() cvcOptions: NzSelectOptionInterface[] = []
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false

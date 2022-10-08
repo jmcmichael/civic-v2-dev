@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Injector, OnInit, Type } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityState, SelectOption } from '@app/forms2/states/entity.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { Maybe } from '@app/generated/civic.apollo'

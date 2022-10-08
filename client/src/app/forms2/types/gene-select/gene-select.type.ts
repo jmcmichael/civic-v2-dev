@@ -8,7 +8,7 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { CvcSelectEntityName, CvcSelectMessageOptions } from '@app/forms2/components/entity-select/entity-select.component'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {

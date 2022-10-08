@@ -11,7 +11,7 @@ import {
   CvcSelectEntityName,
   CvcSelectMessageOptions,
 } from '@app/forms2/components/entity-select/entity-select.component'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
@@ -35,7 +35,8 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, Subject } from 'rxjs'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
+import { BehaviorSubject, map, Observable, Subject, switchMap } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
@@ -88,6 +89,7 @@ export class CvcDrugSelectField
   onCreate$: Subject<number>
 
   // LOCAL PRESENTATION STREAMS
+  selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
   placeholder$!: BehaviorSubject<string>
 
   // STATE OUTPUT STREAMS
@@ -100,6 +102,15 @@ export class CvcDrugSelectField
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
     this.onCreate$ = new Subject<number>()
+    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
+
+    // export interface NzSelectOptionInterface {
+    //   label: string | number | null | TemplateRef<NzSafeAny>;
+    //   value: NzSafeAny | null;
+    //   disabled?: boolean;
+    //   hide?: boolean;
+    //   groupLabel?: string | number | TemplateRef<NzSafeAny> | null;
+    // }
   }
 
   // FieldTypeConfig defaults
@@ -145,6 +156,12 @@ export class CvcDrugSelectField
 
     // set initial placeholder & subject
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
+
+    this.result$
+      .pipe(untilDestroyed(this))
+      .subscribe((r: DrugSelectTypeaheadFieldsFragment[]) => {
+        this.selectOption$.next(r.map((d) => ({ label: d.name, value: d.id })))
+      })
 
     this.onCreate$.pipe(untilDestroyed(this)).subscribe((id: number) => {
       console.log(`${this.field.id} onCreate$ called; id: ${id}`)

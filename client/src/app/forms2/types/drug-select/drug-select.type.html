@@ -8,6 +8,7 @@
       [cvcEntityName]="props.entityName"
       [cvcSelectMessages]="props.selectMessages"
       [cvcResults]="result$ | ngrxPush"
+      [cvcOptions]="(selectOption$ | ngrxPush)!"
       [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
       [cvcShowError]="showError"
       [cvcDisabled]="!(onRequiresDrug$ | ngrxPush)"
@@ -17,8 +18,45 @@
       (cvcOnSearch)="onSearch$.next($event)"
       [cvcModelChange]="props.change">
     </cvc-entity-select>
+
+    <!-- custom selected item template -->
+    <!-- displays entity tag, specifying context and mode depending on
+if field is multi-select or single -->
+    <ng-template
+      #selectedTemplate
+      let-selected>
+      <div class="ant-select-selection-item-content">
+        <cvc-entity-tag
+          [cvcCacheId]="'Drug:' + selected.nzValue"
+          [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'default'"
+          [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
+          (cvcOnClose)="onTagClose$.next(selected.nzValue)"></cvc-entity-tag>
+      </div>
+    </ng-template>
+
+    <!-- custom option template extra to display list of aliases after tag -->
+    <ng-template
+      #optionExtra
+      let-item
+      let-searchString="searchStr">
+      <span
+        nz-typography
+        nzType="secondary">
+        <ng-container *ngIf="item.drugAliases.length > 0">
+          <em>
+            <span
+              nz-typography
+              nzType="secondary"
+              [innerHtml]="
+                item.drugAliases.join(', ') | highlightTypeahead: searchString
+              "></span
+          ></em>
+        </ng-container>
+      </span>
+    </ng-template>
   </nz-col>
   <nz-col nzFlex="32px">
+    <!-- quick-add button -->
     <a
       nz-button
       nzShape="circle"
@@ -34,40 +72,7 @@
   </nz-col>
 </nz-row>
 
-<ng-template
-  #selectedTemplate
-  let-selected>
-  <div class="ant-select-selection-item-content">
-    <cvc-entity-tag
-      [cvcCacheId]="'Drug:' + selected.nzValue"
-      [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'default'"
-      [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
-      (cvcOnClose)="onTagClose$.next(selected.nzValue)"></cvc-entity-tag>
-  </div>
-</ng-template>
-
-<!-- option extra tpl to display list of aliases after tag -->
-<ng-template
-  #optionExtra
-  let-item
-  let-searchString="searchStr">
-  <span
-    nz-typography
-    nzType="secondary">
-    <ng-container *ngIf="item.drugAliases.length > 0">
-      <em>
-        <span
-          nz-typography
-          nzType="secondary"
-          [innerHtml]="
-            item.drugAliases.join(', ') | highlightTypeahead: searchString
-          "></span
-      ></em>
-    </ng-container>
-  </span>
-</ng-template>
-
-<!-- add drug tpl, to display when no results found for query -->
+<!-- quick-add button's popup template -->
 <ng-template
   #addDrug
   let-searchStr
@@ -77,4 +82,3 @@
     (cvcOnCreate)="onCreate$.next($event)">
   </cvc-drug-quick-add-form>
 </ng-template>
-

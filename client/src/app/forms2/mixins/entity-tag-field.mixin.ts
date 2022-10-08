@@ -187,7 +187,7 @@ export function EntityTagField<
       } // end configureDisplayEntityTag()
 
       prepopulateOptions(vars: TV) {
-
+        this.tagQuery
       }
 
       resetField() {

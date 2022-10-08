@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Injector, Type } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base'
+import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import {
   EntityClinicalSignificance,
   EntityState,
