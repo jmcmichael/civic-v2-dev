@@ -28,7 +28,7 @@ if field is multi-select or single -->
       <div class="ant-select-selection-item-content">
         <cvc-entity-tag
           [cvcCacheId]="'Drug:' + selected.nzValue"
-          [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'default'"
+          [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'select-item'"
           [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
           (cvcOnClose)="onTagClose$.next(selected.nzValue)"></cvc-entity-tag>
       </div>

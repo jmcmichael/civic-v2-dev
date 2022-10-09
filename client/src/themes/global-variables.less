@@ -16,6 +16,21 @@
 @white: #fff;
 @black: #000;
 
+// borders
+@line-height-base: 1.5715;
+@border-radius-base: 2px;
+@border-radius-sm: @border-radius-base;
+
+@border-color-base: hsv(0, 0, 85%); // base border outline a component
+@border-color-split: hsv(0, 0, 94%); // split border inside a component
+@border-color-inverse: @white;
+@border-width-base: 1px; // width of the border for a component
+@border-style-base: solid; // style of a components border
+
+// background base
+@background-color-light: hsv(0, 0, 98%); // background of header and selected item
+@background-color-base: hsv(0, 0, 96%); // Default grey background color
+
 // Status Colors
 @suggested-color: #fadb14;
 
@@ -196,11 +211,16 @@
 
 // Select
 // ---
+@select-selection-item-bg: @background-color-base;
+@select-selection-item-border-color: @border-color-split;
 @select-dropdown-height: @height-base;
 @select-single-item-height-lg: 32px;
 @select-multiple-item-height: @input-height-base - max(@input-padding-vertical-base, 4) * 2; // Normal 24px
 @select-multiple-item-height-lg: 24px;
 @select-multiple-item-spacing-half: 3px;
+@select-multiple-disabled-background: @background-color-base;
+@select-multiple-item-disabled-color: #bfbfbf;
+@select-multiple-item-disabled-border-color: @border-color-base;
 
 // Tree
 // ---

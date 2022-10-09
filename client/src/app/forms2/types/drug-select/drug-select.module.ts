@@ -33,12 +33,12 @@ const typeConfig: ConfigOption = {
     },
     {
       // no label, for use in repeat-field types
-      name: 'drug-select-multi',
+      name: 'drug-select-array',
       wrappers: ['form-field'],
       component: CvcDrugSelectField,
       defaultOptions: {
         props: {
-          label: 'Drugs',
+          label: 'Drug',
           isMultiSelect: true,
         },
       },

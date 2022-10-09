@@ -49,7 +49,7 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcDrugSelectFieldConfig
   extends FormlyFieldConfig<CvcDrugSelectFieldProps> {
-  type: 'drug-select' | 'drug-select-multi' | Type<CvcDrugSelectField>
+  type: 'drug-select' | 'drug-select-array' | Type<CvcDrugSelectField>
 }
 
 const DrugSelectMixin = mixin(
