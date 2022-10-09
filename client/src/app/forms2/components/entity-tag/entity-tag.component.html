@@ -14,7 +14,11 @@ so apply select-item styles which mimic nz-select's multi-mode pseudo tags -->
   <nz-tag
     [nzMode]="'closeable'"
     (nzOnClose)="cvcOnClose.next($event)">
-    <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
+    <span
+      nz-tooltip
+      nzTooltipTitle="TEST">
+      <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
+    </span>
   </nz-tag>
 </span>
 
@@ -23,7 +27,11 @@ so only display the tag contents as it will be wrapped in nz-select pseudo-tag s
 <span
   *ngIf="cvcContext === 'multi-select-item'"
   class="multi-select-item">
-  <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
+  <span
+    nz-tooltip
+    nzTooltipTitle="TEST MULTI">
+    <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
+  </span>
 </span>
 
 <ng-template #tagContent>
