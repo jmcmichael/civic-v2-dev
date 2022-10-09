@@ -87,7 +87,7 @@ export function EntityTagField<
 
       queryRef!: QueryRef<TAT, TAV>
       tagEntity!: TF
-
+      // TODO: remove all tag query GQL & related types - no longer required
       configureEntityTagField(
         taq: Query<TAT, TAV>,
         tq: Query<TT, TV>,

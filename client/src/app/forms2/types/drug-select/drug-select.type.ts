@@ -137,7 +137,7 @@ export class CvcDrugSelectField
       // mixin fn
       // typeahead query
       this.taq,
-      // linkable entity query
+      // linkable entity query TODO: probably can remove
       this.tq,
       // typeahead query vars getter fn
       (str: string) => ({
@@ -157,6 +157,7 @@ export class CvcDrugSelectField
     // set initial placeholder & subject
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
+    // emit select options whenever results are returned from query
     this.result$
       .pipe(untilDestroyed(this))
       .subscribe((r: DrugSelectTypeaheadFieldsFragment[]) => {
@@ -173,6 +174,15 @@ export class CvcDrugSelectField
     })
 
     if (this.formControl.value) {
+      // use tagQuery to prepopulate options, so nz-select can
+      // render entity-tags in select-item templates
+      this.tq
+        .fetch({ id: this.formControl.value })
+        .pipe(untilDestroyed(this))
+        .subscribe(({ data: { drug } }) => {
+          if(!drug) return
+          this.selectOption$.next([{ label: drug.name, value: drug.id }])
+        })
     }
   } // ngAfterViewInit()
 
