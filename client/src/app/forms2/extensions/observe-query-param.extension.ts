@@ -86,7 +86,7 @@ export class ObserveQueryParamExtension implements FormlyExtension {
         }
 
         // parse param
-        let fieldValue: Maybe<number | string | boolean> = undefined
+        let fieldValue: Maybe<number | string | boolean | string[] | number[]> = undefined
         try {
           fieldValue = JSON.parse(paramValue)
         } catch (error) {
@@ -99,11 +99,11 @@ export class ObserveQueryParamExtension implements FormlyExtension {
           sub.unsubscribe()
           return
         }
-
+        if(!fieldValue) return
         // ensure provided value is not an object, end if it is
-        if (typeof fieldValue === 'object') {
+        if (Object.keys(fieldValue).length > 0 && fieldValue.constructor === Object) {
           console.warn(
-            `observe-query-param may only set primitive types, param ${
+            `observe-query-param may only set primitive types or arrays of primitive types, param ${
               this.paramKey
             } is an object: ${JSON.stringify(fieldValue)}`
           )

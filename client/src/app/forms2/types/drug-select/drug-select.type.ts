@@ -36,7 +36,18 @@ import {
 } from '@ngx-formly/core'
 import { QueryRef } from 'apollo-angular'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, map, Observable, Subject, switchMap } from 'rxjs'
+import {
+  BehaviorSubject,
+  filter,
+  from,
+  map,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+} from 'rxjs'
+import { combineLatestArray, isNonNulled } from 'rxjs-etc'
+import { pluck } from 'rxjs-etc/dist/esm/operators'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
@@ -173,18 +184,65 @@ export class CvcDrugSelectField
       }
     })
 
+    // if a prepopulated form value exists, set by the observe-query-param extension,
+    // use tagQuery to fetch its entities from the server
     if (this.formControl.value) {
+      const v = this.formControl.value
+      let queries: Observable<DrugSelectPrepopulateQuery>[]
+      // filter objects
+      if(Object.keys(v).length > 0 && v.constructor === Object) return
+      // wrap primitives in array
+      if (typeof v === 'number') {
+        queries = this.getFetchFn([v])
+      } else {
+        queries = this.getFetchFn(v)
+      }
+      combineLatestArray(queries)
+        .pipe(
+          tag(`${this.field.id} combineLatestArray(queries)`),
+          map((data) => {
+            if(!(data.length > 0)) return []
+            if(!data.every(({drug}) => drug !== undefined)) return []
+            return data
+              .map(({ drug }) => {
+                const d = drug as DrugSelectTypeaheadFieldsFragment
+                return {
+                  label: d.name,
+                  value: d.id,
+                }
+              })
+          }),
+        )
+        .subscribe((options) => {
+          if (!options) return
+          if (!options.every(o => typeof o !== 'undefined')) return
+          // const opts = drugs.map((drug) => ({
+          //   label: drug.name,
+          //   value: drug.id,
+          // }))
+          this.selectOption$.next(options)
+        })
+
       // use tagQuery to prepopulate options, so nz-select can
       // render entity-tags in select-item templates
-      this.tq
-        .fetch({ id: this.formControl.value })
-        .pipe(untilDestroyed(this))
-        .subscribe(({ data: { drug } }) => {
-          if(!drug) return
-          this.selectOption$.next([{ label: drug.name, value: drug.id }])
-        })
+      // this.getFetchFn(this.formControl.value)
+      //   .pipe(untilDestroyed(this))
+      //   .subscribe(({  drug  }) => {
+      //     if (!drug) return
+      //     this.selectOption$.next([{ label: drug.name, value: drug.id }])
+      //   })
     }
   } // ngAfterViewInit()
+
+  getFetchFn(ids: number[]): Observable<DrugSelectPrepopulateQuery>[] {
+    const queries = ids.map((id) =>
+      this.tq
+        .fetch({ id: id }, { fetchPolicy: 'cache-first' })
+        .pipe(pluck('data'), filter(isNonNulled))
+    )
+    console.log(queries)
+    return queries
+  }
 
   configureStateConnections(): void {
     this.state = this.field.options?.formState
