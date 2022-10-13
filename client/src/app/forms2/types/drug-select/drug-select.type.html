@@ -1,7 +1,7 @@
 <nz-row [nzGutter]="[8, 8]">
   <nz-col nzFlex="auto">
     <cvc-entity-select
-      [cvcSelectMode]="props.isMultiSelect ? 'tags' : 'default'"
+      [cvcSelectMode]="props.isMultiSelect ? 'multiple' : 'default'"
       [cvcCustomTemplate]="selectedTemplate"
       [cvcFormControl]="formControl"
       [cvcFormlyAttributes]="field"
@@ -18,7 +18,6 @@
       (cvcOnSearch)="onSearch$.next($event)"
       [cvcModelChange]="props.change">
     </cvc-entity-select>
-
     <!-- custom selected item template -->
     <!-- displays entity tag, specifying context and mode depending on
 if field is multi-select or single -->

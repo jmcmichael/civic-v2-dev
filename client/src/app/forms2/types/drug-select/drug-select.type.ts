@@ -108,7 +108,8 @@ export class CvcDrugSelectField
   constructor(
     public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
-    private tq: DrugSelectPrepopulateGQL
+    private tq: DrugSelectPrepopulateGQL,
+    private cdr: ChangeDetectorRef
   ) {
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
@@ -220,7 +221,11 @@ export class CvcDrugSelectField
           //   label: drug.name,
           //   value: drug.id,
           // }))
-          this.selectOption$.next(options)
+          setTimeout(() => {
+            console.log('populating options', options)
+            this.selectOption$.next(options)
+            this.cdr.detectChanges()
+          }, 1000)
         })
 
       // use tagQuery to prepopulate options, so nz-select can
@@ -238,7 +243,7 @@ export class CvcDrugSelectField
     const queries = ids.map((id) =>
       this.tq
         .fetch({ id: id }, { fetchPolicy: 'cache-first' })
-        .pipe(pluck('data'), filter(isNonNulled))
+        .pipe(tag(`${this.field.id} tag query fetch`),pluck('data'), filter(isNonNulled))
     )
     console.log(queries)
     return queries
