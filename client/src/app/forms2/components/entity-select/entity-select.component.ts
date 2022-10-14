@@ -52,21 +52,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     singular: 'Entity',
     plural: 'Entities',
   }
-  // these select messages are displayed in the input area
-  // or the NotFound template area under the input after
-  // the field obtains focus
-  @Input() cvcSelectMessages: CvcSelectMessageOptions = {
-    // displayed under input, after focus, before any search query entered
-    focus: 'Enter search query',
-    // displayed while API requests complete
-    loading: 'Searching Entities',
-    // displayed if research results empty
-    notfound: 'No Entities found matching "SEARCH_STRING"',
-    // displayed if search results empty and select has been provided cvcAddEntity template
-    create: 'Create a new Entity named "SEARCH_STRING"?',
-  }
+  @Input() cvcSelectMessages?: CvcSelectMessageOptions
+
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
-  @Input() cvcPlaceholder: string = `Search ${this.cvcEntityName.plural}`
+  @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
 
   @Input() cvcOptions: NzSelectOptionInterface[] = []
@@ -113,6 +102,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.focusMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.notFoundMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.createMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
+
   }
 
   // formly fields do all their config in AfterViewInit, so components with
@@ -184,7 +174,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       .subscribe(([_focus, search, loading]) => {
         // show search prompt msg, e.g. "Enter search query"
         if (inputHasFocus(loading, search, this.cvcResults)) {
-          this.focusMessage$.next(this.cvcSelectMessages.focus)
+          this.focusMessage$.next(
+            this.cvcSelectMessages?.focus ||
+              'Enter query to search ${this.cvcEntityName.plural}.'
+          )
           this.loadingMessage$.next(undefined)
           this.notFoundMessage$.next(undefined)
           this.createMessage$.next(undefined)
@@ -200,7 +193,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
         // show loading message, e.g. "Search for Entities..."
         if (isLoading(loading, search)) {
-          this.loadingMessage$.next(this.cvcSelectMessages.loading)
+          this.loadingMessage$.next(
+            this.cvcSelectMessages?.loading ||
+              `Searching ${this.cvcEntityName.plural}…`
+          )
           this.focusMessage$.next(undefined)
           this.notFoundMessage$.next(undefined)
           this.createMessage$.next(undefined)
@@ -209,7 +205,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         // show not found message, e.g. "No Entities found"
         if (noResultsExist(loading, search, this.cvcResults)) {
           if (!search) return
-          const msg = this.cvcSelectMessages.notfound.replace(
+          const notFound = this.cvcSelectMessages?.notfound || `No ${this.cvcEntityName.singular} found matching "SEARCH_STRING".`
+          const msg = notFound.replace(
             'SEARCH_STRING',
             search
           )
@@ -231,7 +228,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           )
         ) {
           if (!search) return
-          const msg = this.cvcSelectMessages.create.replace(
+          const create = this.cvcSelectMessages?.create || `Create a new ${this.cvcEntityName.singular} named "SEARCH_STRING"?'`
+          const msg = create.replace(
             'SEARCH_STRING',
             search
           )
@@ -240,12 +238,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           this.focusMessage$.next(undefined)
           this.createMessage$.next(msg)
         }
-
       }) // combineLatest.subscribe()
-    if(this.cvcFormControl.value) {
-      // this.cvcFormControl.setValue(this.cvcFormControl.value)
-      // this.cdr.detectChanges()
-    }
+
   } // ngAfterViewInit()
 
   // attach some Inputs to Subjects for use in observable chains

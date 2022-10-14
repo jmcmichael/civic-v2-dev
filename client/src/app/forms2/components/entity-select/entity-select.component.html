@@ -6,7 +6,7 @@
   nzSize="default"
   [nzMode]="cvcSelectMode"
   [nzAutoClearSearchValue]="false"
-  [nzPlaceHolder]="cvcPlaceholder"
+  [nzPlaceHolder]="cvcPlaceholder ? cvcPlaceholder : 'Search ' + cvcEntityName.plural"
   [formControl]="cvcFormControl"
   [formlyAttributes]="cvcFormlyAttributes"
   [nzOptionHeightPx]="30"

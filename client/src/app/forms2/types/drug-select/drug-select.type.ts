@@ -54,8 +54,8 @@ import mixin from 'ts-mixin-extended'
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
   isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
-  selectMessages: CvcSelectMessageOptions
-  placeholder: string // default placeholder
+  selectMessages?: CvcSelectMessageOptions
+  placeholder?: string // default placeholder
 }
 
 export interface CvcDrugSelectFieldConfig
@@ -129,15 +129,8 @@ export class CvcDrugSelectField
   defaultOptions: Partial<FieldTypeConfig<CvcDrugSelectFieldProps>> = {
     props: {
       label: 'Drug',
-      placeholder: 'Search Drugs',
       isMultiSelect: false,
       entityName: { singular: 'Drug', plural: 'Drugs' },
-      selectMessages: {
-        focus: 'Enter query to search',
-        loading: 'Searching Drugs',
-        notfound: 'No Drugs found matching "SEARCH_STRING"',
-        create: 'No Drugs found matching "SEARCH_STRING", create a new one?',
-      },
     },
   }
 
@@ -165,9 +158,6 @@ export class CvcDrugSelectField
       // no optional typeahead parameter
       undefined
     )
-
-    // set initial placeholder & subject
-    this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
     // emit select options whenever results are returned from query
     this.result$
@@ -224,6 +214,7 @@ export class CvcDrugSelectField
           setTimeout(() => {
             console.log('populating options', options)
             this.selectOption$.next(options)
+            this.formControl.setValue
             this.cdr.detectChanges()
           }, 1000)
         })
