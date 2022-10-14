@@ -7,8 +7,6 @@ mutation QuickAddDrug($name: String!, $ncitId: String) {
 fragment QuickAddDrugFields on AddDrugPayload {
   new
   drug {
-    id
-    ncitId
-    name
+    ...DrugSelectTypeaheadFields
   }
 }

@@ -6138,9 +6138,9 @@ export type QuickAddDrugMutationVariables = Exact<{
 }>;
 
 
-export type QuickAddDrugMutation = { __typename: 'Mutation', addDrug?: { __typename: 'AddDrugPayload', new: boolean, drug: { __typename: 'Drug', id: number, ncitId?: string | undefined, name: string } } | undefined };
+export type QuickAddDrugMutation = { __typename: 'Mutation', addDrug?: { __typename: 'AddDrugPayload', new: boolean, drug: { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> } } | undefined };
 
-export type QuickAddDrugFieldsFragment = { __typename: 'AddDrugPayload', new: boolean, drug: { __typename: 'Drug', id: number, ncitId?: string | undefined, name: string } };
+export type QuickAddDrugFieldsFragment = { __typename: 'AddDrugPayload', new: boolean, drug: { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> } };
 
 export type DrugSelectTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
@@ -7907,16 +7907,6 @@ export const RevisableVariantFieldsFragmentDoc = gql`
   variantBases
 }
     ${CoordinateFieldsFragmentDoc}`;
-export const QuickAddDrugFieldsFragmentDoc = gql`
-    fragment QuickAddDrugFields on AddDrugPayload {
-  new
-  drug {
-    id
-    ncitId
-    name
-  }
-}
-    `;
 export const DrugSelectTypeaheadFieldsFragmentDoc = gql`
     fragment DrugSelectTypeaheadFields on Drug {
   id
@@ -7926,6 +7916,14 @@ export const DrugSelectTypeaheadFieldsFragmentDoc = gql`
   drugAliases
 }
     `;
+export const QuickAddDrugFieldsFragmentDoc = gql`
+    fragment QuickAddDrugFields on AddDrugPayload {
+  new
+  drug {
+    ...DrugSelectTypeaheadFields
+  }
+}
+    ${DrugSelectTypeaheadFieldsFragmentDoc}`;
 export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
     fragment GeneSelectTypeaheadFields on Gene {
   id

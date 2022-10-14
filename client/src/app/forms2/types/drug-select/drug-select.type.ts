@@ -97,7 +97,7 @@ export class CvcDrugSelectField
   onRequiresDrug$: BehaviorSubject<boolean>
 
   // LOCAL SOURCE STREAMS
-  onCreate$: Subject<number>
+  onCreate$: Subject<Drug>
 
   // LOCAL PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
@@ -113,7 +113,7 @@ export class CvcDrugSelectField
   ) {
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
-    this.onCreate$ = new Subject<number>()
+    this.onCreate$ = new Subject<Drug>()
     this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
 
     // export interface NzSelectOptionInterface {
@@ -166,8 +166,9 @@ export class CvcDrugSelectField
         this.selectOption$.next(r.map((d) => ({ label: d.name, value: d.id })))
       })
 
-    this.onCreate$.pipe(untilDestroyed(this)).subscribe((id: number) => {
-      console.log(`${this.field.id} onCreate$ called; id: ${id}`)
+    this.onCreate$.pipe(untilDestroyed(this)).subscribe((drug: Drug) => {
+      console.log(`${this.field.id} onCreate$ called: ${drug}`)
+      this.selectOption$.next([{ label: drug.name, value: drug.id }])
       if (this.props.isMultiSelect) {
         console.log('is multiSelect')
       } else {
@@ -176,12 +177,17 @@ export class CvcDrugSelectField
     })
 
     // if a prepopulated form value exists, set by the observe-query-param extension,
-    // use tagQuery to fetch its entities from the server
+    // use tagQuery to create select option(s) for it so that nz-select's tags render
     if (this.formControl.value) {
       const v = this.formControl.value
+      if (Object.keys(v).length > 0 && v.constructor === Object) {
+        console.error(
+          `${this.field.id} prepopulated value must be a primitive or array of primitives, value is an object:`,
+          v
+        )
+        return
+      }
       let queries: Observable<DrugSelectPrepopulateQuery>[]
-      // filter objects
-      if(Object.keys(v).length > 0 && v.constructor === Object) return
       // wrap primitives in array
       if (typeof v === 'number') {
         queries = this.getFetchFn([v])
@@ -192,41 +198,26 @@ export class CvcDrugSelectField
         .pipe(
           tag(`${this.field.id} combineLatestArray(queries)`),
           map((data) => {
-            if(!(data.length > 0)) return []
-            if(!data.every(({drug}) => drug !== undefined)) return []
-            return data
-              .map(({ drug }) => {
-                const d = drug as DrugSelectTypeaheadFieldsFragment
-                return {
-                  label: d.name,
-                  value: d.id,
-                }
-              })
-          }),
+            if (!(data.length > 0)) return []
+            if (!data.every(({ drug }) => drug !== undefined)) return []
+            return data.map(({ drug }) => {
+              const d = drug as DrugSelectTypeaheadFieldsFragment
+              return {
+                label: d.name,
+                value: d.id,
+              }
+            })
+          })
         )
         .subscribe((options) => {
-          if (!options) return
-          if (!options.every(o => typeof o !== 'undefined')) return
-          // const opts = drugs.map((drug) => ({
-          //   label: drug.name,
-          //   value: drug.id,
-          // }))
-          setTimeout(() => {
-            console.log('populating options', options)
-            this.selectOption$.next(options)
-            this.formControl.setValue
-            this.cdr.detectChanges()
-          }, 1000)
+          if (!options || !options.every((o) => typeof o !== 'undefined')) {
+            console.error(
+              `${this.field.id} prepopulate select options error: one or more option requests failed.`,
+              options
+            )
+          }
+          this.selectOption$.next(options)
         })
-
-      // use tagQuery to prepopulate options, so nz-select can
-      // render entity-tags in select-item templates
-      // this.getFetchFn(this.formControl.value)
-      //   .pipe(untilDestroyed(this))
-      //   .subscribe(({  drug  }) => {
-      //     if (!drug) return
-      //     this.selectOption$.next([{ label: drug.name, value: drug.id }])
-      //   })
     }
   } // ngAfterViewInit()
 
@@ -234,7 +225,11 @@ export class CvcDrugSelectField
     const queries = ids.map((id) =>
       this.tq
         .fetch({ id: id }, { fetchPolicy: 'cache-first' })
-        .pipe(tag(`${this.field.id} tag query fetch`),pluck('data'), filter(isNonNulled))
+        .pipe(
+          tag(`${this.field.id} tag query fetch`),
+          pluck('data'),
+          filter(isNonNulled)
+        )
     )
     console.log(queries)
     return queries

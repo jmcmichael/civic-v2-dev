@@ -10,6 +10,7 @@ import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import {
   AddDrugGQL,
+  Drug,
   Maybe,
   QuickAddDrugGQL,
   QuickAddDrugMutation,
@@ -40,7 +41,7 @@ export class CvcDrugQuickAddForm {
     this.searchString$.next(str)
   }
 
-  @Output() cvcOnCreate = new EventEmitter<number>()
+  @Output() cvcOnCreate = new EventEmitter<Drug>()
 
   model: DrugQuickAddModel = drugQuickAddInitialModel
   form: FormGroup = new FormGroup({})
@@ -85,9 +86,10 @@ export class CvcDrugQuickAddForm {
     this.fields = [
       {
         key: 'name',
-        type: 'input',
+        // type: 'input',
         props: {
-          label: 'Drug Name',
+          // label: 'Drug Name',
+          hidden: true,
           required: true,
         },
       },
@@ -122,8 +124,8 @@ export class CvcDrugQuickAddForm {
       {},
       (data) => {
         console.log('drug-quick-add submit data callback', data)
-        const vid = data.addDrug.drug.id
-        this.cvcOnCreate.next(vid)
+        // const vid = data.addDrug.drug.id
+        this.cvcOnCreate.next(data.addDrug.drug)
       }
     )
 
