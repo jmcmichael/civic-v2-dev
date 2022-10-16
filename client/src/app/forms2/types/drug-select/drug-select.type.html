@@ -19,8 +19,12 @@
 
     <!-- select option templates, view containers -->
     <!-- references are used to create select option templates in getOptionTemplate() -->
-    <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
-      <ng-template #optionTemplates> OPTION {{ result.name }} </ng-template>
+    <ng-container *ngrxLet="onSearch$ as searchString">
+      <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
+        <ng-template #optionTemplates>
+          {{ searchString }} {{ result.name }}
+        </ng-template>
+      </ng-container>
     </ng-container>
 
     <ng-template #optionTemplate>

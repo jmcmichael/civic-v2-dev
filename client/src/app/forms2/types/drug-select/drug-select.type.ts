@@ -199,9 +199,6 @@ export class CvcDrugSelectField
           withLatestFrom(this.result$),
           untilDestroyed(this)
         )
-        // .subscribe((
-        //   refs: TemplateRef<any>[]
-        // ) => {
         .subscribe(
           ([tplRefs, results]: [QueryList<TemplateRef<any>>, Drug[]]) => {
             this.selectOption$.next(
