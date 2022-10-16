@@ -192,23 +192,29 @@ export class CvcDrugSelectField
           )
         })
     } else {
+      this.result$.pipe(tag(`${this.field.id} result$`)).subscribe()
       this.optionTemplates.changes
-        .pipe(withLatestFrom(this.result$), untilDestroyed(this))
+        .pipe(
+          tag(`${this.field.id} optionTemplates.changes`),
+          withLatestFrom(this.result$),
+          untilDestroyed(this)
+        )
         // .subscribe((
         //   refs: TemplateRef<any>[]
         // ) => {
-        .subscribe((
-          [tplRefs, results]:[QueryList<TemplateRef<any>>, Drug[]]
-        ) => {
-          this.selectOption$.next(
-            results.map((drug: Drug, index: number) => {
-              return {
-                label: tplRefs.get(index) || drug.name,
-                value: drug.id,
-              }
-            })
-          )
-        })
+        .subscribe(
+          ([tplRefs, results]: [QueryList<TemplateRef<any>>, Drug[]]) => {
+            this.selectOption$.next(
+              results.map((drug: Drug, index: number) => {
+                return {
+                  label: tplRefs.get(index) || drug.name,
+                  value: drug.id,
+                }
+              })
+            )
+            this.cdr.detectChanges()
+          }
+        )
     }
 
     this.onCreate$.pipe(untilDestroyed(this)).subscribe((drug: Drug) => {
@@ -241,7 +247,7 @@ export class CvcDrugSelectField
       }
       combineLatestArray(queries)
         .pipe(
-          tag(`${this.field.id} combineLatestArray(queries)`),
+          // tag(`${this.field.id} combineLatestArray(queries)`),
           map((data) => {
             if (!(data.length > 0)) return []
             if (!data.every(({ drug }) => drug !== undefined)) return []
@@ -282,13 +288,11 @@ export class CvcDrugSelectField
 
   getFetchFn(ids: number[]): Observable<DrugSelectPrepopulateQuery>[] {
     const queries = ids.map((id) =>
-      this.tq
-        .fetch({ id: id }, { fetchPolicy: 'cache-first' })
-        .pipe(
-          tag(`${this.field.id} tag query fetch`),
-          pluck('data'),
-          filter(isNonNulled)
-        )
+      this.tq.fetch({ id: id }, { fetchPolicy: 'cache-first' }).pipe(
+        // tag(`${this.field.id} tag query fetch`),
+        pluck('data'),
+        filter(isNonNulled)
+      )
     )
     console.log(queries)
     return queries
@@ -305,7 +309,10 @@ export class CvcDrugSelectField
     }
     this.onRequiresDrug$ = this.state.requires.requiresDrug$
     this.onRequiresDrug$
-      .pipe(untilDestroyed(this), tag(`${this.field.id} onRequiresDrug$`))
+      .pipe(
+        untilDestroyed(this)
+        // tag(`${this.field.id} onRequiresDrug$`)
+      )
       .subscribe((rd) => {
         // this.
       })
