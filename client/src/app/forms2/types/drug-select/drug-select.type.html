@@ -17,12 +17,17 @@
       [cvcModelChange]="props.change">
     </cvc-entity-select>
 
-    <!-- select option templates, view containers -->
-    <!-- references are used to create select option templates in getOptionTemplate() -->
+    <!-- select option templates -->
+    <!-- each search result$ creates an individual template, which is
+    dynamically attached to an NzSelectOptionTemplateInterface object in
+    optionTemplates.changes.subscribe()-->
     <ng-container *ngrxLet="onSearch$ as searchString">
       <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
         <ng-template #optionTemplates>
-          {{ searchString }} {{ result.name }}
+        <!-- {{ searchString }} {{ result.__typename }}:{{ result.id }} -->
+          <cvc-entity-tag
+            [cvcCacheId]="result.__typename + ':' + result.id"
+            [cvcEmphasize]="searchString"></cvc-entity-tag>
         </ng-template>
       </ng-container>
     </ng-container>
