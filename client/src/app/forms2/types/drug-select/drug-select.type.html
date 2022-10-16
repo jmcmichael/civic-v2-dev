@@ -48,13 +48,6 @@
       </ng-container>
     </ng-container>
 
-    <ng-template #optionTemplate>
-      <ng-container
-        #optionContext
-        [ngTemplateOutlet]="optionContents">
-      </ng-container>
-      <ng-template #optionContents>OPTION</ng-template>
-    </ng-template>
     <!-- selected option item template -->
     <!-- displays entity tag, specifying context and mode depending on
 if field is multi-select or single -->
@@ -72,26 +65,6 @@ if field is multi-select or single -->
       </div>
     </ng-template>
 
-    <!-- custom option template -->
-    <ng-template
-      #selectOptionExtra
-      let-item
-      let-searchString="searchStr">
-      <span
-        nz-typography
-        nzType="secondary">
-        <ng-container *ngIf="item.drugAliases.length > 0">
-          <em>
-            <span
-              nz-typography
-              nzType="secondary"
-              [innerHtml]="
-                item.drugAliases.join(', ') | highlightTypeahead: searchString
-              "></span
-          ></em>
-        </ng-container>
-      </span>
-    </ng-template>
   </nz-col>
   <nz-col nzFlex="32px">
     <!-- quick-add button -->

@@ -2,14 +2,14 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  ViewChild,
-  TemplateRef,
   Component,
   Injector,
-  Type,
-  ViewContainerRef,
-  ViewChildren,
   QueryList,
+  TemplateRef,
+  Type,
+  ViewChild,
+  ViewChildren,
+  ViewContainerRef,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import {
@@ -20,18 +20,16 @@ import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATE
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
-  LinkableDrugQuery,
-  LinkableDrugQueryVariables,
+  Drug,
+  DrugSelectPrepopulateGQL,
+  DrugSelectPrepopulateQuery,
+  DrugSelectPrepopulateQueryVariables,
   DrugSelectTypeaheadFieldsFragment,
   DrugSelectTypeaheadGQL,
   DrugSelectTypeaheadQuery,
   DrugSelectTypeaheadQueryVariables,
-  LinkableDrugGQL,
+  LinkableDrugQuery,
   Maybe,
-  Drug,
-  DrugSelectPrepopulateQuery,
-  DrugSelectPrepopulateGQL,
-  DrugSelectPrepopulateQueryVariables,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -44,12 +42,9 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import {
   BehaviorSubject,
   filter,
-  from,
   map,
   Observable,
-  of,
   Subject,
-  switchMap,
   withLatestFrom,
 } from 'rxjs'
 import { combineLatestArray, isNonNulled } from 'rxjs-etc'
@@ -173,8 +168,6 @@ export class CvcDrugSelectField
       undefined
     )
 
-    // BEFORE: emit select options whenever results are returned from query
-    // TODO: emit select options whenever optionTemplates ViewChildren updates
     if (!this.optionTemplates) {
       console.warn(
         `${this.field.id} could not find reference to optionTemplates ViewChildren, options will only show entity name text.`
@@ -192,7 +185,11 @@ export class CvcDrugSelectField
           )
         })
     } else {
-      this.result$.pipe(tag(`${this.field.id} result$`)).subscribe()
+      // subscribe to optionTemplates ViewChildren changes,
+      // which are re-rendered whenever result$ emits. Combine
+      // option templates with results, and for each result,
+      // attach its template to a NzSelectOptionInterface object's label,
+      // and set the value to the entity id.
       this.optionTemplates.changes
         .pipe(
           tag(`${this.field.id} optionTemplates.changes`),
@@ -203,7 +200,7 @@ export class CvcDrugSelectField
           ([tplRefs, results]: [QueryList<TemplateRef<any>>, Drug[]]) => {
             this.selectOption$.next(
               results.map((drug: Drug, index: number) => {
-                return {
+                return <NzSelectOptionInterface>{
                   label: tplRefs.get(index) || drug.name,
                   value: drug.id,
                 }
