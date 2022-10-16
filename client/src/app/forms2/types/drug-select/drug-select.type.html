@@ -24,10 +24,26 @@
     <ng-container *ngrxLet="onSearch$ as searchString">
       <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
         <ng-template #optionTemplates>
-        <!-- {{ searchString }} {{ result.__typename }}:{{ result.id }} -->
           <cvc-entity-tag
             [cvcCacheId]="result.__typename + ':' + result.id"
             [cvcEmphasize]="searchString"></cvc-entity-tag>
+          <span
+            nz-typography
+            nzType="secondary">
+            Aliases:
+            <ng-container *ngIf="result.drugAliases.length > 0; else noAliases">
+              <em>
+                <span
+                  nz-typography
+                  nzType="secondary"
+                  [innerHtml]="
+                    result.drugAliases.join(', ')
+                      | highlightTypeahead: searchString
+                  "></span
+              ></em>
+            </ng-container>
+            <ng-template #noAliases>--</ng-template>
+          </span>
         </ng-template>
       </ng-container>
     </ng-container>

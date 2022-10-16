@@ -177,7 +177,7 @@ export class CvcDrugSelectField
     // TODO: emit select options whenever optionTemplates ViewChildren updates
     if (!this.optionTemplates) {
       console.warn(
-        `${this.field.id} could not find reference to optionTemplates ViewChildren, options will be rendered as simple lables.`
+        `${this.field.id} could not find reference to optionTemplates ViewChildren, options will only show entity name text.`
       )
       this.result$
         .pipe(untilDestroyed(this))
