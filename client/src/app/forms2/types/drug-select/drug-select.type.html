@@ -11,14 +11,26 @@
       [cvcShowError]="showError"
       [cvcDisabled]="!(onRequiresDrug$ | ngrxPush)"
       [cvcLoading]="isLoading$ | ngrxPush"
-      [cvcOptionExtra]="optionExtra"
       [cvcOptionTrackBy]="optionTrackBy"
       [cvcAddEntity]="addDrug"
       (cvcOnSearch)="onSearch$.next($event)"
       [cvcModelChange]="props.change">
     </cvc-entity-select>
 
-    <!-- custom selected item template -->
+    <!-- select option templates, view containers -->
+    <!-- references are used to create select option templates in getOptionTemplate() -->
+    <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
+      <ng-template #optionTemplates> OPTION {{ result.name }} </ng-template>
+    </ng-container>
+
+    <ng-template #optionTemplate>
+      <ng-container
+        #optionContext
+        [ngTemplateOutlet]="optionContents">
+      </ng-container>
+      <ng-template #optionContents>OPTION</ng-template>
+    </ng-template>
+    <!-- selected option item template -->
     <!-- displays entity tag, specifying context and mode depending on
 if field is multi-select or single -->
     <ng-template
@@ -27,15 +39,17 @@ if field is multi-select or single -->
       <div class="ant-select-selection-item-content">
         <cvc-entity-tag
           [cvcCacheId]="'Drug:' + selected.nzValue"
-          [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'select-item'"
+          [cvcContext]="
+            props.isMultiSelect ? 'multi-select-item' : 'select-item'
+          "
           [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
           (cvcOnClose)="onTagClose$.next(selected.nzValue)"></cvc-entity-tag>
       </div>
     </ng-template>
 
-    <!-- custom option template extra to display list of aliases after tag -->
+    <!-- custom option template -->
     <ng-template
-      #optionExtra
+      #selectOptionExtra
       let-item
       let-searchString="searchStr">
       <span

@@ -23,6 +23,8 @@ import { CvcDrugQuickAddForm } from './drug-quick-add/drug-quick-add.form'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipDirective, NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzOutletModule } from 'ng-zorro-antd/core/outlet';
+import { DrugSelectOptionComponent } from './drug-select-option/drug-select-option.component'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -47,7 +49,7 @@ const typeConfig: ConfigOption = {
 }
 
 @NgModule({
-  declarations: [CvcDrugSelectField, CvcDrugQuickAddForm],
+  declarations: [CvcDrugSelectField, CvcDrugQuickAddForm, DrugSelectOptionComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -64,6 +66,7 @@ const typeConfig: ConfigOption = {
     NzGridModule,
     NzToolTipModule,
     NzSpaceModule,
+    NzOutletModule,
     NzFormModule,
     NzAutocompleteModule,
     NzTypographyModule,

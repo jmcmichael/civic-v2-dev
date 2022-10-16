@@ -6,7 +6,9 @@
   nzSize="default"
   [nzMode]="cvcSelectMode"
   [nzAutoClearSearchValue]="false"
-  [nzPlaceHolder]="cvcPlaceholder ? cvcPlaceholder : 'Search ' + cvcEntityName.plural"
+  [nzPlaceHolder]="
+    cvcPlaceholder ? cvcPlaceholder : 'Search ' + cvcEntityName.plural
+  "
   [formControl]="cvcFormControl"
   [formlyAttributes]="cvcFormlyAttributes"
   [nzOptionHeightPx]="30"
@@ -22,31 +24,6 @@
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
   ">
-<!-- <ng-container *ngrxLet="onSearch$ as searchString">
-    <ng-container *ngFor="let item of cvcResults; trackBy: cvcOptionTrackBy">
-      <nz-option
-        nzCustomContent
-        [nzValue]="item.id"
-        [nzHide]="
-          cvcSelectMode !== 'default' && cvcFormControl.value.includes(item.id)
-        ">
-        <nz-space nzDirection="horizontal">
-          <cvc-entity-tag
-            *nzSpaceItem
-            [cvcCacheId]="item.__typename + ':' + item.id"
-            [cvcEmphasize]="searchString"></cvc-entity-tag>
-          <ng-container
-            *nzSpaceItem
-            [ngTemplateOutlet]="cvcOptionExtra"
-            [ngTemplateOutletContext]="{
-              $implicit: item,
-              searchStr: searchString
-            }">
-          </ng-container>
-        </nz-space>
-      </nz-option>
-    </ng-container>
-  </ng-container> -->
 </nz-select>
 <ng-template #notFound>
   <!-- loading msg -->

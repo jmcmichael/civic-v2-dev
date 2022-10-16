@@ -168,10 +168,10 @@ export class CvcGeneSelectField
     }
   }
 
-  optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (
-    _index: number,
-    option: GeneSelectTypeaheadFieldsFragment
-  ): number => {
-    return option.id
-  }
+  // optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (
+  //   _index: number,
+  //   option: GeneSelectTypeaheadFieldsFragment
+  // ): number => {
+  //   return option.id
+  // }
 }

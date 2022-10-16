@@ -67,8 +67,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcModelChange?: FormlyAttributeEvent
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
-  // template for extra content after entity tag in option row
-  @Input() cvcOptionExtra: TemplateRef<any> | null = null
   // template containing UI to add an entity, display if no results returned from search
   @Input() cvcAddEntity: TemplateRef<any> | null = null
   @Input() cvcOnCreate?: Subject<number>

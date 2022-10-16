@@ -16,7 +16,6 @@
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
   [cvcAddEntity]="props.requireGene ? addVariant : null"
-  [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
   [cvcModelChange]="props.change">

@@ -15,7 +15,6 @@
   [cvcShowError]="showError"
   [cvcDisabled]="props.disabled"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcOptionExtra]="optionExtra"
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
   [cvcModelChange]="props.change">

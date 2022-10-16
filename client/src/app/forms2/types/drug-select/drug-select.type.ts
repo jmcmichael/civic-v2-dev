@@ -2,9 +2,14 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  ViewChild,
+  TemplateRef,
   Component,
   Injector,
   Type,
+  ViewContainerRef,
+  ViewChildren,
+  QueryList,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import {
@@ -45,6 +50,7 @@ import {
   of,
   Subject,
   switchMap,
+  withLatestFrom,
 } from 'rxjs'
 import { combineLatestArray, isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
@@ -105,6 +111,14 @@ export class CvcDrugSelectField
 
   // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
+
+  @ViewChild('optionContext', { read: ViewContainerRef, static: false })
+  optionViewContainer?: ViewContainerRef
+  @ViewChild('optionTemplate', { read: TemplateRef, static: false })
+  optionTemplate?: TemplateRef<any>
+  @ViewChildren('optionTemplates', { read: TemplateRef })
+  optionTemplates?: QueryList<TemplateRef<any>>
+
   constructor(
     public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
@@ -159,12 +173,43 @@ export class CvcDrugSelectField
       undefined
     )
 
-    // emit select options whenever results are returned from query
-    this.result$
-      .pipe(untilDestroyed(this))
-      .subscribe((r: DrugSelectTypeaheadFieldsFragment[]) => {
-        this.selectOption$.next(r.map((d) => ({ label: d.name, value: d.id })))
-      })
+    // BEFORE: emit select options whenever results are returned from query
+    // TODO: emit select options whenever optionTemplates ViewChildren updates
+    if (!this.optionTemplates) {
+      console.warn(
+        `${this.field.id} could not find reference to optionTemplates ViewChildren, options will be rendered as simple lables.`
+      )
+      this.result$
+        .pipe(untilDestroyed(this))
+        .subscribe((r: DrugSelectTypeaheadFieldsFragment[]) => {
+          this.selectOption$.next(
+            r.map((drug) => {
+              return {
+                label: drug.name,
+                value: drug.id,
+              }
+            })
+          )
+        })
+    } else {
+      this.optionTemplates.changes
+        .pipe(withLatestFrom(this.result$), untilDestroyed(this))
+        // .subscribe((
+        //   refs: TemplateRef<any>[]
+        // ) => {
+        .subscribe((
+          [tplRefs, results]:[QueryList<TemplateRef<any>>, Drug[]]
+        ) => {
+          this.selectOption$.next(
+            results.map((drug: Drug, index: number) => {
+              return {
+                label: tplRefs.get(index) || drug.name,
+                value: drug.id,
+              }
+            })
+          )
+        })
+    }
 
     this.onCreate$.pipe(untilDestroyed(this)).subscribe((drug: Drug) => {
       console.log(`${this.field.id} onCreate$ called: ${drug}`)
@@ -220,6 +265,20 @@ export class CvcDrugSelectField
         })
     }
   } // ngAfterViewInit()
+
+  getOptionTemplate(drug: Drug, index: number): Maybe<TemplateRef<any>> {
+    let optionTpl: Maybe<TemplateRef<any>>
+    if (!this.optionTemplate || !this.optionViewContainer) {
+      console.warn(
+        `${this.field.id} could not find reference to an optionTemplate or optionContext view container, option items will only display entity name.`
+      )
+      return this.optionTemplate
+    }
+    optionTpl = this.optionTemplate
+    this.optionViewContainer.createEmbeddedView(optionTpl, { $implicit: drug })
+
+    return optionTpl
+  }
 
   getFetchFn(ids: number[]): Observable<DrugSelectPrepopulateQuery>[] {
     const queries = ids.map((id) =>

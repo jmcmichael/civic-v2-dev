@@ -238,10 +238,10 @@ export class CvcVariantSelectField
     }
   }
 
-  optionTrackBy: TrackByFunction<VariantSelectTypeaheadFieldsFragment> = (
-    _index: number,
-    option: VariantSelectTypeaheadFieldsFragment
-  ): number => {
-    return option.id
-  }
+  // optionTrackBy: TrackByFunction<VariantSelectTypeaheadFieldsFragment> = (
+  //   _index: number,
+  //   option: VariantSelectTypeaheadFieldsFragment
+  // ): number => {
+  //   return option.id
+  // }
 }

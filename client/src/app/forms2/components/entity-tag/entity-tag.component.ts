@@ -14,6 +14,7 @@ export interface LinkableEntity {
 export class CvcEntityTagComponent implements OnInit {
   @Input()
   set cvcCacheId(cacheId: string) {
+    console.log(`entity-tag cachId: ${cacheId}`)
     if(!cacheId) return
     this.setLinkableEntity(cacheId)
   }

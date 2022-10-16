@@ -5,6 +5,7 @@ import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType } from '@ngx-formly/core'
 import { Query, QueryRef } from 'apollo-angular'
 import { EmptyObject } from 'apollo-angular/types'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import {
   asyncScheduler,
   BehaviorSubject,
@@ -195,11 +196,11 @@ export function EntityTagField<
         this.tagCacheId$.next(undefined)
       }
 
-      optionTrackBy: TrackByFunction<TAF> = (
+      optionTrackBy: TrackByFunction<NzSelectOptionInterface> = (
         _index: number,
-        option: TAF
+        option: NzSelectOptionInterface
       ): number => {
-        return option.id
+        return option.value
       }
     }
 
