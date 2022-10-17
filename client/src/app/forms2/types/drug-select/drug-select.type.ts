@@ -140,37 +140,52 @@ export class CvcDrugSelectField
       typeaheadQuery: this.taq,
       typeaheadParam$: undefined,
       tagQuery: this.tq,
-      getTypeaheadVarsFn: (str: string) => ({ name: str }),
-      getTypeaheadResultsFn: (r: ApolloQueryResult<DrugSelectTypeaheadQuery>) =>
-        r.data.drugTypeahead,
-      getTagQueryVarsFn: (id: number) => ({ id: id }),
-      getTagQueryResultsFn: (r: ApolloQueryResult<DrugSelectPrepopulateQuery>) =>
-        r.data.drug,
-      getSelectOptionsFromResultsFn: (
-        results: DrugSelectTypeaheadFieldsFragment[],
-        tplRefs: QueryList<TemplateRef<any>>,
-        mode: 'label' | 'template' = 'label'
-      ): NzSelectOptionInterface[] => {
-        return results.map(
-          (drug: DrugSelectTypeaheadFieldsFragment, index: number) => {
-            if (mode === 'label') {
-              return <NzSelectOptionInterface>{
-                label: drug.name,
-                value: drug.id,
-              }
-            } else {
-              return <NzSelectOptionInterface>{
-                label: tplRefs.get(index) || drug.name,
-                value: drug.id,
-              }
-            }
-          }
-        )
-      },
+      getTypeaheadVarsFn: this.getTypeaheadVarsFn,
+      getTypeaheadResultsFn: this.getTypeaheadResultsFn,
+      getTagQueryVarsFn: this.getTagQueryVarsFn,
+      getTagQueryResultsFn: this.getTagQueryResultsFn,
+      getSelectOptionsFromResultsFn: this.getSelectOptionsFromResultsFn,
       changeDetectorRef: this.changeDetectorRef,
     })
   } // ngAfterViewInit()
 
+  getTypeaheadVarsFn(str: string): DrugSelectTypeaheadQueryVariables {
+    return { name: str }
+  }
+
+  getTypeaheadResultsFn(r: ApolloQueryResult<DrugSelectTypeaheadQuery>) {
+    return r.data.drugTypeahead
+  }
+
+  getTagQueryVarsFn(id: number) {
+    return { id: id }
+  }
+
+  getTagQueryResultsFn(r: ApolloQueryResult<DrugSelectPrepopulateQuery>) {
+    return r.data.drug
+  }
+
+  getSelectOptionsFromResultsFn(
+    results: DrugSelectTypeaheadFieldsFragment[],
+    tplRefs: QueryList<TemplateRef<any>>,
+    mode: 'label' | 'template' = 'label'
+  ): NzSelectOptionInterface[] {
+    return results.map(
+      (drug: DrugSelectTypeaheadFieldsFragment, index: number) => {
+        if (mode === 'label') {
+          return <NzSelectOptionInterface>{
+            label: drug.name,
+            value: drug.id,
+          }
+        } else {
+          return <NzSelectOptionInterface>{
+            label: tplRefs.get(index) || drug.name,
+            value: drug.id,
+          }
+        }
+      }
+    )
+  }
 
   configureStateConnections(): void {
     this.state = this.field.options?.formState

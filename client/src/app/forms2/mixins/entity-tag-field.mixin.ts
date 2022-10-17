@@ -120,18 +120,18 @@ export function EntityTagField<
       optionTemplates?: QueryList<TemplateRef<any>>
 
       configureEntityTagField(
-        options?: EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV>
+        options: EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV>
       ): void {
-        this.typeaheadQuery = options!.typeaheadQuery
-        this.tagQuery = options!.tagQuery
-        this.getTypeaheadVars = options!.getTypeaheadVarsFn
-        this.getTypeahedResults = options!.getTypeaheadResultsFn
-        this.getTagQueryVars = options!.getTagQueryVarsFn
-        this.getTagQueryResults = options!.getTagQueryResultsFn
+        this.typeaheadQuery = options.typeaheadQuery
+        this.tagQuery = options.tagQuery
+        this.getTypeaheadVars = options.getTypeaheadVarsFn
+        this.getTypeahedResults = options.getTypeaheadResultsFn
+        this.getTagQueryVars = options.getTagQueryVarsFn
+        this.getTagQueryResults = options.getTagQueryResultsFn
         this.getSelectOptionsFromResults =
-          options!.getSelectOptionsFromResultsFn
-        this.typeaheadParam$ = options!.typeaheadParam$
-        this.cdr = options!.changeDetectorRef
+          options.getSelectOptionsFromResultsFn
+        this.typeaheadParam$ = options.typeaheadParam$
+        this.cdr = options.changeDetectorRef
 
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
