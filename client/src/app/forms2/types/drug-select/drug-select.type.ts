@@ -98,7 +98,6 @@ export class CvcDrugSelectField
   onRequiresDrug$: BehaviorSubject<boolean>
 
   // LOCAL SOURCE STREAMS
-  onCreate$: Subject<Drug>
 
   // LOCAL PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
@@ -122,7 +121,6 @@ export class CvcDrugSelectField
   ) {
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
-    this.onCreate$ = new Subject<Drug>()
     this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
 
     // export interface NzSelectOptionInterface {
@@ -170,9 +168,6 @@ export class CvcDrugSelectField
       changeDetectorRef: this.changeDetectorRef,
     })
 
-    this.onCreate$.pipe(untilDestroyed(this)).subscribe((drug: Drug) => {
-      this.selectOption$.next([{ label: drug.name, value: drug.id }])
-    })
 
     // if a prepopulated form value exists, set by the observe-query-param extension,
     // use tagQuery to create select option(s) for it so that nz-select's tags render
@@ -218,20 +213,6 @@ export class CvcDrugSelectField
         })
     }
   } // ngAfterViewInit()
-
-  getOptionTemplate(drug: Drug, index: number): Maybe<TemplateRef<any>> {
-    let optionTpl: Maybe<TemplateRef<any>>
-    if (!this.optionTemplate || !this.optionViewContainer) {
-      console.warn(
-        `${this.field.id} could not find reference to an optionTemplate or optionContext view container, option items will only display entity name.`
-      )
-      return this.optionTemplate
-    }
-    optionTpl = this.optionTemplate
-    this.optionViewContainer.createEmbeddedView(optionTpl, { $implicit: drug })
-
-    return optionTpl
-  }
 
   getFetchFn(ids: number[]): Observable<DrugSelectPrepopulateQuery>[] {
     const queries = ids.map((id) =>

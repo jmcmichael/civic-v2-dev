@@ -88,6 +88,7 @@ export function EntityTagField<
       onFocus$!: Subject<void>
       onSearch$!: Subject<string> // emits on typeahead keypress
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
+      onCreate$!: Subject<TAF> // emits entity on create
 
       // INTERMEDIATE STREAMS
       response$!: Observable<ApolloQueryResult<TAT>> // gql query responses
@@ -124,7 +125,8 @@ export function EntityTagField<
         this.getTypeahedResults = options!.getTypeaheadResultsFn
         this.getTagQueryVars = options!.getTagQueryVarsFn
         this.getTagCacheIdFromResponse = options!.getTagCacheIdFromResponseFn
-        this.getSelectOptionsFromResults = options!.getSelectOptionsFromResultsFn
+        this.getSelectOptionsFromResults =
+          options!.getSelectOptionsFromResultsFn
         this.typeaheadParam$ = options!.typeaheadParam$
         this.cdr = options!.changeDetectorRef
 
@@ -133,6 +135,7 @@ export function EntityTagField<
         this.isLoading$ = new Subject<boolean>()
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onValueChange$ = new Subject<Maybe<number>>()
+        this.onCreate$ = new Subject<TAF>()
         this.tagCacheId$ = new Subject<Maybe<string>>()
 
         // check if base field tag properly configured
@@ -241,6 +244,11 @@ export function EntityTagField<
               }
             )
         }
+
+        this.onCreate$.pipe(untilDestroyed(this)).subscribe((entity: TAF) => {
+          this.selectOption$.next([{ label: entity.name, value: entity.id }])
+        })
+
         this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
           this.resetField()
         })
