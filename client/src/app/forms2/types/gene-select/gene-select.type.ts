@@ -100,7 +100,8 @@ export class CvcGeneSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
-    this.configureEntityTagField({ // mixin fn
+    this.configureEntityTagField({
+      // mixin fn
       typeaheadQuery: this.taq,
       typeaheadParam$: undefined,
       tagQuery: this.tq,
@@ -153,16 +154,18 @@ export class CvcGeneSelectField
   }
 
   configureStateConnections(): void {
-    if(!this.field.options?.formState) return
+    if (!this.field.options?.formState) return
     this.state = this.field.options.formState
 
     if (this.state && this.state.fields.geneId$) {
       this.stateValueChange$ = this.state.fields.geneId$
-      this.onValueChange$
-        .pipe(untilDestroyed(this))
-        .subscribe((v) => {
-          if (this.stateValueChange$) this.stateValueChange$.next(v)
-        })
+      this.onValueChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+        if (this.stateValueChange$) this.stateValueChange$.next(v)
+      })
+      // update state if field has been prepopulated w/ query param or preset model
+      if (this.formControl.value) {
+        this.stateValueChange$.next(this.formControl.value)
+      }
     }
   }
 }

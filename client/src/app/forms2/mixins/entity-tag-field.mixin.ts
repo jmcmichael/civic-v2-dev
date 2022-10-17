@@ -316,6 +316,7 @@ export function EntityTagField<
 
       resetField() {
         this.formControl.setValue(undefined)
+        this.selectOption$.next([])
       }
 
       optionTrackBy: TrackByFunction<NzSelectOptionInterface> = (
