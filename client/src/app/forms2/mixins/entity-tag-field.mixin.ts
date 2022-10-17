@@ -98,8 +98,6 @@ export function EntityTagField<
       result$!: Observable<TAF[]> // typeahead query results
       isLoading$!: Subject<boolean> // typeahead query loading bool
       selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
-      // TODO: remove tagCacheId$, no longer required w/ nz-select tag modes
-      tagCacheId$!: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
 
       // CONFIG OPTIONS
 
@@ -140,7 +138,6 @@ export function EntityTagField<
         this.isLoading$ = new Subject<boolean>()
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onCreate$ = new Subject<TAF>()
-        this.tagCacheId$ = new Subject<Maybe<string>>()
 
         // check if base field tag properly configured
         if (!this.onValueChange$) {
@@ -318,7 +315,6 @@ export function EntityTagField<
 
       resetField() {
         this.formControl.setValue(undefined)
-        this.tagCacheId$.next(undefined)
       }
 
       optionTrackBy: TrackByFunction<NzSelectOptionInterface> = (
