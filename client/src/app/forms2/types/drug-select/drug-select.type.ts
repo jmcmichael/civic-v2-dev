@@ -7,9 +7,7 @@ import {
   QueryList,
   TemplateRef,
   Type,
-  ViewChild,
   ViewChildren,
-  ViewContainerRef,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import {
@@ -20,15 +18,13 @@ import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATE
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
-  Drug,
-  DrugSelectPrepopulateGQL,
-  DrugSelectPrepopulateQuery,
-  DrugSelectPrepopulateQueryVariables,
+  DrugSelectTagGQL,
+  DrugSelectTagQuery,
+  DrugSelectTagQueryVariables,
   DrugSelectTypeaheadFieldsFragment,
   DrugSelectTypeaheadGQL,
   DrugSelectTypeaheadQuery,
   DrugSelectTypeaheadQueryVariables,
-  LinkableDrugQuery,
   Maybe,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
@@ -39,17 +35,7 @@ import {
 } from '@ngx-formly/core'
 import { QueryRef } from 'apollo-angular'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import {
-  BehaviorSubject,
-  filter,
-  map,
-  Observable,
-  Subject,
-  withLatestFrom,
-} from 'rxjs'
-import { combineLatestArray, isNonNulled } from 'rxjs-etc'
-import { pluck } from 'rxjs-etc/dist/esm/operators'
-import { tag } from 'rxjs-spy/operators'
+import { BehaviorSubject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
@@ -70,8 +56,8 @@ const DrugSelectMixin = mixin(
     DrugSelectTypeaheadQuery,
     DrugSelectTypeaheadQueryVariables,
     DrugSelectTypeaheadFieldsFragment,
-    DrugSelectPrepopulateQuery,
-    DrugSelectPrepopulateQueryVariables,
+    DrugSelectTagQuery,
+    DrugSelectTagQueryVariables,
     DrugSelectTypeaheadFieldsFragment,
     Maybe<number>
   >()
@@ -106,17 +92,13 @@ export class CvcDrugSelectField
   // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
 
-  @ViewChild('optionContext', { read: ViewContainerRef, static: false })
-  optionViewContainer?: ViewContainerRef
-  @ViewChild('optionTemplate', { read: TemplateRef, static: false })
-  optionTemplate?: TemplateRef<any>
   @ViewChildren('optionTemplates', { read: TemplateRef })
   optionTemplates?: QueryList<TemplateRef<any>>
 
   constructor(
     public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
-    private tq: DrugSelectPrepopulateGQL,
+    private tq: DrugSelectTagGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
@@ -161,7 +143,7 @@ export class CvcDrugSelectField
     return { id: id }
   }
 
-  getTagQueryResultsFn(r: ApolloQueryResult<DrugSelectPrepopulateQuery>) {
+  getTagQueryResultsFn(r: ApolloQueryResult<DrugSelectTagQuery>) {
     return r.data.drug
   }
 

@@ -4,7 +4,7 @@ query DrugSelectTypeahead($name: String!) {
   }
 }
 
-query DrugSelectPrepopulate($id: Int!) {
+query DrugSelectTag($id: Int!) {
   drug(id: $id) {
     ...DrugSelectTypeaheadFields
   }

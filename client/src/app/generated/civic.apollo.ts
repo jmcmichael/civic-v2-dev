@@ -6149,12 +6149,12 @@ export type DrugSelectTypeaheadQueryVariables = Exact<{
 
 export type DrugSelectTypeaheadQuery = { __typename: 'Query', drugTypeahead: Array<{ __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> }> };
 
-export type DrugSelectPrepopulateQueryVariables = Exact<{
+export type DrugSelectTagQueryVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type DrugSelectPrepopulateQuery = { __typename: 'Query', drug?: { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> } | undefined };
+export type DrugSelectTagQuery = { __typename: 'Query', drug?: { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> } | undefined };
 
 export type DrugSelectTypeaheadFieldsFragment = { __typename: 'Drug', id: number, name: string, link: string, ncitId?: string | undefined, drugAliases: Array<string> };
 
@@ -11719,8 +11719,8 @@ export const DrugSelectTypeaheadDocument = gql`
       super(apollo);
     }
   }
-export const DrugSelectPrepopulateDocument = gql`
-    query DrugSelectPrepopulate($id: Int!) {
+export const DrugSelectTagDocument = gql`
+    query DrugSelectTag($id: Int!) {
   drug(id: $id) {
     ...DrugSelectTypeaheadFields
   }
@@ -11730,8 +11730,8 @@ export const DrugSelectPrepopulateDocument = gql`
   @Injectable({
     providedIn: 'root'
   })
-  export class DrugSelectPrepopulateGQL extends Apollo.Query<DrugSelectPrepopulateQuery, DrugSelectPrepopulateQueryVariables> {
-    document = DrugSelectPrepopulateDocument;
+  export class DrugSelectTagGQL extends Apollo.Query<DrugSelectTagQuery, DrugSelectTagQueryVariables> {
+    document = DrugSelectTagDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);
