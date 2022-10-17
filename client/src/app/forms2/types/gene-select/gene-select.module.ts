@@ -7,12 +7,17 @@ import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
+import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
+import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzFormModule } from 'ng-zorro-antd/form'
+import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzSelectModule } from 'ng-zorro-antd/select'
+import { NzTagModule } from 'ng-zorro-antd/tag'
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { CvcGeneSelectField, CvcGeneSelectFieldConfig, CvcGeneSelectFieldProps } from './gene-select.type'
+import { CvcGeneSelectField } from './gene-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -44,15 +49,19 @@ const typeConfig: ConfigOption = {
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
     FormlyNzFormFieldModule, // for form-field wrapper
+    NzAlertModule,
+    NzButtonModule,
     NzSelectModule,
+    NzIconModule,
     NzInputModule,
+    NzToolTipModule,
     NzFormModule,
-    NzTypographyModule,
     NzAutocompleteModule,
-
+    NzTypographyModule,
+    NzTagModule,
     CvcEntitySelectModule,
-    CvcEntityTagModule,
     CvcPipesModule,
+    CvcEntityTagModule,
   ],
   exports: [CvcGeneSelectField],
 })

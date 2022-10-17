@@ -4,7 +4,7 @@ query GeneSelectTypeahead($entrezSymbol: String!) {
   }
 }
 
-query GeneSelectPrepopulate($geneId: Int!) {
+query GeneSelectTag($geneId: Int!) {
   gene(id: $geneId) {
     ...GeneSelectTypeaheadFields
   }

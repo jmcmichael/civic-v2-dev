@@ -40,37 +40,37 @@ const formFieldConfig: FormlyFieldConfig[] = [
             },
           },
 
-          <CvcVariantSelectFieldConfig>{
-            key: 'variantId',
-            type: 'variant-select',
-            props: {
-              required: true,
-            },
-          },
+          // <CvcVariantSelectFieldConfig>{
+          //   key: 'variantId',
+          //   type: 'variant-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
 
-          <CvcEntityTypeSelectFieldConfig>{
-            key: 'assertionType',
-            type: 'entity-type-select',
-            props: {
-              required: true,
-            },
-          },
-          <CvcDrugSelectFieldConfig>{
-            key: 'drugId',
-            type: 'drug-select',
-            props: {
-              required: true,
-            },
-          },
+          // <CvcEntityTypeSelectFieldConfig>{
+          //   key: 'assertionType',
+          //   type: 'entity-type-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcDrugSelectFieldConfig>{
+          //   key: 'drugId',
+          //   type: 'drug-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
 
-          <CvcDrugSelectFieldConfig>{
-            key: 'drugIds',
-            type: 'drug-select-array',
-            props: {
-              required: true,
-              label: 'Drugs'
-            },
-          },
+          // <CvcDrugSelectFieldConfig>{
+          //   key: 'drugIds',
+          //   type: 'drug-select-array',
+          //   props: {
+          //     required: true,
+          //     label: 'Drugs'
+          //   },
+          // },
 
           // <CvcEntityTypeSelectFieldConfig>{
           //   key: 'assertionType',

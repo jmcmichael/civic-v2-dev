@@ -6165,12 +6165,12 @@ export type GeneSelectTypeaheadQueryVariables = Exact<{
 
 export type GeneSelectTypeaheadQuery = { __typename: 'Query', geneTypeahead: Array<{ __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string }> };
 
-export type GeneSelectPrepopulateQueryVariables = Exact<{
+export type GeneSelectTagQueryVariables = Exact<{
   geneId: Scalars['Int'];
 }>;
 
 
-export type GeneSelectPrepopulateQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string } | undefined };
+export type GeneSelectTagQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string } | undefined };
 
 export type GeneSelectTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
@@ -11755,8 +11755,8 @@ export const GeneSelectTypeaheadDocument = gql`
       super(apollo);
     }
   }
-export const GeneSelectPrepopulateDocument = gql`
-    query GeneSelectPrepopulate($geneId: Int!) {
+export const GeneSelectTagDocument = gql`
+    query GeneSelectTag($geneId: Int!) {
   gene(id: $geneId) {
     ...GeneSelectTypeaheadFields
   }
@@ -11766,8 +11766,8 @@ export const GeneSelectPrepopulateDocument = gql`
   @Injectable({
     providedIn: 'root'
   })
-  export class GeneSelectPrepopulateGQL extends Apollo.Query<GeneSelectPrepopulateQuery, GeneSelectPrepopulateQueryVariables> {
-    document = GeneSelectPrepopulateDocument;
+  export class GeneSelectTagGQL extends Apollo.Query<GeneSelectTagQuery, GeneSelectTagQueryVariables> {
+    document = GeneSelectTagDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

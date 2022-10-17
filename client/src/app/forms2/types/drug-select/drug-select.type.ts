@@ -27,13 +27,11 @@ import {
   DrugSelectTypeaheadQueryVariables,
   Maybe,
 } from '@app/generated/civic.apollo'
-import { untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { QueryRef } from 'apollo-angular'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
@@ -72,24 +70,27 @@ export class CvcDrugSelectField
   extends DrugSelectMixin
   implements AfterViewInit
 {
-  queryRef!: QueryRef<
-    DrugSelectTypeaheadQuery,
-    DrugSelectTypeaheadQueryVariables
-  >
-
   state?: EntityState
 
   // STATE SOURCE STREAMS
   onRequiresDrug$: BehaviorSubject<boolean>
 
   // LOCAL SOURCE STREAMS
-
+  // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
-  placeholder$!: BehaviorSubject<string>
 
   // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
+
+  // FieldTypeConfig defaults
+  defaultOptions: Partial<FieldTypeConfig<CvcDrugSelectFieldProps>> = {
+    props: {
+      label: 'Drug',
+      isMultiSelect: false,
+      entityName: { singular: 'Drug', plural: 'Drugs' },
+    },
+  }
 
   @ViewChildren('optionTemplates', { read: TemplateRef })
   optionTemplates?: QueryList<TemplateRef<any>>
@@ -103,15 +104,6 @@ export class CvcDrugSelectField
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
     this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
-  }
-
-  // FieldTypeConfig defaults
-  defaultOptions: Partial<FieldTypeConfig<CvcDrugSelectFieldProps>> = {
-    props: {
-      label: 'Drug',
-      isMultiSelect: false,
-      entityName: { singular: 'Drug', plural: 'Drugs' },
-    },
   }
 
   ngAfterViewInit(): void {
@@ -179,13 +171,5 @@ export class CvcDrugSelectField
       return
     }
     this.onRequiresDrug$ = this.state.requires.requiresDrug$
-    this.onRequiresDrug$
-      .pipe(
-        untilDestroyed(this)
-        // tag(`${this.field.id} onRequiresDrug$`)
-      )
-      .subscribe((rd) => {
-        // this.
-      })
   }
 }

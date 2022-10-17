@@ -165,6 +165,7 @@ export function EntityTagField<
               ? this.typeaheadParam$
               : of(undefined)
           ),
+          tag(`${this.field.id} entity-tag-field onSearch$`),
           switchMap(([str, param]: [string, Maybe<TAP>]) => {
             const query = this.getTypeaheadVars(str, param)
 

@@ -7,19 +7,17 @@ import {
   QueryList,
   TemplateRef,
   Type,
+  ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import {
-  CvcSelectEntityName,
-  CvcSelectMessageOptions,
-} from '@app/forms2/components/entity-select/entity-select.component'
+import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
-  GeneSelectPrepopulateGQL,
-  GeneSelectPrepopulateQuery,
-  GeneSelectPrepopulateQueryVariables,
+  GeneSelectTagGQL,
+  GeneSelectTagQuery,
+  GeneSelectTagQueryVariables,
   GeneSelectTypeaheadFieldsFragment,
   GeneSelectTypeaheadGQL,
   GeneSelectTypeaheadQuery,
@@ -37,7 +35,6 @@ export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string
   isRepeatItem: boolean
   entityName: CvcSelectEntityName
-  selectMessages: CvcSelectMessageOptions
 }
 
 export interface CvcGeneSelectFieldConfig
@@ -51,9 +48,9 @@ const GeneSelectMixin = mixin(
     GeneSelectTypeaheadQuery,
     GeneSelectTypeaheadQueryVariables,
     GeneSelectTypeaheadFieldsFragment,
-    GeneSelectPrepopulateQuery,
-    GeneSelectPrepopulateQueryVariables,
-    GeneSelectTypeaheadFieldsFragment
+    GeneSelectTagQuery,
+    GeneSelectTagQueryVariables,
+    Maybe<number>
   >()
 )
 
@@ -72,6 +69,7 @@ export class CvcGeneSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
+  selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
 
   // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
@@ -83,69 +81,55 @@ export class CvcGeneSelectField
       placeholder: 'Search Genes',
       isRepeatItem: false,
       entityName: { singular: 'Gene', plural: 'Genes' },
-      selectMessages: {
-        focus: 'Enter query to search',
-        loading: 'Searching Genes',
-        notfound: 'No Genes found matching "SEARCH_STRING"',
-        create: 'Create a new Gene named "SEARCH_STRING"?',
-      },
     },
   }
+
+  @ViewChildren('optionTemplates', { read: TemplateRef })
+  optionTemplates?: QueryList<TemplateRef<any>>
 
   constructor(
     public injector: Injector,
     private taq: GeneSelectTypeaheadGQL,
-    private tq: GeneSelectPrepopulateGQL,
+    private tq: GeneSelectTagGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
+    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
   }
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
+    this.configureStateConnections() // local fn
     this.configureEntityTagField({
       typeaheadQuery: this.taq,
       typeaheadParam$: undefined,
       tagQuery: this.tq,
-      getTypeaheadVarsFn: (str: string) => ({ entrezSymbol: str }),
-      getTypeaheadResultsFn: (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) =>
-        r.data.geneTypeahead,
-      getTagQueryVarsFn: (id: number) => ({ geneId: id }),
-      getTagQueryResultsFn: (
-        r: ApolloQueryResult<GeneSelectPrepopulateQuery>
-      ) => r.data.gene,
+      getTypeaheadVarsFn: this.getTypeaheadVarsFn,
+      getTypeaheadResultsFn: this.getTypeaheadResultsFn,
+      getTagQueryVarsFn: this.getTagQueryVarsFn,
+      getTagQueryResultsFn: this.getTagQueryResultsFn,
       getSelectedItemOptionFn: this.getSelectedItemOptionFn,
       getSelectOptionsFn: this.getSelectOptionsFn,
       changeDetectorRef: this.changeDetectorRef,
     })
-    this.configureStateConnections() // local fn
-    this.configureOnTagClose() // local fn
-    this.configureInitialValueHandler() // local fn
   } // ngAfterViewInit()
 
-  private configureStateConnections(): void {
-    // if this is not a repeat-item field, attach state's
-    // geneId$ subject and emit all onValueChanges$ from it
-    if (!this.props.isRepeatItem && this.field.options?.formState) {
-      this.state = this.field.options.formState
-      // attach state variantId$ to send field value updates
-      if (this.state && this.state.fields.geneId$) {
-        this.stateValueChange$ = this.state.fields.geneId$
-        this.onValueChange$
-          .pipe(
-            // tag(`${this.field.id} onValueChange$ stateValueChange$`),
-            untilDestroyed(this)
-          )
-          .subscribe((v) => {
-            if (this.stateValueChange$) this.stateValueChange$.next(v)
-          })
-      }
-    }
+  getTypeaheadVarsFn(str: string): GeneSelectTypeaheadQueryVariables {
+    return { entrezSymbol: str }
   }
 
-  onSearch(str: string): void {
-    console.log(str)
-    this.onSearch$.next(str)
+  getTypeaheadResultsFn(r: ApolloQueryResult<GeneSelectTypeaheadQuery>) {
+    return r.data.geneTypeahead
+  }
+
+  getTagQueryVarsFn(id: number): GeneSelectTagQueryVariables {
+    return { geneId: id }
+  }
+
+  getTagQueryResultsFn(
+    r: ApolloQueryResult<GeneSelectTagQuery>
+  ): Maybe<GeneSelectTypeaheadFieldsFragment> {
+    return r.data.gene
   }
 
   getSelectedItemOptionFn(
@@ -168,33 +152,23 @@ export class CvcGeneSelectField
     )
   }
 
-  private configureOnTagClose(): void {
-    // emit undefined from state valueChange$
-    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_v) => {
-      // state valueChange$ may not exist if
-      // component is a repeat-item or form state missing
-      if (!this.stateValueChange$) return
-      this.stateValueChange$.next(undefined)
-    })
+  configureStateConnections(): void {
+    // if this is not a repeat-item field, attach state's
+    // geneId$ subject and emit all onValueChanges$ from it
+    // if (!this.props.isRepeatItem && this.field.options?.formState) {
+    //   this.state = this.field.options.formState
+    //   // attach state variantId$ to send field value updates
+    //   if (this.state && this.state.fields.geneId$) {
+    //     this.stateValueChange$ = this.state.fields.geneId$
+    //     this.onValueChange$
+    //       .pipe(
+    //         // tag(`${this.field.id} onValueChange$ stateValueChange$`),
+    //         untilDestroyed(this)
+    //       )
+    //       .subscribe((v) => {
+    //         if (this.stateValueChange$) this.stateValueChange$.next(v)
+    //       })
+    //   }
+    // }
   }
-
-  private configureInitialValueHandler(): void {
-    // if on initialization, this field's formControl has already been assigned a value
-    // (e.g. via query-param extension, saved form state, model initialization), emit
-    // onValueChange$, state valueChange$ events
-    if (this.field.formControl.value) {
-      const v = this.field.formControl.value
-      this.onValueChange$.next(v)
-      // valueChange$ may not exist if component is a repeat-item or form state missing
-      if (!this.stateValueChange$) return
-      this.stateValueChange$.next(v)
-    }
-  }
-
-  // optionTrackBy: TrackByFunction<GeneSelectTypeaheadFieldsFragment> = (
-  //   _index: number,
-  //   option: GeneSelectTypeaheadFieldsFragment
-  // ): number => {
-  //   return option.id
-  // }
 }
