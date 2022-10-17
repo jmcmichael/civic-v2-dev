@@ -58,7 +58,6 @@ const DrugSelectMixin = mixin(
     DrugSelectTypeaheadFieldsFragment,
     DrugSelectTagQuery,
     DrugSelectTagQueryVariables,
-    DrugSelectTypeaheadFieldsFragment,
     Maybe<number>
   >()
 )
@@ -126,7 +125,8 @@ export class CvcDrugSelectField
       getTypeaheadResultsFn: this.getTypeaheadResultsFn,
       getTagQueryVarsFn: this.getTagQueryVarsFn,
       getTagQueryResultsFn: this.getTagQueryResultsFn,
-      getSelectOptionsFromResultsFn: this.getSelectOptionsFromResultsFn,
+      getSelectedItemOptionFn: this.getSelectedItemOptionFn,
+      getSelectOptionsFn: this.getSelectOptionsFn,
       changeDetectorRef: this.changeDetectorRef,
     })
   } // ngAfterViewInit()
@@ -139,31 +139,31 @@ export class CvcDrugSelectField
     return r.data.drugTypeahead
   }
 
-  getTagQueryVarsFn(id: number) {
+  getTagQueryVarsFn(id: number): DrugSelectTagQueryVariables {
     return { id: id }
   }
 
-  getTagQueryResultsFn(r: ApolloQueryResult<DrugSelectTagQuery>) {
+  getTagQueryResultsFn(
+    r: ApolloQueryResult<DrugSelectTagQuery>
+  ): Maybe<DrugSelectTypeaheadFieldsFragment> {
     return r.data.drug
   }
 
-  getSelectOptionsFromResultsFn(
+  getSelectedItemOptionFn(
+    drug: DrugSelectTypeaheadFieldsFragment
+  ): NzSelectOptionInterface {
+    return { value: drug.id, label: drug.name }
+  }
+
+  getSelectOptionsFn(
     results: DrugSelectTypeaheadFieldsFragment[],
-    tplRefs: QueryList<TemplateRef<any>>,
-    mode: 'label' | 'template' = 'label'
+    tplRefs: QueryList<TemplateRef<any>>
   ): NzSelectOptionInterface[] {
     return results.map(
       (drug: DrugSelectTypeaheadFieldsFragment, index: number) => {
-        if (mode === 'label') {
-          return <NzSelectOptionInterface>{
-            label: drug.name,
-            value: drug.id,
-          }
-        } else {
-          return <NzSelectOptionInterface>{
-            label: tplRefs.get(index) || drug.name,
-            value: drug.id,
-          }
+        return <NzSelectOptionInterface>{
+          label: tplRefs.get(index) || drug.name,
+          value: drug.id,
         }
       }
     )

@@ -39,41 +39,40 @@ export type GetTypeaheadVarsFn<TAV extends EmptyObject, TAP> = (
   str: string,
   param?: TAP
 ) => TAV
-export type GetTypeaheadResultsFn<TAT, TAF> = (
-  response: ApolloQueryResult<TAT>
+export type GetTypeaheadResultsFn<TAQ, TAF> = (
+  response: ApolloQueryResult<TAQ>
 ) => TAF[]
-export type GetTypeaheadParamFn = () => Observable<Maybe<string | number>>
 export type GetTagQueryVarsFn<TV extends EmptyObject> = (id: number) => TV
-export type GetTagQueryResultsFn<TT, TAF> = (
-  response: ApolloQueryResult<TT>
+export type GetTagQueryResultsFn<TQ, TAF> = (
+  response: ApolloQueryResult<TQ>
 ) => Maybe<TAF>
-export type GetSelectOptionsFromResultsFn<TAF> = (
+export type GetSelectedItemFn<TAF> = (item: TAF) => NzSelectOptionInterface
+export type GetSelectOptionsFn<TAF> = (
   results: TAF[],
-  tplRefs: QueryList<TemplateRef<any>>,
-  mode: 'label' | 'template'
+  tplRefs: QueryList<TemplateRef<any>>
 ) => NzSelectOptionInterface[]
 
-export interface EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV> {
-  typeaheadQuery: Query<TAT, TAV>
+export interface EntityTagFieldOptions<TAQ, TAV, TAP, TAF, TQ, TV> {
+  typeaheadQuery: Query<TAQ, TAV>
   typeaheadParam$?: Observable<any>
-  tagQuery: Query<TT, TV>
+  tagQuery: Query<TQ, TV>
   getTypeaheadVarsFn: GetTypeaheadVarsFn<TAV, TAP>
-  getTypeaheadResultsFn: GetTypeaheadResultsFn<TAT, TAF>
+  getTypeaheadResultsFn: GetTypeaheadResultsFn<TAQ, TAF>
   getTagQueryVarsFn: GetTagQueryVarsFn<TV>
-  getTagQueryResultsFn: GetTagQueryResultsFn<TT, TAF>
-  getSelectOptionsFromResultsFn: GetSelectOptionsFromResultsFn<TAF>
+  getTagQueryResultsFn: GetTagQueryResultsFn<TQ, TAF>
+  getSelectedItemOptionFn: GetSelectedItemFn<TAF>
+  getSelectOptionsFn: GetSelectOptionsFn<TAF>
   changeDetectorRef: ChangeDetectorRef
 }
 
 export function EntityTagField<
-  // typeahead response data, vars, fragment
-  TAT extends EmptyObject,
+  // typeahead query data, vars, fragment
+  TAQ extends EmptyObject,
   TAV extends EmptyObject,
   TAF extends EmptyObject,
   // tag response data, vars, fragment (entity)
-  TT extends EmptyObject,
+  TQ extends EmptyObject,
   TV extends EmptyObject,
-  TF extends EmptyObject,
   // optional additional typeahead query param
   TAP = void
 >() {
@@ -92,7 +91,7 @@ export function EntityTagField<
       onCreate$!: Subject<TAF> // emits entity on create
 
       // INTERMEDIATE STREAMS
-      response$!: Observable<ApolloQueryResult<TAT>> // gql query responses
+      response$!: Observable<ApolloQueryResult<TAQ>> // gql query responses
 
       // PRESENTATION STREAMS
       result$!: Observable<TAF[]> // typeahead query results
@@ -103,24 +102,25 @@ export function EntityTagField<
       // CONFIG OPTIONS
 
       // config option queries
-      private typeaheadQuery!: Query<TAT, TAV>
-      private tagQuery!: Query<TT, TV>
+      private typeaheadQuery!: Query<TAQ, TAV>
+      private tagQuery!: Query<TQ, TV>
       typeaheadParam$?: Observable<any> // additional param for typeahead query
 
       // config options getter fns
       getTypeaheadVars!: GetTypeaheadVarsFn<TAV, TAP>
-      getTypeahedResults!: GetTypeaheadResultsFn<TAT, TAF>
+      getTypeahedResults!: GetTypeaheadResultsFn<TAQ, TAF>
       getTagQueryVars!: GetTagQueryVarsFn<TV>
-      getTagQueryResults!: GetTagQueryResultsFn<TT, TAF>
-      getSelectOptionsFromResults!: GetSelectOptionsFromResultsFn<TAF>
+      getTagQueryResults!: GetTagQueryResultsFn<TQ, TAF>
+      getSelectedItemOption!: GetSelectedItemFn<TAF>
+      getSelectOptions!: GetSelectOptionsFn<TAF>
       cdr!: ChangeDetectorRef
 
       // LOCAL REFS
-      queryRef!: QueryRef<TAT, TAV>
+      queryRef!: QueryRef<TAQ, TAV>
       optionTemplates?: QueryList<TemplateRef<any>>
 
       configureEntityTagField(
-        options: EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV>
+        options: EntityTagFieldOptions<TAQ, TAV, TAP, TAF, TQ, TV>
       ): void {
         this.typeaheadQuery = options.typeaheadQuery
         this.tagQuery = options.tagQuery
@@ -128,8 +128,8 @@ export function EntityTagField<
         this.getTypeahedResults = options.getTypeaheadResultsFn
         this.getTagQueryVars = options.getTagQueryVarsFn
         this.getTagQueryResults = options.getTagQueryResultsFn
-        this.getSelectOptionsFromResults =
-          options.getSelectOptionsFromResultsFn
+        this.getSelectedItemOption = options.getSelectedItemOptionFn
+        this.getSelectOptions = options.getSelectOptionsFn
         this.typeaheadParam$ = options.typeaheadParam$
         this.cdr = options.changeDetectorRef
 
@@ -137,6 +137,7 @@ export function EntityTagField<
         this.onFocus$ = new Subject<void>()
         this.isLoading$ = new Subject<boolean>()
         this.onTagClose$ = new Subject<MouseEvent>()
+        // TODO: should use base-field's onValueChange$ BehaviorSubject
         this.onValueChange$ = new Subject<Maybe<number>>()
         this.onCreate$ = new Subject<TAF>()
         this.tagCacheId$ = new Subject<Maybe<string>>()
@@ -144,7 +145,7 @@ export function EntityTagField<
         // check if base field tag properly configured
         if (!this.onValueChange$) {
           console.error(
-            `${this.field.id} cannot find onValueChange$ Subject, ensure configureBaseField() has been called before configureDisplayEntityTag in its AfterViewInit hook.`
+            `${this.field.id} cannot find onValueChange$ Subject, ensure field calls configureBaseField() before configureDisplayEntityTag() in its AfterViewInit hook.`
           )
           return
         }
@@ -161,13 +162,12 @@ export function EntityTagField<
           // wait 1/3sec after typing activity stops to query server,
           // quash leading event, emit trailing event so we only get 1 search string
           throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-          // get additional query vars, if any
+          // return optional typeaheadParam observable, or undefined observable
           withLatestFrom(
             this.typeaheadParam$ !== undefined
               ? this.typeaheadParam$
               : of(undefined)
           ),
-          // tag(`${this.field.id} onSearch$`),
           switchMap(([str, param]: [string, Maybe<TAP>]) => {
             const query = this.getTypeaheadVars(str, param)
 
@@ -238,11 +238,7 @@ export function EntityTagField<
             )
             .subscribe(
               ([tplRefs, results]: [QueryList<TemplateRef<any>>, TAF[]]) => {
-                const options = this.getSelectOptionsFromResults(
-                  results,
-                  tplRefs,
-                  'template'
-                )
+                const options = this.getSelectOptions(results, tplRefs)
                 this.selectOption$.next(options)
                 this.cdr.detectChanges()
               }
@@ -268,7 +264,7 @@ export function EntityTagField<
             )
             return
           }
-          let queries: Observable<TT>[]
+          let queries: Observable<ApolloQueryResult<TQ>>[]
           // wrap primitives in array
           if (typeof v === 'number') {
             queries = this.getFetchFn([v])
@@ -277,23 +273,30 @@ export function EntityTagField<
           }
           combineLatestArray(queries)
             .pipe(
-              // tag(`${this.field.id} combineLatestArray(queries)`),
-              map((data) => {
-                if (!(data.length > 0)) return []
-                if (!data.every(({ drug }) => drug !== undefined)) return []
-                return data.map(({ drug }) => {
-                  const d = drug as TF
-                  return {
-                    label: d.name,
-                    value: d.id,
-                  }
+              tag(`${this.field.id} combineLatestArray(queries)`),
+              map((queries) => {
+                if (!(queries.length > 0)) return []
+                if (
+                  !queries.every(
+                    (r: ApolloQueryResult<TQ>) =>
+                      this.getTagQueryResults(r) !== undefined
+                  )
+                ) {
+                  console.error(
+                    `${this.field.id} pre-populate failed, one or more entity tag queries did not succeed.`
+                  )
+                  return []
+                }
+                return queries.map((result: ApolloQueryResult<TQ>): NzSelectOptionInterface => {
+                  const item = this.getTagQueryResults(result)
+                  return this.getSelectedItemOption(item!)
                 })
               })
             )
             .subscribe((options) => {
               if (!options || !options.every((o) => typeof o !== 'undefined')) {
                 console.error(
-                  `${this.field.id} prepopulate select options error: one or more option requests failed.`,
+                  `${this.field.id} prepopulate select options error: one or more requests failed.`,
                   options
                 )
               }
@@ -302,11 +305,11 @@ export function EntityTagField<
         }
       } // end configureDisplayEntityTag()
 
-      getFetchFn(ids: number[]): Observable<TT>[] {
+      getFetchFn(ids: number[]): Observable<ApolloQueryResult<TQ>>[] {
         const queries = ids.map((id) =>
           this.tagQuery
             .fetch(this.getTagQueryVars(id), { fetchPolicy: 'cache-first' })
-            .pipe(pluck('data'), filter(isNonNulled))
+            .pipe(filter((r) => !!r.data))
         )
         return queries
       }

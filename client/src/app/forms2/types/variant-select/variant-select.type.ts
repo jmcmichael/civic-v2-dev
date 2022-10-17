@@ -19,9 +19,9 @@ import { EntityState } from '@app/forms2/states/entity.state'
 import {
   LinkableGeneGQL,
   Maybe,
-  VariantSelectPrepopulateGQL,
-  VariantSelectPrepopulateQuery,
-  VariantSelectPrepopulateQueryVariables,
+  VariantSelectTagGQL,
+  VariantSelectTagQuery,
+  VariantSelectTagQueryVariables,
   VariantSelectTypeaheadFieldsFragment,
   VariantSelectTypeaheadGQL,
   VariantSelectTypeaheadQuery,
@@ -59,9 +59,8 @@ const VariantSelectMixin = mixin(
     VariantSelectTypeaheadQuery,
     VariantSelectTypeaheadQueryVariables,
     VariantSelectTypeaheadFieldsFragment,
-    VariantSelectPrepopulateQuery,
-    VariantSelectPrepopulateQueryVariables,
-    VariantSelectTypeaheadFieldsFragment,
+    VariantSelectTagQuery,
+    VariantSelectTagQueryVariables,
     Maybe<number>
   >()
 )
@@ -118,7 +117,7 @@ export class CvcVariantSelectField
   constructor(
     public injector: Injector,
     private taq: VariantSelectTypeaheadGQL,
-    private tq: VariantSelectPrepopulateGQL,
+    private tq: VariantSelectTagGQL,
     private geneQuery: LinkableGeneGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
@@ -142,10 +141,10 @@ export class CvcVariantSelectField
         r: ApolloQueryResult<VariantSelectTypeaheadQuery>
       ) => r.data.variants.nodes,
       getTagQueryVarsFn: (id: number) => ({ variantId: id }),
-      getTagQueryResultsFn: (
-        r: ApolloQueryResult<VariantSelectPrepopulateQuery>
-      ) => r.data.variant,
-      getSelectOptionsFromResultsFn: (
+      getTagQueryResultsFn: (r: ApolloQueryResult<VariantSelectTagQuery>) =>
+        r.data.variant,
+      getSelectedItemOptionFn: this.getSelectedItemOptionFn,
+      getSelectOptionsFn: (
         results: VariantSelectTypeaheadFieldsFragment[],
         tplRefs: QueryList<TemplateRef<any>>
       ): NzSelectOptionInterface[] => {
@@ -191,6 +190,26 @@ export class CvcVariantSelectField
       this.onValueChange$.next(v)
     })
   } // ngAfterViewInit
+
+  getSelectedItemOptionFn(
+    variant: VariantSelectTypeaheadFieldsFragment
+  ): NzSelectOptionInterface {
+    return { value: variant.id, label: variant.name }
+  }
+
+  getSelectOptionsFn(
+    results: VariantSelectTypeaheadFieldsFragment[],
+    tplRefs: QueryList<TemplateRef<any>>
+  ): NzSelectOptionInterface[] {
+    return results.map(
+      (variant: VariantSelectTypeaheadFieldsFragment, index: number) => {
+        return <NzSelectOptionInterface>{
+          label: tplRefs.get(index) || variant.name,
+          value: variant.id,
+        }
+      }
+    )
+  }
 
   private configureStateConnections() {
     if (!this.props.requireGene) return

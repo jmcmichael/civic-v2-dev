@@ -114,19 +114,8 @@ export class CvcGeneSelectField
       getTagQueryResultsFn: (
         r: ApolloQueryResult<GeneSelectPrepopulateQuery>
       ) => r.data.gene,
-      getSelectOptionsFromResultsFn: (
-        results: GeneSelectTypeaheadFieldsFragment[],
-        tplRefs: QueryList<TemplateRef<any>>
-      ): NzSelectOptionInterface[] => {
-        return results.map(
-          (drug: GeneSelectTypeaheadFieldsFragment, index: number) => {
-            return <NzSelectOptionInterface>{
-              label: tplRefs.get(index) || drug.name,
-              value: drug.id,
-            }
-          }
-        )
-      },
+      getSelectedItemOptionFn: this.getSelectedItemOptionFn,
+      getSelectOptionsFn: this.getSelectOptionsFn,
       changeDetectorRef: this.changeDetectorRef,
     })
     this.configureStateConnections() // local fn
@@ -157,6 +146,26 @@ export class CvcGeneSelectField
   onSearch(str: string): void {
     console.log(str)
     this.onSearch$.next(str)
+  }
+
+  getSelectedItemOptionFn(
+    gene: GeneSelectTypeaheadFieldsFragment
+  ): NzSelectOptionInterface {
+    return { value: gene.id, label: gene.name }
+  }
+
+  getSelectOptionsFn(
+    results: GeneSelectTypeaheadFieldsFragment[],
+    tplRefs: QueryList<TemplateRef<any>>
+  ): NzSelectOptionInterface[] {
+    return results.map(
+      (gene: GeneSelectTypeaheadFieldsFragment, index: number) => {
+        return <NzSelectOptionInterface>{
+          label: tplRefs.get(index) || gene.name,
+          value: gene.id,
+        }
+      }
+    )
   }
 
   private configureOnTagClose(): void {

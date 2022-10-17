@@ -6192,12 +6192,12 @@ export type VariantSelectTypeaheadQueryVariables = Exact<{
 
 export type VariantSelectTypeaheadQuery = { __typename: 'Query', variants: { __typename: 'VariantConnection', nodes: Array<{ __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } }> } };
 
-export type VariantSelectPrepopulateQueryVariables = Exact<{
+export type VariantSelectTagQueryVariables = Exact<{
   variantId: Scalars['Int'];
 }>;
 
 
-export type VariantSelectPrepopulateQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } } | undefined };
+export type VariantSelectTagQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } } | undefined };
 
 export type VariantSelectTypeaheadFieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
 
@@ -11811,8 +11811,8 @@ export const VariantSelectTypeaheadDocument = gql`
       super(apollo);
     }
   }
-export const VariantSelectPrepopulateDocument = gql`
-    query VariantSelectPrepopulate($variantId: Int!) {
+export const VariantSelectTagDocument = gql`
+    query VariantSelectTag($variantId: Int!) {
   variant(id: $variantId) {
     ...VariantSelectTypeaheadFields
   }
@@ -11822,8 +11822,8 @@ export const VariantSelectPrepopulateDocument = gql`
   @Injectable({
     providedIn: 'root'
   })
-  export class VariantSelectPrepopulateGQL extends Apollo.Query<VariantSelectPrepopulateQuery, VariantSelectPrepopulateQueryVariables> {
-    document = VariantSelectPrepopulateDocument;
+  export class VariantSelectTagGQL extends Apollo.Query<VariantSelectTagQuery, VariantSelectTagQueryVariables> {
+    document = VariantSelectTagDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

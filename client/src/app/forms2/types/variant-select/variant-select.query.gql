@@ -6,7 +6,7 @@ query VariantSelectTypeahead($name: String!, $geneId: Int) {
   }
 }
 
-query VariantSelectPrepopulate($variantId: Int!) {
+query VariantSelectTag($variantId: Int!) {
   variant(id: $variantId) {
     ...VariantSelectTypeaheadFields
   }
