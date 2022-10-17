@@ -5,7 +5,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { ReactiveComponentModule } from '@ngrx/component'
-import { ConfigOption, FormlyModule } from '@ngx-formly/core'
+import { ConfigOption, FieldTypeConfig, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
@@ -17,7 +17,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { CvcGeneSelectField } from './gene-select.type'
+import { CvcGeneSelectField, CvcGeneSelectFieldProps } from './gene-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -28,13 +28,12 @@ const typeConfig: ConfigOption = {
     },
     {
       // for use in repeat-field types, label hidden
-      name: 'gene-select-item',
+      name: 'gene-multi-select',
       wrappers: ['form-field'],
       component: CvcGeneSelectField,
-      defaultOptions: {
+      defaultOptions: <Partial<FieldTypeConfig<CvcGeneSelectFieldProps>>>{
         props: {
           isMultiSelect: true,
-          hideLabel: true,
         },
       },
     },

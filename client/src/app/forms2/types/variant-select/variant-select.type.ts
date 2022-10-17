@@ -35,6 +35,8 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, lastValueFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
+export type CvcVariantSelectFieldOptions = Partial<FieldTypeConfig<CvcVariantSelectFieldProps>>
+
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
@@ -86,7 +88,7 @@ export class CvcVariantSelectField
   stateValueChange$?: BehaviorSubject<Maybe<number>>
 
   // FieldTypeConfig defaults
-  defaultOptions: Partial<FieldTypeConfig<CvcVariantSelectFieldProps>> = {
+  defaultOptions: CvcVariantSelectFieldOptions = {
     props: {
       label: 'Variant',
       placeholder: 'Search Variants',
@@ -94,7 +96,7 @@ export class CvcVariantSelectField
       requireGenePlaceholder: 'Search GENE_NAME Variants',
       requireGenePrompt: 'Select a Gene to search Variants',
       isMultiSelect: false,
-      entityName: { singular: 'Variant', plural: 'Variant' },
+      entityName: { singular: 'Variant', plural: 'Variants' },
     },
   }
 
@@ -138,6 +140,24 @@ export class CvcVariantSelectField
     this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
   } // ngAfterViewInit
 
+  private configureStateConnections() {
+    this.state = this.field.options?.formState
+    if (!this.state) return
+    // attach state geneId$ to get gene field value updates
+    if (this.props.requireGene) {
+      if (!this.state?.fields.geneId$) {
+        console.error(
+          `${this.field.id} requireGene is set, but no geneId$ subject found on state.`
+        )
+        return
+      }
+      this.onGeneId$ = this.state.fields.geneId$
+      this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
+        this.onGeneId(gid)
+      })
+    }
+  }
+
   getTypeaheadVarsFn(str: string, param: Maybe<number>) {
     return {
       name: str,
@@ -179,28 +199,6 @@ export class CvcVariantSelectField
     )
   }
 
-  private configureStateConnections() {
-    if (!this.props.requireGene) return
-    if (!this.field.options?.formState) {
-      console.error(
-        `${this.field.id} requireGene is set, but no formState found.`
-      )
-      return
-    }
-    this.state = this.field.options.formState
-    if (!this.state?.fields.geneId$) {
-      console.error(
-        `${this.field.id} requireGene is set, but no geneId$ subject found on state.`
-      )
-      return
-    }
-    // attach state geneId$ to get gene field value updates
-    this.onGeneId$ = this.state.fields.geneId$
-    this.onGeneId$.pipe(untilDestroyed(this)).subscribe((gid) => {
-      this.onGeneId(gid)
-    })
-  }
-
   private onGeneId(gid: Maybe<number>): void {
     // if field config indicates that a geneId is required, and none is provided,
     // set model to undefined (this resets the variant model if gene field is reset)
@@ -235,5 +233,4 @@ export class CvcVariantSelectField
       })
     }
   }
-
 }

@@ -5,7 +5,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { ReactiveComponentModule } from '@ngrx/component'
-import { ConfigOption, FormlyModule } from '@ngx-formly/core'
+import { ConfigOption, FieldTypeConfig, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
@@ -22,7 +22,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcDrugQuickAddForm } from './drug-quick-add/drug-quick-add.form'
-import { CvcDrugSelectField } from './drug-select.type'
+import { CvcDrugSelectField, CvcDrugSelectFieldOptions } from './drug-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -33,12 +33,11 @@ const typeConfig: ConfigOption = {
     },
     {
       // no label, for use in repeat-field types
-      name: 'drug-select-array',
+      name: 'drug-multi-select',
       wrappers: ['form-field'],
       component: CvcDrugSelectField,
-      defaultOptions: {
+      defaultOptions: <CvcDrugSelectFieldOptions>{
         props: {
-          label: 'Drug',
           isMultiSelect: true,
         },
       },

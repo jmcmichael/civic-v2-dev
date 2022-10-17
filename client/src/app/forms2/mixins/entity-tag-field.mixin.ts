@@ -165,7 +165,7 @@ export function EntityTagField<
               ? this.typeaheadParam$
               : of(undefined)
           ),
-          tag(`${this.field.id} entity-tag-field onSearch$`),
+          // tag(`${this.field.id} entity-tag-field onSearch$`),
           switchMap(([str, param]: [string, Maybe<TAP>]) => {
             const query = this.getTypeaheadVars(str, param)
 
@@ -232,7 +232,7 @@ export function EntityTagField<
           // and set the value to the entity id.
           this.optionTemplates.changes
             .pipe(
-              tag(`${this.field.id} optionTemplates.changes`),
+              // tag(`${this.field.id} optionTemplates.changes`),
               withLatestFrom(this.result$),
               untilDestroyed(this)
             )
@@ -273,7 +273,7 @@ export function EntityTagField<
           }
           combineLatestArray(queries)
             .pipe(
-              tag(`${this.field.id} combineLatestArray(queries)`),
+              // tag(`${this.field.id} combineLatestArray(queries)`),
               map((queries) => {
                 if (!(queries.length > 0)) return []
                 if (

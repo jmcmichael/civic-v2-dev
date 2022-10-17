@@ -65,7 +65,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
 
           // <CvcDrugSelectFieldConfig>{
           //   key: 'drugIds',
-          //   type: 'drug-select-array',
+          //   type: 'drug-multi-select',
           //   props: {
           //     required: true,
           //     label: 'Drugs'

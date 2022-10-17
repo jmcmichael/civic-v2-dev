@@ -16,7 +16,7 @@ import {
 } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityState } from '@app/forms2/states/entity.state'
+import { EntityState, EntityType } from '@app/forms2/states/entity.state'
 import {
   DrugSelectTagGQL,
   DrugSelectTagQuery,
@@ -33,31 +33,36 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
+
+export type CvcDrugSelectFieldOptions = Partial<FieldTypeConfig<CvcDrugSelectFieldProps>>
 
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
   isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
-  selectMessages?: CvcSelectMessageOptions
   placeholder?: string // default placeholder
+  requireType: boolean // if entity type required to enable field
   requireTypePlaceholder?: string // placeholder if evidence/assertion type required
 }
 
 export interface CvcDrugSelectFieldConfig
   extends FormlyFieldConfig<CvcDrugSelectFieldProps> {
-  type: 'drug-select' | 'drug-select-array' | Type<CvcDrugSelectField>
+  type: 'drug-select' | 'drug-multi-select' | Type<CvcDrugSelectField>
 }
 
 const DrugSelectMixin = mixin(
-  BaseFieldType<FieldTypeConfig<CvcDrugSelectFieldProps>, Maybe<number>>(),
+  BaseFieldType<
+    FieldTypeConfig<CvcDrugSelectFieldProps>,
+    Maybe<number | number[]>
+  >(),
   EntityTagField<
     DrugSelectTypeaheadQuery,
     DrugSelectTypeaheadQueryVariables,
     DrugSelectTypeaheadFieldsFragment,
     DrugSelectTagQuery,
     DrugSelectTagQueryVariables,
-    Maybe<number>
+    Maybe<number | number[]>
   >()
 )
 
@@ -74,20 +79,25 @@ export class CvcDrugSelectField
   state?: EntityState
 
   // STATE SOURCE STREAMS
-  onRequiresDrug$: BehaviorSubject<boolean>
+  onEntityType$?: Subject<Maybe<EntityType>>
+  onRequiresDrug$?: BehaviorSubject<boolean>
 
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
 
   // STATE OUTPUT STREAMS
+  stateValueChange$?: BehaviorSubject<Maybe<number | number[]>>
 
   // FieldTypeConfig defaults
-  defaultOptions: Partial<FieldTypeConfig<CvcDrugSelectFieldProps>> = {
+  defaultOptions: CvcDrugSelectFieldOptions = {
     props: {
       label: 'Drug',
       isMultiSelect: false,
       entityName: { singular: 'Drug', plural: 'Drugs' },
+      placeholder: 'Search Drugs',
+      requireType: true,
+      requireTypePlaceholder: 'Select a ENTITY_TYPE Type to search Drugs',
     },
   }
 
@@ -101,13 +111,13 @@ export class CvcDrugSelectField
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
-    this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
   }
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
-    this.configureStateConnections()
+    this.configureStateConnections() // local fn
     this.configureEntityTagField({
+      // mixin fn
       typeaheadQuery: this.taq,
       typeaheadParam$: undefined,
       tagQuery: this.tq,
@@ -120,6 +130,28 @@ export class CvcDrugSelectField
       changeDetectorRef: this.changeDetectorRef,
     })
   } // ngAfterViewInit()
+
+  configureStateConnections(): void {
+    this.state = this.field.options?.formState
+    if (!this.state) return
+    if (this.state.requires.requiresDrug$) {
+      this.onRequiresDrug$ = this.state.requires.requiresDrug$
+    } else {
+      console.warn(
+        `${this.field.id} field's form provides a state, but could not find requiresDrug$ subject to attach.`
+      )
+    }
+    if (this.props.requireType) {
+      const etName = `${this.state.entityName.toLowerCase()}Type$`
+      if (this.state.fields[etName]) {
+        this.onEntityType$ = this.state.fields[etName]
+      } else {
+        console.error(
+          `${this.field.id} requireType is true, however form state does not provide Subject ${etName}.`
+        )
+      }
+    }
+  }
 
   getTypeaheadVarsFn(str: string): DrugSelectTypeaheadQueryVariables {
     return { name: str }
@@ -157,17 +189,5 @@ export class CvcDrugSelectField
         }
       }
     )
-  }
-
-  configureStateConnections(): void {
-    this.state = this.field.options?.formState
-    if (!this.state) return
-    if (!this.state.requires.requiresDrug$) {
-      console.warn(
-        `${this.field.id} field's form provides a state, but could not find requiresDrug$ subject to attach.`
-      )
-      return
-    }
-    this.onRequiresDrug$ = this.state.requires.requiresDrug$
   }
 }

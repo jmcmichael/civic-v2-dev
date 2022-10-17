@@ -7,7 +7,7 @@
   [cvcResults]="result$ | ngrxPush"
   [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
-  [cvcDisabled]="!(onRequiresDrug$ | ngrxPush)"
+  [cvcDisabled]="onRequiresDrug$ && !(onRequiresDrug$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
   [cvcOptionTrackBy]="optionTrackBy"
   [cvcAddEntity]="addDrug"

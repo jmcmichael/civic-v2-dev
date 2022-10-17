@@ -10,7 +10,7 @@ import {
   ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
+import { CvcSelectEntityName, CvcSelectMessageOptions } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
@@ -32,25 +32,26 @@ import { BehaviorSubject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
-  placeholder: string
+  placeholder?: string
   isMultiSelect: boolean
+  selectMessages?: CvcSelectMessageOptions
   entityName: CvcSelectEntityName
 }
 
 export interface CvcGeneSelectFieldConfig
   extends FormlyFieldConfig<CvcGeneSelectFieldProps> {
-  type: 'gene-select' | 'gene-select-item' | Type<CvcGeneSelectField>
+  type: 'gene-select' | 'gene-multi-select' | Type<CvcGeneSelectField>
 }
 
 const GeneSelectMixin = mixin(
-  BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number>>(),
+  BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number|number[]>>(),
   EntityTagField<
     GeneSelectTypeaheadQuery,
     GeneSelectTypeaheadQueryVariables,
     GeneSelectTypeaheadFieldsFragment,
     GeneSelectTagQuery,
     GeneSelectTagQueryVariables,
-    Maybe<number>
+    Maybe<number|number[]>
   >()
 )
 
@@ -71,7 +72,7 @@ export class CvcGeneSelectField
   // LOCAL PRESENTATION STREAMS
 
   // STATE OUTPUT STREAMS
-  stateValueChange$?: BehaviorSubject<Maybe<number>>
+  stateValueChange$?: BehaviorSubject<Maybe<number|number[]>>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
@@ -98,8 +99,7 @@ export class CvcGeneSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
-    this.configureEntityTagField({
-      // mixin fn
+    this.configureEntityTagField({ // mixin fn
       typeaheadQuery: this.taq,
       typeaheadParam$: undefined,
       tagQuery: this.tq,
