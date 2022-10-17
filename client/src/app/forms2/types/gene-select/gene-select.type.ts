@@ -153,22 +153,16 @@ export class CvcGeneSelectField
   }
 
   configureStateConnections(): void {
-    // if this is not a repeat-item field, attach state's
-    // geneId$ subject and emit all onValueChanges$ from it
-    // if (!this.props.isRepeatItem && this.field.options?.formState) {
-    //   this.state = this.field.options.formState
-    //   // attach state variantId$ to send field value updates
-    //   if (this.state && this.state.fields.geneId$) {
-    //     this.stateValueChange$ = this.state.fields.geneId$
-    //     this.onValueChange$
-    //       .pipe(
-    //         // tag(`${this.field.id} onValueChange$ stateValueChange$`),
-    //         untilDestroyed(this)
-    //       )
-    //       .subscribe((v) => {
-    //         if (this.stateValueChange$) this.stateValueChange$.next(v)
-    //       })
-    //   }
-    // }
+    if(!this.field.options?.formState) return
+    this.state = this.field.options.formState
+
+    if (this.state && this.state.fields.geneId$) {
+      this.stateValueChange$ = this.state.fields.geneId$
+      this.onValueChange$
+        .pipe(untilDestroyed(this))
+        .subscribe((v) => {
+          if (this.stateValueChange$) this.stateValueChange$.next(v)
+        })
+    }
   }
 }
