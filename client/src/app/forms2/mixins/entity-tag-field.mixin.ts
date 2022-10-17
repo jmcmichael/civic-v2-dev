@@ -82,6 +82,7 @@ export function EntityTagField<
     @Injectable()
     abstract class EntityTagFieldMixin extends Base {
       // BASE FIELD TYPE SOURCE STREAMS
+      // need to declare them to reference them here, but base-field creates these
       onValueChange$?: Subject<Maybe<number>>
 
       // LOCAL SOURCE STREAMS
@@ -97,6 +98,7 @@ export function EntityTagField<
       result$!: Observable<TAF[]> // typeahead query results
       isLoading$!: Subject<boolean> // typeahead query loading bool
       selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
+      // TODO: remove tagCacheId$, no longer required w/ nz-select tag modes
       tagCacheId$!: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
 
       // CONFIG OPTIONS
@@ -137,8 +139,6 @@ export function EntityTagField<
         this.onFocus$ = new Subject<void>()
         this.isLoading$ = new Subject<boolean>()
         this.onTagClose$ = new Subject<MouseEvent>()
-        // TODO: should use base-field's onValueChange$ BehaviorSubject
-        this.onValueChange$ = new Subject<Maybe<number>>()
         this.onCreate$ = new Subject<TAF>()
         this.tagCacheId$ = new Subject<Maybe<string>>()
 
@@ -287,10 +287,12 @@ export function EntityTagField<
                   )
                   return []
                 }
-                return queries.map((result: ApolloQueryResult<TQ>): NzSelectOptionInterface => {
-                  const item = this.getTagQueryResults(result)
-                  return this.getSelectedItemOption(item!)
-                })
+                return queries.map(
+                  (result: ApolloQueryResult<TQ>): NzSelectOptionInterface => {
+                    const item = this.getTagQueryResults(result)
+                    return this.getSelectedItemOption(item!)
+                  }
+                )
               })
             )
             .subscribe((options) => {
