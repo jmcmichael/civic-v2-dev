@@ -147,25 +147,19 @@ export class CvcDrugSelectField
     this.configureBaseField() // mixin fn
     this.configureStateConnections()
     this.configureEntityTagField(
-      // mixin fn
-      // mixin fn
-      // typeahead query
-      this.taq,
-      // linkable entity query TODO: probably can remove
-      this.tq,
-      // typeahead query vars getter fn
-      (str: string) => ({
-        name: str,
-      }),
-      // typeahead query result map fn
-      (r: ApolloQueryResult<DrugSelectTypeaheadQuery>) => r.data.drugTypeahead,
-      // linkable entity query vars getter fn
-      // TODO: Probably can remove this parameter
-      (id: number) => ({ id: id }),
-      // tag cache id getter fn
-      (r: ApolloQueryResult<LinkableDrugQuery>) => `Drug:${r.data.drug!.id}`,
-      // no optional typeahead parameter
-      undefined
+      {
+        typeaheadQuery: this.taq,
+        typeaheadParam$: undefined,
+        tagQuery: this.tq,
+        getTypeaheadVarsFn: (str: string) => ({ name: str }),
+        getTypeaheadResultsFn: (
+          r: ApolloQueryResult<DrugSelectTypeaheadQuery>
+        ) => r.data.drugTypeahead,
+        getTagQueryVarsFn: (id: number) => ({ id: id }),
+        getTagCacheIdFromResponseFn: (
+          r: ApolloQueryResult<LinkableDrugQuery>
+        ) => `Drug:${r.data.drug!.id}`,
+      }
     )
 
     if (!this.optionTemplates) {
@@ -283,12 +277,10 @@ export class CvcDrugSelectField
   getFetchFn(ids: number[]): Observable<DrugSelectPrepopulateQuery>[] {
     const queries = ids.map((id) =>
       this.tq.fetch({ id: id }, { fetchPolicy: 'cache-first' }).pipe(
-        // tag(`${this.field.id} tag query fetch`),
         pluck('data'),
         filter(isNonNulled)
       )
     )
-    console.log(queries)
     return queries
   }
 

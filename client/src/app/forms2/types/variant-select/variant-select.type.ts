@@ -128,26 +128,22 @@ export class CvcVariantSelectField
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
     this.configureEntityTagField(
-      // mixin fn
-      // typeahead query
-      this.taq,
-      // linkable entity query
-      this.tq,
-      // typeahead query vars getter fn
-      (str: string, param: Maybe<number>) => ({
-        name: str,
-        geneId: param,
-      }),
-      // typeahead query result map fn
-      (r: ApolloQueryResult<VariantSelectTypeaheadQuery>) =>
-        r.data.variants.nodes,
-      // linkable entity query vars getter fn
-      (id: number) => ({ variantId: id }),
-      // tag cache id getter fn
-      (r: ApolloQueryResult<LinkableVariantQuery>) =>
-        `Variant:${r.data.variant!.id}`,
-      // attach state's geneId$ optional typeahead param
-      this.onGeneId$ ? this.onGeneId$ : undefined
+      {
+        typeaheadQuery: this.taq,
+        typeaheadParam$: this.onGeneId$ ? this.onGeneId$ : undefined,
+        tagQuery: this.tq,
+        getTypeaheadVarsFn: (str: string, param: Maybe<number>) => ({
+          name: str,
+          geneId: param,
+        }),
+        getTypeaheadResultsFn: (
+          r: ApolloQueryResult<VariantSelectTypeaheadQuery>
+        ) => r.data.variants.nodes,
+        getTagQueryVarsFn: (id: number) => ({ variantId: id }),
+        getTagCacheIdFromResponseFn: (
+          r: ApolloQueryResult<LinkableVariantQuery>
+        ) => `Variant:${r.data.variant!.id}`,
+      }
     )
 
     // hook up state geneId$ observable, possibly attached in
@@ -176,7 +172,7 @@ export class CvcVariantSelectField
     }
 
     // emit value change if new variant created by quick-add form
-    this.onVariantCreate$.pipe(untilDestroyed(this)).subscribe(v => {
+    this.onVariantCreate$.pipe(untilDestroyed(this)).subscribe((v) => {
       this.onValueChange$.next(v)
     })
   } // ngAfterViewInit

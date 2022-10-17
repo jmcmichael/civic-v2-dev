@@ -174,7 +174,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         if (inputHasFocus(loading, search, this.cvcResults)) {
           this.focusMessage$.next(
             this.cvcSelectMessages?.focus ||
-              'Enter query to search ${this.cvcEntityName.plural}.'
+              `Enter query to search ${this.cvcEntityName.plural}.`
           )
           this.loadingMessage$.next(undefined)
           this.notFoundMessage$.next(undefined)

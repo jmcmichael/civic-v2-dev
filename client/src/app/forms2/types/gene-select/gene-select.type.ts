@@ -99,21 +99,19 @@ export class CvcGeneSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureEntityTagField(
-      // typeahead query
-      this.taq,
-      // linkable entity query
-      this.tq,
-      // typeahead query vars getter fn
-      (str: string) => ({ entrezSymbol: str }),
-      // typeahead query result map fn
-      (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) => {
-        return r.data.geneTypeahead
-      },
-      // tag query vars getter fn
-      (id: number) => ({ geneId: id }),
-      // tag cache id getter fn
-      (r: ApolloQueryResult<GeneSelectLinkableGeneQuery>) =>
-        `Gene:${r.data.gene!.id}`
+      {
+        typeaheadQuery: this.taq,
+        typeaheadParam$: undefined,
+        tagQuery: this.tq,
+        getTypeaheadVarsFn: (str: string) => ({ entrezSymbol: str }),
+        getTypeaheadResultsFn: (
+          r: ApolloQueryResult<GeneSelectTypeaheadQuery>
+        ) => r.data.geneTypeahead,
+        getTagQueryVarsFn: (id: number) => ({ geneId: id }),
+        getTagCacheIdFromResponseFn: (
+          r: ApolloQueryResult<GeneSelectLinkableGeneQuery>
+        ) => `Gene:${r.data.gene!.id}`,
+      }
     )
     this.configureStateConnections() // local fn
     this.configureOnTagClose() // local fn

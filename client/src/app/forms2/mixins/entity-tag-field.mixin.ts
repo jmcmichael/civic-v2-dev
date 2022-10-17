@@ -42,6 +42,16 @@ export type GetTagCacheIdFromResponseFn<TT> = (
   response: ApolloQueryResult<TT>
 ) => string
 
+export interface EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV> {
+  typeaheadQuery: Query<TAT, TAV>
+  typeaheadParam$?: Observable<any>
+  tagQuery: Query<TT, TV>
+  getTypeaheadVarsFn: GetTypeaheadVarsFn<TAV, TAP>
+  getTypeaheadResultsFn: GetTypeaheadResultsFn<TAT, TAF>
+  getTagQueryVarsFn: GetTagQueryVarsFn<TV>
+  getTagCacheIdFromResponseFn: GetTagCacheIdFromResponseFn<TT>
+}
+
 export function EntityTagField<
   // typeahead response data, vars, fragment
   TAT extends EmptyObject,
@@ -69,18 +79,20 @@ export function EntityTagField<
 
       // INTERMEDIATE STREAMS
       response$!: Observable<ApolloQueryResult<TAT>> // gql query responses
-      typeaheadParam$?: Observable<any> // additional param for typeahead query
 
       // PRESENTATION STREAMS
       result$!: Observable<TAF[]> // typeahead query results
       isLoading$!: Subject<boolean> // typeahead query loading bool
       tagCacheId$!: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
 
+      // CONFIG OPTIONS
+
       // QUERIES
       private typeaheadQuery!: Query<TAT, TAV>
       private tagQuery!: Query<TT, TV>
+      typeaheadParam$?: Observable<any> // additional param for typeahead query
 
-      // GETTERS
+      // GETTER FUNCTIONS
       getTypeaheadVars!: GetTypeaheadVarsFn<TAV, TAP>
       getTypeahedResults!: GetTypeaheadResultsFn<TAT, TAF>
       getTagQueryVars!: GetTagQueryVarsFn<TV>
@@ -90,21 +102,15 @@ export function EntityTagField<
       tagEntity!: TF
       // TODO: remove all tag query GQL & related types - no longer required
       configureEntityTagField(
-        taq: Query<TAT, TAV>,
-        tq: Query<TT, TV>,
-        getTypeaheadVars: GetTypeaheadVarsFn<TAV, TAP>,
-        getTypeaheadQueryResults: GetTypeaheadResultsFn<TAT, TAF>,
-        getTagQueryVars: GetTagQueryVarsFn<TV>,
-        getTagCacheIdFromResponse: GetTagCacheIdFromResponseFn<TT>,
-        typeaheadParam$?: Observable<any>
+        options?: EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV>
       ): void {
-        this.typeaheadQuery = taq
-        this.tagQuery = tq
-        this.getTypeaheadVars = getTypeaheadVars
-        this.getTypeahedResults = getTypeaheadQueryResults
-        this.getTagQueryVars = getTagQueryVars
-        this.getTagCacheIdFromResponse = getTagCacheIdFromResponse
-        this.typeaheadParam$ = typeaheadParam$
+        this.typeaheadQuery = options!.typeaheadQuery
+        this.tagQuery = options!.tagQuery
+        this.getTypeaheadVars = options!.getTypeaheadVarsFn
+        this.getTypeahedResults = options!.getTypeaheadResultsFn
+        this.getTagQueryVars = options!.getTagQueryVarsFn
+        this.getTagCacheIdFromResponse = options!.getTagCacheIdFromResponseFn
+        this.typeaheadParam$ = options!.typeaheadParam$
 
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
@@ -186,10 +192,6 @@ export function EntityTagField<
           this.resetField()
         })
       } // end configureDisplayEntityTag()
-
-      prepopulateOptions(vars: TV) {
-        this.tagQuery
-      }
 
       resetField() {
         this.formControl.setValue(undefined)
