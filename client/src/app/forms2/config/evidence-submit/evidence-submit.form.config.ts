@@ -3,7 +3,7 @@ import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-subm
 // import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/entity-significance-select/entity-significance-select.type'
 // import { CvcEvidenceDirectionSelectFieldConfig } from '@app/forms2/types/evidence-direction-select/evidence-direction-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
-// import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
+import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 // import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
 // import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
@@ -33,6 +33,21 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Evidence Item',
         },
         fieldGroup: [
+          <CvcGeneSelectFieldConfig>{
+            key: 'geneId',
+            type: 'gene-select',
+            props: {
+              required: true,
+            },
+          },
+          // <CvcVariantSelectFieldConfig>{
+          //   key: 'variantId',
+          //   type: 'variant-select',
+          //   props: {
+          //     required: true,
+          //     // requireGene: false
+          //   },
+          // },
           <CvcEntityTypeSelectFieldConfig>{
             key: 'evidenceType',
             type: 'entity-type-select',
@@ -52,21 +67,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           //   type: 'drug-select-array',
           //   props: {
           //     required: true,
-          //   },
-          // },
-          // <CvcGeneSelectFieldConfig>{
-          //   key: 'geneId',
-          //   type: 'gene-select',
-          //   props: {
-          //     required: true,
-          //   },
-          // },
-          // <CvcVariantSelectFieldConfig>{
-          //   key: 'variantId',
-          //   type: 'variant-select',
-          //   props: {
-          //     required: true,
-          //     // requireGene: false
           //   },
           // },
           // <CvcRepeatFieldConfig>{
