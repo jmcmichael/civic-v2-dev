@@ -33,7 +33,7 @@ import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder: string
-  isRepeatItem: boolean
+  isMultiSelect: boolean
   entityName: CvcSelectEntityName
 }
 
@@ -79,7 +79,7 @@ export class CvcGeneSelectField
     props: {
       label: 'Gene',
       placeholder: 'Search Genes',
-      isRepeatItem: false,
+      isMultiSelect: false,
       entityName: { singular: 'Gene', plural: 'Genes' },
     },
   }
@@ -100,7 +100,7 @@ export class CvcGeneSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
-    this.configureEntityTagField({
+    this.configureEntityTagField({ // mixin fn
       typeaheadQuery: this.taq,
       typeaheadParam$: undefined,
       tagQuery: this.tq,

@@ -35,7 +35,7 @@ const typeConfig: ConfigOption = {
       component: CvcVariantSelectField,
       defaultOptions: {
         props: {
-          isRepeatItem: true,
+          isMultiSelect: true,
           hideLabel: true,
           requireGene: false,
         },

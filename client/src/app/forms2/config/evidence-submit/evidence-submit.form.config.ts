@@ -11,6 +11,7 @@ import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { CvcDrugSelectFieldConfig } from '@app/forms2/types/drug-select/drug-select.type'
+import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 
 const formFieldConfig: FormlyFieldConfig[] = [
   {
@@ -40,14 +41,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          // <CvcVariantSelectFieldConfig>{
-          //   key: 'variantId',
-          //   type: 'variant-select',
-          //   props: {
-          //     required: true,
-          //     // requireGene: false
-          //   },
-          // },
+          <CvcVariantSelectFieldConfig>{
+            key: 'variantId',
+            type: 'variant-select',
+            props: {
+              required: true,
+              // requireGene: false
+            },
+          },
           <CvcEntityTypeSelectFieldConfig>{
             key: 'evidenceType',
             type: 'entity-type-select',

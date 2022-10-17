@@ -33,7 +33,7 @@ const typeConfig: ConfigOption = {
       component: CvcGeneSelectField,
       defaultOptions: {
         props: {
-          isRepeatItem: true,
+          isMultiSelect: true,
           hideLabel: true,
         },
       },

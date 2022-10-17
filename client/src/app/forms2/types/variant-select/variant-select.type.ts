@@ -7,12 +7,10 @@ import {
   QueryList,
   TemplateRef,
   Type,
+  ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import {
-  CvcSelectEntityName,
-  CvcSelectMessageOptions,
-} from '@app/forms2/components/entity-select/entity-select.component'
+import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
@@ -33,19 +31,17 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { QueryRef } from 'apollo-angular'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, lastValueFrom, Subject } from 'rxjs'
+import { BehaviorSubject, lastValueFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
-  isRepeatItem: boolean // is child of a repeat-field type
+  isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
-  selectMessages: CvcSelectMessageOptions
   requireGene: boolean // if true, disables field if no geneId$
   placeholder: string // default placeholder
   requireGenePlaceholder?: string // placeholder if geneId required & none is set
-  requireGenePrompt?: string // placeholder prompt displayed when geneId set
+  requireGenePrompt?: string // placeholder prompt displayed after geneId set
 }
 
 export interface CvcVariantSelectFieldConfig
@@ -82,18 +78,12 @@ export class CvcVariantSelectField
 
   // LOCAL SOURCE STREAMS
   onGeneName$: BehaviorSubject<Maybe<string>>
-  onVariantCreate$: Subject<number>
 
   // LOCAL PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
 
   // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
-
-  queryRef!: QueryRef<
-    VariantSelectTypeaheadQuery,
-    VariantSelectTypeaheadQueryVariables
-  >
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcVariantSelectFieldProps>> = {
@@ -103,16 +93,13 @@ export class CvcVariantSelectField
       requireGene: true,
       requireGenePlaceholder: 'Search GENE_NAME Variants',
       requireGenePrompt: 'Select a Gene to search Variants',
-      isRepeatItem: false,
+      isMultiSelect: false,
       entityName: { singular: 'Variant', plural: 'Variant' },
-      selectMessages: {
-        focus: 'Enter query to search',
-        loading: 'Searching Variants',
-        notfound: 'No Variants found matching "SEARCH_STRING"',
-        create: 'No Variant found matching "SEARCH_STRING", create a new one?',
-      },
     },
   }
+
+  @ViewChildren('optionTemplates', { read: TemplateRef })
+  optionTemplates?: QueryList<TemplateRef<any>>
 
   constructor(
     public injector: Injector,
@@ -122,8 +109,8 @@ export class CvcVariantSelectField
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
+    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
     this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
-    this.onVariantCreate$ = new Subject<number>()
   }
 
   ngAfterViewInit(): void {
@@ -133,40 +120,14 @@ export class CvcVariantSelectField
       typeaheadQuery: this.taq,
       typeaheadParam$: this.onGeneId$ ? this.onGeneId$ : undefined,
       tagQuery: this.tq,
-      getTypeaheadVarsFn: (str: string, param: Maybe<number>) => ({
-        name: str,
-        geneId: param,
-      }),
-      getTypeaheadResultsFn: (
-        r: ApolloQueryResult<VariantSelectTypeaheadQuery>
-      ) => r.data.variants.nodes,
-      getTagQueryVarsFn: (id: number) => ({ variantId: id }),
-      getTagQueryResultsFn: (r: ApolloQueryResult<VariantSelectTagQuery>) =>
-        r.data.variant,
+      getTypeaheadVarsFn: this.getTypeaheadVarsFn,
+      getTypeaheadResultsFn: this.getTypeaheadResultsFn,
+      getTagQueryVarsFn: this.getTagQueryVarsFn,
+      getTagQueryResultsFn: this.getTagQueryResultsFn,
       getSelectedItemOptionFn: this.getSelectedItemOptionFn,
-      getSelectOptionsFn: (
-        results: VariantSelectTypeaheadFieldsFragment[],
-        tplRefs: QueryList<TemplateRef<any>>
-      ): NzSelectOptionInterface[] => {
-        return results.map(
-          (drug: VariantSelectTypeaheadFieldsFragment, index: number) => {
-            return <NzSelectOptionInterface>{
-              label: tplRefs.get(index) || drug.name,
-              value: drug.id,
-            }
-          }
-        )
-      },
+      getSelectOptionsFn: this.getSelectOptionsFn,
       changeDetectorRef: this.changeDetectorRef,
     })
-
-    // hook up state geneId$ observable, possibly attached in
-    // configureStateConnections()
-    if (this.onGeneId$) {
-      this.onGeneId$.subscribe((gid) => {
-        this.onGeneId(gid)
-      })
-    }
 
     // set initial placeholder & subject
     let initialPlaceholder: string
@@ -176,20 +137,28 @@ export class CvcVariantSelectField
       initialPlaceholder = this.props.placeholder
     }
     this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
-
-    // if field's formControl has already been assigned a value
-    // (e.g. via query-param extension, saved form state,
-    // model initialization), emit onValueChange$, state valueChange$ events
-    if (this.field.formControl.value) {
-      const v = this.field.formControl.value
-      this.onValueChange$.next(v)
-    }
-
-    // emit value change if new variant created by quick-add form
-    this.onVariantCreate$.pipe(untilDestroyed(this)).subscribe((v) => {
-      this.onValueChange$.next(v)
-    })
   } // ngAfterViewInit
+
+  getTypeaheadVarsFn(str: string, param: Maybe<number>) {
+    return {
+      name: str,
+      geneId: param,
+    }
+  }
+
+  getTypeaheadResultsFn(r: ApolloQueryResult<VariantSelectTypeaheadQuery>) {
+    return r.data.variants.nodes
+  }
+
+  getTagQueryVarsFn(id: number): VariantSelectTagQueryVariables {
+    return { variantId: id }
+  }
+
+  getTagQueryResultsFn(
+    r: ApolloQueryResult<VariantSelectTagQuery>
+  ): Maybe<VariantSelectTypeaheadFieldsFragment> {
+    return r.data.variant
+  }
 
   getSelectedItemOptionFn(
     variant: VariantSelectTypeaheadFieldsFragment
@@ -268,10 +237,4 @@ export class CvcVariantSelectField
     }
   }
 
-  // optionTrackBy: TrackByFunction<VariantSelectTypeaheadFieldsFragment> = (
-  //   _index: number,
-  //   option: VariantSelectTypeaheadFieldsFragment
-  // ): number => {
-  //   return option.id
-  // }
 }

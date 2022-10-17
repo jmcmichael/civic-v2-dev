@@ -1,51 +1,72 @@
-
 <cvc-entity-select
+  [cvcSelectMode]="props.isMultiSelect ? 'multiple' : 'default'"
+  [cvcCustomTemplate]="selectedTemplate"
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
   [cvcEntityName]="props.entityName"
-  [cvcSelectMessages]="props.selectMessages"
-  [cvcResults]="result$ | ngrxPush"
   [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
-  [cvcShowError]="showError"
+  [cvcResults]="result$ | ngrxPush"
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
+  [cvcOptions]="(selectOption$ | ngrxPush)!"
+  [cvcShowError]="showError"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcAddEntity]="props.requireGene ? addVariant : null"
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
 
-<!-- option extra tpl to display list of aliases after tag -->
+<!-- select option templates -->
+<!-- each search result$ creates an individual template, which is
+    dynamically attached to an NzSelectOptionTemplateInterface object in
+    optionTemplates.changes.subscribe()-->
+<ng-container *ngrxLet="onSearch$ as searchString">
+  <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
+    <ng-template #optionTemplates>
+      <cvc-entity-tag
+        [cvcCacheId]="result.__typename + ':' + result.id"
+        [cvcEmphasize]="searchString"></cvc-entity-tag>
+      <span
+        nz-typography
+        nzType="secondary">
+        Aliases:
+        <ng-container *ngIf="result.variantAliases.length > 0; else noAliases">
+          <em>
+            <span
+              nz-typography
+              nzType="secondary"
+              [innerHtml]="
+                result.variantAliases.join(', ') | highlightTypeahead: searchString
+              "></span
+          ></em>
+        </ng-container>
+        <ng-template #noAliases>--</ng-template>
+      </span>
+    </ng-template>
+  </ng-container>
+</ng-container>
+
+<!-- selected option item template -->
+<!-- displays entity tag, specifying context and mode depending on
+    if field is multi-select or single -->
 <ng-template
-  #optionExtra
-  let-item
-  let-searchString="searchStr">
-  <span
-    nz-typography
-    nzType="secondary">
-    <ng-container *ngIf="item.variantAliases.length > 0">
-      <em>
-        <span
-          nz-typography
-          nzType="secondary"
-          [innerHtml]="
-            item.variantAliases.join(', ') | highlightTypeahead: searchString
-          "></span
-      ></em>
-    </ng-container>
-  </span>
+  #selectedTemplate
+  let-selected>
+  <div class="ant-select-selection-item-content">
+    <cvc-entity-tag
+      [cvcCacheId]="'Variant:' + selected.nzValue"
+      [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'select-item'"
+      [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
+      (cvcOnClose)="onTagClose$.next(selected.nzValue)"></cvc-entity-tag>
+  </div>
 </ng-template>
 
-<!-- add variant tpl, to display when no results found for query -->
-<ng-template
+<!-- quick-add button's popup template -->
+<!-- <ng-template
   #addVariant
   let-searchStr
   let-createMsg>
-  <!-- TODO: create an "Created Variant" success alert to take the place of the createMsg alert after a variant is created. alert should be displayed for a couple of seconds, then field's valueChange$.next(id) called. -->
   <cvc-variant-quick-add-form
     [cvcSearchString]="searchStr"
-    [cvcGeneId]="(onGeneId$ | ngrxPush)!"
-    [cvcGeneName]="(onGeneName$ | ngrxPush)!"
-    (cvcOnCreate)="onVariantCreate$.next($event)">
+    (cvcOnCreate)="onCreate$.next($event)">
   </cvc-variant-quick-add-form>
-</ng-template>
+</ng-template> -->
