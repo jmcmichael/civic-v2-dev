@@ -122,14 +122,6 @@ export class CvcDrugSelectField
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
     this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
-
-    // export interface NzSelectOptionInterface {
-    //   label: string | number | null | TemplateRef<NzSafeAny>;
-    //   value: NzSafeAny | null;
-    //   disabled?: boolean;
-    //   hide?: boolean;
-    //   groupLabel?: string | number | TemplateRef<NzSafeAny> | null;
-    // }
   }
 
   // FieldTypeConfig defaults
@@ -152,76 +144,33 @@ export class CvcDrugSelectField
       getTypeaheadResultsFn: (r: ApolloQueryResult<DrugSelectTypeaheadQuery>) =>
         r.data.drugTypeahead,
       getTagQueryVarsFn: (id: number) => ({ id: id }),
-      getTagCacheIdFromResponseFn: (r: ApolloQueryResult<LinkableDrugQuery>) =>
-        `Drug:${r.data.drug!.id}`,
+      getTagQueryResultsFn: (r: ApolloQueryResult<DrugSelectPrepopulateQuery>) =>
+        r.data.drug,
       getSelectOptionsFromResultsFn: (
         results: DrugSelectTypeaheadFieldsFragment[],
-        tplRefs: QueryList<TemplateRef<any>>
+        tplRefs: QueryList<TemplateRef<any>>,
+        mode: 'label' | 'template' = 'label'
       ): NzSelectOptionInterface[] => {
-        return results.map((drug: DrugSelectTypeaheadFieldsFragment, index: number) => {
-          return <NzSelectOptionInterface>{
-            label: tplRefs.get(index) || drug.name,
-            value: drug.id,
+        return results.map(
+          (drug: DrugSelectTypeaheadFieldsFragment, index: number) => {
+            if (mode === 'label') {
+              return <NzSelectOptionInterface>{
+                label: drug.name,
+                value: drug.id,
+              }
+            } else {
+              return <NzSelectOptionInterface>{
+                label: tplRefs.get(index) || drug.name,
+                value: drug.id,
+              }
+            }
           }
-        })
+        )
       },
       changeDetectorRef: this.changeDetectorRef,
     })
-
-
-    // if a prepopulated form value exists, set by the observe-query-param extension,
-    // use tagQuery to create select option(s) for it so that nz-select's tags render
-    if (this.formControl.value) {
-      const v = this.formControl.value
-      if (Object.keys(v).length > 0 && v.constructor === Object) {
-        console.error(
-          `${this.field.id} prepopulated value must be a primitive or array of primitives, value is an object:`,
-          v
-        )
-        return
-      }
-      let queries: Observable<DrugSelectPrepopulateQuery>[]
-      // wrap primitives in array
-      if (typeof v === 'number') {
-        queries = this.getFetchFn([v])
-      } else {
-        queries = this.getFetchFn(v)
-      }
-      combineLatestArray(queries)
-        .pipe(
-          // tag(`${this.field.id} combineLatestArray(queries)`),
-          map((data) => {
-            if (!(data.length > 0)) return []
-            if (!data.every(({ drug }) => drug !== undefined)) return []
-            return data.map(({ drug }) => {
-              const d = drug as DrugSelectTypeaheadFieldsFragment
-              return {
-                label: d.name,
-                value: d.id,
-              }
-            })
-          })
-        )
-        .subscribe((options) => {
-          if (!options || !options.every((o) => typeof o !== 'undefined')) {
-            console.error(
-              `${this.field.id} prepopulate select options error: one or more option requests failed.`,
-              options
-            )
-          }
-          this.selectOption$.next(options)
-        })
-    }
   } // ngAfterViewInit()
 
-  getFetchFn(ids: number[]): Observable<DrugSelectPrepopulateQuery>[] {
-    const queries = ids.map((id) =>
-      this.tq
-        .fetch({ id: id }, { fetchPolicy: 'cache-first' })
-        .pipe(pluck('data'), filter(isNonNulled))
-    )
-    return queries
-  }
 
   configureStateConnections(): void {
     this.state = this.field.options?.formState

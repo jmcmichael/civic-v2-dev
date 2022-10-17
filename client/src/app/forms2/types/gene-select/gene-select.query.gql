@@ -4,18 +4,16 @@ query GeneSelectTypeahead($entrezSymbol: String!) {
   }
 }
 
+query GeneSelectPrepopulate($geneId: Int!) {
+  gene(id: $geneId) {
+    ...GeneSelectTypeaheadFields
+  }
+}
+
 fragment GeneSelectTypeaheadFields on Gene {
   id
   entrezId
   name
   geneAliases
   link
-}
-
-query GeneSelectLinkableGene($geneId: Int!) {
-  gene(id: $geneId) {
-    id
-    name
-    link
-  }
 }

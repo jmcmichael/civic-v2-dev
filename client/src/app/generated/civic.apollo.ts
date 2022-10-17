@@ -6165,14 +6165,14 @@ export type GeneSelectTypeaheadQueryVariables = Exact<{
 
 export type GeneSelectTypeaheadQuery = { __typename: 'Query', geneTypeahead: Array<{ __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string }> };
 
-export type GeneSelectTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
-
-export type GeneSelectLinkableGeneQueryVariables = Exact<{
+export type GeneSelectPrepopulateQueryVariables = Exact<{
   geneId: Scalars['Int'];
 }>;
 
 
-export type GeneSelectLinkableGeneQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, name: string, link: string } | undefined };
+export type GeneSelectPrepopulateQuery = { __typename: 'Query', gene?: { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string } | undefined };
+
+export type GeneSelectTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
 export type QuickAddVariantMutationVariables = Exact<{
   name: Scalars['String'];
@@ -6192,14 +6192,14 @@ export type VariantSelectTypeaheadQueryVariables = Exact<{
 
 export type VariantSelectTypeaheadQuery = { __typename: 'Query', variants: { __typename: 'VariantConnection', nodes: Array<{ __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } }> } };
 
-export type VariantSelectTypeaheadFieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
-
-export type VariantSelectLinkableVariantQueryVariables = Exact<{
+export type VariantSelectPrepopulateQueryVariables = Exact<{
   variantId: Scalars['Int'];
 }>;
 
 
-export type VariantSelectLinkableVariantQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string } | undefined };
+export type VariantSelectPrepopulateQuery = { __typename: 'Query', variant?: { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } } | undefined };
+
+export type VariantSelectTypeaheadFieldsFragment = { __typename: 'Variant', id: number, name: string, link: string, variantAliases: Array<string>, singleVariantMolecularProfileId: number, singleVariantMolecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string } };
 
 export type AssertionDetailQueryVariables = Exact<{
   assertionId: Scalars['Int'];
@@ -11755,21 +11755,19 @@ export const GeneSelectTypeaheadDocument = gql`
       super(apollo);
     }
   }
-export const GeneSelectLinkableGeneDocument = gql`
-    query GeneSelectLinkableGene($geneId: Int!) {
+export const GeneSelectPrepopulateDocument = gql`
+    query GeneSelectPrepopulate($geneId: Int!) {
   gene(id: $geneId) {
-    id
-    name
-    link
+    ...GeneSelectTypeaheadFields
   }
 }
-    `;
+    ${GeneSelectTypeaheadFieldsFragmentDoc}`;
 
   @Injectable({
     providedIn: 'root'
   })
-  export class GeneSelectLinkableGeneGQL extends Apollo.Query<GeneSelectLinkableGeneQuery, GeneSelectLinkableGeneQueryVariables> {
-    document = GeneSelectLinkableGeneDocument;
+  export class GeneSelectPrepopulateGQL extends Apollo.Query<GeneSelectPrepopulateQuery, GeneSelectPrepopulateQueryVariables> {
+    document = GeneSelectPrepopulateDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);
@@ -11813,21 +11811,19 @@ export const VariantSelectTypeaheadDocument = gql`
       super(apollo);
     }
   }
-export const VariantSelectLinkableVariantDocument = gql`
-    query VariantSelectLinkableVariant($variantId: Int!) {
+export const VariantSelectPrepopulateDocument = gql`
+    query VariantSelectPrepopulate($variantId: Int!) {
   variant(id: $variantId) {
-    id
-    name
-    link
+    ...VariantSelectTypeaheadFields
   }
 }
-    `;
+    ${VariantSelectTypeaheadFieldsFragmentDoc}`;
 
   @Injectable({
     providedIn: 'root'
   })
-  export class VariantSelectLinkableVariantGQL extends Apollo.Query<VariantSelectLinkableVariantQuery, VariantSelectLinkableVariantQueryVariables> {
-    document = VariantSelectLinkableVariantDocument;
+  export class VariantSelectPrepopulateGQL extends Apollo.Query<VariantSelectPrepopulateQuery, VariantSelectPrepopulateQueryVariables> {
+    document = VariantSelectPrepopulateDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

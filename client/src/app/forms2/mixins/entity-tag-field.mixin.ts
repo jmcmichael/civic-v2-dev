@@ -30,7 +30,7 @@ import {
   throttleTime,
   withLatestFrom,
 } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
+import { combineLatestArray, isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
@@ -44,12 +44,13 @@ export type GetTypeaheadResultsFn<TAT, TAF> = (
 ) => TAF[]
 export type GetTypeaheadParamFn = () => Observable<Maybe<string | number>>
 export type GetTagQueryVarsFn<TV extends EmptyObject> = (id: number) => TV
-export type GetTagCacheIdFromResponseFn<TT> = (
+export type GetTagQueryResultsFn<TT, TAF> = (
   response: ApolloQueryResult<TT>
-) => string
+) => Maybe<TAF>
 export type GetSelectOptionsFromResultsFn<TAF> = (
   results: TAF[],
-  tplRefs: QueryList<TemplateRef<any>>
+  tplRefs: QueryList<TemplateRef<any>>,
+  mode: 'label' | 'template'
 ) => NzSelectOptionInterface[]
 
 export interface EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV> {
@@ -59,7 +60,7 @@ export interface EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV> {
   getTypeaheadVarsFn: GetTypeaheadVarsFn<TAV, TAP>
   getTypeaheadResultsFn: GetTypeaheadResultsFn<TAT, TAF>
   getTagQueryVarsFn: GetTagQueryVarsFn<TV>
-  getTagCacheIdFromResponseFn: GetTagCacheIdFromResponseFn<TT>
+  getTagQueryResultsFn: GetTagQueryResultsFn<TT, TAF>
   getSelectOptionsFromResultsFn: GetSelectOptionsFromResultsFn<TAF>
   changeDetectorRef: ChangeDetectorRef
 }
@@ -103,13 +104,14 @@ export function EntityTagField<
 
       // config option queries
       private typeaheadQuery!: Query<TAT, TAV>
+      private tagQuery!: Query<TT, TV>
       typeaheadParam$?: Observable<any> // additional param for typeahead query
 
       // config options getter fns
       getTypeaheadVars!: GetTypeaheadVarsFn<TAV, TAP>
       getTypeahedResults!: GetTypeaheadResultsFn<TAT, TAF>
       getTagQueryVars!: GetTagQueryVarsFn<TV>
-      getTagCacheIdFromResponse!: GetTagCacheIdFromResponseFn<TT>
+      getTagQueryResults!: GetTagQueryResultsFn<TT, TAF>
       getSelectOptionsFromResults!: GetSelectOptionsFromResultsFn<TAF>
       cdr!: ChangeDetectorRef
 
@@ -121,10 +123,11 @@ export function EntityTagField<
         options?: EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV>
       ): void {
         this.typeaheadQuery = options!.typeaheadQuery
+        this.tagQuery = options!.tagQuery
         this.getTypeaheadVars = options!.getTypeaheadVarsFn
         this.getTypeahedResults = options!.getTypeaheadResultsFn
         this.getTagQueryVars = options!.getTagQueryVarsFn
-        this.getTagCacheIdFromResponse = options!.getTagCacheIdFromResponseFn
+        this.getTagQueryResults = options!.getTagQueryResultsFn
         this.getSelectOptionsFromResults =
           options!.getSelectOptionsFromResultsFn
         this.typeaheadParam$ = options!.typeaheadParam$
@@ -237,7 +240,8 @@ export function EntityTagField<
               ([tplRefs, results]: [QueryList<TemplateRef<any>>, TAF[]]) => {
                 const options = this.getSelectOptionsFromResults(
                   results,
-                  tplRefs
+                  tplRefs,
+                  'template'
                 )
                 this.selectOption$.next(options)
                 this.cdr.detectChanges()
@@ -252,7 +256,60 @@ export function EntityTagField<
         this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
           this.resetField()
         })
+
+        // if a prepopulated form value exists, set by the observe-query-param extension,
+        // use tagQuery to create select option(s) for it so that nz-select's tags render
+        if (this.formControl.value) {
+          const v = this.formControl.value
+          if (Object.keys(v).length > 0 && v.constructor === Object) {
+            console.error(
+              `${this.field.id} prepopulated value must be a primitive or array of primitives, value is an object:`,
+              v
+            )
+            return
+          }
+          let queries: Observable<TT>[]
+          // wrap primitives in array
+          if (typeof v === 'number') {
+            queries = this.getFetchFn([v])
+          } else {
+            queries = this.getFetchFn(v)
+          }
+          combineLatestArray(queries)
+            .pipe(
+              // tag(`${this.field.id} combineLatestArray(queries)`),
+              map((data) => {
+                if (!(data.length > 0)) return []
+                if (!data.every(({ drug }) => drug !== undefined)) return []
+                return data.map(({ drug }) => {
+                  const d = drug as TF
+                  return {
+                    label: d.name,
+                    value: d.id,
+                  }
+                })
+              })
+            )
+            .subscribe((options) => {
+              if (!options || !options.every((o) => typeof o !== 'undefined')) {
+                console.error(
+                  `${this.field.id} prepopulate select options error: one or more option requests failed.`,
+                  options
+                )
+              }
+              this.selectOption$.next(options)
+            })
+        }
       } // end configureDisplayEntityTag()
+
+      getFetchFn(ids: number[]): Observable<TT>[] {
+        const queries = ids.map((id) =>
+          this.tagQuery
+            .fetch(this.getTagQueryVars(id), { fetchPolicy: 'cache-first' })
+            .pipe(pluck('data'), filter(isNonNulled))
+        )
+        return queries
+      }
 
       resetField() {
         this.formControl.setValue(undefined)

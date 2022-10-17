@@ -6,7 +6,6 @@ import {
   Injector,
   QueryList,
   TemplateRef,
-  TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
@@ -18,14 +17,13 @@ import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATE
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
-  Gene,
-  GeneSelectLinkableGeneQuery,
-  GeneSelectLinkableGeneQueryVariables,
+  GeneSelectPrepopulateGQL,
+  GeneSelectPrepopulateQuery,
+  GeneSelectPrepopulateQueryVariables,
   GeneSelectTypeaheadFieldsFragment,
   GeneSelectTypeaheadGQL,
   GeneSelectTypeaheadQuery,
   GeneSelectTypeaheadQueryVariables,
-  LinkableGeneGQL,
   Maybe,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
@@ -33,7 +31,6 @@ import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
-import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
@@ -54,9 +51,9 @@ const GeneSelectMixin = mixin(
     GeneSelectTypeaheadQuery,
     GeneSelectTypeaheadQueryVariables,
     GeneSelectTypeaheadFieldsFragment,
-    GeneSelectLinkableGeneQuery,
-    GeneSelectLinkableGeneQueryVariables,
-    Gene
+    GeneSelectPrepopulateQuery,
+    GeneSelectPrepopulateQueryVariables,
+    GeneSelectTypeaheadFieldsFragment
   >()
 )
 
@@ -98,7 +95,7 @@ export class CvcGeneSelectField
   constructor(
     public injector: Injector,
     private taq: GeneSelectTypeaheadGQL,
-    private tq: LinkableGeneGQL,
+    private tq: GeneSelectPrepopulateGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
@@ -114,9 +111,9 @@ export class CvcGeneSelectField
       getTypeaheadResultsFn: (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) =>
         r.data.geneTypeahead,
       getTagQueryVarsFn: (id: number) => ({ geneId: id }),
-      getTagCacheIdFromResponseFn: (
-        r: ApolloQueryResult<GeneSelectLinkableGeneQuery>
-      ) => `Gene:${r.data.gene!.id}`,
+      getTagQueryResultsFn: (
+        r: ApolloQueryResult<GeneSelectPrepopulateQuery>
+      ) => r.data.gene,
       getSelectOptionsFromResultsFn: (
         results: GeneSelectTypeaheadFieldsFragment[],
         tplRefs: QueryList<TemplateRef<any>>

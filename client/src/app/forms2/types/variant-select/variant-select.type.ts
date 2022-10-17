@@ -6,7 +6,6 @@ import {
   Injector,
   QueryList,
   TemplateRef,
-  TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
@@ -19,11 +18,10 @@ import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
   LinkableGeneGQL,
-  LinkableVariantGQL,
-  LinkableVariantQuery,
-  LinkableVariantQueryVariables,
   Maybe,
-  Variant,
+  VariantSelectPrepopulateGQL,
+  VariantSelectPrepopulateQuery,
+  VariantSelectPrepopulateQueryVariables,
   VariantSelectTypeaheadFieldsFragment,
   VariantSelectTypeaheadGQL,
   VariantSelectTypeaheadQuery,
@@ -61,9 +59,9 @@ const VariantSelectMixin = mixin(
     VariantSelectTypeaheadQuery,
     VariantSelectTypeaheadQueryVariables,
     VariantSelectTypeaheadFieldsFragment,
-    LinkableVariantQuery,
-    LinkableVariantQueryVariables,
-    Variant,
+    VariantSelectPrepopulateQuery,
+    VariantSelectPrepopulateQueryVariables,
+    VariantSelectTypeaheadFieldsFragment,
     Maybe<number>
   >()
 )
@@ -120,7 +118,7 @@ export class CvcVariantSelectField
   constructor(
     public injector: Injector,
     private taq: VariantSelectTypeaheadGQL,
-    private tq: LinkableVariantGQL,
+    private tq: VariantSelectPrepopulateGQL,
     private geneQuery: LinkableGeneGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
@@ -144,9 +142,9 @@ export class CvcVariantSelectField
         r: ApolloQueryResult<VariantSelectTypeaheadQuery>
       ) => r.data.variants.nodes,
       getTagQueryVarsFn: (id: number) => ({ variantId: id }),
-      getTagCacheIdFromResponseFn: (
-        r: ApolloQueryResult<LinkableVariantQuery>
-      ) => `Variant:${r.data.variant!.id}`,
+      getTagQueryResultsFn: (
+        r: ApolloQueryResult<VariantSelectPrepopulateQuery>
+      ) => r.data.variant,
       getSelectOptionsFromResultsFn: (
         results: VariantSelectTypeaheadFieldsFragment[],
         tplRefs: QueryList<TemplateRef<any>>

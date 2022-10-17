@@ -1,8 +1,14 @@
 query VariantSelectTypeahead($name: String!, $geneId: Int) {
   variants(name: $name, geneId: $geneId, first: 50) {
     nodes {
-      ... VariantSelectTypeaheadFields
+      ...VariantSelectTypeaheadFields
     }
+  }
+}
+
+query VariantSelectPrepopulate($variantId: Int!) {
+  variant(id: $variantId) {
+    ...VariantSelectTypeaheadFields
   }
 }
 
@@ -13,14 +19,6 @@ fragment VariantSelectTypeaheadFields on Variant {
   variantAliases
   singleVariantMolecularProfileId
   singleVariantMolecularProfile {
-    id
-    name
-    link
-  }
-}
-
-query VariantSelectLinkableVariant($variantId: Int!) {
-  variant(id: $variantId) {
     id
     name
     link
