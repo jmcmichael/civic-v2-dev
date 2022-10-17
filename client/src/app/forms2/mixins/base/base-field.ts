@@ -1,4 +1,4 @@
-import { Component, Injector } from '@angular/core'
+import { ChangeDetectorRef, Component, Injector } from '@angular/core'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
@@ -17,13 +17,7 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
     // e.g. query param, tag close, restore saved form state
     onValueChange$!: BehaviorSubject<Maybe<V>>
 
-    // Mixins cannot define a constructor, so mixin base components
-    // provide the ng injector that mixins may inject any required
-    // dependencies with this.injector.get().
-    // NOTE: all components using this base will need to pass the
-    // injector with their super() calls, e.g.
-    // constructor(public injector: Injector) { super(injector) }
-    constructor(public injector: Injector) {
+    constructor() {
       super() // call abstract FieldType's constructor
     }
 

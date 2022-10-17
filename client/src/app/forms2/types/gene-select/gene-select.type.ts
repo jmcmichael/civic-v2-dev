@@ -1,13 +1,19 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Injector,
+  QueryList,
+  TemplateRef,
   TrackByFunction,
   Type,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { CvcSelectEntityName, CvcSelectMessageOptions } from '@app/forms2/components/entity-select/entity-select.component'
+import {
+  CvcSelectEntityName,
+  CvcSelectMessageOptions,
+} from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
@@ -25,6 +31,7 @@ import {
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
@@ -91,28 +98,40 @@ export class CvcGeneSelectField
   constructor(
     public injector: Injector,
     private taq: GeneSelectTypeaheadGQL,
-    private tq: LinkableGeneGQL
+    private tq: LinkableGeneGQL,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
   }
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
-    this.configureEntityTagField(
-      {
-        typeaheadQuery: this.taq,
-        typeaheadParam$: undefined,
-        tagQuery: this.tq,
-        getTypeaheadVarsFn: (str: string) => ({ entrezSymbol: str }),
-        getTypeaheadResultsFn: (
-          r: ApolloQueryResult<GeneSelectTypeaheadQuery>
-        ) => r.data.geneTypeahead,
-        getTagQueryVarsFn: (id: number) => ({ geneId: id }),
-        getTagCacheIdFromResponseFn: (
-          r: ApolloQueryResult<GeneSelectLinkableGeneQuery>
-        ) => `Gene:${r.data.gene!.id}`,
-      }
-    )
+    this.configureEntityTagField({
+      typeaheadQuery: this.taq,
+      typeaheadParam$: undefined,
+      tagQuery: this.tq,
+      getTypeaheadVarsFn: (str: string) => ({ entrezSymbol: str }),
+      getTypeaheadResultsFn: (r: ApolloQueryResult<GeneSelectTypeaheadQuery>) =>
+        r.data.geneTypeahead,
+      getTagQueryVarsFn: (id: number) => ({ geneId: id }),
+      getTagCacheIdFromResponseFn: (
+        r: ApolloQueryResult<GeneSelectLinkableGeneQuery>
+      ) => `Gene:${r.data.gene!.id}`,
+      getSelectOptionsFromResultsFn: (
+        results: GeneSelectTypeaheadFieldsFragment[],
+        tplRefs: QueryList<TemplateRef<any>>
+      ): NzSelectOptionInterface[] => {
+        return results.map(
+          (drug: GeneSelectTypeaheadFieldsFragment, index: number) => {
+            return <NzSelectOptionInterface>{
+              label: tplRefs.get(index) || drug.name,
+              value: drug.id,
+            }
+          }
+        )
+      },
+      changeDetectorRef: this.changeDetectorRef,
+    })
     this.configureStateConnections() // local fn
     this.configureOnTagClose() // local fn
     this.configureInitialValueHandler() // local fn

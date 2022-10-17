@@ -118,7 +118,7 @@ export class CvcDrugSelectField
     public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
     private tq: DrugSelectPrepopulateGQL,
-    private cdr: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
@@ -146,73 +146,32 @@ export class CvcDrugSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections()
-    this.configureEntityTagField(
-      {
-        typeaheadQuery: this.taq,
-        typeaheadParam$: undefined,
-        tagQuery: this.tq,
-        getTypeaheadVarsFn: (str: string) => ({ name: str }),
-        getTypeaheadResultsFn: (
-          r: ApolloQueryResult<DrugSelectTypeaheadQuery>
-        ) => r.data.drugTypeahead,
-        getTagQueryVarsFn: (id: number) => ({ id: id }),
-        getTagCacheIdFromResponseFn: (
-          r: ApolloQueryResult<LinkableDrugQuery>
-        ) => `Drug:${r.data.drug!.id}`,
-      }
-    )
-
-    if (!this.optionTemplates) {
-      console.warn(
-        `${this.field.id} could not find reference to optionTemplates ViewChildren, options will only show entity name text.`
-      )
-      this.result$
-        .pipe(untilDestroyed(this))
-        .subscribe((r: DrugSelectTypeaheadFieldsFragment[]) => {
-          this.selectOption$.next(
-            r.map((drug) => {
-              return {
-                label: drug.name,
-                value: drug.id,
-              }
-            })
-          )
-        })
-    } else {
-      // subscribe to optionTemplates ViewChildren changes,
-      // which are re-rendered whenever result$ emits. Combine
-      // option templates with results, and for each result,
-      // attach its template to a NzSelectOptionInterface object's label,
-      // and set the value to the entity id.
-      this.optionTemplates.changes
-        .pipe(
-          tag(`${this.field.id} optionTemplates.changes`),
-          withLatestFrom(this.result$),
-          untilDestroyed(this)
-        )
-        .subscribe(
-          ([tplRefs, results]: [QueryList<TemplateRef<any>>, Drug[]]) => {
-            this.selectOption$.next(
-              results.map((drug: Drug, index: number) => {
-                return <NzSelectOptionInterface>{
-                  label: tplRefs.get(index) || drug.name,
-                  value: drug.id,
-                }
-              })
-            )
-            this.cdr.detectChanges()
+    this.configureEntityTagField({
+      typeaheadQuery: this.taq,
+      typeaheadParam$: undefined,
+      tagQuery: this.tq,
+      getTypeaheadVarsFn: (str: string) => ({ name: str }),
+      getTypeaheadResultsFn: (r: ApolloQueryResult<DrugSelectTypeaheadQuery>) =>
+        r.data.drugTypeahead,
+      getTagQueryVarsFn: (id: number) => ({ id: id }),
+      getTagCacheIdFromResponseFn: (r: ApolloQueryResult<LinkableDrugQuery>) =>
+        `Drug:${r.data.drug!.id}`,
+      getSelectOptionsFromResultsFn: (
+        results: DrugSelectTypeaheadFieldsFragment[],
+        tplRefs: QueryList<TemplateRef<any>>
+      ): NzSelectOptionInterface[] => {
+        return results.map((drug: DrugSelectTypeaheadFieldsFragment, index: number) => {
+          return <NzSelectOptionInterface>{
+            label: tplRefs.get(index) || drug.name,
+            value: drug.id,
           }
-        )
-    }
+        })
+      },
+      changeDetectorRef: this.changeDetectorRef,
+    })
 
     this.onCreate$.pipe(untilDestroyed(this)).subscribe((drug: Drug) => {
-      console.log(`${this.field.id} onCreate$ called: ${drug}`)
       this.selectOption$.next([{ label: drug.name, value: drug.id }])
-      if (this.props.isMultiSelect) {
-        console.log('is multiSelect')
-      } else {
-        console.log('is not multiSelect')
-      }
     })
 
     // if a prepopulated form value exists, set by the observe-query-param extension,
@@ -276,10 +235,9 @@ export class CvcDrugSelectField
 
   getFetchFn(ids: number[]): Observable<DrugSelectPrepopulateQuery>[] {
     const queries = ids.map((id) =>
-      this.tq.fetch({ id: id }, { fetchPolicy: 'cache-first' }).pipe(
-        pluck('data'),
-        filter(isNonNulled)
-      )
+      this.tq
+        .fetch({ id: id }, { fetchPolicy: 'cache-first' })
+        .pipe(pluck('data'), filter(isNonNulled))
     )
     return queries
   }

@@ -1,4 +1,10 @@
-import { Injectable, TrackByFunction } from '@angular/core'
+import {
+  ChangeDetectorRef,
+  Injectable,
+  QueryList,
+  TemplateRef,
+  TrackByFunction,
+} from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { InputMaybe, Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
@@ -41,6 +47,10 @@ export type GetTagQueryVarsFn<TV extends EmptyObject> = (id: number) => TV
 export type GetTagCacheIdFromResponseFn<TT> = (
   response: ApolloQueryResult<TT>
 ) => string
+export type GetSelectOptionsFromResultsFn<TAF> = (
+  results: TAF[],
+  tplRefs: QueryList<TemplateRef<any>>
+) => NzSelectOptionInterface[]
 
 export interface EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV> {
   typeaheadQuery: Query<TAT, TAV>
@@ -50,6 +60,8 @@ export interface EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV> {
   getTypeaheadResultsFn: GetTypeaheadResultsFn<TAT, TAF>
   getTagQueryVarsFn: GetTagQueryVarsFn<TV>
   getTagCacheIdFromResponseFn: GetTagCacheIdFromResponseFn<TT>
+  getSelectOptionsFromResultsFn: GetSelectOptionsFromResultsFn<TAF>
+  changeDetectorRef: ChangeDetectorRef
 }
 
 export function EntityTagField<
@@ -83,34 +95,38 @@ export function EntityTagField<
       // PRESENTATION STREAMS
       result$!: Observable<TAF[]> // typeahead query results
       isLoading$!: Subject<boolean> // typeahead query loading bool
+      selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
       tagCacheId$!: Subject<Maybe<string>> // emits cache IDs for rendering entity-tag
 
       // CONFIG OPTIONS
 
-      // QUERIES
+      // config option queries
       private typeaheadQuery!: Query<TAT, TAV>
-      private tagQuery!: Query<TT, TV>
       typeaheadParam$?: Observable<any> // additional param for typeahead query
 
-      // GETTER FUNCTIONS
+      // config options getter fns
       getTypeaheadVars!: GetTypeaheadVarsFn<TAV, TAP>
       getTypeahedResults!: GetTypeaheadResultsFn<TAT, TAF>
       getTagQueryVars!: GetTagQueryVarsFn<TV>
       getTagCacheIdFromResponse!: GetTagCacheIdFromResponseFn<TT>
+      getSelectOptionsFromResults!: GetSelectOptionsFromResultsFn<TAF>
+      cdr!: ChangeDetectorRef
 
+      // LOCAL REFS
       queryRef!: QueryRef<TAT, TAV>
-      tagEntity!: TF
-      // TODO: remove all tag query GQL & related types - no longer required
+      optionTemplates?: QueryList<TemplateRef<any>>
+
       configureEntityTagField(
         options?: EntityTagFieldOptions<TAT, TAV, TAP, TAF, TT, TV>
       ): void {
         this.typeaheadQuery = options!.typeaheadQuery
-        this.tagQuery = options!.tagQuery
         this.getTypeaheadVars = options!.getTypeaheadVarsFn
         this.getTypeahedResults = options!.getTypeaheadResultsFn
         this.getTagQueryVars = options!.getTagQueryVarsFn
         this.getTagCacheIdFromResponse = options!.getTagCacheIdFromResponseFn
+        this.getSelectOptionsFromResults = options!.getSelectOptionsFromResultsFn
         this.typeaheadParam$ = options!.typeaheadParam$
+        this.cdr = options!.changeDetectorRef
 
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
@@ -188,6 +204,43 @@ export function EntityTagField<
           // tag(`${this.field.id} entity-tag-field.mixin result$`)
         )
 
+        if (!this.optionTemplates) {
+          console.warn(
+            `${this.field.id} could not find reference to optionTemplates ViewChildren, options will only show entity name text.`
+          )
+          this.result$.pipe(untilDestroyed(this)).subscribe((r: TAF[]) => {
+            this.selectOption$.next(
+              r.map((drug) => {
+                return {
+                  label: drug.name,
+                  value: drug.id,
+                }
+              })
+            )
+          })
+        } else {
+          // subscribe to optionTemplates ViewChildren changes,
+          // which are re-rendered whenever result$ emits. Combine
+          // option templates with results, and for each result,
+          // attach its template to a NzSelectOptionInterface object's label,
+          // and set the value to the entity id.
+          this.optionTemplates.changes
+            .pipe(
+              tag(`${this.field.id} optionTemplates.changes`),
+              withLatestFrom(this.result$),
+              untilDestroyed(this)
+            )
+            .subscribe(
+              ([tplRefs, results]: [QueryList<TemplateRef<any>>, TAF[]]) => {
+                const options = this.getSelectOptionsFromResults(
+                  results,
+                  tplRefs
+                )
+                this.selectOption$.next(options)
+                this.cdr.detectChanges()
+              }
+            )
+        }
         this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
           this.resetField()
         })

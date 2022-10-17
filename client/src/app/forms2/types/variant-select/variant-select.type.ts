@@ -1,8 +1,11 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Injector,
+  QueryList,
+  TemplateRef,
   TrackByFunction,
   Type,
 } from '@angular/core'
@@ -33,6 +36,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { QueryRef } from 'apollo-angular'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, lastValueFrom, Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
@@ -117,7 +121,8 @@ export class CvcVariantSelectField
     public injector: Injector,
     private taq: VariantSelectTypeaheadGQL,
     private tq: LinkableVariantGQL,
-    private geneQuery: LinkableGeneGQL
+    private geneQuery: LinkableGeneGQL,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
     this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
@@ -127,24 +132,36 @@ export class CvcVariantSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
-    this.configureEntityTagField(
-      {
-        typeaheadQuery: this.taq,
-        typeaheadParam$: this.onGeneId$ ? this.onGeneId$ : undefined,
-        tagQuery: this.tq,
-        getTypeaheadVarsFn: (str: string, param: Maybe<number>) => ({
-          name: str,
-          geneId: param,
-        }),
-        getTypeaheadResultsFn: (
-          r: ApolloQueryResult<VariantSelectTypeaheadQuery>
-        ) => r.data.variants.nodes,
-        getTagQueryVarsFn: (id: number) => ({ variantId: id }),
-        getTagCacheIdFromResponseFn: (
-          r: ApolloQueryResult<LinkableVariantQuery>
-        ) => `Variant:${r.data.variant!.id}`,
-      }
-    )
+    this.configureEntityTagField({
+      typeaheadQuery: this.taq,
+      typeaheadParam$: this.onGeneId$ ? this.onGeneId$ : undefined,
+      tagQuery: this.tq,
+      getTypeaheadVarsFn: (str: string, param: Maybe<number>) => ({
+        name: str,
+        geneId: param,
+      }),
+      getTypeaheadResultsFn: (
+        r: ApolloQueryResult<VariantSelectTypeaheadQuery>
+      ) => r.data.variants.nodes,
+      getTagQueryVarsFn: (id: number) => ({ variantId: id }),
+      getTagCacheIdFromResponseFn: (
+        r: ApolloQueryResult<LinkableVariantQuery>
+      ) => `Variant:${r.data.variant!.id}`,
+      getSelectOptionsFromResultsFn: (
+        results: VariantSelectTypeaheadFieldsFragment[],
+        tplRefs: QueryList<TemplateRef<any>>
+      ): NzSelectOptionInterface[] => {
+        return results.map(
+          (drug: VariantSelectTypeaheadFieldsFragment, index: number) => {
+            return <NzSelectOptionInterface>{
+              label: tplRefs.get(index) || drug.name,
+              value: drug.id,
+            }
+          }
+        )
+      },
+      changeDetectorRef: this.changeDetectorRef,
+    })
 
     // hook up state geneId$ observable, possibly attached in
     // configureStateConnections()
