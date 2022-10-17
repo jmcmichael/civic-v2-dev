@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
+import { Maybe } from '@app/generated/civic.apollo'
 import { Apollo, gql } from 'apollo-angular'
 import { Subject } from 'rxjs'
 export interface LinkableEntity {
@@ -12,11 +13,14 @@ export interface LinkableEntity {
   styleUrls: ['./entity-tag.component.less'],
 })
 export class CvcEntityTagComponent implements OnInit {
+  _cacheId: string = ''
   @Input()
   set cvcCacheId(cacheId: string) {
-    console.log(`entity-tag cachId: ${cacheId}`)
     if(!cacheId) return
     this.setLinkableEntity(cacheId)
+  }
+  get cvcCacheId(): string {
+    return this._cacheId
   }
   @Input() cvcContext: 'default' | 'select-item' | 'multi-select-item' = "default"
   @Input() cvcMode: 'default' | 'closeable' | 'checkable' = 'default'
@@ -32,6 +36,7 @@ export class CvcEntityTagComponent implements OnInit {
   }
 
   private setLinkableEntity(cacheId: string) {
+    this._cacheId = cacheId
     const [typename, id] = cacheId.split(':')
     this.typename = typename
     this.id = +id
