@@ -69,7 +69,6 @@ export class CvcGeneSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
 
   // STATE OUTPUT STREAMS
   stateValueChange$?: BehaviorSubject<Maybe<number>>
@@ -94,7 +93,6 @@ export class CvcGeneSelectField
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
-    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
   }
 
   ngAfterViewInit(): void {

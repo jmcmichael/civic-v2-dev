@@ -16,7 +16,7 @@
   [nzDisabled]="cvcDisabled"
   [nzLoading]="cvcLoading"
   [nzAllowClear]="cvcAllowClear"
-  [nzOptions]="cvcOptions"
+  [nzOptions]="cvcOptions ? cvcOptions : []"
   [nzCustomTemplate]="cvcCustomTemplate ? cvcCustomTemplate : null"
   [nzNotFoundContent]="notFound"
   (nzFocus)="cvcOnFocus.next()"

@@ -5,7 +5,7 @@
   [cvcFormlyAttributes]="field"
   [cvcEntityName]="props.entityName"
   [cvcResults]="result$ | ngrxPush"
-  [cvcOptions]="(selectOption$ | ngrxPush)!"
+  [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
   [cvcDisabled]="!(onRequiresDrug$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"

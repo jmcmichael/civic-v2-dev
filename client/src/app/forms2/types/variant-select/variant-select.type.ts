@@ -46,7 +46,7 @@ export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcVariantSelectFieldConfig
   extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
-  type: 'variant-select' | 'variant-select-item' | Type<CvcVariantSelectField>
+  type: 'variant-select' | 'variant-select-array' | Type<CvcVariantSelectField>
 }
 
 const VariantSelectMixin = mixin(
@@ -109,7 +109,6 @@ export class CvcVariantSelectField
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super(injector)
-    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
     this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 

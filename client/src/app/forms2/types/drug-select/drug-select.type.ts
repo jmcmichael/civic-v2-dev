@@ -41,6 +41,7 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
   entityName: CvcSelectEntityName
   selectMessages?: CvcSelectMessageOptions
   placeholder?: string // default placeholder
+  requireTypePlaceholder?: string // placeholder if evidence/assertion type required
 }
 
 export interface CvcDrugSelectFieldConfig
@@ -78,10 +79,8 @@ export class CvcDrugSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
 
   // STATE OUTPUT STREAMS
-  stateValueChange$?: BehaviorSubject<Maybe<number>>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcDrugSelectFieldProps>> = {
@@ -103,7 +102,6 @@ export class CvcDrugSelectField
   ) {
     super(injector)
     this.onRequiresDrug$ = new BehaviorSubject<boolean>(true)
-    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
   }
 
   ngAfterViewInit(): void {

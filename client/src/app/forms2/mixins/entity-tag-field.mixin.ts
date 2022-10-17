@@ -208,6 +208,8 @@ export function EntityTagField<
           // tag(`${this.field.id} entity-tag-field.mixin result$`)
         )
 
+        this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
+
         if (!this.optionTemplates) {
           console.warn(
             `${this.field.id} could not find reference to optionTemplates ViewChildren, options will only show entity name text.`

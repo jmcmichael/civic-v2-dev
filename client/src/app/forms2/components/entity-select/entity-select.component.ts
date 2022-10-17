@@ -58,7 +58,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
 
-  @Input() cvcOptions: NzSelectOptionInterface[] = []
+  @Input() cvcOptions?: NzSelectOptionInterface[] = []
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
