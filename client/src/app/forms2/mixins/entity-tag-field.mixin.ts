@@ -138,6 +138,11 @@ export function EntityTagField<
         this.isLoading$ = new Subject<boolean>()
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onCreate$ = new Subject<TAF>()
+        this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
+
+        // this.selectOption$.pipe(tag(`${this.field.id} selectOption$`)).subscribe()
+        // this.onSearch$.pipe(tag(`${this.field.id} onSearch$`)).subscribe()
+        // this.onFocus$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
 
         // check if base field tag properly configured
         if (!this.onValueChange$) {
@@ -207,8 +212,6 @@ export function EntityTagField<
           map((r) => this.getTypeahedResults(r))
           // tag(`${this.field.id} entity-tag-field.mixin result$`)
         )
-
-        this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
 
         if (!this.optionTemplates) {
           console.warn(
@@ -322,7 +325,6 @@ export function EntityTagField<
         } else {
           this.formControl.setValue(undefined)
         }
-        if(this.selectOption$) this.selectOption$.next([])
       }
 
       optionTrackBy: TrackByFunction<NzSelectOptionInterface> = (
