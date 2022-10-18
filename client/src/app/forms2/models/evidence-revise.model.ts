@@ -1,11 +1,10 @@
 import { EvidenceItemFields } from './evidence-fields.model'
-import { FormSubmitBaseModel } from './form-submit-base.model'
+import { FormReviseBaseModel } from './form-revise-base.model'
 
-export interface EvidenceSubmitModel extends FormSubmitBaseModel {
+export interface EvidenceReviseModel extends FormReviseBaseModel {
   fields: EvidenceItemFields
 }
-
-export const evidenceItemSubmitFieldsDefaults = <EvidenceItemFields>{
+export const evidenceItemReviseFieldsDefaults = <EvidenceItemFields>{
   // gene, variant included for initial input type development
   geneId: undefined,
   variantId: undefined,
@@ -24,9 +23,10 @@ export const evidenceItemSubmitFieldsDefaults = <EvidenceItemFields>{
   variantOrigin: undefined,
 }
 
-export const evidenceSubmitFormInitialModel: EvidenceSubmitModel = {
+export const evidenceReviseFormInitialModel: EvidenceReviseModel = {
+  id: undefined,
   clientMutationId: undefined,
-  fields: evidenceItemSubmitFieldsDefaults,
+  fields: evidenceItemReviseFieldsDefaults,
   comment: undefined,
   organizationId: undefined,
 }

@@ -1,0 +1,171 @@
+import { evidenceReviseFormInitialModel } from "@app/forms2/models/evidence-revise.model"
+import { CvcDrugSelectFieldOptions } from "@app/forms2/types/drug-select/drug-select.type"
+import { CvcEntityTypeSelectFieldConfig } from "@app/forms2/types/entity-type-select/entity-type-select.type"
+import { CvcGeneSelectFieldConfig } from "@app/forms2/types/gene-select/gene-select.type"
+import { CvcVariantSelectFieldOptions } from "@app/forms2/types/variant-select/variant-select.type"
+import assignFieldConfigDefaultValues from "@app/forms2/utilities/assign-field-default-values"
+import { CvcFieldsLayoutWrapperProps } from "@app/forms2/wrappers/fields-layout/fields-layout.wrapper"
+import { CvcFormLayoutWrapperProps } from "@app/forms2/wrappers/form-layout/form-layout.wrapper"
+import { FormlyFieldConfig } from "@ngx-formly/core"
+
+const formFieldConfig: FormlyFieldConfig[] = [
+  {
+    wrappers: ['form-layout'],
+    props: <CvcFormLayoutWrapperProps>{
+      submitLabel: 'Suggest Evidence Item Revision',
+      showDevPanel: true,
+    },
+    fieldGroup: [
+      {
+        key: 'clientMutationId',
+        props: {
+          hidden: true,
+        },
+      },
+      {
+        key: 'fields',
+        wrappers: ['fields-layout'],
+        props: <CvcFieldsLayoutWrapperProps>{
+          title: 'Revise Evidence Item',
+        },
+        fieldGroup: [
+          <CvcGeneSelectFieldConfig>{
+            key: 'geneId',
+            type: 'gene-select',
+            props: {
+              required: true,
+            },
+          },
+          <CvcVariantSelectFieldOptions>{
+            key: 'variantId',
+            type: 'variant-select',
+            props: {
+              required: true,
+              // requireGene: false
+            },
+          },
+          <CvcEntityTypeSelectFieldConfig>{
+            key: 'evidenceType',
+            type: 'entity-type-select',
+            props: {
+              required: true,
+            },
+          },
+          <CvcDrugSelectFieldOptions>{
+            key: 'drugIds',
+            type: 'drug-multi-select',
+            props: {
+              required: true,
+            },
+          },
+          // <CvcDrugSelectFieldConfig>{
+          //   key: 'drugIds',
+          //   type: 'drug-multi-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'geneIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Genes',
+          //   },
+          //   fieldArray: <CvcGeneSelectFieldConfig>{
+          //     type: 'gene-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'variantIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Variants',
+          //   },
+          //   fieldArray: <CvcVariantSelectFieldConfig>{
+          //     type: 'variant-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'drugIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Drugs',
+          //   },
+          //   fieldArray: <CvcDrugSelectFieldConfig>{
+          //     type: 'drug-select-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcBaseInputFieldConfig>{
+          //   key: 'version',
+          //   type: 'base-input',
+          //   props: { label: 'Version' },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'aliases',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Aliases',
+          //   },
+          //   fieldArray: <CvcBaseInputFieldConfig>{
+          //     type: 'base-input-item',
+          //     props: {},
+          //   },
+          // },
+          // <CvcEntitySignificanceSelectFieldConfig>{
+          //   key: 'clinicalSignficance',
+          //   type: 'entity-significance-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcEvidenceDirectionSelectFieldConfig>{
+          //   key: 'evidenceDirection',
+          //   type: 'evidence-direction-select',
+          //   props: {
+          //     required: true,
+          //   },
+          // },
+          // <CvcRepeatFieldConfig>{
+          //   key: 'geneIds',
+          //   type: 'repeat-field',
+          //   props: {
+          //     label: 'Genes',
+          //   },
+          //   fieldArray: <CvcGeneSelectFieldConfig>{
+          //     type: 'gene-select-item',
+          //     props: {},
+          //   },
+          // },
+        ],
+      },
+      {
+        wrappers: ['form-footer'],
+        fieldGroup: [
+          {
+            key: 'comment',
+            type: 'textarea',
+            props: {
+              label: 'Comment',
+              // required: true,
+            },
+          },
+          {
+            key: 'organizationId',
+            type: 'org-submit-button',
+            props: {
+              submitLabel: 'Submit Evidence Item',
+            },
+          },
+        ],
+      },
+    ],
+  },
+]
+export const evidenceReviseFields: FormlyFieldConfig[] =
+  assignFieldConfigDefaultValues(
+    formFieldConfig,
+    evidenceReviseFormInitialModel
+  )
