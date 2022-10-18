@@ -7,7 +7,14 @@ import { Observable, Subject, filter, BehaviorSubject } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
-export function BaseFieldType<FC extends FieldTypeConfig, V>() {
+export type BaseFieldValue = Maybe<
+  number | string | boolean | string[] | number[]
+>
+
+export function BaseFieldType<
+  FC extends FieldTypeConfig,
+  V extends BaseFieldValue
+>() {
   @UntilDestroy()
   @Component({ template: '' })
   class BaseFieldType extends FieldType<FC> {
@@ -22,6 +29,8 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
 
     // STATE OUTPUT STREAM
     stateValueChange$?: BehaviorSubject<Maybe<V>>
+
+    initialLabel?: string
 
     constructor() {
       super() // call abstract FieldType's constructor
@@ -73,6 +82,45 @@ export function BaseFieldType<FC extends FieldTypeConfig, V>() {
           this.stateValueChange$.next(this.formControl.value)
         }
       }
+    }
+    configureLabels(): void {
+      if (typeof this.field.type !== 'string') return
+      if (this.field.type.includes('multi')) {
+        this.initialLabel = this.field.props.multiLabel
+      } else {
+        this.initialLabel = this.field.props.label
+      }
+      // watch value changes to update label
+      if (!this.onValueChange$) return
+      this.onValueChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+        if (typeof this.field.type !== 'string') return
+        if (v === undefined || v === null) {
+          if (this.field.type.includes('multi')) {
+            this.props.label = this.props.multiLabel
+          } else {
+            this.props.label = this.initialLabel
+          }
+          return
+        }
+        // is a singular value, set to singular label
+        // (assuming initial is singular)
+        if (
+          typeof v === 'string' ||
+          typeof v === 'number' ||
+          typeof v === 'boolean'
+        ) {
+          this.props.label = this.initialLabel
+          return
+        }
+        // is array, set plural or singular depending on length
+        if (v.length > 1) {
+          this.props.label = this.props.pluralLabel
+        } else if (v.length === 1) {
+          this.props.label = this.props.entityName.singular
+        } else {
+          this.props.label = this.initialLabel
+        }
+      })
     }
   }
   return BaseFieldType

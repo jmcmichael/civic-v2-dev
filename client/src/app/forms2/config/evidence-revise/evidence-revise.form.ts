@@ -13,6 +13,7 @@ import {
   EvidenceReviseModel,
 } from '@app/forms2/models/evidence-revise.model'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
+import evidenceToModelFields from '@app/forms2/utilities/evidence-to-model-fields'
 import {
   EvidenceDetailGQL,
   EvidenceItemRevisableFieldsGQL,
@@ -55,7 +56,12 @@ export class CvcEvidenceReviseForm implements AfterViewInit {
     this.revisableFieldsGQL.fetch({ evidenceId: this.evidenceId }).subscribe({
       next: ({ data: { evidenceItem } }) => {
         if (evidenceItem) {
-          this.model = this.toFormModel(evidenceItem)
+          this.model = {
+            id: evidenceItem.id,
+            fields: evidenceToModelFields(evidenceItem),
+          }
+          // TODO: figure out if model can be assigned w/o cdr here,
+          // like with a model$ BehaviorSubject
           this.cdr.detectChanges()
         }
       },
@@ -69,19 +75,6 @@ export class CvcEvidenceReviseForm implements AfterViewInit {
     })
   }
 
-  toFormModel(evidence: RevisableEvidenceFieldsFragment): EvidenceReviseModel {
-    return {
-      id: evidence.id,
-      fields: {
-        ...evidence,
-        geneId: 5,
-        variantId: 1388,
-        molecularProfileId: evidence.molecularProfile.id,
-        sourceId: evidence.source.id,
-        drugIds: evidence.drugs.map(d => d.id),
-      }
-    }
-  }
 
   onSubmit(model?: EvidenceReviseModel) {
     console.log('------ Evidence Revise Form Submitted ------')

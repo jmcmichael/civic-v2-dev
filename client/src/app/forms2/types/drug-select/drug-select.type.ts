@@ -39,8 +39,10 @@ export type CvcDrugSelectFieldOptions = Partial<
 >
 
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
-  isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
+  isMultiSelect: boolean // is child of a repeat-field type
+  multiLabel: string // label displayed if a multi type
+  pluralLabel: string // label if multi type & model length > 1
   placeholder: string // default placeholder
   requireType: boolean // if entity type required to enable field
   requireTypePrompt: string // placeholder if evidence/assertion type required
@@ -91,6 +93,8 @@ export class CvcDrugSelectField
   defaultOptions: CvcDrugSelectFieldOptions = {
     props: {
       label: 'Drug',
+      multiLabel: 'Drug(s)',
+      pluralLabel: 'Drugs',
       isMultiSelect: false,
       entityName: { singular: 'Drug', plural: 'Drugs' },
       placeholder: 'Search Drugs',
@@ -130,6 +134,8 @@ export class CvcDrugSelectField
       getSelectOptionsFn: this.getSelectOptionsFn,
       changeDetectorRef: this.changeDetectorRef,
     })
+    this.configurePlaceholders()
+    this.configureLabels()
   } // ngAfterViewInit()
 
   configureStateConnections(): void {
@@ -155,58 +161,46 @@ export class CvcDrugSelectField
         this.onEntityType$ = this.state.fields[etName]
       }
     }
-
-    // update field placeholders & required status on state input events
-    if (this.onRequiresDrug$ && this.onEntityType$) {
-      combineLatest([this.onRequiresDrug$, this.onEntityType$])
-        .pipe(untilDestroyed(this))
-        .subscribe(([reqDrug, entityType]: [boolean, Maybe<EntityType>]) => {
-          if (!reqDrug && entityType) {
-            this.props.required = false
-            // no drug required, entity type specified
-            this.placeholder$.next(
-              `${formatEvidenceEnum(
-                entityType
-              )} ${this.stateEntityName} does not include associated drugs`
-            )
-          }
-          if (!reqDrug && !entityType && this.props.requireType) {
-            this.props.required = false
-            // no drug required, entity type not specified
-            this.placeholder$.next(
-              `Select ${this.stateEntityName} Type to select drugs`
-            )
-          }
-          if (reqDrug) {
-            this.props.required = true
-            // drug required
-            this.placeholder$.next('Search Drugs')
-          }
-          // reset field if field has a value and
-          // reqDrug is false or
-          // entityType is false & requireType is true
-          if (
-            (!reqDrug && this.formControl.value) ||
-            (this.props.requireType && !entityType && this.formControl.value)
-          ) {
-            this.resetField()
-          }
-        })
-    }
   }
 
-  // private onEntityType(
-  //   entityType: Maybe<EntityType>,
-  //   entityName: string
-  // ): void {
-  //   if (!entityType && this.props.requireType && this.props.requireTypePrompt) {
-  //     this.resetField()
-  //     const ph = this.props.requireTypePrompt.replace('ENTITY_NAME', entityName)
-  //     this.placeholder$.next(ph)
-  //   } else if (entityType) {
-  //     this.placeholder$.next(this.props.placeholder)
-  //   }
-  // }
+  configurePlaceholders(): void {
+    if (!this.onRequiresDrug$ || !this.onEntityType$) return
+    // update field placeholders & required status on state input events
+    combineLatest([this.onRequiresDrug$, this.onEntityType$])
+      .pipe(untilDestroyed(this))
+      .subscribe(([reqDrug, entityType]: [boolean, Maybe<EntityType>]) => {
+        if (!reqDrug && entityType) {
+          this.props.required = false
+          // no drug required, entity type specified
+          this.placeholder$.next(
+            `${formatEvidenceEnum(entityType)} ${
+              this.stateEntityName
+            } does not include associated drugs`
+          )
+        }
+        if (!reqDrug && !entityType && this.props.requireType) {
+          this.props.required = false
+          // no drug required, entity type not specified
+          this.placeholder$.next(
+            `Select ${this.stateEntityName} Type to select drugs`
+          )
+        }
+        if (reqDrug) {
+          this.props.required = true
+          // drug required
+          this.placeholder$.next('Search Drugs')
+        }
+        // reset field if field has a value and
+        // reqDrug is false or
+        // entityType is false & requireType is true
+        if (
+          (!reqDrug && this.formControl.value) ||
+          (this.props.requireType && !entityType && this.formControl.value)
+        ) {
+          this.resetField()
+        }
+      })
+  }
 
   getTypeaheadVarsFn(str: string): DrugSelectTypeaheadQueryVariables {
     return { name: str }
