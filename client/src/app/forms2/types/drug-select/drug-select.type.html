@@ -4,6 +4,7 @@
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
   [cvcEntityName]="props.entityName"
+  [cvcPlaceholder]="placeholder$ | ngrxPush"
   [cvcResults]="result$ | ngrxPush"
   [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"

@@ -75,8 +75,6 @@ export class CvcVariantSelectField
   extends VariantSelectMixin
   implements AfterViewInit
 {
-  state?: EntityState
-
   // STATE SOURCE STREAMS
   onGeneId$!: BehaviorSubject<Maybe<number>>
 

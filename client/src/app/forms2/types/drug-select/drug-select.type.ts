@@ -46,7 +46,7 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
   entityName: CvcSelectEntityName
   placeholder: string // default placeholder
   requireType: boolean // if entity type required to enable field
-  requireTypePlaceholder: string // placeholder if evidence/assertion type required
+  requireTypePrompt: string // placeholder if evidence/assertion type required
 }
 
 export interface CvcDrugSelectFieldConfig
@@ -88,7 +88,7 @@ export class CvcDrugSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  placeholder$?: BehaviorSubject<string>
+  placeholder$: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcDrugSelectFieldOptions = {
@@ -98,7 +98,7 @@ export class CvcDrugSelectField
       entityName: { singular: 'Drug', plural: 'Drugs' },
       placeholder: 'Search Drugs',
       requireType: true,
-      requireTypePlaceholder: 'Select an ENTITY_TYPE Type to search Drugs',
+      requireTypePrompt: 'Select an ENTITY_NAME Type to select Drugs',
     },
   }
 
@@ -164,13 +164,17 @@ export class CvcDrugSelectField
     }
   }
 
-  onEntityType(entityType: Maybe<EntityType>, entityName: string): void {
-    // if (entityType) {
-    //   this.placeholder$.next(this.props.placeholder)
-    // } else {
-    //   const ph = this.props.placeholder.replace('ENTITY_NAME', entityName)
-    //   this.placeholder$.next(ph)
-    // }
+  private onEntityType(
+    entityType: Maybe<EntityType>,
+    entityName: string
+  ): void {
+    if (!entityType && this.props.requireType && this.props.requireTypePrompt) {
+      this.resetField()
+      const ph = this.props.requireTypePrompt.replace('ENTITY_NAME', entityName)
+      this.placeholder$.next(ph)
+    } else if (entityType) {
+      this.placeholder$.next(this.props.placeholder)
+    }
   }
 
   getTypeaheadVarsFn(str: string): DrugSelectTypeaheadQueryVariables {
