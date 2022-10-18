@@ -71,6 +71,7 @@ export class CvcEntityTypeSelectField
   }
 
   configureStateConnections(): void {
+    this.stateValueChange$!.pipe(tag(`${this.field.id} stateValueChange$`)).subscribe()
     if (!this.state) {
       console.error(
         `${this.field.id} requires a form state to configure itself, none was found.`

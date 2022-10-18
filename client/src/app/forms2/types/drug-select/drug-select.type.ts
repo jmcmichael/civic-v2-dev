@@ -34,7 +34,8 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, Subject } from 'rxjs'
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
+import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export type CvcDrugSelectFieldOptions = Partial<
@@ -155,27 +156,58 @@ export class CvcDrugSelectField
         )
       } else {
         this.onEntityType$ = this.state.fields[etName]
-        this.onEntityType$
-          .pipe(untilDestroyed(this))
-          .subscribe((et: Maybe<EntityType>) => {
-            this.onEntityType(et, stateEntityName)
-          })
+        // this.onEntityType$
+        //   .pipe(untilDestroyed(this))
+        //   .subscribe((et: Maybe<EntityType>) => {
+        //     this.onEntityType(et, stateEntityName)
+        //   })
       }
+    }
+
+    if (this.onRequiresDrug$ && this.onEntityType$) {
+      combineLatest([this.onRequiresDrug$, this.onEntityType$])
+        .pipe(
+          tag(`${this.field.id} combineLatest state updates`),
+          untilDestroyed(this)
+        )
+        .subscribe(([reqDrug, entityType]: [boolean, Maybe<EntityType>]) => {
+          if (!reqDrug && entityType) {
+            // no drug required, entity type specified
+            this.placeholder$.next('Entity Type does not have associated drug(s).')
+          }
+          if (!reqDrug && !entityType) {
+            // no drug required, entity type not specified
+            this.placeholder$.next('Choose Type to select drugs')
+          }
+          if (reqDrug) {
+            // drug required
+            this.placeholder$.next('Search and select Drug(s)')
+          }
+          // reset field if field has a value and
+          // reqDrug is false or
+          // entityType is false & requireType is true
+          if (
+            (!reqDrug && this.formControl.value) ||
+            (this.props.requireType && !entityType && this.formControl.value)
+          ) {
+            this.resetField()
+          }
+        })
     }
   }
 
-  private onEntityType(
-    entityType: Maybe<EntityType>,
-    entityName: string
-  ): void {
-    if (!entityType && this.props.requireType && this.props.requireTypePrompt) {
-      this.resetField()
-      const ph = this.props.requireTypePrompt.replace('ENTITY_NAME', entityName)
-      this.placeholder$.next(ph)
-    } else if (entityType) {
-      this.placeholder$.next(this.props.placeholder)
-    }
-  }
+  // private onEntityType(
+  //   entityType: Maybe<EntityType>,
+  //   entityName: string
+  // ): void {
+  //   if (!entityType && this.props.requireType && this.props.requireTypePrompt) {
+  //     this.resetField()
+  //     const ph = this.props.requireTypePrompt.replace('ENTITY_NAME', entityName)
+  //     this.placeholder$.next(ph)
+  //   } else if (entityType) {
+  //     this.placeholder$.next(this.props.placeholder)
+  //   }
+  // }
 
   getTypeaheadVarsFn(str: string): DrugSelectTypeaheadQueryVariables {
     return { name: str }

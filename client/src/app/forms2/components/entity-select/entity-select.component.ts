@@ -100,7 +100,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.focusMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.notFoundMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.createMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
-
   }
 
   // formly fields do all their config in AfterViewInit, so components with
@@ -168,7 +167,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
     // set messages
     combineLatest([this.onFocus$, this.onSearch$, this.onLoading$])
-      // .pipe(tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`))
+      .pipe(
+        // tag(`${this.cvcFormlyAttributes.id} combineLatest prompt txt`),
+        untilDestroyed(this)
+      )
       .subscribe(([_focus, search, loading]) => {
         // show search prompt msg, e.g. "Enter search query"
         if (inputHasFocus(loading, search, this.cvcResults)) {
@@ -203,11 +205,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         // show not found message, e.g. "No Entities found"
         if (noResultsExist(loading, search, this.cvcResults)) {
           if (!search) return
-          const notFound = this.cvcSelectMessages?.notfound || `No ${this.cvcEntityName.singular} found matching "SEARCH_STRING".`
-          const msg = notFound.replace(
-            'SEARCH_STRING',
-            search
-          )
+          const notFound =
+            this.cvcSelectMessages?.notfound ||
+            `No ${this.cvcEntityName.singular} found matching "SEARCH_STRING".`
+          const msg = notFound.replace('SEARCH_STRING', search)
           this.notFoundMessage$.next(msg)
           this.loadingMessage$.next(undefined)
           this.focusMessage$.next(undefined)
@@ -226,18 +227,16 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           )
         ) {
           if (!search) return
-          const create = this.cvcSelectMessages?.create || `Create a new ${this.cvcEntityName.singular} named "SEARCH_STRING"?'`
-          const msg = create.replace(
-            'SEARCH_STRING',
-            search
-          )
+          const create =
+            this.cvcSelectMessages?.create ||
+            `Create a new ${this.cvcEntityName.singular} named "SEARCH_STRING"?'`
+          const msg = create.replace('SEARCH_STRING', search)
           this.notFoundMessage$.next(undefined)
           this.loadingMessage$.next(undefined)
           this.focusMessage$.next(undefined)
           this.createMessage$.next(msg)
         }
       }) // combineLatest.subscribe()
-
   } // ngAfterViewInit()
 
   // attach some Inputs to Subjects for use in observable chains

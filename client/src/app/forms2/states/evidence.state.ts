@@ -88,7 +88,15 @@ class EvidenceState extends EntityState {
     // TODO: must determine best way to unsubscribe from this
     // EVIDENCE TYPE SUBSCRIBER
     this.fields.evidenceType$.subscribe((et: Maybe<EvidenceType>) => {
-      if (!et) return
+      if (!et) {
+        // set all 'requires' fields to false, non-type options to []
+        Object.entries(this.requires).forEach(([key,value]) => {
+          value.next(false)
+        })
+        this.options.evidenceDirectionOption$.next([])
+        this.options.clinicalSignificanceOption$.next([])
+        return
+      }
       this.options.clinicalSignificanceOption$.next(
         this.getOptionsFromEnums(this.getSignificanceOptions(et))
       )
