@@ -317,7 +317,11 @@ export function EntityTagField<
       }
 
       resetField() {
-        this.formControl.setValue(undefined)
+        if (this.props.isMultiSelect) {
+          this.formControl.setValue([])
+        } else {
+          this.formControl.setValue(undefined)
+        }
         this.selectOption$.next([])
       }
 

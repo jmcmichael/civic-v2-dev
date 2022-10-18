@@ -27,6 +27,7 @@ import {
   DrugSelectTypeaheadQueryVariables,
   Maybe,
 } from '@app/generated/civic.apollo'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
@@ -36,14 +37,16 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
-export type CvcDrugSelectFieldOptions = Partial<FieldTypeConfig<CvcDrugSelectFieldProps>>
+export type CvcDrugSelectFieldOptions = Partial<
+  FieldTypeConfig<CvcDrugSelectFieldProps>
+>
 
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
   isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
-  placeholder?: string // default placeholder
+  placeholder: string // default placeholder
   requireType: boolean // if entity type required to enable field
-  requireTypePlaceholder?: string // placeholder if evidence/assertion type required
+  requireTypePlaceholder: string // placeholder if evidence/assertion type required
 }
 
 export interface CvcDrugSelectFieldConfig
@@ -85,9 +88,7 @@ export class CvcDrugSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-
-  // STATE OUTPUT STREAMS
-  stateValueChange$?: BehaviorSubject<Maybe<number | number[]>>
+  placeholder$?: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcDrugSelectFieldOptions = {
@@ -97,7 +98,7 @@ export class CvcDrugSelectField
       entityName: { singular: 'Drug', plural: 'Drugs' },
       placeholder: 'Search Drugs',
       requireType: true,
-      requireTypePlaceholder: 'Select a ENTITY_TYPE Type to search Drugs',
+      requireTypePlaceholder: 'Select an ENTITY_TYPE Type to search Drugs',
     },
   }
 
@@ -110,6 +111,9 @@ export class CvcDrugSelectField
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super()
+    this.placeholder$ = new BehaviorSubject<string>(
+      this.defaultOptions.props!.placeholder
+    )
   }
 
   ngAfterViewInit(): void {
@@ -131,25 +135,42 @@ export class CvcDrugSelectField
   } // ngAfterViewInit()
 
   configureStateConnections(): void {
-    this.state = this.field.options?.formState
     if (!this.state) return
-    if (this.state.requires.requiresDrug$) {
-      this.onRequiresDrug$ = this.state.requires.requiresDrug$
-    } else {
+    const stateEntityName = this.state.entityName
+    // connect to onRequiresDrug$
+    if (!this.state.requires.requiresDrug$) {
       console.warn(
         `${this.field.id} field's form provides a state, but could not find requiresDrug$ subject to attach.`
       )
+    } else {
+      this.onRequiresDrug$ = this.state.requires.requiresDrug$
     }
+
+    // connect onEntityType$
     if (this.props.requireType) {
-      const etName = `${this.state.entityName.toLowerCase()}Type$`
-      if (this.state.fields[etName]) {
-        this.onEntityType$ = this.state.fields[etName]
-      } else {
+      const etName = `${stateEntityName.toLowerCase()}Type$`
+      if (!this.state.fields[etName]) {
         console.error(
           `${this.field.id} requireType is true, however form state does not provide Subject ${etName}.`
         )
+      } else {
+        this.onEntityType$ = this.state.fields[etName]
+        this.onEntityType$
+          .pipe(untilDestroyed(this))
+          .subscribe((et: Maybe<EntityType>) => {
+            this.onEntityType(et, stateEntityName)
+          })
       }
     }
+  }
+
+  onEntityType(entityType: Maybe<EntityType>, entityName: string): void {
+    // if (entityType) {
+    //   this.placeholder$.next(this.props.placeholder)
+    // } else {
+    //   const ph = this.props.placeholder.replace('ENTITY_NAME', entityName)
+    //   this.placeholder$.next(ph)
+    // }
   }
 
   getTypeaheadVarsFn(str: string): DrugSelectTypeaheadQueryVariables {

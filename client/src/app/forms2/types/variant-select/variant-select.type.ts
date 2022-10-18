@@ -35,7 +35,9 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, lastValueFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
-export type CvcVariantSelectFieldOptions = Partial<FieldTypeConfig<CvcVariantSelectFieldProps>>
+export type CvcVariantSelectFieldOptions = Partial<
+  FieldTypeConfig<CvcVariantSelectFieldProps>
+>
 
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   isMultiSelect: boolean // is child of a repeat-field type
@@ -82,8 +84,7 @@ export class CvcVariantSelectField
   onGeneName$: BehaviorSubject<Maybe<string>>
 
   // LOCAL PRESENTATION STREAMS
-  placeholder$!: BehaviorSubject<string>
-
+  placeholder$: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcVariantSelectFieldOptions = {
@@ -109,6 +110,9 @@ export class CvcVariantSelectField
   ) {
     super()
     this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
+    this.placeholder$ = new BehaviorSubject<string>(
+      this.defaultOptions.props!.placeholder
+    )
   }
 
   ngAfterViewInit(): void {
@@ -134,11 +138,10 @@ export class CvcVariantSelectField
     } else {
       initialPlaceholder = this.props.placeholder
     }
-    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
+    this.placeholder$.next(initialPlaceholder)
   } // ngAfterViewInit
 
   private configureStateConnections() {
-    this.state = this.field.options?.formState
     if (!this.state) return
     // attach state geneId$ to get gene field value updates
     if (this.props.requireGene) {
