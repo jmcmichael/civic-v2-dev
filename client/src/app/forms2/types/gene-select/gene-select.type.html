@@ -10,6 +10,7 @@
   [cvcLoading]="isLoading$ | ngrxPush"
   [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
+  (cvcOnFocus)="onFocus$.next($event)"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
 

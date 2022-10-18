@@ -95,7 +95,7 @@ export function EntityTagField<
       response$!: Observable<ApolloQueryResult<TAQ>> // gql query responses
 
       // PRESENTATION STREAMS
-      result$!: Observable<TAF[]> // typeahead query results
+      result$!: BehaviorSubject<TAF[]> // typeahead query results
       isLoading$!: Subject<boolean> // typeahead query loading bool
       selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
 
@@ -136,13 +136,15 @@ export function EntityTagField<
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
         this.isLoading$ = new Subject<boolean>()
+        this.result$ = new BehaviorSubject<TAF[]>([])
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onCreate$ = new Subject<TAF>()
         this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
 
         // this.selectOption$.pipe(tag(`${this.field.id} selectOption$`)).subscribe()
         // this.onSearch$.pipe(tag(`${this.field.id} onSearch$`)).subscribe()
-        // this.onFocus$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
+        // this.result$.pipe(tag(`${this.field.id} result$`)).subscribe()
+        this.onFocus$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
 
         // check if base field tag properly configured
         if (!this.onValueChange$) {
@@ -207,11 +209,14 @@ export function EntityTagField<
           })
         ) // end this.response$
 
-        this.result$ = this.response$.pipe(
+        this.response$.pipe(
           filter((r) => !r.loading),
-          map((r) => this.getTypeahedResults(r))
-          // tag(`${this.field.id} entity-tag-field.mixin result$`)
-        )
+          map((r) => this.getTypeahedResults(r)),
+          // tag(`${this.field.id} entity-tag-field.mixin result$`),
+          untilDestroyed(this)
+        ).subscribe((results: TAF[]) => {
+          this.result$.next(results)
+        })
 
         if (!this.optionTemplates) {
           console.warn(
@@ -325,6 +330,8 @@ export function EntityTagField<
         } else {
           this.formControl.setValue(undefined)
         }
+        if(this.selectOption$) this.selectOption$.next([])
+        if(this.result$) this.result$.next([])
       }
 
       optionTrackBy: TrackByFunction<NzSelectOptionInterface> = (
