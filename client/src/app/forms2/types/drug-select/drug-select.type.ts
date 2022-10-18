@@ -3,17 +3,14 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Injector,
   QueryList,
   TemplateRef,
   Type,
   ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import {
-  CvcSelectEntityName,
-  CvcSelectMessageOptions,
-} from '@app/forms2/components/entity-select/entity-select.component'
+import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
+import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState, EntityType } from '@app/forms2/states/entity.state'
@@ -35,7 +32,6 @@ import {
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
-import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 export type CvcDrugSelectFieldOptions = Partial<
@@ -106,6 +102,7 @@ export class CvcDrugSelectField
   @ViewChildren('optionTemplates', { read: TemplateRef })
   optionTemplates?: QueryList<TemplateRef<any>>
 
+  stateEntityName?: string
   constructor(
     private taq: DrugSelectTypeaheadGQL,
     private tq: DrugSelectTagGQL,
@@ -137,7 +134,7 @@ export class CvcDrugSelectField
 
   configureStateConnections(): void {
     if (!this.state) return
-    const stateEntityName = this.state.entityName
+    this.stateEntityName = this.state.entityName
     // connect to onRequiresDrug$
     if (!this.state.requires.requiresDrug$) {
       console.warn(
@@ -149,39 +146,41 @@ export class CvcDrugSelectField
 
     // connect onEntityType$
     if (this.props.requireType) {
-      const etName = `${stateEntityName.toLowerCase()}Type$`
+      const etName = `${this.stateEntityName.toLowerCase()}Type$`
       if (!this.state.fields[etName]) {
         console.error(
           `${this.field.id} requireType is true, however form state does not provide Subject ${etName}.`
         )
       } else {
         this.onEntityType$ = this.state.fields[etName]
-        // this.onEntityType$
-        //   .pipe(untilDestroyed(this))
-        //   .subscribe((et: Maybe<EntityType>) => {
-        //     this.onEntityType(et, stateEntityName)
-        //   })
       }
     }
 
+    // update field placeholders & required status on state input events
     if (this.onRequiresDrug$ && this.onEntityType$) {
       combineLatest([this.onRequiresDrug$, this.onEntityType$])
-        .pipe(
-          tag(`${this.field.id} combineLatest state updates`),
-          untilDestroyed(this)
-        )
+        .pipe(untilDestroyed(this))
         .subscribe(([reqDrug, entityType]: [boolean, Maybe<EntityType>]) => {
           if (!reqDrug && entityType) {
+            this.props.required = false
             // no drug required, entity type specified
-            this.placeholder$.next('Entity Type does not have associated drug(s).')
+            this.placeholder$.next(
+              `${formatEvidenceEnum(
+                entityType
+              )} ${this.stateEntityName} does not include associated drugs`
+            )
           }
-          if (!reqDrug && !entityType) {
+          if (!reqDrug && !entityType && this.props.requireType) {
+            this.props.required = false
             // no drug required, entity type not specified
-            this.placeholder$.next('Choose Type to select drugs')
+            this.placeholder$.next(
+              `Select ${this.stateEntityName} Type to select drugs`
+            )
           }
           if (reqDrug) {
+            this.props.required = true
             // drug required
-            this.placeholder$.next('Search and select Drug(s)')
+            this.placeholder$.next('Search Drugs')
           }
           // reset field if field has a value and
           // reqDrug is false or
