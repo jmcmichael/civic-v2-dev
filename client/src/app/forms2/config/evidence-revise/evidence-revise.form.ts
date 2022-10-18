@@ -74,6 +74,8 @@ export class CvcEvidenceReviseForm implements AfterViewInit {
       id: evidence.id,
       fields: {
         ...evidence,
+        geneId: 5,
+        variantId: 1388,
         molecularProfileId: evidence.molecularProfile.id,
         sourceId: evidence.source.id,
         drugIds: evidence.drugs.map(d => d.id),
