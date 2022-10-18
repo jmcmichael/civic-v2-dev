@@ -5,7 +5,7 @@ import {
   Injector,
   Type,
 } from '@angular/core'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
+import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { StringTagField } from '@app/forms2/mixins/string-tag-field.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy } from '@ngneat/until-destroy'
@@ -50,8 +50,8 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
     },
   }
 
-  constructor(public injector: Injector) {
-    super(injector)
+  constructor() {
+    super()
   }
 
   ngAfterViewInit(): void {

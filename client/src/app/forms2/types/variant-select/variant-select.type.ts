@@ -11,7 +11,7 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
+import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
@@ -84,8 +84,6 @@ export class CvcVariantSelectField
   // LOCAL PRESENTATION STREAMS
   placeholder$!: BehaviorSubject<string>
 
-  // STATE OUTPUT STREAMS
-  stateValueChange$?: BehaviorSubject<Maybe<number>>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcVariantSelectFieldOptions = {
@@ -104,13 +102,12 @@ export class CvcVariantSelectField
   optionTemplates?: QueryList<TemplateRef<any>>
 
   constructor(
-    public injector: Injector,
     private taq: VariantSelectTypeaheadGQL,
     private tq: VariantSelectTagGQL,
     private geneQuery: LinkableGeneGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
-    super(injector)
+    super()
     this.onGeneName$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 

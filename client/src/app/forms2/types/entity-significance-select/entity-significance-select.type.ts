@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Injector, Type } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
+import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import {
   EntityClinicalSignificance,
   EntityState,
@@ -68,8 +68,8 @@ export class CvcEntitySignificanceSelectField
       requireTypePrompt: 'Select an ENTITY_NAME Type to select Significance',
     },
   }
-  constructor(injector: Injector) {
-    super(injector)
+  constructor() {
+    super()
   }
 
   ngAfterViewInit(): void {

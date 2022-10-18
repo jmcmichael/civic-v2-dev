@@ -14,7 +14,7 @@ import {
   CvcSelectEntityName,
   CvcSelectMessageOptions,
 } from '@app/forms2/components/entity-select/entity-select.component'
-import { BaseFieldType } from '@app/forms2/mixins/base/field-type-base-DEPRECATED'
+import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState, EntityType } from '@app/forms2/states/entity.state'
 import {
@@ -105,12 +105,11 @@ export class CvcDrugSelectField
   optionTemplates?: QueryList<TemplateRef<any>>
 
   constructor(
-    public injector: Injector,
     private taq: DrugSelectTypeaheadGQL,
     private tq: DrugSelectTagGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
-    super(injector)
+    super()
   }
 
   ngAfterViewInit(): void {
