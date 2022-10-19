@@ -23,6 +23,7 @@ import {
   SuggestEvidenceItemRevisionGQL,
 } from '@app/generated/civic.apollo'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 import { evidenceReviseFields } from './evidence-revise.form.config'
 
@@ -39,6 +40,7 @@ export class CvcEvidenceReviseForm implements AfterViewInit {
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 
+  formLayout: NzFormLayoutType
   constructor(
     private suggestRevisionGQL: SuggestEvidenceItemRevisionGQL,
     private networkErrorService: NetworkErrorsService,
@@ -50,6 +52,7 @@ export class CvcEvidenceReviseForm implements AfterViewInit {
     this.model$ = new BehaviorSubject<EvidenceReviseModel>({ fields: {} })
     this.fields = evidenceReviseFields
     this.options = { formState: new EvidenceState() }
+    this.formLayout = 'horizontal'
   }
 
   ngAfterViewInit(): void {
@@ -60,8 +63,8 @@ export class CvcEvidenceReviseForm implements AfterViewInit {
             id: evidenceItem.id,
             fields: evidenceToModelFields(evidenceItem),
           }
-          // TODO: figure out if model can be assigned w/o cdr here,
-          // like with a model$ BehaviorSubject
+          // TODO: figure out if model can be assigned w/o detectChanges() here,
+          // like with a model$ BehaviorSubject?
           this.cdr.detectChanges()
         }
       },

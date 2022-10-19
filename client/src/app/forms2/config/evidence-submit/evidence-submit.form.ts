@@ -6,6 +6,7 @@ import {
 } from '@app/forms2/models/evidence-submit.model'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { evidenceSubmitFields } from './evidence-submit.form.config'
 
 @Component({
@@ -19,10 +20,12 @@ export class CvcEvidenceSubmitForm {
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 
+  formLayout: NzFormLayoutType
   constructor() {
     this.model = evidenceSubmitFormInitialModel
     this.fields = evidenceSubmitFields
     this.options = { formState: new EvidenceState() }
+    this.formLayout = 'horizontal'
   }
 
   onSubmit(model: EvidenceSubmitModel) {

@@ -1,5 +1,7 @@
 <form
   [formGroup]="form"
+  nz-form
+  [nzLayout]="formLayout"
   (ngSubmit)="onSubmit(model)">
   <formly-form
     [form]="form"

@@ -1,5 +1,7 @@
 <form
   *ngIf="model; else loadingModel"
+  nz-form
+  [nzLayout]="formLayout"
   [formGroup]="form"
   (ngSubmit)="onSubmit(model)">
   <formly-form

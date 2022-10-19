@@ -6,6 +6,7 @@ import {
 } from '@app/forms2/models/assertion-submit.model'
 import { AssertionState } from '@app/forms2/states/assertion.state'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { assertionSubmitFields } from './assertion-submit.form.config'
 
 @Component({
@@ -19,10 +20,12 @@ export class CvcAssertionSubmitForm {
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 
+  formLayout: NzFormLayoutType
   constructor() {
     this.model = assertionSubmitFormInitialModel
     this.fields = assertionSubmitFields
     this.options = { formState: new AssertionState() }
+    this.formLayout = 'horizontal'
   }
 
   onSubmit(model: AssertionSubmitModel) {
