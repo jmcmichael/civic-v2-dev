@@ -3,7 +3,7 @@ import { EntityState } from '@app/forms2/states/entity.state'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
-import { Observable, Subject, filter, BehaviorSubject } from 'rxjs'
+import { Observable, Subject, filter, BehaviorSubject, map } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 
@@ -74,15 +74,24 @@ export function BaseFieldType<
       const stateField = `${this.field.key}$`
       if (this.state && this.state.fields[stateField]) {
         this.stateValueChange$ = this.state.fields[stateField]
-        this.onValueChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-          if (this.stateValueChange$) this.stateValueChange$.next(v)
-        })
-        // update state if field has been prepopulated w/ query param or preset model
+        this.onValueChange$
+          .pipe(
+            // some nz form components set model value to null when cleared,
+            // but other fields expect undefined for an unset model value
+            map((v: Maybe<V>) => (v === null ? undefined : v)),
+            untilDestroyed(this)
+          )
+          .subscribe((v) => {
+            if (this.stateValueChange$) this.stateValueChange$.next(v)
+          })
+        // update state if field has been prepopulated w/ query param or
+        // form component model e.g. revise forms
         if (this.formControl.value) {
           this.stateValueChange$.next(this.formControl.value)
         }
       }
     }
+
     configureLabels(): void {
       if (typeof this.field.type !== 'string') return
       if (this.field.type.includes('multi')) {
@@ -92,9 +101,10 @@ export function BaseFieldType<
       }
       // watch value changes to update label
       if (!this.onValueChange$) return
-      this.onValueChange$.pipe(untilDestroyed(this)).subscribe((v) => {
+      this.onValueChange$.pipe(untilDestroyed(this)).subscribe((value) => {
         if (typeof this.field.type !== 'string') return
-        if (v === undefined || v === null) {
+        // value undefined, set to intial label based on type
+        if (value === undefined) {
           if (this.field.type.includes('multi')) {
             this.props.label = this.props.multiLabel
           } else {
@@ -102,20 +112,20 @@ export function BaseFieldType<
           }
           return
         }
-        // is a singular value, set to singular label
-        // (assuming initial is singular)
+        // value is a singular value, set to singular label
+        // (assuming non-multi initial labels will be singular)
         if (
-          typeof v === 'string' ||
-          typeof v === 'number' ||
-          typeof v === 'boolean'
+          typeof value === 'string' ||
+          typeof value === 'number' ||
+          typeof value === 'boolean'
         ) {
           this.props.label = this.initialLabel
           return
         }
-        // is array, set plural or singular depending on length
-        if (v.length > 1) {
+        // value is array, set plural or singular depending on length
+        if (value.length > 1) {
           this.props.label = this.props.pluralLabel
-        } else if (v.length === 1) {
+        } else if (value.length === 1) {
           this.props.label = this.props.entityName.singular
         } else {
           this.props.label = this.initialLabel
