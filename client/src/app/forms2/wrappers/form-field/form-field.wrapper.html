@@ -1,37 +1,63 @@
-<nz-form-item>
-  <ng-container *ngIf="props.label && props.hideLabel !== true">
-    <nz-form-label
-      [nzRequired]="props.required && props.hideRequiredMarker !== true"
-      [nzFor]="id"
-      *ngIf="props.layout.label as label"
-      [nzSpan]="label.span ? label.span : null"
-      [nzFlex]="label.flex ? label.flex : null"
-      [nzXs]="label.reactive ? label.reactive.xs : null"
-      [nzSm]="label.reactive ? label.reactive.sm : null"
-      [nzMd]="label.reactive ? label.reactive.md : null"
-      [nzLg]="label.reactive ? label.reactive.lg : null"
-      [nzXl]="label.reactive ? label.reactive.xl : null"
-      [nzXXl]="label.reactive ? label.reactive.xxl : null">
-      {{ props.label }}
-    </nz-form-label>
-  </ng-container>
-  <nz-form-control
-    [nzValidateStatus]="errorState"
-    [nzErrorTip]="errorTpl"
-    *ngIf="props.layout.control as control"
-    [nzSpan]="control.span ? control.span : null"
-    [nzFlex]="control.flex ? control.flex : null"
-    [nzXs]="control.reactive ? control.reactive.xs : null"
-    [nzSm]="control.reactive ? control.reactive.sm : null"
-    [nzMd]="control.reactive ? control.reactive.md : null"
-    [nzLg]="control.reactive ? control.reactive.lg : null"
-    [nzXl]="control.reactive ? control.reactive.xl : null"
-    [nzXXl]="control.reactive ? control.reactive.xxl : null">
-    <ng-container #fieldComponent></ng-container>
-    <ng-template
-      #errorTpl
-      let-control>
-      <formly-validation-message [field]="field"></formly-validation-message>
+<nz-form-item [nzGutter]="[6, 12]">
+  <nz-col nzFlex="auto">
+    <nz-row [nzGutter]="[6, 6]">
+      <ng-container *ngIf="props.label && props.hideLabel !== true">
+        <nz-form-label
+          *ngIf="props.layout.label as label"
+          [nzRequired]="props.required && props.hideRequiredMarker !== true"
+          [nzFor]="id"
+          [nzNoColon]="true"
+          [nzSpan]="label.span ? label.span : null"
+          [nzXs]="label.reactive ? label.reactive.xs : null"
+          [nzSm]="label.reactive ? label.reactive.sm : null"
+          [nzMd]="label.reactive ? label.reactive.md : null"
+          [nzLg]="label.reactive ? label.reactive.lg : null"
+          [nzXl]="label.reactive ? label.reactive.xl : null"
+          [nzXXl]="label.reactive ? label.reactive.xxl : null">
+          <span nz-typography nzEllipsis [nzContent]="props.label"></span>
+        </nz-form-label>
+      </ng-container>
+      <nz-form-control
+        *ngIf="props.layout.control as control"
+        [nzExtra]="'Control extra test string.'"
+        [nzValidateStatus]="errorState"
+        [nzErrorTip]="errorTpl"
+        [nzSpan]="control.span ? control.span : null"
+        [nzXs]="control.reactive ? control.reactive.xs : null"
+        [nzSm]="control.reactive ? control.reactive.sm : null"
+        [nzMd]="control.reactive ? control.reactive.md : null"
+        [nzLg]="control.reactive ? control.reactive.lg : null"
+        [nzXl]="control.reactive ? control.reactive.xl : null"
+        [nzXXl]="control.reactive ? control.reactive.xxl : null">
+        <ng-container #fieldComponent></ng-container>
+        <ng-template
+          #errorTpl
+          let-control>
+          <formly-validation-message
+            [field]="field"></formly-validation-message>
+        </ng-template>
+      </nz-form-control>
+    </nz-row>
+  </nz-col>
+  <nz-col
+    nzFlex="14px"
+    class="help-tooltip">
+    <span
+      *ngIf="props.helpText; else iconSpacer"
+      class="icon-tooltip"
+      nz-icon
+      nzTheme="twotone"
+      nzTwotoneColor="#69c0ff"
+      nzType="question-circle"
+      nz-tooltip
+      [nzTooltipTitle]="props.helpText"></span>
+    <ng-template #iconSpacer>
+      <span
+        class="icon-spacer"
+        nz-icon
+        nzTheme="twotone"
+        nzTwotoneColor="#FFFFFF"
+        nzType="question-circle"></span>
     </ng-template>
-  </nz-form-control>
+  </nz-col>
 </nz-form-item>

@@ -1,15 +1,17 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core'
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import {
   FieldWrapper,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
+import { NzFormTooltipIcon } from 'ng-zorro-antd/form'
 import { EmbeddedProperty, NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 
 export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
   hideRequiredMarker?: boolean
   hideLabel?: boolean
+  helpText?: string
   layout: {
     // nz-form-item
     item?: {
@@ -24,7 +26,6 @@ export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
     }
     label: {
       span: number
-      flex?: number | string
       reactive?: {
         xs: string | number | EmbeddedProperty
         sm: string | number | EmbeddedProperty
@@ -36,7 +37,6 @@ export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
     }
     control: {
       span: number
-      flex?: number | string
       reactive?: {
         xs: string | number | EmbeddedProperty
         sm: string | number | EmbeddedProperty
@@ -52,6 +52,8 @@ export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
 @Component({
   selector: 'formly-wrapper-nz-form-field',
   templateUrl: './form-field.wrapper.html',
+  styleUrls: ['./form-field.wrapper.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CvcFormFieldWrapper
   extends FieldWrapper<FormlyFieldConfig<CvcFormFieldWrapperProps>>
@@ -60,11 +62,11 @@ export class CvcFormFieldWrapper
   defaultProps: CvcFormFieldWrapperProps = {
     layout: {
       label: {
-        span: 4
+        span: 4,
       },
       control: {
-        span: 20
-      }
+        span: 20,
+      },
     },
   }
 
