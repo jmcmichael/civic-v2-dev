@@ -25,13 +25,13 @@ const typeConfig: ConfigOption = {
   types: [
     {
       name: 'variant-select',
-      wrappers: ['form-field'],
+      wrappers: ['field-layout'],
       component: CvcVariantSelectField,
     },
     {
       // no label, for use in repeat-field types
       name: 'variant-multi-select',
-      wrappers: ['form-field'],
+      wrappers: ['field-layout'],
       component: CvcVariantSelectField,
       defaultOptions: <CvcVariantSelectFieldOptions>{
         props: {

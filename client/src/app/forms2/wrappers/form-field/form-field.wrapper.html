@@ -1,0 +1,37 @@
+<nz-form-item>
+  <ng-container *ngIf="props.label && props.hideLabel !== true">
+    <nz-form-label
+      [nzRequired]="props.required && props.hideRequiredMarker !== true"
+      [nzFor]="id"
+      *ngIf="props.layout.label as label"
+      [nzSpan]="label.span ? label.span : null"
+      [nzFlex]="label.flex ? label.flex : null"
+      [nzXs]="label.reactive ? label.reactive.xs : null"
+      [nzSm]="label.reactive ? label.reactive.sm : null"
+      [nzMd]="label.reactive ? label.reactive.md : null"
+      [nzLg]="label.reactive ? label.reactive.lg : null"
+      [nzXl]="label.reactive ? label.reactive.xl : null"
+      [nzXXl]="label.reactive ? label.reactive.xxl : null">
+      {{ props.label }}
+    </nz-form-label>
+  </ng-container>
+  <nz-form-control
+    [nzValidateStatus]="errorState"
+    [nzErrorTip]="errorTpl"
+    *ngIf="props.layout.control as control"
+    [nzSpan]="control.span ? control.span : null"
+    [nzFlex]="control.flex ? control.flex : null"
+    [nzXs]="control.reactive ? control.reactive.xs : null"
+    [nzSm]="control.reactive ? control.reactive.sm : null"
+    [nzMd]="control.reactive ? control.reactive.md : null"
+    [nzLg]="control.reactive ? control.reactive.lg : null"
+    [nzXl]="control.reactive ? control.reactive.xl : null"
+    [nzXXl]="control.reactive ? control.reactive.xxl : null">
+    <ng-container #fieldComponent></ng-container>
+    <ng-template
+      #errorTpl
+      let-control>
+      <formly-validation-message [field]="field"></formly-validation-message>
+    </ng-template>
+  </nz-form-control>
+</nz-form-item>
