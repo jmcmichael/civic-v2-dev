@@ -37,21 +37,19 @@ export function BaseFieldType<
     }
 
     configureBaseField(): void {
-      //
-      // set up model and value changes observables
-      //
-      this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
       if (!this.field?.options?.fieldChanges) {
         console.error(
-          `${this.field.id} could not find its fieldChanges Observable, ensure configureBaseField() is called in FieldType's AfterViewInit hook.`
+          `${this.field.id} could not find its fieldChanges Observable, ensure configureBaseField() is called in this field's AfterViewInit hook.`
         )
         return
       }
 
+      // set up model and value changes observables
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.id === this.field.id), // filter out other fields
         pluck('value')
       )
+      this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
 
       // emit value from onValueChange$ for every model change
       this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
@@ -67,10 +65,13 @@ export function BaseFieldType<
     autoConfigureStateValueChanges(): void {
       if (!this.field.key && typeof this.field.key === 'string') {
         console.warn(
-          `${this.field.id} cannot auto-configure state value changes, field key must be a string. field.key: `,
+          `${this.field.id} cannot auto-configure state value changes, as its field key is not a string. field.key: `,
           this.field.key
         )
       }
+      // it is assumed entity state field names are
+      // field key string + '$', e.g. field key 'geneId'
+      // will emit value changes from state.field.geneId$
       const stateField = `${this.field.key}$`
       if (this.state && this.state.fields[stateField]) {
         this.stateValueChange$ = this.state.fields[stateField]
@@ -113,7 +114,7 @@ export function BaseFieldType<
           return
         }
         // value is a singular value, set to singular label
-        // (assuming non-multi initial labels will be singular)
+        // (assuming non-multi default initial label will be singular)
         if (
           typeof value === 'string' ||
           typeof value === 'number' ||

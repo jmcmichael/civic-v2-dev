@@ -85,6 +85,7 @@ export class CvcEntityTypeSelectField
       this.state.entityName
     )
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
+
     this.props.label = this.props.label.replace(
       'ENTITY_NAME',
       this.state.entityName
