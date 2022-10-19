@@ -86,10 +86,6 @@ export class CvcGeneSelectField
     },
   }
 
-  labelClass = {
-    required: 'required: props.required && props.hideRequiredMarker !== true'
-  }
-
   @ViewChildren('optionTemplates', { read: TemplateRef })
   optionTemplates?: QueryList<TemplateRef<any>>
 

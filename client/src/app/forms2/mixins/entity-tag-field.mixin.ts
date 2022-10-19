@@ -330,7 +330,12 @@ export function EntityTagField<
         } else {
           this.formControl.setValue(undefined)
         }
+        // reset options to prevent brief flash of previous
+        // search (or prepopulate) option items during subsequent searches
         if(this.selectOption$) this.selectOption$.next([])
+        // reset results to empty out optionTemplate QueryList, forcing
+        // re-render of optionTemplates for subsequent search results, even
+        // if cached results are returned
         if(this.result$) this.result$.next([])
       }
 

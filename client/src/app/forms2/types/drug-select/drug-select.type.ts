@@ -37,17 +37,36 @@ import mixin from 'ts-mixin-extended'
 export type CvcDrugSelectFieldOptions = Partial<
   FieldTypeConfig<CvcDrugSelectFieldProps>
 >
-
+// TODO: finish implementing updated props interface w/ labels, placeholders groups,
+// and multiMax limits, multiDefault placeholder
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
+  // entity names, singular & plural
   entityName: CvcSelectEntityName
-  isMultiSelect: boolean // is child of a repeat-field type
-  multiLabel: string // label displayed if a multi type
-  pluralLabel: string // label if multi type & model length > 1
-  placeholder: string // default placeholder
-  requireType: boolean // if entity type required to enable field
-  requireTypePrompt: string // placeholder if evidence/assertion type required
+  // if true, field is a multi-select & its model value should be an array
+  isMultiSelect: boolean
+  // max number of values permitted by model
+  multiMax: number
+  // if true, field disabled when no entity type available
+  requireType: boolean
+  labels: {
+    // label if a multi type, showing optional plurality, e.g. 'Variant(s)'
+    multi: string
+    // label if multi type & model value length > 1
+    plural: string
+  }
+  placeholders: {
+    // default placeholder
+    default: string
+    // default placeholder for multi-selects
+    multiDefault: string
+    // placeholder if evidence/assertion type required & field disabled
+    requireTypePrompt: string
+  }
 }
 
+// NOTE: any multi-select field must have the string 'multi' in its type name,
+// as UI logic (currently in base-field) depends on its presence to differentiate
+// field types in some expressions
 export interface CvcDrugSelectFieldConfig
   extends FormlyFieldConfig<CvcDrugSelectFieldProps> {
   type: 'drug-select' | 'drug-multi-select' | Type<CvcDrugSelectField>
@@ -92,14 +111,22 @@ export class CvcDrugSelectField
   // FieldTypeConfig defaults
   defaultOptions: CvcDrugSelectFieldOptions = {
     props: {
-      label: 'Drug',
-      multiLabel: 'Drug(s)',
-      pluralLabel: 'Drugs',
-      isMultiSelect: false,
       entityName: { singular: 'Drug', plural: 'Drugs' },
-      placeholder: 'Search Drugs',
+      label: 'Drug',
+      labels: {
+        multi: 'Drug(s)',
+        plural: 'Drugs',
+      },
+      isMultiSelect: false,
+      multiMax: 3,
       requireType: true,
-      requireTypePrompt: 'Select an ENTITY_NAME Type to select Drugs',
+      // TODO: implement labels/placeholders w/ string replacement using typescript
+      // template strings: https://www.codevscolor.com/typescript-template-string
+      placeholders: {
+        default: 'Search Drugs',
+        multiDefault: 'Select Drug(s) (max MULTI_MAX)',
+        requireTypePrompt: 'Select an ENTITY_NAME Type to select Drugs',
+      },
     },
   }
 
@@ -107,6 +134,7 @@ export class CvcDrugSelectField
   optionTemplates?: QueryList<TemplateRef<any>>
 
   stateEntityName?: string
+
   constructor(
     private taq: DrugSelectTypeaheadGQL,
     private tq: DrugSelectTagGQL,
@@ -114,7 +142,7 @@ export class CvcDrugSelectField
   ) {
     super()
     this.placeholder$ = new BehaviorSubject<string>(
-      this.defaultOptions.props!.placeholder
+      this.defaultOptions.props!.placeholders!.default
     )
   }
 
@@ -178,6 +206,8 @@ export class CvcDrugSelectField
             } does not include associated drugs`
           )
         }
+        // if entity type is required, toggle field required property off,
+        // and show a 'Select Type..' prompt
         if (!reqDrug && !entityType && this.props.requireType) {
           this.props.required = false
           // no drug required, entity type not specified
@@ -185,14 +215,14 @@ export class CvcDrugSelectField
             `Select ${this.stateEntityName} Type to select drugs`
           )
         }
+        // state indicates drug is required, toggle field required property,
+        // and show the default or multi placeholder
         if (reqDrug) {
           this.props.required = true
-          // drug required
           this.placeholder$.next('Search Drugs')
         }
-        // reset field if field has a value and
-        // reqDrug is false or
-        // entityType is false & requireType is true
+        // field currently has a value, but state indicates no drug is required,
+        // or no type is provided && type is required, so reset field
         if (
           (!reqDrug && this.formControl.value) ||
           (this.props.requireType && !entityType && this.formControl.value)

@@ -1,11 +1,10 @@
-import { ChangeDetectorRef, Component, Injector } from '@angular/core'
+import { Component } from '@angular/core'
 import { EntityState } from '@app/forms2/states/entity.state'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
-import { Observable, Subject, filter, BehaviorSubject, map } from 'rxjs'
+import { BehaviorSubject, filter, map, Observable } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
 
 export type BaseFieldValue = Maybe<
   number | string | boolean | string[] | number[]
@@ -96,7 +95,7 @@ export function BaseFieldType<
     configureLabels(): void {
       if (typeof this.field.type !== 'string') return
       if (this.field.type.includes('multi')) {
-        this.initialLabel = this.field.props.multiLabel
+        this.initialLabel = this.field.props.labels.multi
       } else {
         this.initialLabel = this.field.props.label
       }
@@ -107,7 +106,7 @@ export function BaseFieldType<
         // value undefined, set to intial label based on type
         if (value === undefined) {
           if (this.field.type.includes('multi')) {
-            this.props.label = this.props.multiLabel
+            this.props.label = this.props.labels.multi
           } else {
             this.props.label = this.initialLabel
           }
@@ -125,7 +124,7 @@ export function BaseFieldType<
         }
         // value is array, set plural or singular depending on length
         if (value.length > 1) {
-          this.props.label = this.props.pluralLabel
+          this.props.label = this.props.labels.plural
         } else if (value.length === 1) {
           this.props.label = this.props.entityName.singular
         } else {
