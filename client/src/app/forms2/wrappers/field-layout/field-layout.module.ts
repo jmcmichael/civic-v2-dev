@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ConfigOption, FormlyModule } from '@ngx-formly/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { NzFormModule } from 'ng-zorro-antd/form';
-import { CvcFormFieldWrapper } from './form-field.wrapper';
+import { CvcFormFieldWrapper } from './field-layout.wrapper';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';

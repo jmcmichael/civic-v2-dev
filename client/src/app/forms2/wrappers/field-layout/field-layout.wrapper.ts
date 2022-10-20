@@ -51,8 +51,8 @@ export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
 
 @Component({
   selector: 'formly-wrapper-nz-form-field',
-  templateUrl: './form-field.wrapper.html',
-  styleUrls: ['./form-field.wrapper.less'],
+  templateUrl: './field-layout.wrapper.html',
+  styleUrls: ['./field-layout.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CvcFormFieldWrapper
