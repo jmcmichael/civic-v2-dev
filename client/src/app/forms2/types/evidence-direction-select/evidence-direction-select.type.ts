@@ -1,5 +1,4 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, Type } from '@angular/core'
-import { SelectOption } from '@app/forms2/states/entity.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { EvidenceDirection, EvidenceType, Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
@@ -9,6 +8,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, filter, Observable, Subject } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
@@ -50,7 +50,7 @@ export class CvcEvidenceDirectionSelectField
   onEvidenceType$!: Subject<Maybe<EvidenceType>>
 
   // PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<Maybe<SelectOption[]>>
+  selectOption$!: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
   placeholder$!: BehaviorSubject<string>
 
   // OUTPUT STREAMS

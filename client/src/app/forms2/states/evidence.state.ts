@@ -4,9 +4,10 @@ import {
   EvidenceType,
   Maybe,
 } from '@app/generated/civic.apollo'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
-import { EntityName, EntityState, SelectOption } from './entity.state'
+import { EntityName, EntityState } from './entity.state'
 
 export type EvidenceFieldSubjectMap = {
   geneId$: BehaviorSubject<Maybe<number>>
@@ -17,9 +18,9 @@ export type EvidenceFieldSubjectMap = {
 }
 
 export type EvidenceOptionsSubjectMap = {
-  evidenceTypeOption$: BehaviorSubject<SelectOption[]>
-  clinicalSignificanceOption$: BehaviorSubject<Maybe<SelectOption[]>>
-  evidenceDirectionOption$: BehaviorSubject<Maybe<SelectOption[]>>
+  evidenceTypeOption$: BehaviorSubject<NzSelectOptionInterface[]>
+  clinicalSignificanceOption$: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
+  evidenceDirectionOption$: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
 }
 
 export type EvidenceRequiresSubjectMap = {
@@ -65,13 +66,13 @@ class EvidenceState extends EntityState {
     }
 
     this.options = {
-      evidenceTypeOption$: new BehaviorSubject<SelectOption[]>(
+      evidenceTypeOption$: new BehaviorSubject<NzSelectOptionInterface[]>(
         this.getOptionsFromEnums(this.getTypeOptions())
       ),
-      evidenceDirectionOption$: new BehaviorSubject<Maybe<SelectOption[]>>(
+      evidenceDirectionOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
         undefined
       ),
-      clinicalSignificanceOption$: new BehaviorSubject<Maybe<SelectOption[]>>(
+      clinicalSignificanceOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
         undefined
       ),
     }

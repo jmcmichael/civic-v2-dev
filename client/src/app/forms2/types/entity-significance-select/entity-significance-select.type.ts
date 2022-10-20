@@ -1,10 +1,9 @@
-import { AfterViewInit, Component, Injector, Type } from '@angular/core'
+import { AfterViewInit, Component, Type } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import {
   EntityClinicalSignificance,
   EntityState,
-  SelectOption,
 } from '@app/forms2/states/entity.state'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
@@ -13,8 +12,8 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
 interface CvcEntitySignificanceSelectFieldProps extends FormlyFieldProps {
@@ -48,7 +47,7 @@ export class CvcEntitySignificanceSelectField
 
   // STATE SOURCE STREAMS
   onEntityType$!: Subject<Maybe<EntityType>>
-  selectOption$!: BehaviorSubject<Maybe<SelectOption[]>>
+  selectOption$!: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
 
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS

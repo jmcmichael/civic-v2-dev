@@ -4,9 +4,10 @@ import {
   AssertionType,
   Maybe,
 } from '@app/generated/civic.apollo'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
 import { assertionSubmitFieldsDefaults } from '../models/assertion-submit.model'
-import { EntityName, EntityState, SelectOption } from './entity.state'
+import { EntityName, EntityState } from './entity.state'
 
 class AssertionState extends EntityState {
   constructor() {
@@ -28,13 +29,13 @@ class AssertionState extends EntityState {
     }
 
     this.options = {
-      assertionTypeOption$: new BehaviorSubject<SelectOption[]>(
+      assertionTypeOption$: new BehaviorSubject<NzSelectOptionInterface[]>(
         this.getOptionsFromEnums(this.getTypeOptions())
       ),
-      assertionDirectionOption$: new BehaviorSubject<Maybe<SelectOption[]>>(
+      assertionDirectionOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
         undefined
       ),
-      clinicalSignificanceOption$: new BehaviorSubject<Maybe<SelectOption[]>>(
+      clinicalSignificanceOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
         undefined
       ),
     }

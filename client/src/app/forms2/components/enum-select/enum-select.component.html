@@ -3,14 +3,18 @@
   [nzPlaceHolder]="cvcPlaceholder"
   [formControl]="cvcFormControl"
   [formlyAttributes]="cvcFormlyAttributes"
-  [nzOptionHeightPx]="28"
+  [nzOptions]="cvcOptions ? cvcOptions : []"
+  [nzOptionHeightPx]="30"
+  [nzMode]="cvcSelectMode"
   [nzDisabled]="cvcDisabled"
   [nzAllowClear]="cvcAllowClear"
-  (ngModelChange)="cvcModelChange && cvcModelChange.next($event)">
-  <ng-container
-    *ngFor="let item of cvcSelectOptions">
+  (ngModelChange)="
+    cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
+  ">
+<!-- <ng-container
+    *ngFor="let item of cvcOptions">
     <nz-option
       [nzValue]="item.value"
       [nzLabel]="item.label"></nz-option>
-  </ng-container>
+  </ng-container> -->
 </nz-select>

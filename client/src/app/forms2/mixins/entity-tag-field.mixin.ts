@@ -82,7 +82,7 @@ export function EntityTagField<
     @Injectable()
     abstract class EntityTagFieldMixin extends Base {
       // BASE FIELD TYPE SOURCE STREAMS
-      // need to declare them to reference them here, but base-field creates these
+      // need to declare them to reference them here, then base-field creates these
       onValueChange$?: Subject<Maybe<number>>
 
       // LOCAL SOURCE STREAMS

@@ -1,18 +1,14 @@
-import { AfterViewInit, Component, Injector, OnInit, Type } from '@angular/core'
+import { AfterViewInit, Component, Type } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
-import { EntityState, SelectOption } from '@app/forms2/states/entity.state'
-import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { Maybe } from '@app/generated/civic.apollo'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldType,
-  FieldTypeConfig,
-  FormlyFieldConfig,
-  FormlyFieldProps,
+    FieldTypeConfig,
+    FormlyFieldConfig,
+    FormlyFieldProps
 } from '@ngx-formly/core'
-import { BehaviorSubject, filter, Observable, Subject } from 'rxjs'
-import { pluck } from 'rxjs-etc/operators'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
+import { BehaviorSubject } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
@@ -47,7 +43,7 @@ export class CvcEntityTypeSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<SelectOption[]>
+  selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
   label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
 

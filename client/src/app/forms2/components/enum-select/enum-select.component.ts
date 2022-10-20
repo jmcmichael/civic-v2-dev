@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, TemplateRef, TrackByFunction } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { SelectOption } from '@app/forms2/states/entity.state';
 import { FormlyFieldConfig } from '@ngx-formly/core';
-import { Subject } from 'rxjs';
+import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models';
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select';
 
 @Component({
   selector: 'cvc-enum-select',
@@ -13,12 +13,17 @@ import { Subject } from 'rxjs';
 export class CvcEnumSelectComponent {
   @Input() cvcFormControl!: FormControl
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
+  @Input() cvcEnumName: string = 'Attribute'
+  @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder: string = 'Select an option'
+  @Input() cvcOptions?: NzSelectOptionInterface[] = []
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled: boolean = false
   @Input() cvcAllowClear: boolean = true
-  @Input() cvcModelChange?: Subject<any>
-  @Input() cvcSelectOptions?: SelectOption[]
+  @Input() cvcOptionTrackBy!: TrackByFunction<any>
+  @Input() cvcModelChange?: FormlyAttributeEvent
+  // custom template for field value render
+  @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
 
   constructor() { }
 

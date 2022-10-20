@@ -97,7 +97,6 @@ export class CvcDrugSelectField
   extends DrugSelectMixin
   implements AfterViewInit
 {
-  state?: EntityState
 
   // STATE SOURCE STREAMS
   onEntityType$?: Subject<Maybe<EntityType>>

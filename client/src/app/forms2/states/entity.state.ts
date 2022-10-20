@@ -10,6 +10,7 @@ import {
   EvidenceDirection,
   EvidenceType,
 } from '@app/generated/civic.apollo'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
 import { $enum } from 'ts-enum-util'
 
@@ -33,7 +34,7 @@ export type ValidEntity = {
   allowsFdaApproval: boolean
 }
 
-export type SelectOption = { [key: string | number]: string | number }
+export type NzSelectOption = { [key: string | number]: string | number }
 
 export enum EntityName {
   EVIDENCE = 'Evidence',
@@ -175,7 +176,7 @@ class EntityState implements IEntityState {
     return state !== undefined ? state.allowsFdaApproval : true
   }
 
-  getOptionsFromEnums = (e: InputEnum[]): SelectOption[] => {
+  getOptionsFromEnums = (e: InputEnum[]): NzSelectOptionInterface[] => {
     if (e.length === 0) {
       return []
     }
