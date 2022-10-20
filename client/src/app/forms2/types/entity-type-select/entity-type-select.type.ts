@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, Type } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
+import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import {
     FieldTypeConfig,
@@ -26,7 +27,8 @@ const EntityTypeSelectMixin = mixin(
   BaseFieldType<
     FieldTypeConfig<CvcEntityTypeSelectFieldProps>,
     Maybe<EntityType>
-  >()
+  >(),
+  EnumTagField<EntityType>()
 )
 
 @Component({

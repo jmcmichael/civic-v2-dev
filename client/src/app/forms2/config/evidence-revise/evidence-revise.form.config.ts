@@ -56,7 +56,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'drug-select',
             props: {
               required: true,
-              label: 'Drug Label'
             },
           },
           <CvcDrugSelectFieldOptions>{

@@ -19,7 +19,7 @@
       </ng-container>
       <nz-form-control
         *ngIf="props.layout.control as control"
-        [nzExtra]="'Control extra test string.'"
+        [nzExtra]="showError ? undefined : 'Field value tooltip text here.'"
         [nzValidateStatus]="errorState"
         [nzErrorTip]="errorTpl"
         [nzSpan]="control.span ? control.span : null"

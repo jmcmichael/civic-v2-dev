@@ -5,7 +5,7 @@
   [class.ng-dirty]="cvcShowError"
   nzSize="default"
   [nzMode]="cvcSelectMode"
-  [nzAutoClearSearchValue]="false"
+  [nzAutoClearSearchValue]="cvcAutoClearSearchValue"
   [nzPlaceHolder]="
     cvcPlaceholder ? cvcPlaceholder : 'Search ' + cvcEntityName.plural
   "
@@ -50,6 +50,7 @@
     <nz-alert
       nzType="info"
       [nzMessage]="createMsg"
+      style="margin-bottom: 12px;"
       nzShowIcon></nz-alert>
     <ng-container
       *ngrxLet="onSearch$ as searchString"

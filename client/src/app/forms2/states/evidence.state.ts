@@ -6,6 +6,7 @@ import {
 } from '@app/generated/civic.apollo'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
+import { CvcInputEnum } from '../forms2.types'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
 import { EntityName, EntityState } from './entity.state'
 
@@ -15,6 +16,10 @@ export type EvidenceFieldSubjectMap = {
   evidenceType$: BehaviorSubject<Maybe<EvidenceType>>
   evidenceDirection$: BehaviorSubject<Maybe<EvidenceDirection>>
   clinicalSignificance$: BehaviorSubject<Maybe<EvidenceClinicalSignificance>>
+}
+
+export type EvidenceEnumsSubjectMap = {
+  evidenceType$: BehaviorSubject<CvcInputEnum[]>
 }
 
 export type EvidenceOptionsSubjectMap = {
@@ -45,6 +50,7 @@ export type EvidenceRequiresSubject = TypesIn<keyof EvidenceRequiresSubjectMap>
 
 class EvidenceState extends EntityState {
   fields: EvidenceFieldSubjectMap
+  enums: EvidenceEnumsSubjectMap
   options: EvidenceOptionsSubjectMap
   requires: EvidenceRequiresSubjectMap
 
@@ -75,6 +81,10 @@ class EvidenceState extends EntityState {
       clinicalSignificanceOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
         undefined
       ),
+    }
+
+    this.enums = {
+      evidenceType$: new BehaviorSubject<CvcInputEnum[]>([])
     }
 
     this.requires = {

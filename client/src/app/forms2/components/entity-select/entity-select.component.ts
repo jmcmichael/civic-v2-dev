@@ -63,11 +63,12 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = false
+  @Input() cvcAutoClearSearchValue: boolean = true
   @Input() cvcOptionTrackBy!: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
-  // template containing UI to add an entity, display if no results returned from search
+  // templateref w/ entity's quick-add form component
   @Input() cvcAddEntity: TemplateRef<any> | null = null
   @Input() cvcOnCreate?: Subject<number>
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
@@ -102,8 +103,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.createMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 
-  // formly fields do all their config in AfterViewInit, so components with
-  // FormControl or FormConfig Inputs need to do all their config in AfterViewInit, too
   ngAfterViewInit(): void {
     // emit search queries
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((s) => {

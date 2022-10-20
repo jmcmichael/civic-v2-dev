@@ -16,7 +16,7 @@ so apply select-item styles which mimic nz-select's multi-mode pseudo tags -->
     (nzOnClose)="cvcOnClose.next($event)">
     <span
       nz-tooltip
-      nzTooltipTitle="TEST">
+      nzTooltipTitle="POPUP">
       <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
     </span>
   </nz-tag>
@@ -29,7 +29,7 @@ so only display the tag contents as it will be wrapped in nz-select's pseudo-tag
   class="multi-select-item">
   <span
     nz-tooltip
-    nzTooltipTitle="TEST MULTI">
+    nzTooltipTitle="POPUP">
     <ng-template [ngTemplateOutlet]="tagContent"> </ng-template>
   </span>
 </span>
