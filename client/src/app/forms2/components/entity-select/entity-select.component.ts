@@ -28,10 +28,13 @@ export type CvcSelectMessageOptions = {
   // displayed beneath select input, while server request is loading,
   // e.g. 'Loading Entities...'
   loading: string
-  // displayed if no records match search string, SEARCH_STRING is
-  // replaced with onSearch$ string
-  // e.g. 'No Entities found matching "SEARCH_STRING"'
+  // displayed if no records match search string
+  // e.g. 'No ENTITY_NAME_PLURAL found matching "SEARCH_STRING"'
   notfound: string
+  // displayed if no records match search string, and optional param
+  // was used in search.
+  //  e.g. 'No PARAM_NAME ENTITY_NAME_PLURAL found matching "SEARCH_STRING"'
+  notFoundWithParam: string
   // displayed if entity-select has been provided a template w/ add entity component
   // e.g. 'Create an entity named "SEARCH_STRING"?'
   create: string
@@ -86,8 +89,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   // UI message streams
   focusMessage$: BehaviorSubject<Maybe<string>>
-  notFoundMessage$: BehaviorSubject<Maybe<string>>
   loadingMessage$: BehaviorSubject<Maybe<string>>
+  notFoundMessage$: BehaviorSubject<Maybe<string>>
+  notFoundWithParamMessage$: BehaviorSubject<Maybe<string>>
   createMessage$: BehaviorSubject<Maybe<string>>
 
   constructor(private cdr: ChangeDetectorRef) {
@@ -100,6 +104,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.loadingMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.focusMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.notFoundMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
+    this.notFoundWithParamMessage$ = new BehaviorSubject<Maybe<string>>(
+      undefined
+    )
     this.createMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 
@@ -155,6 +162,17 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       )
     }
 
+    // show "no records found for string STR and ${entitySchemaType} ${paramValue} if not loading, no search string, results exist with 0 length,
+    // and param provided
+    function noResultsExistWithParam(
+      loading: boolean,
+      search: Maybe<string>,
+      results: Maybe<any[]>,
+      param: Maybe<any>
+    ): boolean {
+      return noResultsExist(loading, search, results) && param
+    }
+
     function noResultsCreateEntity(
       loading: boolean,
       search: Maybe<string>,
@@ -165,16 +183,17 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     }
 
     // set messages
+    // combineLatest([this.onFocus$, this.onSearch$, this.onLoading$, this.typeaheadParam$])
     combineLatest([this.onFocus$, this.onSearch$, this.onLoading$])
-      .pipe(
-        untilDestroyed(this)
-      )
+      .pipe(untilDestroyed(this))
       .subscribe(([_focus, search, loading]) => {
         // show search prompt msg, e.g. "Enter search query"
         if (inputHasFocus(loading, search, this.cvcResults)) {
-          this.focusMessage$.next(
+          const msg =
             this.cvcSelectMessages?.focus ||
-              `Enter query to search ${this.cvcEntityName.plural}.`
+            `Enter query to search ENTITY_NAME_PLURAL`
+          this.focusMessage$.next(
+            msg.replace('ENTITY_NAME_PLURAL', this.cvcEntityName.plural)
           )
           this.loadingMessage$.next(undefined)
           this.notFoundMessage$.next(undefined)
@@ -191,9 +210,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
         // show loading message, e.g. "Search for Entities..."
         if (isLoading(loading, search)) {
+          const msg =
+            this.cvcSelectMessages?.loading || `Searching ENTITY_NAME_PLURAL…`
           this.loadingMessage$.next(
-            this.cvcSelectMessages?.loading ||
-              `Searching ${this.cvcEntityName.plural}…`
+            msg.replace('ENTITY_NAME_PLURAL', this.cvcEntityName.plural)
           )
           this.focusMessage$.next(undefined)
           this.notFoundMessage$.next(undefined)
@@ -205,8 +225,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           if (!search) return
           const notFound =
             this.cvcSelectMessages?.notfound ||
-            `No ${this.cvcEntityName.singular} found matching "SEARCH_STRING".`
-          const msg = notFound.replace('SEARCH_STRING', search)
+            `No ENTITY_NAME_PLURAL found matching "SEARCH_STRING".`
+          const msg = notFound
+            .replace('SEARCH_STRING', search)
+            .replace('ENTITY_NAME_PLURAL', this.cvcEntityName.plural)
           this.notFoundMessage$.next(msg)
           this.loadingMessage$.next(undefined)
           this.focusMessage$.next(undefined)
@@ -227,8 +249,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           if (!search) return
           const create =
             this.cvcSelectMessages?.create ||
-            `Create a new ${this.cvcEntityName.singular} named "SEARCH_STRING"?'`
-          const msg = create.replace('SEARCH_STRING', search)
+            `Create a new ENTITY_NAME_SINGULAR named "SEARCH_STRING"?'`
+          const msg = create.replace('SEARCH_STRING', search).replace('ENTITY_NAME_SINGULAR', this.cvcEntityName.singular)
           this.notFoundMessage$.next(undefined)
           this.loadingMessage$.next(undefined)
           this.focusMessage$.next(undefined)

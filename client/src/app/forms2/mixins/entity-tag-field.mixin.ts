@@ -55,6 +55,7 @@ export type GetSelectOptionsFn<TAF> = (
 export interface EntityTagFieldOptions<TAQ, TAV, TAP, TAF, TQ, TV> {
   typeaheadQuery: Query<TAQ, TAV>
   typeaheadParam$?: Observable<any>
+  typeaheadParamName$?: BehaviorSubject<Maybe<string>>
   tagQuery: Query<TQ, TV>
   getTypeaheadVarsFn: GetTypeaheadVarsFn<TAV, TAP>
   getTypeaheadResultsFn: GetTypeaheadResultsFn<TAQ, TAF>
@@ -104,7 +105,8 @@ export function EntityTagField<
       // config option queries
       private typeaheadQuery!: Query<TAQ, TAV>
       private tagQuery!: Query<TQ, TV>
-      typeaheadParam$?: Observable<any> // additional param for typeahead query
+      private typeaheadParam$?: Observable<any> // additional param for typeahead query
+      private typeaheadParamName$?: BehaviorSubject<Maybe<string>> // additional param for typeahead query
 
       // config options getter fns
       getTypeaheadVars!: GetTypeaheadVarsFn<TAV, TAP>
@@ -131,6 +133,7 @@ export function EntityTagField<
         this.getSelectedItemOption = options.getSelectedItemOptionFn
         this.getSelectOptions = options.getSelectOptionsFn
         this.typeaheadParam$ = options.typeaheadParam$
+        this.typeaheadParamName$ = options.typeaheadParamName$
         this.cdr = options.changeDetectorRef
 
         this.onSearch$ = new Subject<string>()
@@ -209,14 +212,16 @@ export function EntityTagField<
           })
         ) // end this.response$
 
-        this.response$.pipe(
-          filter((r) => !r.loading),
-          map((r) => this.getTypeahedResults(r)),
-          // tag(`${this.field.id} entity-tag-field.mixin result$`),
-          untilDestroyed(this)
-        ).subscribe((results: TAF[]) => {
-          this.result$.next(results)
-        })
+        this.response$
+          .pipe(
+            filter((r) => !r.loading),
+            map((r) => this.getTypeahedResults(r)),
+            // tag(`${this.field.id} entity-tag-field.mixin result$`),
+            untilDestroyed(this)
+          )
+          .subscribe((results: TAF[]) => {
+            this.result$.next(results)
+          })
 
         if (!this.optionTemplates) {
           console.warn(
@@ -332,11 +337,11 @@ export function EntityTagField<
         }
         // reset options to prevent brief flash of previous
         // search (or prepopulate) option items during subsequent searches
-        if(this.selectOption$) this.selectOption$.next([])
+        if (this.selectOption$) this.selectOption$.next([])
         // reset results to empty out optionTemplate QueryList, forcing
         // re-render of optionTemplates for subsequent search results, even
         // if cached results are returned
-        if(this.result$) this.result$.next([])
+        if (this.result$) this.result$.next([])
       }
 
       optionTrackBy: TrackByFunction<NzSelectOptionInterface> = (

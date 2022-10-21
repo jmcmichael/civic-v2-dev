@@ -32,7 +32,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, lastValueFrom } from 'rxjs'
+import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export type CvcVariantSelectFieldOptions = Partial<
@@ -119,6 +119,7 @@ export class CvcVariantSelectField
     this.configureEntityTagField({
       typeaheadQuery: this.taq,
       typeaheadParam$: this.onGeneId$ ? this.onGeneId$ : undefined,
+      typeaheadParamName$: this.onGeneName$ ? this.onGeneName$ : undefined,
       tagQuery: this.tq,
       getTypeaheadVarsFn: this.getTypeaheadVarsFn,
       getTypeaheadResultsFn: this.getTypeaheadResultsFn,
@@ -129,7 +130,7 @@ export class CvcVariantSelectField
       changeDetectorRef: this.changeDetectorRef,
     })
 
-    // set initial placeholder & subject
+    // set initial placeholder
     let initialPlaceholder: string
     if (this.props.requireGene && this.props.requireGenePrompt) {
       initialPlaceholder = this.props.requireGenePrompt

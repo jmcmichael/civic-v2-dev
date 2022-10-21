@@ -45,6 +45,11 @@
     {{ notFoundMsg }}
   </ng-container>
 
+  <!-- none found with optional param msg -->
+  <ng-container *ngIf="notFoundWithParamMessage$ | ngrxPush as notFoundWithParamMsg">
+    {{ notFoundWithParamMsg }}
+  </ng-container>
+
   <!-- create new entity template-->
   <ng-container *ngIf="createMessage$ | ngrxPush as createMsg">
     <nz-alert
