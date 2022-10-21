@@ -19,7 +19,7 @@ export type EvidenceFieldSubjectMap = {
 }
 
 export type EvidenceEnumsSubjectMap = {
-  evidenceType$: BehaviorSubject<CvcInputEnum[]>
+  entityType$: BehaviorSubject<CvcInputEnum[]>
 }
 
 export type EvidenceOptionsSubjectMap = {
@@ -84,7 +84,7 @@ class EvidenceState extends EntityState {
     }
 
     this.enums = {
-      evidenceType$: new BehaviorSubject<CvcInputEnum[]>([])
+      entityType$: new BehaviorSubject<CvcInputEnum[]>(this.getTypeOptions())
     }
 
     this.requires = {

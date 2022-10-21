@@ -50,6 +50,7 @@ export type EntityFieldSubjectMap = { [key: string]: BehaviorSubject<any> }
 
 export interface IEntityState {
   fields: EntityFieldSubjectMap
+  enums: EntityFieldSubjectMap
   options: EntityFieldSubjectMap
   requires: EntityFieldSubjectMap
   validStates: Map<EntityType, ValidEntity>
@@ -81,6 +82,7 @@ export interface IEntityState {
 
 class EntityState implements IEntityState {
   fields: EntityFieldSubjectMap
+  enums: EntityFieldSubjectMap
   options: EntityFieldSubjectMap
   requires: EntityFieldSubjectMap
   validStates = new Map<EntityType, ValidEntity>()
@@ -100,6 +102,7 @@ class EntityState implements IEntityState {
   constructor(en: EntityName) {
     this.fields = {}
     this.options = {}
+    this.enums = {}
     this.requires = {}
 
     this.entityName = en

@@ -1,6 +1,16 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, Type } from '@angular/core'
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  Type,
+} from '@angular/core'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
-import { EvidenceDirection, EvidenceType, Maybe } from '@app/generated/civic.apollo'
+import {
+  EvidenceDirection,
+  EvidenceType,
+  Maybe,
+} from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldType,
@@ -35,12 +45,14 @@ export class CvcEvidenceDirectionSelectField
   extends FieldType<FieldTypeConfig<CvcEvidenceDirectionSelectFieldProps>>
   implements AfterViewInit
 {
-  defaultOptions: Partial<FieldTypeConfig<CvcEvidenceDirectionSelectFieldProps>> = {
+  defaultOptions: Partial<
+    FieldTypeConfig<CvcEvidenceDirectionSelectFieldProps>
+  > = {
     props: {
       label: 'Evidence Type',
       placeholder: 'Select an Evidence Direction',
       requireType: true,
-      requireTypePrompt: 'Select an Evidence Type to choose Direction'
+      requireTypePrompt: 'Select an Evidence Type to choose Direction',
     },
   }
 
@@ -94,7 +106,11 @@ export class CvcEvidenceDirectionSelectField
       this.state = this.field.options.formState
       // set up input stream
       if (this.state && this.state.options.evidenceDirectionOption$) {
-        this.selectOption$ = this.state.options.evidenceDirectionOption$
+        this.state.options.evidenceDirectionOption$
+          .pipe(untilDestroyed(this))
+          .subscribe((options: Maybe<NzSelectOptionInterface[]>) => {
+            this.selectOption$.next(options)
+          })
       } else {
         console.error(
           `evidence-direction-select field could not find form state's evidenceDirectionOption$ to populate select.`
@@ -127,7 +143,8 @@ export class CvcEvidenceDirectionSelectField
             untilDestroyed(this)
           )
           .subscribe((v) => {
-            if (this.evidenceDirectionChange$) this.evidenceDirectionChange$.next(v)
+            if (this.evidenceDirectionChange$)
+              this.evidenceDirectionChange$.next(v)
           })
       }
     }

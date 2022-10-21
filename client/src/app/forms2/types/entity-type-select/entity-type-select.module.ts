@@ -6,6 +6,7 @@ import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
+import { CvcAttributeTagModule } from '@app/components/shared/attribute-tag/attribute-tag.module'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -25,6 +26,7 @@ const typeConfig: ConfigOption = {
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
     FormlyNzFormFieldModule, // for form-field wrapper
+    CvcAttributeTagModule,
     CvcEnumSelectModule,
   ],
   exports: [CvcEntityTypeSelectField],

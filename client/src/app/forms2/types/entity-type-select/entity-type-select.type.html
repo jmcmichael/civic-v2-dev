@@ -5,3 +5,9 @@
   [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
 ></cvc-enum-select>
+
+<ng-container *ngrxFor="let option of selectOption$ | ngrxPush; index as i">
+  <ng-template #optionTemplates>
+    <cvc-attribute-tag [cvcAttrValue]="option"></cvc-attribute-tag>
+  </ng-template>
+</ng-container>

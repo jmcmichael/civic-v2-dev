@@ -1,12 +1,20 @@
-import { AfterViewInit, Component, Type } from '@angular/core'
+import {
+  AfterViewInit,
+  Component,
+  QueryList,
+  TemplateRef,
+  Type,
+  ViewChildren,
+} from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-    FieldTypeConfig,
-    FormlyFieldConfig,
-    FormlyFieldProps
+  FieldTypeConfig,
+  FormlyFieldConfig,
+  FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
@@ -40,7 +48,6 @@ export class CvcEntityTypeSelectField
   extends EntityTypeSelectMixin
   implements AfterViewInit
 {
-
   // STATE SOURCE STREAMS
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
@@ -59,8 +66,12 @@ export class CvcEntityTypeSelectField
     },
   }
 
+  @ViewChildren('optionTemplates', { read: TemplateRef })
+  optionTemplates?: QueryList<TemplateRef<any>>
+
   constructor() {
     super()
+    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
   }
 
   ngAfterViewInit(): void {
@@ -69,7 +80,9 @@ export class CvcEntityTypeSelectField
   }
 
   configureStateConnections(): void {
-    this.stateValueChange$!.pipe(tag(`${this.field.id} stateValueChange$`)).subscribe()
+    this.stateValueChange$!.pipe(
+      tag(`${this.field.id} stateValueChange$`)
+    ).subscribe()
     if (!this.state) {
       console.error(
         `${this.field.id} requires a form state to configure itself, none was found.`
@@ -92,14 +105,35 @@ export class CvcEntityTypeSelectField
 
     // subscribe to state's type options
     const etoName = `${this.state.entityName.toLowerCase()}TypeOption$`
-    this.selectOption$ = this.state.options[etoName]
+    if (this.state.enums.entityType$) {
+      this.state.enums.entityType$
+        .pipe(untilDestroyed(this))
+        .subscribe((enums) => {
+          if (this.optionTemplates) {
+            this.selectOption$.next(
+              this.getSelectOptionsFn(enums, this.optionTemplates)
+            )
+          } else {
+            this.selectOption$.next(enums)
+          }
+        })
+    }
     if (!this.selectOption$) {
       console.error(
         `${this.field.id} could not find state's ${etoName} to populate select options.`
       )
       return
     }
-
   }
-
+  getSelectOptionsFn(
+    entityTypes: EntityType[],
+    tplRefs: QueryList<TemplateRef<any>>
+  ): NzSelectOptionInterface[] {
+    return entityTypes.map((entityType: EntityType, index: number) => {
+      return <NzSelectOptionInterface>{
+        label: tplRefs.get(index) || entityType,
+        value: entityType,
+      }
+    })
+  }
 }
