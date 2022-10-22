@@ -1,20 +1,17 @@
 <nz-select
   [class.ng-dirty]="cvcShowError"
-  [nzPlaceHolder]="cvcPlaceholder"
   [formControl]="cvcFormControl"
   [formlyAttributes]="cvcFormlyAttributes"
-  [nzOptions]="cvcOptions ? cvcOptions : []"
-  [nzOptionHeightPx]="30"
   [nzMode]="cvcSelectMode"
+  [nzPlaceHolder]="
+    cvcPlaceholder ? cvcPlaceholder : 'Select ' + cvcEnumName
+  "
+  [nzOptions]="cvcOptions ? cvcOptions : []"
+  [nzCustomTemplate]="cvcCustomTemplate ? cvcCustomTemplate : null"
+  [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
   [nzAllowClear]="cvcAllowClear"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
   ">
-  <!-- <ng-container
-    *ngFor="let item of cvcOptions">
-    <nz-option
-      [nzValue]="item.value"
-      [nzLabel]="item.label"></nz-option>
-  </ng-container> -->
 </nz-select>

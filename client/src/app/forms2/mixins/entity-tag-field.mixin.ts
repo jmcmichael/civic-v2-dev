@@ -239,10 +239,9 @@ export function EntityTagField<
           })
         } else {
           // subscribe to optionTemplates ViewChildren changes,
-          // which are re-rendered whenever result$ emits. Combine
-          // option templates with results, and for each result,
-          // attach its template to a NzSelectOptionInterface object's label,
-          // and set the value to the entity id.
+          // which are re-rendered whenever result$ emits. For each
+          // template, getSelectOptions() generates a NzSelectOption that
+          // attaches the pre-generated row template to a result value.
           this.optionTemplates.changes
             .pipe(
               // tag(`${this.field.id} optionTemplates.changes`),

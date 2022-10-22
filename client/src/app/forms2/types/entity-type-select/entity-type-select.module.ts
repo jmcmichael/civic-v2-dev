@@ -7,6 +7,8 @@ import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
 import { CvcAttributeTagModule } from '@app/components/shared/attribute-tag/attribute-tag.module'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 
 const typeConfig: ConfigOption = {
   types: [
