@@ -12,7 +12,7 @@ export interface LinkableEntity {
   templateUrl: './entity-tag.component.html',
   styleUrls: ['./entity-tag.component.less'],
 })
-export class CvcEntityTagComponent implements OnInit {
+export class CvcEntityTagComponent {
   _cacheId: string = ''
   @Input()
   set cvcCacheId(cacheId: string) {
@@ -63,5 +63,4 @@ export class CvcEntityTagComponent implements OnInit {
     this.entity = entity
   }
 
-  ngOnInit(): void {}
 }

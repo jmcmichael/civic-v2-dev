@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, TemplateRef, TrackByFunction } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, TemplateRef, TrackByFunction } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models';
@@ -24,6 +24,7 @@ export class CvcEnumSelectComponent {
   @Input() cvcModelChange?: FormlyAttributeEvent
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
+  @Output() readonly cvcOnFocus = new EventEmitter<void>()
 
   constructor() { }
 

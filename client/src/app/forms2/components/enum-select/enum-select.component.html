@@ -11,6 +11,7 @@
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
   [nzAllowClear]="cvcAllowClear"
+  (nzFocus)="cvcOnFocus.next()"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
   ">
