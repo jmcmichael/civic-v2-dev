@@ -9,7 +9,6 @@ import {
   Output,
   SimpleChanges,
   TemplateRef,
-  TrackByFunction,
 } from '@angular/core'
 import { FormControl } from '@angular/forms'
 import { Maybe } from '@app/generated/civic.apollo'
@@ -67,7 +66,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = false
   @Input() cvcAutoClearSearchValue: boolean = true
-  @Input() cvcOptionTrackBy!: TrackByFunction<any>
   @Input() cvcModelChange?: FormlyAttributeEvent
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null

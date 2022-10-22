@@ -22,6 +22,6 @@
       [cvcAttrValue]="selected.nzValue"
       [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'select-item'"
       [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
-      (cvcOnClose)="onTagClose$.next(selected.nzValue)"></cvc-attribute-tag>
+      (cvcOnClose)="onTagClose$.next($event)"></cvc-attribute-tag>
   </div>
 </ng-template>

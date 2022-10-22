@@ -10,7 +10,6 @@
   [cvcShowError]="showError"
   [cvcDisabled]="onRequiresDrug$ && !(onRequiresDrug$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcOptionTrackBy]="optionTrackBy"
   [cvcAddEntity]="addDrug"
   (cvcOnSearch)="onSearch$.next($event)"
   (cvcOnFocus)="onFocus$.next($event)"

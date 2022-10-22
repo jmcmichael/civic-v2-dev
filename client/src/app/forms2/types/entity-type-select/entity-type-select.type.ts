@@ -19,7 +19,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, withLatestFrom } from 'rxjs'
+import { BehaviorSubject, Subject, withLatestFrom } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
@@ -27,6 +27,7 @@ interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   enumName: string
+  isMultiSelect: boolean
 }
 
 export interface CvcEntityTypeSelectFieldConfig
@@ -56,7 +57,7 @@ export class CvcEntityTypeSelectField
 
   // LOCAL SOURCE STREAMS
   onFocus$: BehaviorSubject<void>
-
+  onTagClose$: Subject<MouseEvent>
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
   selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
@@ -71,6 +72,7 @@ export class CvcEntityTypeSelectField
       label: 'ENTITY_NAME Type',
       placeholder: 'Select an ENTITY_NAME Type',
       enumName: 'Type',
+      isMultiSelect: false,
     },
   }
 
@@ -82,6 +84,7 @@ export class CvcEntityTypeSelectField
     this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
     this.typeEnums$ = new BehaviorSubject<CvcInputEnum[]>([])
     this.onFocus$ = new BehaviorSubject<void>(undefined)
+    this.onTagClose$ = new Subject<MouseEvent>()
   }
 
   ngAfterViewInit(): void {
@@ -121,12 +124,15 @@ export class CvcEntityTypeSelectField
       return
     }
 
+    // update type enums when state entityType$ emits
     this.state.enums.entityType$
       .pipe(untilDestroyed(this))
       .subscribe((enums: CvcInputEnum[]) => {
         this.typeEnums$.next(enums)
       })
 
+    // check it option templates exist
+    // if not, populate selectOption$ with simple label/value options and exit
     if (!this.optionTemplates) {
       console.error(
         `${this.field.id} could not find its optionTemplates QueryList to populate its select options, so simple text labels will be displayed.`
@@ -136,13 +142,23 @@ export class CvcEntityTypeSelectField
       )
       return
     }
+    // listen to option template updates & create selectOptions w/
+    // enums & template array
     this.optionTemplates.changes
-      .pipe(withLatestFrom(this.typeEnums$), untilDestroyed(this))
+      .pipe(
+        withLatestFrom(this.typeEnums$),
+        tag(`${this.field.id} optionTemplates.changes`),
+        untilDestroyed(this)
+      )
       .subscribe(
         ([tplRefs, enums]: [QueryList<TemplateRef<any>>, CvcInputEnum[]]) => {
           this.updateSelectOptionsFn(tplRefs, enums)
         }
       )
+
+    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
+      this.resetField()
+    })
   }
 
   updateSelectOptionsFn(
@@ -174,10 +190,10 @@ export class CvcEntityTypeSelectField
     }
     // reset options to prevent brief flash of previous
     // search (or prepopulate) option items during subsequent searches
-    if (this.selectOption$) this.selectOption$.next([])
+    // if (this.selectOption$) this.selectOption$.next([])
     // reset results to empty out optionTemplate QueryList, forcing
     // re-render of optionTemplates for subsequent search results, even
     // if cached results are returned
-    // if (this.result$) this.result$.next([])
+    // if (this.typeEnums$) this.typeEnums$.next([])
   }
 }

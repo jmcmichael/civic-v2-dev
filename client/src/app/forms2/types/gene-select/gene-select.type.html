@@ -8,7 +8,6 @@
   [cvcOptions]="(selectOption$ | ngrxPush)!"
   [cvcShowError]="showError"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcOptionTrackBy]="optionTrackBy"
   (cvcOnSearch)="onSearch$.next($event)"
   (cvcOnFocus)="onFocus$.next($event)"
   [cvcModelChange]="props.change">
