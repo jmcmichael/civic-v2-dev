@@ -1,6 +1,6 @@
 import { evidenceReviseFormInitialModel } from "@app/forms2/models/evidence-revise.model"
 import { CvcDrugSelectFieldOptions } from "@app/forms2/types/drug-select/drug-select.type"
-import { CvcEntityTypeSelectFieldConfig } from "@app/forms2/types/entity-type-select/entity-type-select.type"
+import { CvcEntityTypeSelectFieldConfig } from "@app/forms2/types/type-select/type-select.type"
 import { CvcGeneSelectFieldConfig } from "@app/forms2/types/gene-select/gene-select.type"
 import { CvcVariantSelectFieldOptions } from "@app/forms2/types/variant-select/variant-select.type"
 import assignFieldConfigDefaultValues from "@app/forms2/utilities/assign-field-default-values"
@@ -46,7 +46,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           <CvcEntityTypeSelectFieldConfig>{
             key: 'evidenceType',
-            type: 'entity-type-select',
+            type: 'type-select',
             props: {
               required: true,
             },
@@ -116,14 +116,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
           // },
           // <CvcEntitySignificanceSelectFieldConfig>{
           //   key: 'clinicalSignficance',
-          //   type: 'entity-significance-select',
+          //   type: 'significance-select',
           //   props: {
           //     required: true,
           //   },
           // },
           // <CvcEvidenceDirectionSelectFieldConfig>{
           //   key: 'evidenceDirection',
-          //   type: 'evidence-direction-select',
+          //   type: 'direction-select',
           //   props: {
           //     required: true,
           //   },

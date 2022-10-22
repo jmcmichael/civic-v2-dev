@@ -32,7 +32,7 @@ interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcEntityTypeSelectFieldConfig
   extends FormlyFieldConfig<CvcEntityTypeSelectFieldProps> {
-  type: 'entity-type-select' | Type<CvcEntityTypeSelectField>
+  type: 'type-select' | Type<CvcEntityTypeSelectField>
 }
 
 const EntityTypeSelectMixin = mixin(
@@ -44,9 +44,9 @@ const EntityTypeSelectMixin = mixin(
 )
 
 @Component({
-  selector: 'cvc-entity-type-select',
-  templateUrl: './entity-type-select.type.html',
-  styleUrls: ['./entity-type-select.type.less'],
+  selector: 'cvc-type-select',
+  templateUrl: './type-select.type.html',
+  styleUrls: ['./type-select.type.less'],
 })
 export class CvcEntityTypeSelectField
   extends EntityTypeSelectMixin

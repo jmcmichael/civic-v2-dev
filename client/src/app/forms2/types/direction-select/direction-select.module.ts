@@ -1,26 +1,25 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
+import { CvcEvidenceDirectionSelectField } from './direction-select.type'
 import { ReactiveFormsModule } from '@angular/forms'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
-import { CvcEntitySignificanceSelectField } from './entity-significance-select.type'
 import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
+import { CvcAttributeTagModule } from '@app/components/shared/attribute-tag/attribute-tag.module'
 
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'entity-significance-select',
+      name: 'direction-select',
       wrappers: ['form-field'],
-      component: CvcEntitySignificanceSelectField,
+      component: CvcEvidenceDirectionSelectField,
     },
   ],
 }
 
 @NgModule({
-  declarations: [
-    CvcEntitySignificanceSelectField
-  ],
+  declarations: [CvcEvidenceDirectionSelectField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -28,9 +27,8 @@ const typeConfig: ConfigOption = {
     FormlyModule.forChild(typeConfig),
     FormlyNzFormFieldModule, // for form-field wrapper
     CvcEnumSelectModule,
+    CvcAttributeTagModule,
   ],
-  exports: [
-    CvcEntitySignificanceSelectField
-  ]
+  exports: [CvcEvidenceDirectionSelectField],
 })
-export class CvcClinicalSignificanceSelectModule { }
+export class CvcEvidenceDirectionSelectModule {}

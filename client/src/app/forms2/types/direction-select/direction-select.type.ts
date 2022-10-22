@@ -31,14 +31,14 @@ interface CvcEvidenceDirectionSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcEvidenceDirectionSelectFieldConfig
   extends FormlyFieldConfig<CvcEvidenceDirectionSelectFieldProps> {
-  type: 'evidence-direction-select' | Type<CvcEvidenceDirectionSelectField>
+  type: 'direction-select' | Type<CvcEvidenceDirectionSelectField>
 }
 
 @UntilDestroy()
 @Component({
-  selector: 'cvc-evidence-direction-select',
-  templateUrl: './evidence-direction-select.type.html',
-  styleUrls: ['./evidence-direction-select.type.less'],
+  selector: 'cvc-direction-select',
+  templateUrl: './direction-select.type.html',
+  styleUrls: ['./direction-select.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEvidenceDirectionSelectField
@@ -91,7 +91,7 @@ export class CvcEvidenceDirectionSelectField
     } else {
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.key === this.field.key), // filter out other fields
-        // tag('evidence-direction-select onModelChange$'),
+        // tag('direction-select onModelChange$'),
         pluck('value')
       )
 
@@ -139,7 +139,7 @@ export class CvcEvidenceDirectionSelectField
         this.evidenceDirectionChange$ = this.state.fields.evidenceDirection$
         this.onValueChange$
           .pipe(
-            // tag('evidence-direction-select evidenceDirectionChange$'),
+            // tag('direction-select evidenceDirectionChange$'),
             untilDestroyed(this)
           )
           .subscribe((v) => {

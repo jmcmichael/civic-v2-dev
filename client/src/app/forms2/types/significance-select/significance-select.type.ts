@@ -24,7 +24,7 @@ interface CvcEntitySignificanceSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcEntitySignificanceSelectFieldConfig
   extends FormlyFieldConfig<CvcEntitySignificanceSelectFieldProps> {
-  type: 'entity-significance-select' | Type<CvcEntitySignificanceSelectField>
+  type: 'significance-select' | Type<CvcEntitySignificanceSelectField>
 }
 
 const EntitySignificanceSelectMixin = mixin(
@@ -35,9 +35,9 @@ const EntitySignificanceSelectMixin = mixin(
 )
 
 @Component({
-  selector: 'cvc-entity-significance-select',
-  templateUrl: './entity-significance-select.type.html',
-  styleUrls: ['./entity-significance-select.type.less'],
+  selector: 'cvc-significance-select',
+  templateUrl: './significance-select.type.html',
+  styleUrls: ['./significance-select.type.less'],
 })
 export class CvcEntitySignificanceSelectField
   extends EntitySignificanceSelectMixin
@@ -141,7 +141,7 @@ export class CvcEntitySignificanceSelectField
     }
     this.onValueChange$
       .pipe(
-        // tag('entity-significance-select clinicalSignificanceChange$'),
+        // tag('significance-select clinicalSignificanceChange$'),
         untilDestroyed(this)
       )
       .subscribe((v) => {

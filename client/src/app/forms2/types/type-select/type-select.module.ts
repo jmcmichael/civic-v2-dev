@@ -1,34 +1,36 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { CvcEvidenceDirectionSelectField } from './evidence-direction-select.type'
+import { CvcEntityTypeSelectField } from './type-select.type'
 import { ReactiveFormsModule } from '@angular/forms'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
-import { CvcAttributeTagModule } from '@app/components/shared/attribute-tag/attribute-tag.module'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { CvcPipesModule } from '@app/core/pipes/pipes.module'
+import { CvcAttributeTagModule } from '@app/forms2/components/attribute-tag/attribute-tag.module'
 
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'evidence-direction-select',
-      wrappers: ['form-field'],
-      component: CvcEvidenceDirectionSelectField,
+      name: 'type-select',
+      wrappers: ['field-layout'],
+      component: CvcEntityTypeSelectField,
     },
   ],
 }
 
 @NgModule({
-  declarations: [CvcEvidenceDirectionSelectField],
+  declarations: [CvcEntityTypeSelectField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
     FormlyNzFormFieldModule, // for form-field wrapper
-    CvcEnumSelectModule,
     CvcAttributeTagModule,
+    CvcEnumSelectModule,
   ],
-  exports: [CvcEvidenceDirectionSelectField],
+  exports: [CvcEntityTypeSelectField],
 })
-export class CvcEvidenceDirectionSelectModule {}
+export class CvcEntityTypeSelectModule {}

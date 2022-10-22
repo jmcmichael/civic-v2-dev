@@ -31,7 +31,7 @@ export const evidenceTypeSelectTypeOption: TypeOption = {
           to.helpText = `Type of clinical outcome associated with the ${st.entityName} statement.`,
           to.options = st.getOptionsFromEnums(st.getTypeOptions());
         } else {
-          console.warn('entity-type-select requires a formState to populate select options.');
+          console.warn('type-select requires a formState to populate select options.');
         }
       }
     },

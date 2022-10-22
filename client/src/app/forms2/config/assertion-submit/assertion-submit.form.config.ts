@@ -1,7 +1,7 @@
 import { assertionSubmitFormInitialModel } from '@app/forms2/models/assertion-submit.model'
 import { CvcDrugSelectFieldConfig } from '@app/forms2/types/drug-select/drug-select.type'
-// import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/entity-significance-select/entity-significance-select.type'
-import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/entity-type-select/entity-type-select.type'
+// import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
+import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/type-select/type-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcOrgSubmitButtonFieldConfig } from '@app/forms2/types/org-submit-button/org-submit-button.type'
 // import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
@@ -50,7 +50,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
 
           // <CvcEntityTypeSelectFieldConfig>{
           //   key: 'assertionType',
-          //   type: 'entity-type-select',
+          //   type: 'type-select',
           //   props: {
           //     required: true,
           //   },
@@ -74,14 +74,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
 
           // <CvcEntityTypeSelectFieldConfig>{
           //   key: 'assertionType',
-          //   type: 'entity-type-select',
+          //   type: 'type-select',
           //   props: {
           //     required: true,
           //   },
           // },
           // <CvcEntitySignificanceSelectFieldConfig>{
           //   key: 'clinicalSignficance',
-          //   type: 'entity-significance-select',
+          //   type: 'significance-select',
           //   props: {
           //     required: true,
           //   },
