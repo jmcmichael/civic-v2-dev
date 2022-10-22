@@ -8,6 +8,7 @@ import {
   EvidenceDirection,
   EvidenceLevel,
   EvidenceType,
+  Maybe,
   SourceSource,
   VariantOrigin,
 } from '@app/generated/civic.apollo';
@@ -23,3 +24,5 @@ export type CvcInputEnum =
   | SourceSource
   | EvidenceLevel
   | DrugInteraction;
+
+export type CvcFieldModelValue = Maybe<string | number | boolean | string[] | number[]>

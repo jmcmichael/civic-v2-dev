@@ -3,9 +3,10 @@ import {
   Injectable,
   QueryList,
   TemplateRef,
+  TrackByFunction,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { Maybe } from '@app/generated/civic.apollo'
+import { InputMaybe, Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType } from '@ngx-formly/core'
 import { Query, QueryRef } from 'apollo-angular'
@@ -16,9 +17,11 @@ import {
   BehaviorSubject,
   defer,
   distinctUntilChanged,
+  EMPTY,
   filter,
   from,
   iif,
+  lastValueFrom,
   map,
   Observable,
   of,
@@ -27,7 +30,7 @@ import {
   throttleTime,
   withLatestFrom,
 } from 'rxjs'
-import { combineLatestArray } from 'rxjs-etc'
+import { combineLatestArray, isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
@@ -339,6 +342,7 @@ export function EntityTagField<
         // if cached results are returned
         if (this.result$) this.result$.next([])
       }
+
     }
 
     return EntityTagFieldMixin

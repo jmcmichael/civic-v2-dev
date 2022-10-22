@@ -19,7 +19,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, Subject, withLatestFrom } from 'rxjs'
+import { BehaviorSubject, map, Subject, withLatestFrom } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
@@ -40,7 +40,7 @@ const EntityTypeSelectMixin = mixin(
     FieldTypeConfig<CvcEntityTypeSelectFieldProps>,
     Maybe<EntityType>
   >(),
-  EnumTagField<EntityType>()
+  EnumTagField<EntityType, CvcInputEnum>()
 )
 
 @Component({
@@ -63,9 +63,6 @@ export class CvcEntityTypeSelectField
   selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
   label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
-
-  // STATE OUTPUT STREAMS
-  stateValueChange$?: BehaviorSubject<Maybe<EntityType>>
 
   defaultOptions: Partial<FieldTypeConfig<CvcEntityTypeSelectFieldProps>> = {
     props: {
@@ -90,12 +87,14 @@ export class CvcEntityTypeSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
+    this.configureEnumTagField({
+      optionEnum$: this.typeEnums$,
+      optionTemplate$: this.optionTemplate$,
+      changeDetectorRef: this.cdr,
+    })
   }
 
   configureStateConnections(): void {
-    this.stateValueChange$!.pipe(
-      tag(`${this.field.id} stateValueChange$`)
-    ).subscribe()
     if (!this.state) {
       console.error(
         `${this.field.id} requires a form state to configure itself, none was found.`
@@ -131,69 +130,18 @@ export class CvcEntityTypeSelectField
         this.typeEnums$.next(enums)
       })
 
-    // check it option templates exist
-    // if not, populate selectOption$ with simple label/value options and exit
+    // check if option templates exist
     if (!this.optionTemplates) {
       console.error(
         `${this.field.id} could not find its optionTemplates QueryList to populate its select options, so simple text labels will be displayed.`
       )
-      this.selectOption$.next(
-        this.state.getOptionsFromEnums(this.state.getTypeOptions())
-      )
-      return
     }
-    // listen to option template updates & create selectOptions w/
-    // enums & template array
-    this.optionTemplates.changes
-      .pipe(
-        withLatestFrom(this.typeEnums$),
-        tag(`${this.field.id} optionTemplates.changes`),
-        untilDestroyed(this)
-      )
-      .subscribe(
-        ([tplRefs, enums]: [QueryList<TemplateRef<any>>, CvcInputEnum[]]) => {
-          this.updateSelectOptionsFn(tplRefs, enums)
-        }
-      )
-
-    this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.resetField()
-    })
-  }
-
-  updateSelectOptionsFn(
-    tplRefs: QueryList<TemplateRef<any>>,
-    enums: CvcInputEnum[]
-  ): void {
-    const options = this.getOptionsFromEnums(enums, tplRefs)
-    this.selectOption$.next(options)
-    // this.cdr.detectChanges()
-  }
-
-  getOptionsFromEnums(
-    inputEnums: CvcInputEnum[],
-    tplRefs: QueryList<TemplateRef<any>>
-  ): NzSelectOptionInterface[] {
-    return inputEnums.map((inputEnum: CvcInputEnum, index: number) => {
-      return <NzSelectOptionInterface>{
-        label: tplRefs.get(index) || inputEnum,
-        value: inputEnum,
-      }
-    })
-  }
-
-  resetField() {
-    if (this.props.isMultiSelect) {
-      this.formControl.setValue([])
-    } else {
-      this.formControl.setValue(undefined)
-    }
-    // reset options to prevent brief flash of previous
-    // search (or prepopulate) option items during subsequent searches
-    // if (this.selectOption$) this.selectOption$.next([])
-    // reset results to empty out optionTemplate QueryList, forcing
-    // re-render of optionTemplates for subsequent search results, even
-    // if cached results are returned
-    // if (this.typeEnums$) this.typeEnums$.next([])
+    this.optionTemplate$ = this.optionTemplates?.changes.pipe(
+      tag(`${this.field.id} optionTemplate$`),
+      // return QueryLists's array of TemplateRefs
+      map((ql: QueryList<TemplateRef<any>>) => {
+        return ql.map((q) => q)
+      })
+    )
   }
 }
