@@ -11,14 +11,14 @@ import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { EntityClinicalSignificance } from '@app/forms2/states/entity.state'
-import { AssertionType, EvidenceType, Maybe } from '@app/generated/civic.apollo'
+import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, map } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 interface CvcEntitySignificanceSelectFieldProps extends FormlyFieldProps {
@@ -118,11 +118,25 @@ export class CvcEntitySignificanceSelectField
       )
       return
     }
+    // update significance enums when state clinicalSignificance$ emits
     this.state.enums.clinicalSignificance$
       .pipe(untilDestroyed(this))
-      .subscribe((enums: CvcInputEnum[])=> {
+      .subscribe((enums: CvcInputEnum[]) => {
         this.significanceEnum$.next(enums)
       })
+
+    // set up optionTemplates Observable
+    if (!this.optionTemplates) {
+      console.error(
+        `${this.field.id} could not find its optionTemplates QueryList to populate its select options, so simple text labels will be displayed.`
+      )
+    }
+    this.optionTemplate$ = this.optionTemplates?.changes.pipe(
+      // return QueryLists's array of TemplateRefs
+      map((ql: QueryList<TemplateRef<any>>) => {
+        return ql.map((q) => q)
+      })
+    )
 
     // connect to state entityType$
     const etName = `${this.state.entityName.toLowerCase()}Type$`
@@ -133,7 +147,7 @@ export class CvcEntitySignificanceSelectField
       return
     }
     this.onTypeSelect$ = this.state.fields[etName]
-
+    // if new entityType received, reset field, then based on entityType value, toggle disabled state, update placeholder
     this.onTypeSelect$
       .pipe(untilDestroyed(this))
       .subscribe((et: Maybe<CvcInputEnum>) => {
