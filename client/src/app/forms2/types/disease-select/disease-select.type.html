@@ -8,9 +8,8 @@
   [cvcResults]="result$ | ngrxPush"
   [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
-  [cvcDisabled]="onRequiresDrug$ && !(onRequiresDrug$ | ngrxPush)"
+  [cvcDisabled]="onRequiresDisease$ && !(onRequiresDisease$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcAddEntity]="addDrug"
   (cvcOnSearch)="onSearch$.next($event)"
   (cvcOnFocus)="onFocus$.next($event)"
   [cvcModelChange]="props.change">
@@ -30,13 +29,13 @@
         nz-typography
         nzType="secondary">
         Aliases:
-        <ng-container *ngIf="result.drugAliases.length > 0; else noAliases">
+        <ng-container *ngIf="result.diseaseAliases.length > 0; else noAliases">
           <em>
             <span
               nz-typography
               nzType="secondary"
               [innerHtml]="
-                result.drugAliases.join(', ') | highlightTypeahead: searchString
+                result.diseaseAliases.join(', ') | highlightTypeahead: searchString
               "></span
           ></em>
         </ng-container>
@@ -54,20 +53,9 @@
   let-selected>
   <div class="ant-select-selection-item-content">
     <cvc-entity-tag
-      [cvcCacheId]="'Drug:' + selected.nzValue"
+      [cvcCacheId]="'Disease:' + selected.nzValue"
       [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'select-item'"
       [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
       (cvcOnClose)="onTagClose$.next(selected.nzValue)"></cvc-entity-tag>
   </div>
-</ng-template>
-
-<!-- quick-add form template-->
-<ng-template
-  #addDrug
-  let-searchStr
-  let-createMsg>
-  <cvc-drug-quick-add-form
-    [cvcSearchString]="searchStr"
-    (cvcOnCreate)="onCreate$.next($event)">
-  </cvc-drug-quick-add-form>
 </ng-template>

@@ -27,6 +27,8 @@ class AssertionState extends EntityState {
       clinicalSignificance$: new BehaviorSubject<
         Maybe<AssertionClinicalSignificance>
       >(def.clinicalSignificance),
+      diseaseId$: new BehaviorSubject<Maybe<number>>(def.diseaseId),
+      drugId$: new BehaviorSubject<Maybe<number>>(def.drugId),
     }
 
     this.enums = {
@@ -56,8 +58,8 @@ class AssertionState extends EntityState {
       allowsFdaApproval$: new BehaviorSubject<boolean>(false),
     }
 
-    // TODO: must determine best way to unsubscribe from these
     // ASSERTION TYPE SUBSCRIBERS
+    // TODO: determine best way to cleanup & unsubscribe from these subscriptions
     this.fields.assertionType$.subscribe((at: Maybe<AssertionType>) => {
       if (!at) return
       const significanceEnums = this.getSignificanceOptions(at)

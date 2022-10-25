@@ -28,18 +28,8 @@ class EvidenceState extends EntityState {
       clinicalSignificance$: new BehaviorSubject<
         Maybe<EvidenceClinicalSignificance>
       >(def.clinicalSignificance),
-    }
-
-    this.options = {
-      evidenceTypeOption$: new BehaviorSubject<NzSelectOptionInterface[]>(
-        this.getOptionsFromEnums(this.getTypeOptions())
-      ),
-      directionOption$: new BehaviorSubject<
-        Maybe<NzSelectOptionInterface[]>
-      >(undefined),
-      clinicalSignificanceOption$: new BehaviorSubject<
-        Maybe<NzSelectOptionInterface[]>
-      >(undefined),
+      diseaseId$: new BehaviorSubject<Maybe<number>>(def.diseaseId),
+      drugIds$: new BehaviorSubject<Maybe<number[]>>(def.drugIds),
     }
 
     this.enums = {
@@ -65,21 +55,17 @@ class EvidenceState extends EntityState {
         Object.entries(this.requires).forEach(([key, value]) => {
           value.next(false)
         })
-        this.options.evidenceDirectionOption$.next([])
-        this.options.clinicalSignificanceOption$.next([])
+        this.enums.clinicalSignificance$.next([])
+        this.enums.direction$.next([])
+          // this.options.evidenceDirectionOption$.next([])
+        // this.options.clinicalSignificanceOption$.next([])
         return
       }
       const significanceEnums = this.getSignificanceOptions(et)
       this.enums.clinicalSignificance$.next(significanceEnums)
-      this.options.clinicalSignificanceOption$.next(
-        this.getOptionsFromEnums(this.getSignificanceOptions(et))
-      )
-
       const directionEnums = this.getDirectionOptions(et)
       this.enums.direction$.next(directionEnums)
-      this.options.evidenceDirectionOption$.next(
-        this.getOptionsFromEnums(this.getDirectionOptions(et))
-      )
+
       this.requires.requiresDisease$.next(this.requiresDisease(et))
       this.requires.requiresDrug$.next(this.requiresDrug(et))
       this.requires.requiresClingenCodes$.next(this.requiresClingenCodes(et))

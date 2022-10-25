@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { CvcDirectionSelectModule } from './direction-select/direction-select.module'
+import { CvcDiseaseSelectModule } from './disease-select/disease-select.module'
 import { CvcDrugSelectModule } from './drug-select/drug-select.module'
 import { CvcGeneSelectModule } from './gene-select/gene-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
@@ -18,6 +19,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcVariantSelectModule,
     CvcSignificanceSelectModule,
     CvcDirectionSelectModule,
+    CvcDiseaseSelectModule,
     // CvcBaseInputFieldModule,
   ],
 })

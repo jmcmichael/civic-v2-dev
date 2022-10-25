@@ -13,15 +13,15 @@ import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-e
 import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityState, EntityType } from '@app/forms2/states/entity.state'
+import { EntityType } from '@app/forms2/states/entity.state'
 import {
-  DrugSelectTagGQL,
-  DrugSelectTagQuery,
-  DrugSelectTagQueryVariables,
-  DrugSelectTypeaheadFieldsFragment,
-  DrugSelectTypeaheadGQL,
-  DrugSelectTypeaheadQuery,
-  DrugSelectTypeaheadQueryVariables,
+  DiseaseSelectTagGQL,
+  DiseaseSelectTagQuery,
+  DiseaseSelectTagQueryVariables,
+  DiseaseSelectTypeaheadFieldsFragment,
+  DiseaseSelectTypeaheadGQL,
+  DiseaseSelectTypeaheadQuery,
+  DiseaseSelectTypeaheadQueryVariables,
   Maybe,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
@@ -35,12 +35,12 @@ import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
-export type CvcDrugSelectFieldOptions = Partial<
-  FieldTypeConfig<CvcDrugSelectFieldProps>
+export type CvcDiseaseSelectFieldOptions = Partial<
+  FieldTypeConfig<CvcDiseaseSelectFieldProps>
 >
 // TODO: finish implementing updated props interface w/ labels, placeholders groups,
 // and multiMax limits, multiDefault placeholder
-export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
+export interface CvcDiseaseSelectFieldProps extends FormlyFieldProps {
   // entity names, singular & plural
   entityName: CvcSelectEntityName
   // if true, field is a multi-select & its model value should be an array
@@ -66,39 +66,39 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
 // NOTE: any multi-select field must have the string 'multi' in its type name,
 // as UI logic (currently in base-field) depends on its presence to differentiate
 // field types in some expressions
-export interface CvcDrugSelectFieldConfig
-  extends FormlyFieldConfig<CvcDrugSelectFieldProps> {
-  type: 'drug-select' | 'drug-multi-select' | Type<CvcDrugSelectField>
+export interface CvcDiseaseSelectFieldConfig
+  extends FormlyFieldConfig<CvcDiseaseSelectFieldProps> {
+  type: 'disease-select' | 'disease-multi-select' | Type<CvcDiseaseSelectField>
 }
 
-const DrugSelectMixin = mixin(
+const DiseaseSelectMixin = mixin(
   BaseFieldType<
-    FieldTypeConfig<CvcDrugSelectFieldProps>,
+    FieldTypeConfig<CvcDiseaseSelectFieldProps>,
     Maybe<number | number[]>
   >(),
   EntityTagField<
-    DrugSelectTypeaheadQuery,
-    DrugSelectTypeaheadQueryVariables,
-    DrugSelectTypeaheadFieldsFragment,
-    DrugSelectTagQuery,
-    DrugSelectTagQueryVariables,
+    DiseaseSelectTypeaheadQuery,
+    DiseaseSelectTypeaheadQueryVariables,
+    DiseaseSelectTypeaheadFieldsFragment,
+    DiseaseSelectTagQuery,
+    DiseaseSelectTagQueryVariables,
     Maybe<number | number[]>
   >()
 )
 
 @Component({
-  selector: 'cvc-drug-select',
-  templateUrl: './drug-select.type.html',
-  styleUrls: ['./drug-select.type.less'],
+  selector: 'cvc-disease-select',
+  templateUrl: './disease-select.type.html',
+  styleUrls: ['./disease-select.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcDrugSelectField
-  extends DrugSelectMixin
+export class CvcDiseaseSelectField
+  extends DiseaseSelectMixin
   implements AfterViewInit
 {
   // STATE SOURCE STREAMS
   onEntityType$?: Subject<Maybe<EntityType>>
-  onRequiresDrug$?: BehaviorSubject<boolean>
+  onRequiresDisease$?: BehaviorSubject<boolean>
 
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
@@ -106,22 +106,22 @@ export class CvcDrugSelectField
   placeholder$: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
-  defaultOptions: CvcDrugSelectFieldOptions = {
+  defaultOptions: CvcDiseaseSelectFieldOptions = {
     props: {
-      entityName: { singular: 'Drug', plural: 'Drugs' },
-      label: 'Drug',
+      entityName: { singular: 'Disease', plural: 'Diseases' },
+      label: 'Disease',
       labels: {
-        multi: 'Drug(s)',
-        plural: 'Drugs',
+        multi: 'Disease(s)',
+        plural: 'Diseases',
       },
       isMultiSelect: false,
       requireType: true,
       // TODO: implement labels/placeholders w/ string replacement using typescript
       // template strings: https://www.codevscolor.com/typescript-template-string
       placeholders: {
-        default: 'Search Drugs',
-        multiDefault: 'Select Drug(s) (max MULTI_MAX)',
-        requireTypePrompt: 'Select an ENTITY_NAME Type to select Drugs',
+        default: 'Search Diseases',
+        multiDefault: 'Select Disease(s) (max MULTI_MAX)',
+        requireTypePrompt: 'Select an ENTITY_NAME Type to select Diseases',
       },
     },
   }
@@ -132,8 +132,8 @@ export class CvcDrugSelectField
   stateEntityName?: string
 
   constructor(
-    private taq: DrugSelectTypeaheadGQL,
-    private tq: DrugSelectTagGQL,
+    private taq: DiseaseSelectTypeaheadGQL,
+    private tq: DiseaseSelectTagGQL,
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super()
@@ -165,13 +165,13 @@ export class CvcDrugSelectField
   configureStateConnections(): void {
     if (!this.state) return
     this.stateEntityName = this.state.entityName
-    // connect to onRequiresDrug$
-    if (!this.state.requires.requiresDrug$) {
+    // connect to onRequiresDisease$
+    if (!this.state.requires.requiresDisease$) {
       console.warn(
-        `${this.field.id} field's form provides a state, but could not find requiresDrug$ subject to attach.`
+        `${this.field.id} field's form provides a state, but could not find requiresDisease$ subject to attach.`
       )
     } else {
-      this.onRequiresDrug$ = this.state.requires.requiresDrug$
+      this.onRequiresDisease$ = this.state.requires.requiresDisease$
     }
 
     // connect onEntityType$
@@ -189,82 +189,87 @@ export class CvcDrugSelectField
   }
 
   configurePlaceholders(): void {
-    if (!this.onRequiresDrug$ || !this.onEntityType$) return
+    if (!this.onRequiresDisease$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
-    combineLatest([this.onRequiresDrug$, this.onEntityType$])
+    combineLatest([this.onRequiresDisease$, this.onEntityType$])
       .pipe(
         tag(`${this.field.id} combineLatest`),
         untilDestroyed(this))
-      .subscribe(([requiresDrug, entityType]: [boolean, Maybe<EntityType>]) => {
-        // drugs are not required for this entity type
-        if (!requiresDrug && entityType) {
-          this.props.required = false
-          this.props.disabled = true
-          // no drug required, entity type specified
-          this.placeholder$.next(
-            `${formatEvidenceEnum(entityType)} ${
-              this.stateEntityName
-            } does not include associated drugs`
-          )
+      .subscribe(
+        ([requiresDisease, entityType]: [boolean, Maybe<EntityType>]) => {
+          // diseases are not required for this entity type
+          if (!requiresDisease && entityType) {
+            this.props.required = false
+            this.props.disabled = true
+            // no disease required, entity type specified
+            this.placeholder$.next(
+              `${formatEvidenceEnum(entityType)} ${
+                this.stateEntityName
+              } does not include associated diseases`
+            )
+          }
+          // if entity type is required, toggle field required property off,
+          // and show a 'Select Type..' prompt
+          if (!requiresDisease && !entityType && this.props.requireType) {
+            this.props.required = false
+            this.props.disabled = false
+            // no disease required, entity type not specified
+            this.placeholder$.next(
+              `Select ${this.stateEntityName} Type to select diseases`
+            )
+          }
+          // state indicates disease is required, toggle field required property,
+          // and show the placeholder
+          if (requiresDisease) {
+            this.props.required = true
+            this.props.disabled = false
+            this.placeholder$.next('Search Diseases')
+          }
+          // field currently has a value, but state indicates no disease is required,
+          // or no type is provided && type is required, so reset field
+          if (
+            (!requiresDisease && this.formControl.value) ||
+            (this.props.requireType && !entityType && this.formControl.value)
+          ) {
+            this.resetField()
+          }
         }
-        // if entity type is required, toggle field required property off and show a 'Select Type..' prompt
-        if (!entityType && this.props.requireType) {
-          this.props.required = false
-          this.props.disabled = true
-          // no drug required, entity type not specified
-          this.placeholder$.next(
-            `Select ${this.stateEntityName} Type to select drugs`
-          )
-        }
-        // state indicates drug is required, set required, unset disabled, and show the placeholder (state will only return true from requiresDrug$ if entityType provided)
-        if (requiresDrug) {
-          this.props.required = true
-          this.props.disabled = false
-          this.placeholder$.next('Search Drugs')
-        }
-        // field currently has a value, but state indicates no drug is required, or no type is provided && type is required, so reset field
-        if (
-          (!requiresDrug && this.formControl.value) ||
-          (this.props.requireType && !entityType && this.formControl.value)
-        ) {
-          this.resetField()
-        }
-      })
+      )
   }
 
-  getTypeaheadVarsFn(str: string): DrugSelectTypeaheadQueryVariables {
+  getTypeaheadVarsFn(str: string): DiseaseSelectTypeaheadQueryVariables {
     return { name: str }
   }
 
-  getTypeaheadResultsFn(r: ApolloQueryResult<DrugSelectTypeaheadQuery>) {
-    return r.data.drugTypeahead
+  getTypeaheadResultsFn(r: ApolloQueryResult<DiseaseSelectTypeaheadQuery>) {
+    return r.data.diseaseTypeahead
   }
 
-  getTagQueryVarsFn(id: number): DrugSelectTagQueryVariables {
+  getTagQueryVarsFn(id: number): DiseaseSelectTagQueryVariables {
     return { id: id }
   }
 
   getTagQueryResultsFn(
-    r: ApolloQueryResult<DrugSelectTagQuery>
-  ): Maybe<DrugSelectTypeaheadFieldsFragment> {
-    return r.data.drug
+    r: ApolloQueryResult<DiseaseSelectTagQuery>
+  ): Maybe<DiseaseSelectTypeaheadFieldsFragment> {
+    return r.data.disease
   }
 
   getSelectedItemOptionFn(
-    drug: DrugSelectTypeaheadFieldsFragment
+    disease: DiseaseSelectTypeaheadFieldsFragment
   ): NzSelectOptionInterface {
-    return { value: drug.id, label: drug.name }
+    return { value: disease.id, label: disease.name }
   }
 
   getSelectOptionsFn(
-    results: DrugSelectTypeaheadFieldsFragment[],
+    results: DiseaseSelectTypeaheadFieldsFragment[],
     tplRefs: QueryList<TemplateRef<any>>
   ): NzSelectOptionInterface[] {
     return results.map(
-      (drug: DrugSelectTypeaheadFieldsFragment, index: number) => {
+      (disease: DiseaseSelectTypeaheadFieldsFragment, index: number) => {
         return <NzSelectOptionInterface>{
-          label: tplRefs.get(index) || drug.name,
-          value: drug.id,
+          label: tplRefs.get(index) || disease.name,
+          value: disease.id,
         }
       }
     )

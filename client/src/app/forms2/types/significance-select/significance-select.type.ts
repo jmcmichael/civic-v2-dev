@@ -113,9 +113,9 @@ export class CvcSignificanceSelectField
 
     // CONFIGURE STATE INPUTS
     // connect to state clinicalSignificanceOptions$
-    if (!this.state.options.clinicalSignificanceOption$) {
+    if (!this.state.enums.clinicalSignificance$) {
       console.error(
-        `${this.field.id} could not find form state's clinicalSignificanceOption$ to populate select.`
+        `${this.field.id} could not find form state's enums.clinicalSignificance$ to populate select.`
       )
       return
     }
