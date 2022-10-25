@@ -44,8 +44,6 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
   entityName: CvcSelectEntityName
   // if true, field is a multi-select & its model value should be an array
   isMultiSelect: boolean
-  // max number of values permitted by model
-  multiMax: number
   // if true, field disabled when no entity type available
   requireType: boolean
   labels: {
@@ -117,7 +115,6 @@ export class CvcDrugSelectField
         plural: 'Drugs',
       },
       isMultiSelect: false,
-      multiMax: 3,
       requireType: true,
       // TODO: implement labels/placeholders w/ string replacement using typescript
       // template strings: https://www.codevscolor.com/typescript-template-string

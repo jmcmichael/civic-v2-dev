@@ -21,20 +21,24 @@ import {
 import { BehaviorSubject, map } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
-interface CvcEntitySignificanceSelectFieldProps extends FormlyFieldProps {
+export type CvcSignificanceSelectFieldOptions = Partial<
+  FieldTypeConfig<CvcSignificanceSelectFieldProps>
+>
+
+interface CvcSignificanceSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   requireTypePrompt: string
 }
 
-export interface CvcEntitySignificanceSelectFieldConfig
-  extends FormlyFieldConfig<CvcEntitySignificanceSelectFieldProps> {
-  type: 'significance-select' | Type<CvcEntitySignificanceSelectField>
+export interface CvcSignificanceSelectFieldConfig
+  extends FormlyFieldConfig<CvcSignificanceSelectFieldProps> {
+  type: 'significance-select' | Type<CvcSignificanceSelectField>
 }
 
-const EntitySignificanceSelectMixin = mixin(
+const SignificanceSelectMixin = mixin(
   BaseFieldType<
-    FieldTypeConfig<CvcEntitySignificanceSelectFieldProps>,
+    FieldTypeConfig<CvcSignificanceSelectFieldProps>,
     Maybe<EntityClinicalSignificance>
   >(),
   EnumTagField<EntityClinicalSignificance, CvcInputEnum>()
@@ -45,8 +49,8 @@ const EntitySignificanceSelectMixin = mixin(
   templateUrl: './significance-select.type.html',
   styleUrls: ['./significance-select.type.less'],
 })
-export class CvcEntitySignificanceSelectField
-  extends EntitySignificanceSelectMixin
+export class CvcSignificanceSelectField
+  extends SignificanceSelectMixin
   implements AfterViewInit
 {
   //TODO: implement more precise types so specific enum-selects like this one can specify their enums, e.g. EntityClinicalSignificance instead of CvcInputEnum
@@ -62,9 +66,7 @@ export class CvcEntitySignificanceSelectField
   placeholder$!: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
-  defaultOptions: Partial<
-    FieldTypeConfig<CvcEntitySignificanceSelectFieldProps>
-  > = {
+  defaultOptions: CvcSignificanceSelectFieldOptions = {
     props: {
       label: 'Significance',
       placeholder: 'Select ENTITY_TYPE Clinical Significance',
@@ -92,7 +94,6 @@ export class CvcEntitySignificanceSelectField
   } // ngAfterViewInit()
 
   configureStateConnections(): void {
-    this.state = this.field.options?.formState
     if (!this.state) {
       console.error(
         `${this.field.id} requires a form state to populate its options, none was found.`

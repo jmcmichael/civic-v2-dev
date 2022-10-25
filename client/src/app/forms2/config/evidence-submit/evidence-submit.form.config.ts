@@ -13,7 +13,7 @@ import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-d
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
+import { CvcSignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
 
 const formFieldConfig: FormlyFieldConfig[] = [
   {
@@ -58,7 +58,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
               required: true,
             },
           },
-          <CvcEntitySignificanceSelectFieldConfig>{
+          <CvcSignificanceSelectFieldConfig>{
             key: 'clinicalSignificance',
             type: 'significance-select',
             props: {

@@ -1,152 +1,169 @@
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  OnInit,
+  QueryList,
+  TemplateRef,
   Type,
+  ViewChildren,
 } from '@angular/core'
-import { EvidenceState } from '@app/forms2/states/evidence.state'
+import { CvcInputEnum } from '@app/forms2/forms2.types'
+import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
+import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
+import { EntityDirection } from '@app/forms2/states/entity.state'
+import { Maybe } from '@app/generated/civic.apollo'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-  EvidenceDirection,
-  EvidenceType,
-  Maybe,
-} from '@app/generated/civic.apollo'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import {
-  FieldType,
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, filter, Observable, Subject } from 'rxjs'
-import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
+import { BehaviorSubject, map } from 'rxjs'
+import mixin from 'ts-mixin-extended'
 
-interface CvcEvidenceDirectionSelectFieldProps extends FormlyFieldProps {
+export type CvcDirectionSelectFieldOptions = Partial<
+  FieldTypeConfig<CvcDirectionSelectFieldProps>
+>
+
+interface CvcDirectionSelectFieldProps extends FormlyFieldProps {
+  label: string
   placeholder: string
-  requireType: boolean
   requireTypePrompt: string
 }
 
-export interface CvcEvidenceDirectionSelectFieldConfig
-  extends FormlyFieldConfig<CvcEvidenceDirectionSelectFieldProps> {
-  type: 'direction-select' | Type<CvcEvidenceDirectionSelectField>
+export interface CvcDirectionSelectFieldConfig
+  extends FormlyFieldConfig<CvcDirectionSelectFieldProps> {
+  type: 'direction-select' | Type<CvcDirectionSelectField>
 }
 
-@UntilDestroy()
+const DirectionSelectMixin = mixin(
+  BaseFieldType<
+    FieldTypeConfig<CvcDirectionSelectFieldProps>,
+    Maybe<EntityDirection>
+  >(),
+  EnumTagField<EntityDirection, CvcInputEnum>()
+)
+
 @Component({
   selector: 'cvc-direction-select',
   templateUrl: './direction-select.type.html',
   styleUrls: ['./direction-select.type.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcEvidenceDirectionSelectField
-  extends FieldType<FieldTypeConfig<CvcEvidenceDirectionSelectFieldProps>>
+export class CvcDirectionSelectField
+  extends DirectionSelectMixin
   implements AfterViewInit
 {
-  defaultOptions: Partial<
-    FieldTypeConfig<CvcEvidenceDirectionSelectFieldProps>
-  > = {
+  //TODO: implement more precise types so specific enum-selects like this one can specify their enums, e.g. EntityDirection instead of CvcInputEnum
+  // STATE SOURCE STREAMS
+  directionEnum$: BehaviorSubject<CvcInputEnum[]>
+  onTypeSelect$?: BehaviorSubject<Maybe<CvcInputEnum>>
+
+  // LOCAL SOURCE STREAMS
+  onFocus$: BehaviorSubject<void>
+  // LOCAL INTERMEDIATE STREAMS
+  // LOCAL PRESENTATION STREAMS
+  label$!: BehaviorSubject<string>
+  placeholder$!: BehaviorSubject<string>
+
+  // FieldTypeConfig defaults
+  defaultOptions: CvcDirectionSelectFieldOptions = {
     props: {
-      label: 'Evidence Type',
-      placeholder: 'Select an Evidence Direction',
-      requireType: true,
-      requireTypePrompt: 'Select an Evidence Type to choose Direction',
+      label: 'Direction',
+      placeholder: 'Select ENTITY_TYPE Clinical Direction',
+      requireTypePrompt: 'Select an ENTITY_NAME Type to select Direction',
     },
   }
 
-  // SOURCE STREAMS
-  onModelChange$!: Observable<Maybe<EvidenceDirection>>
-  onValueChange$!: Subject<Maybe<EvidenceDirection>>
-  onEvidenceType$!: Subject<Maybe<EvidenceType>>
+  @ViewChildren('optionTemplates', { read: TemplateRef })
+  optionTemplates?: QueryList<TemplateRef<any>>
 
-  // PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
-  placeholder$!: BehaviorSubject<string>
-
-  // OUTPUT STREAMS
-  evidenceDirectionChange$?: BehaviorSubject<Maybe<EvidenceDirection>>
-
-  state: Maybe<EvidenceState>
-
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     super()
-    this.onValueChange$ = new Subject<Maybe<EvidenceDirection>>()
+    this.directionEnum$ = new BehaviorSubject<CvcInputEnum[]>([])
+    this.onFocus$ = new BehaviorSubject<void>(undefined)
   }
 
   ngAfterViewInit(): void {
-    // show prompt to select a Type if requireType true
-    // otherwise show standard placeholder
-    const initialPlaceholder: string = this.props.requireType
-      ? this.props.requireTypePrompt
-      : this.props.placeholder
-    this.placeholder$ = new BehaviorSubject<string>(initialPlaceholder)
+    this.configureBaseField() // mixin fn
+    this.configureStateConnections() // local fn
+    this.configureEnumTagField({
+      optionEnum$: this.directionEnum$,
+      optionTemplate$: this.optionTemplate$,
+      changeDetectorRef: this.cdr,
+    })
+  } // ngAfterViewInit()
 
-    // create onModelChange$ observable from fieldChanges
-    if (!this.field?.options?.fieldChanges) {
+  configureStateConnections(): void {
+    if (!this.state) {
       console.error(
-        `${this.field.key} field could not find fieldChanges Observable`
+        `${this.field.id} requires a form state to populate its options, none was found.`
       )
-    } else {
-      this.onModelChange$ = this.field.options.fieldChanges.pipe(
-        filter((c) => c.field.key === this.field.key), // filter out other fields
-        // tag('direction-select onModelChange$'),
-        pluck('value')
+      this.placeholder$ = new BehaviorSubject<string>(
+        'ERROR: Form state not found'
       )
+      return
+    }
 
-      // emit value from onValueChange$ for every model change
-      this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
-        this.onValueChange$.next(v)
+    // CONFIGURE PLACEHOLDER PROMPT
+    this.props.requireTypePrompt = this.props.requireTypePrompt.replace(
+      'ENTITY_NAME',
+      this.state.entityName
+    )
+    this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
+
+    // CONFIGURE STATE INPUTS
+    // connect to state clinicalDirectionOptions$
+    if (!this.state.options.clinicalDirectionOption$) {
+      console.error(
+        `${this.field.id} could not find form state's clinicalDirectionOption$ to populate select.`
+      )
+      return
+    }
+    // update direction enums when state clinicalDirection$ emits
+    this.state.enums.clinicalDirection$
+      .pipe(untilDestroyed(this))
+      .subscribe((enums: CvcInputEnum[]) => {
+        this.directionEnum$.next(enums)
       })
+
+    // set up optionTemplates Observable
+    if (!this.optionTemplates) {
+      console.error(
+        `${this.field.id} could not find its optionTemplates QueryList to populate its select options, so simple text labels will be displayed.`
+      )
     }
+    this.optionTemplate$ = this.optionTemplates?.changes.pipe(
+      // return QueryLists's array of TemplateRefs
+      map((ql: QueryList<TemplateRef<any>>) => {
+        return ql.map((q) => q)
+      })
+    )
 
-    // set up input & output streams,
-    if (this.field?.options?.formState) {
-      this.state = this.field.options.formState
-      // set up input stream
-      if (this.state && this.state.options.evidenceDirectionOption$) {
-        this.state.options.evidenceDirectionOption$
-          .pipe(untilDestroyed(this))
-          .subscribe((options: Maybe<NzSelectOptionInterface[]>) => {
-            this.selectOption$.next(options)
-          })
-      } else {
-        console.error(
-          `evidence-direction-select field could not find form state's evidenceDirectionOption$ to populate select.`
-        )
-      }
-
-      if (this.state && this.state.fields.evidenceType$) {
-        this.onEvidenceType$ = this.state.fields.evidenceType$
-        this.onEvidenceType$
-          .pipe(untilDestroyed(this))
-          .subscribe((et: Maybe<EvidenceType>) => {
-            if (!et && this.props.requireType) {
-              this.placeholder$.next(this.props.requireTypePrompt)
-            } else {
-              this.placeholder$.next(this.props.placeholder)
-            }
-          })
-      } else {
-        console.error(
-          `evidence-direction-select field could not find form state's evidenceType$.`
-        )
-      }
-
-      // set up output stream
-      if (this.state && this.state.fields.evidenceDirection$) {
-        this.evidenceDirectionChange$ = this.state.fields.evidenceDirection$
-        this.onValueChange$
-          .pipe(
-            // tag('direction-select evidenceDirectionChange$'),
-            untilDestroyed(this)
+    // connect to state entityType$
+    const etName = `${this.state.entityName.toLowerCase()}Type$`
+    if (!this.state.fields[etName]) {
+      console.error(
+        `${this.field.id} could not find form state's ${etName} to populate Direction options.`
+      )
+      return
+    }
+    this.onTypeSelect$ = this.state.fields[etName]
+    // if new entityType received, reset field, then based on entityType value, toggle disabled state, update placeholder
+    this.onTypeSelect$
+      .pipe(untilDestroyed(this))
+      .subscribe((et: Maybe<CvcInputEnum>) => {
+        this.formControl.setValue(undefined)
+        if (!et) {
+          this.props.disabled = true
+          this.placeholder$.next(this.props.requireTypePrompt)
+        } else {
+          this.props.disabled = false
+          const ph = this.props.placeholder.replace(
+            'ENTITY_TYPE',
+            et.charAt(0).toUpperCase() + et.slice(1).toLowerCase()
           )
-          .subscribe((v) => {
-            if (this.evidenceDirectionChange$)
-              this.evidenceDirectionChange$.next(v)
-          })
-      }
-    }
+          this.placeholder$.next(ph)
+        }
+      })
   }
 }

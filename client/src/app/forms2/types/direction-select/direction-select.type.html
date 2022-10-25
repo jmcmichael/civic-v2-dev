@@ -1,15 +1,28 @@
 <cvc-enum-select
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
-  [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
+  [cvcSelectMode]="props.isMultiSelect ? 'multiple' : 'default'"
+  [cvcPlaceholder]="placeholder$ | ngrxPush"
+  [cvcEnumName]="props.enumName"
+  [cvcCustomTemplate]="selectedTemplate"
   [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
-  [cvcDisabled]="
-    props.requireType && !(onEvidenceType$ | ngrxPush)
-  "></cvc-enum-select>
-
-<ng-container *ngrxFor="let option of selectOption$; index as i">
+  [cvcDisabled]="props.disabled"
+  (cvcOnFocus)="onFocus$.next()"></cvc-enum-select>
+<ng-container *ngFor="let enum of directionEnum$ | ngrxPush; index as i">
   <ng-template #optionTemplates>
-    <cvc-attribute-tag [cvcAttrValue]="option"></cvc-attribute-tag>
+    <cvc-attribute-tag [cvcAttrValue]="enum"></cvc-attribute-tag>
   </ng-template>
 </ng-container>
+
+<ng-template
+  #selectedTemplate
+  let-selected>
+  <div class="ant-select-selection-item-content">
+    <cvc-attribute-tag
+      [cvcAttrValue]="selected.nzValue"
+      [cvcContext]="props.isMultiSelect ? 'multi-select-item' : 'select-item'"
+      [cvcMode]="props.isMultiSelect ? 'default' : 'closeable'"
+      (cvcOnClose)="onTagClose$.next($event)"></cvc-attribute-tag>
+  </div>
+</ng-template>
