@@ -1,19 +1,19 @@
 import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit.model'
-import { CvcDrugSelectFieldConfig } from '@app/forms2/types/drug-select/drug-select.type'
+import { CvcDirectionSelectFieldOptions } from '@app/forms2/types/direction-select/direction-select.type'
+import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
+import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
+import { CvcSignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
 // import { CvcBaseInputFieldConfig } from '@app/forms2/types/base-input/base-input.type'
 // import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
 // import { CvcEvidenceDirectionSelectFieldConfig } from '@app/forms2/types/direction-select/direction-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/type-select/type-select.type'
-import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
-import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
 // import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
 // import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
 import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { CvcSignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
 
 const formFieldConfig: FormlyFieldConfig[] = [
   {
@@ -68,6 +68,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
           <CvcDrugSelectFieldOptions>{
             key: 'drugId',
             type: 'drug-select',
+            props: {
+              required: true,
+            },
+          },
+          <CvcDirectionSelectFieldOptions>{
+            key: 'evidenceDirection',
+            type: 'direction-select',
             props: {
               required: true,
             },
@@ -131,13 +138,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           // <CvcEntitySignificanceSelectFieldConfig>{
           //   key: 'clinicalSignficance',
           //   type: 'significance-select',
-          //   props: {
-          //     required: true,
-          //   },
-          // },
-          // <CvcEvidenceDirectionSelectFieldConfig>{
-          //   key: 'evidenceDirection',
-          //   type: 'direction-select',
           //   props: {
           //     required: true,
           //   },

@@ -1,14 +1,12 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { CvcBaseInputFieldModule } from './base-input/base-input.module'
-import { CvcSignificanceSelectModule } from './significance-select/significance-select.module'
 import { CvcDirectionSelectModule } from './direction-select/direction-select.module'
-import { CvcEntityTypeSelectModule } from './type-select/type-select.module'
+import { CvcDrugSelectModule } from './drug-select/drug-select.module'
 import { CvcGeneSelectModule } from './gene-select/gene-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
-import { CvcRepeatFieldModule } from './repeat-field/repeat-field.module'
+import { CvcSignificanceSelectModule } from './significance-select/significance-select.module'
+import { CvcEntityTypeSelectModule } from './type-select/type-select.module'
 import { CvcVariantSelectModule } from './variant-select/variant-select.module'
-import { CvcDrugSelectModule } from './drug-select/drug-select.module'
 
 @NgModule({
   imports: [
@@ -19,8 +17,7 @@ import { CvcDrugSelectModule } from './drug-select/drug-select.module'
     CvcGeneSelectModule,
     CvcVariantSelectModule,
     CvcSignificanceSelectModule,
-    // CvcEvidenceDirectionSelectModule,
-    // CvcRepeatFieldModule,
+    CvcDirectionSelectModule,
     // CvcBaseInputFieldModule,
   ],
 })

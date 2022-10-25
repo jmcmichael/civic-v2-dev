@@ -113,14 +113,14 @@ export class CvcDirectionSelectField
 
     // CONFIGURE STATE INPUTS
     // connect to state clinicalDirectionOptions$
-    if (!this.state.options.clinicalDirectionOption$) {
+    if (!this.state.enums.direction$) {
       console.error(
-        `${this.field.id} could not find form state's clinicalDirectionOption$ to populate select.`
+        `${this.field.id} could not find form state's direction$ to populate select.`
       )
       return
     }
     // update direction enums when state clinicalDirection$ emits
-    this.state.enums.clinicalDirection$
+    this.state.enums.direction$
       .pipe(untilDestroyed(this))
       .subscribe((enums: CvcInputEnum[]) => {
         this.directionEnum$.next(enums)

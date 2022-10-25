@@ -34,7 +34,7 @@ class EvidenceState extends EntityState {
       evidenceTypeOption$: new BehaviorSubject<NzSelectOptionInterface[]>(
         this.getOptionsFromEnums(this.getTypeOptions())
       ),
-      evidenceDirectionOption$: new BehaviorSubject<
+      directionOption$: new BehaviorSubject<
         Maybe<NzSelectOptionInterface[]>
       >(undefined),
       clinicalSignificanceOption$: new BehaviorSubject<
@@ -45,6 +45,7 @@ class EvidenceState extends EntityState {
     this.enums = {
       entityType$: new BehaviorSubject<CvcInputEnum[]>(this.getTypeOptions()),
       clinicalSignificance$: new BehaviorSubject<CvcInputEnum[]>([]),
+      direction$: new BehaviorSubject<CvcInputEnum[]>([])
     }
 
     this.requires = {
@@ -74,6 +75,8 @@ class EvidenceState extends EntityState {
         this.getOptionsFromEnums(this.getSignificanceOptions(et))
       )
 
+      const directionEnums = this.getDirectionOptions(et)
+      this.enums.direction$.next(directionEnums)
       this.options.evidenceDirectionOption$.next(
         this.getOptionsFromEnums(this.getDirectionOptions(et))
       )

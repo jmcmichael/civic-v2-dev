@@ -31,14 +31,15 @@ class AssertionState extends EntityState {
 
     this.enums = {
       entityType$: new BehaviorSubject<CvcInputEnum[]>(this.getTypeOptions()),
-      clinicalSignificance$: new BehaviorSubject<CvcInputEnum[]>([])
+      clinicalSignificance$: new BehaviorSubject<CvcInputEnum[]>([]),
+      direction$: new BehaviorSubject<CvcInputEnum[]>([])
     }
 
     this.options = {
       assertionTypeOption$: new BehaviorSubject<NzSelectOptionInterface[]>(
         this.getOptionsFromEnums(this.getTypeOptions())
       ),
-      assertionDirectionOption$: new BehaviorSubject<
+      directionOption$: new BehaviorSubject<
         Maybe<NzSelectOptionInterface[]>
       >(undefined),
       clinicalSignificanceOption$: new BehaviorSubject<
@@ -59,10 +60,14 @@ class AssertionState extends EntityState {
     // ASSERTION TYPE SUBSCRIBERS
     this.fields.assertionType$.subscribe((at: Maybe<AssertionType>) => {
       if (!at) return
+      const significanceEnums = this.getSignificanceOptions(at)
+      this.enums.clinicalSignificance$.next(significanceEnums)
       this.options.clinicalSignificanceOption$.next(
         this.getOptionsFromEnums(this.getSignificanceOptions(at))
       )
-      this.options.assertionDirectionOption$.next(
+      const directionEnums = this.getDirectionOptions(at)
+      this.enums.direction$.next(directionEnums)
+      this.options.directionOption$.next(
         this.getOptionsFromEnums(this.getDirectionOptions(at))
       )
       this.requires.requiresDisease$.next(this.requiresDisease(at))
