@@ -18,7 +18,7 @@ import { CvcDrugSelectModule } from './drug-select/drug-select.module'
     CvcEntityTypeSelectModule,
     CvcGeneSelectModule,
     CvcVariantSelectModule,
-    // CvcClinicalSignificanceSelectModule,
+    CvcClinicalSignificanceSelectModule,
     // CvcEvidenceDirectionSelectModule,
     // CvcRepeatFieldModule,
     // CvcBaseInputFieldModule,

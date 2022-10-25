@@ -6,6 +6,7 @@ import {
 } from '@app/generated/civic.apollo'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
+import { CvcInputEnum } from '../forms2.types'
 import { assertionSubmitFieldsDefaults } from '../models/assertion-submit.model'
 import { EntityName, EntityState } from './entity.state'
 
@@ -28,16 +29,21 @@ class AssertionState extends EntityState {
       >(def.clinicalSignificance),
     }
 
+    this.enums = {
+      entityType$: new BehaviorSubject<CvcInputEnum[]>(this.getTypeOptions()),
+      clinicalSignificance$: new BehaviorSubject<CvcInputEnum[]>([])
+    }
+
     this.options = {
       assertionTypeOption$: new BehaviorSubject<NzSelectOptionInterface[]>(
         this.getOptionsFromEnums(this.getTypeOptions())
       ),
-      assertionDirectionOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
-        undefined
-      ),
-      clinicalSignificanceOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
-        undefined
-      ),
+      assertionDirectionOption$: new BehaviorSubject<
+        Maybe<NzSelectOptionInterface[]>
+      >(undefined),
+      clinicalSignificanceOption$: new BehaviorSubject<
+        Maybe<NzSelectOptionInterface[]>
+      >(undefined),
     }
 
     this.requires = {
@@ -59,21 +65,11 @@ class AssertionState extends EntityState {
       this.options.assertionDirectionOption$.next(
         this.getOptionsFromEnums(this.getDirectionOptions(at))
       )
-      this.requires.requiresDisease$.next(
-        this.requiresDisease(at)
-      )
-      this.requires.requiresDrug$.next(
-        this.requiresDrug(at)
-      )
-      this.requires.requiresClingenCodes$.next(
-        this.requiresClingenCodes(at)
-      )
-      this.requires.requiresAcmgCodes$.next(
-        this.requiresAcmgCodes(at)
-      )
-      this.requires.allowsFdaApproval$.next(
-        this.allowsFdaApproval(at)
-      )
+      this.requires.requiresDisease$.next(this.requiresDisease(at))
+      this.requires.requiresDrug$.next(this.requiresDrug(at))
+      this.requires.requiresClingenCodes$.next(this.requiresClingenCodes(at))
+      this.requires.requiresAcmgCodes$.next(this.requiresAcmgCodes(at))
+      this.requires.allowsFdaApproval$.next(this.allowsFdaApproval(at))
     })
 
     this.validStates.set(AssertionType.Predictive, {

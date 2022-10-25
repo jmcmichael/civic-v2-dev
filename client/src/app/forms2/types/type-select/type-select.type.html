@@ -7,6 +7,7 @@
   [cvcCustomTemplate]="selectedTemplate"
   [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
+  [cvcDisabled]="props.disabled"
   (cvcOnFocus)="onFocus$.next()"></cvc-enum-select>
 <ng-container *ngFor="let enum of typeEnums$ | ngrxPush; index as i">
   <ng-template #optionTemplates>

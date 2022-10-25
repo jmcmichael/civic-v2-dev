@@ -10,49 +10,8 @@ import { CvcInputEnum } from '../forms2.types'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
 import { EntityName, EntityState } from './entity.state'
 
-export type EvidenceFieldSubjectMap = {
-  geneId$: BehaviorSubject<Maybe<number>>
-  variantId$: BehaviorSubject<Maybe<number>>
-  evidenceType$: BehaviorSubject<Maybe<EvidenceType>>
-  evidenceDirection$: BehaviorSubject<Maybe<EvidenceDirection>>
-  clinicalSignificance$: BehaviorSubject<Maybe<EvidenceClinicalSignificance>>
-}
-
-export type EvidenceEnumsSubjectMap = {
-  entityType$: BehaviorSubject<CvcInputEnum[]>
-}
-
-export type EvidenceOptionsSubjectMap = {
-  evidenceTypeOption$: BehaviorSubject<NzSelectOptionInterface[]>
-  clinicalSignificanceOption$: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
-  evidenceDirectionOption$: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
-}
-
-export type EvidenceRequiresSubjectMap = {
-  requiresDisease$: BehaviorSubject<boolean>
-  requiresDrug$: BehaviorSubject<boolean>
-  requiresClingenCodes$: BehaviorSubject<boolean>
-  requiresAcmgCodes$: BehaviorSubject<boolean>
-  requiresAmpLevel$: BehaviorSubject<boolean>
-  allowsFdaApproval$: BehaviorSubject<boolean>
-}
-
-type TypesIn<T> = { [K in keyof T]: T[K] }[keyof T]
-
-export type EvidenceFieldSubjectName = keyof EvidenceFieldSubjectMap
-export type EvidenceFieldSubject = TypesIn<EvidenceFieldSubjectMap>
-
-export type EvidenceOptionsSubjectName = keyof EvidenceOptionsSubjectMap
-export type EvidenceOptionsSubject = TypesIn<keyof EvidenceOptionsSubjectMap>
-
-export type EvidenceRequiresSubjectName = keyof EvidenceRequiresSubjectMap
-export type EvidenceRequiresSubject = TypesIn<keyof EvidenceRequiresSubjectMap>
 
 class EvidenceState extends EntityState {
-  fields: EvidenceFieldSubjectMap
-  enums: EvidenceEnumsSubjectMap
-  options: EvidenceOptionsSubjectMap
-  requires: EvidenceRequiresSubjectMap
 
   constructor() {
     super(EntityName.EVIDENCE)
@@ -75,16 +34,17 @@ class EvidenceState extends EntityState {
       evidenceTypeOption$: new BehaviorSubject<NzSelectOptionInterface[]>(
         this.getOptionsFromEnums(this.getTypeOptions())
       ),
-      evidenceDirectionOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
-        undefined
-      ),
-      clinicalSignificanceOption$: new BehaviorSubject<Maybe<NzSelectOptionInterface[]>>(
-        undefined
-      ),
+      evidenceDirectionOption$: new BehaviorSubject<
+        Maybe<NzSelectOptionInterface[]>
+      >(undefined),
+      clinicalSignificanceOption$: new BehaviorSubject<
+        Maybe<NzSelectOptionInterface[]>
+      >(undefined),
     }
 
     this.enums = {
-      entityType$: new BehaviorSubject<CvcInputEnum[]>(this.getTypeOptions())
+      entityType$: new BehaviorSubject<CvcInputEnum[]>(this.getTypeOptions()),
+      clinicalSignificance$: new BehaviorSubject<CvcInputEnum[]>([]),
     }
 
     this.requires = {
@@ -101,34 +61,27 @@ class EvidenceState extends EntityState {
     this.fields.evidenceType$.subscribe((et: Maybe<EvidenceType>) => {
       if (!et) {
         // set all 'requires' fields to false, non-type options to []
-        Object.entries(this.requires).forEach(([key,value]) => {
+        Object.entries(this.requires).forEach(([key, value]) => {
           value.next(false)
         })
         this.options.evidenceDirectionOption$.next([])
         this.options.clinicalSignificanceOption$.next([])
         return
       }
+      const significanceEnums = this.getSignificanceOptions(et)
+      this.enums.clinicalSignificance$.next(significanceEnums)
       this.options.clinicalSignificanceOption$.next(
         this.getOptionsFromEnums(this.getSignificanceOptions(et))
       )
+
       this.options.evidenceDirectionOption$.next(
         this.getOptionsFromEnums(this.getDirectionOptions(et))
       )
-      this.requires.requiresDisease$.next(
-        this.requiresDisease(et)
-      )
-      this.requires.requiresDrug$.next(
-        this.requiresDrug(et)
-      )
-      this.requires.requiresClingenCodes$.next(
-        this.requiresClingenCodes(et)
-      )
-      this.requires.requiresAcmgCodes$.next(
-        this.requiresAcmgCodes(et)
-      )
-      this.requires.allowsFdaApproval$.next(
-        this.allowsFdaApproval(et)
-      )
+      this.requires.requiresDisease$.next(this.requiresDisease(et))
+      this.requires.requiresDrug$.next(this.requiresDrug(et))
+      this.requires.requiresClingenCodes$.next(this.requiresClingenCodes(et))
+      this.requires.requiresAcmgCodes$.next(this.requiresAcmgCodes(et))
+      this.requires.allowsFdaApproval$.next(this.allowsFdaApproval(et))
     })
 
     this.validStates.set(EvidenceType.Predictive, {

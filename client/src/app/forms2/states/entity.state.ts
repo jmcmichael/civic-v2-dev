@@ -16,8 +16,7 @@ import { $enum } from 'ts-enum-util'
 
 export type EntityType = EvidenceType | AssertionType
 
-export type EntityClinicalSignificance =
-  | EvidenceClinicalSignificance
+export type EntityClinicalSignificance = EvidenceClinicalSignificance
   | AssertionClinicalSignificance
 
 export type EntityDirection = EvidenceDirection | AssertionDirection

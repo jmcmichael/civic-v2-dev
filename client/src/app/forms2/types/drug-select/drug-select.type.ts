@@ -196,8 +196,10 @@ export class CvcDrugSelectField
     combineLatest([this.onRequiresDrug$, this.onEntityType$])
       .pipe(untilDestroyed(this))
       .subscribe(([reqDrug, entityType]: [boolean, Maybe<EntityType>]) => {
+        // drugs are not required for this entity type
         if (!reqDrug && entityType) {
           this.props.required = false
+          this.props.disabled = true
           // no drug required, entity type specified
           this.placeholder$.next(
             `${formatEvidenceEnum(entityType)} ${
@@ -209,15 +211,17 @@ export class CvcDrugSelectField
         // and show a 'Select Type..' prompt
         if (!reqDrug && !entityType && this.props.requireType) {
           this.props.required = false
+          this.props.disabled = false
           // no drug required, entity type not specified
           this.placeholder$.next(
             `Select ${this.stateEntityName} Type to select drugs`
           )
         }
         // state indicates drug is required, toggle field required property,
-        // and show the default or multi placeholder
+        // and show the placeholder
         if (reqDrug) {
           this.props.required = true
+          this.props.disabled = false
           this.placeholder$.next('Search Drugs')
         }
         // field currently has a value, but state indicates no drug is required,

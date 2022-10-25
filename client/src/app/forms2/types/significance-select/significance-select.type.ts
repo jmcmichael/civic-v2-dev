@@ -1,19 +1,24 @@
-import { AfterViewInit, Component, Type } from '@angular/core'
-import { EntityType } from '@app/forms/config/states/entity.state'
-import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import {
-  EntityClinicalSignificance,
-  EntityState,
-} from '@app/forms2/states/entity.state'
-import { Maybe } from '@app/generated/civic.apollo'
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  QueryList,
+  TemplateRef,
+  Type,
+  ViewChildren,
+} from '@angular/core'
+import { CvcInputEnum } from '@app/forms2/forms2.types'
+import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
+import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
+import { EntityClinicalSignificance } from '@app/forms2/states/entity.state'
+import { AssertionType, EvidenceType, Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, Subject } from 'rxjs'
+import { BehaviorSubject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 interface CvcEntitySignificanceSelectFieldProps extends FormlyFieldProps {
@@ -31,7 +36,8 @@ const EntitySignificanceSelectMixin = mixin(
   BaseFieldType<
     FieldTypeConfig<CvcEntitySignificanceSelectFieldProps>,
     Maybe<EntityClinicalSignificance>
-  >()
+  >(),
+  EnumTagField<EntityClinicalSignificance, CvcInputEnum>()
 )
 
 @Component({
@@ -43,38 +49,46 @@ export class CvcEntitySignificanceSelectField
   extends EntitySignificanceSelectMixin
   implements AfterViewInit
 {
-  state: Maybe<EntityState>
-
+  //TODO: implement more precise types so specific enum-selects like this one can specify their enums, e.g. EntityClinicalSignificance instead of CvcInputEnum
   // STATE SOURCE STREAMS
-  onEntityType$!: Subject<Maybe<EntityType>>
-  selectOption$!: BehaviorSubject<Maybe<NzSelectOptionInterface[]>>
+  significanceEnum$: BehaviorSubject<CvcInputEnum[]>
+  onTypeSelect$?: BehaviorSubject<Maybe<CvcInputEnum>>
 
   // LOCAL SOURCE STREAMS
+  onFocus$: BehaviorSubject<void>
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
+  label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
-
-  // STATE OUTPUT STREAMS
-  stateValueChange$?: BehaviorSubject<Maybe<EntityClinicalSignificance>>
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<
     FieldTypeConfig<CvcEntitySignificanceSelectFieldProps>
   > = {
     props: {
-      label: 'Clinical Significance',
+      label: 'Significance',
       placeholder: 'Select ENTITY_TYPE Clinical Significance',
       requireTypePrompt: 'Select an ENTITY_NAME Type to select Significance',
     },
   }
-  constructor() {
+
+  @ViewChildren('optionTemplates', { read: TemplateRef })
+  optionTemplates?: QueryList<TemplateRef<any>>
+
+  constructor(private cdr: ChangeDetectorRef) {
     super()
+    this.significanceEnum$ = new BehaviorSubject<CvcInputEnum[]>([])
+    this.onFocus$ = new BehaviorSubject<void>(undefined)
   }
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
-    this.configureInitialValueHandler() // local fn
+    this.configureEnumTagField({
+      optionEnum$: this.significanceEnum$,
+      optionTemplate$: this.optionTemplate$,
+      changeDetectorRef: this.cdr,
+    })
   } // ngAfterViewInit()
 
   configureStateConnections(): void {
@@ -104,25 +118,31 @@ export class CvcEntitySignificanceSelectField
       )
       return
     }
-    this.selectOption$ = this.state.options.clinicalSignificanceOption$
+    this.state.enums.clinicalSignificance$
+      .pipe(untilDestroyed(this))
+      .subscribe((enums: CvcInputEnum[])=> {
+        this.significanceEnum$.next(enums)
+      })
 
     // connect to state entityType$
     const etName = `${this.state.entityName.toLowerCase()}Type$`
     if (!this.state.fields[etName]) {
       console.error(
-        `${this.field.id} could not find form state's ${etName} to populate select.`
+        `${this.field.id} could not find form state's ${etName} to populate Significance options.`
       )
       return
     }
-    this.onEntityType$ = this.state.fields[etName]
+    this.onTypeSelect$ = this.state.fields[etName]
 
-    this.onEntityType$
+    this.onTypeSelect$
       .pipe(untilDestroyed(this))
-      .subscribe((et: Maybe<EntityType>) => {
+      .subscribe((et: Maybe<CvcInputEnum>) => {
         this.formControl.setValue(undefined)
         if (!et) {
+          this.props.disabled = true
           this.placeholder$.next(this.props.requireTypePrompt)
         } else {
+          this.props.disabled = false
           const ph = this.props.placeholder.replace(
             'ENTITY_TYPE',
             et.charAt(0).toUpperCase() + et.slice(1).toLowerCase()
@@ -130,34 +150,5 @@ export class CvcEntitySignificanceSelectField
           this.placeholder$.next(ph)
         }
       })
-
-    // CONFIGURE STATE OUTPUT
-    this.stateValueChange$ = this.state.fields.clinicalSignificance$
-    if (!this.stateValueChange$) {
-      console.warn(
-        `${this.field.id} could not find state field's clinicalSignifince$ to emit its value changes.`
-      )
-      return
-    }
-    this.onValueChange$
-      .pipe(
-        // tag('significance-select clinicalSignificanceChange$'),
-        untilDestroyed(this)
-      )
-      .subscribe((v) => {
-        if (this.stateValueChange$) this.stateValueChange$.next(v)
-      })
-  }
-  private configureInitialValueHandler(): void {
-    // if on initialization, this field's formControl has already been assigned a value
-    // (e.g. via query-param extension, saved form state, model initialization), emit
-    // onValueChange$, state valueChange$ events
-    if (this.field.formControl.value) {
-      const v = this.field.formControl.value
-      this.onValueChange$.next(v)
-      // valueChange$ may not exist if component is a repeat-item or form state missing
-      if (!this.stateValueChange$) return
-      this.stateValueChange$.next(v)
-    }
   }
 }

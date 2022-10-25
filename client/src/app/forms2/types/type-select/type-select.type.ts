@@ -52,15 +52,15 @@ export class CvcEntityTypeSelectField
   extends EntityTypeSelectMixin
   implements AfterViewInit
 {
+  //TODO: implement more precise types so specific enum-selects like this one can specify their enums, e.g. EntityType instead of CvcInputEnum
   // STATE SOURCE STREAMS
   typeEnums$!: BehaviorSubject<CvcInputEnum[]>
 
   // LOCAL SOURCE STREAMS
   onFocus$: BehaviorSubject<void>
-  onTagClose$: Subject<MouseEvent>
+
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
   label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
 
@@ -78,10 +78,8 @@ export class CvcEntityTypeSelectField
 
   constructor(private cdr: ChangeDetectorRef) {
     super()
-    this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
     this.typeEnums$ = new BehaviorSubject<CvcInputEnum[]>([])
     this.onFocus$ = new BehaviorSubject<void>(undefined)
-    this.onTagClose$ = new Subject<MouseEvent>()
   }
 
   ngAfterViewInit(): void {

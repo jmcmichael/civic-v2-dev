@@ -22,10 +22,10 @@ export class CvcEnumSelectComponent {
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
   @Input() cvcEnumName: string = 'Attribute'
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
-  @Input() cvcPlaceholder: string = 'Select an option'
+  @Input() cvcPlaceholder?: string = 'Select an option'
   @Input() cvcOptions?: NzSelectOptionInterface[] = []
   @Input() cvcShowError: boolean = false
-  @Input() cvcDisabled: boolean = false
+  @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = true
   @Input() cvcModelChange?: FormlyAttributeEvent
   // custom template for field value render

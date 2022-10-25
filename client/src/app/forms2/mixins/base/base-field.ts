@@ -72,23 +72,25 @@ export function BaseFieldType<
       // field key string + '$', e.g. field key 'geneId'
       // will emit value changes from state.field.geneId$
       const stateField = `${this.field.key}$`
-      if (this.state && this.state.fields[stateField]) {
-        this.stateValueChange$ = this.state.fields[stateField]
-        this.onValueChange$
-          .pipe(
-            // some nz form components set model value to null when cleared,
-            // but other fields expect undefined for an unset model value
-            map((v: Maybe<V>) => (v === null ? undefined : v)),
-            untilDestroyed(this)
-          )
-          .subscribe((v) => {
-            if (this.stateValueChange$) this.stateValueChange$.next(v)
-          })
-        // update state if field has been prepopulated w/ query param or
-        // form component model e.g. revise forms
-        if (this.formControl.value) {
-          this.stateValueChange$.next(this.formControl.value)
-        }
+      if (!(this.state && this.state.fields[stateField])) {
+        console.warn(`${this.field.id} could not find state field ${stateField} on form state. State: `, this.state)
+        return
+      }
+      this.stateValueChange$ = this.state.fields[stateField]
+      this.onValueChange$
+        .pipe(
+          // some nz form components set model value to null when cleared,
+          // but other fields expect undefined for an unset model value
+          map((v: Maybe<V>) => (v === null ? undefined : v)),
+          untilDestroyed(this)
+        )
+        .subscribe((v) => {
+          if (this.stateValueChange$) this.stateValueChange$.next(v)
+        })
+      // update state if field has been prepopulated w/ query param or
+      // form component model e.g. revise forms
+      if (this.formControl.value) {
+        this.stateValueChange$.next(this.formControl.value)
       }
     }
 
