@@ -10,8 +10,36 @@ import { CvcInputEnum } from '../forms2.types'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
 import { EntityName, EntityState } from './entity.state'
 
+export type EvidenceFields = {
+  geneId$: BehaviorSubject<Maybe<number>>
+  variantId$: BehaviorSubject<Maybe<number>>
+  evidenceType$: BehaviorSubject<Maybe<EvidenceType>>
+  evidenceDirection$: BehaviorSubject<Maybe<EvidenceDirection>>
+  clinicalSignificance$: BehaviorSubject<Maybe<EvidenceClinicalSignificance>>
+  diseaseId$: BehaviorSubject<Maybe<number>>
+  drugIds$: BehaviorSubject<Maybe<number[]>>
+}
+
+export type EvidenceEnums = {
+  entityType$: BehaviorSubject<CvcInputEnum[]>
+  clinicalSignificance$: BehaviorSubject<CvcInputEnum[]>
+  direction$: BehaviorSubject<CvcInputEnum[]>
+  interaction$: BehaviorSubject<CvcInputEnum[]>
+}
+
+export type EvidenceRequires = {
+  requiresDisease$: BehaviorSubject<boolean>
+  requiresDrug$: BehaviorSubject<boolean>
+  requiresClingenCodes$: BehaviorSubject<boolean>
+  requiresAcmgCodes$: BehaviorSubject<boolean>
+  requiresAmpLevel$: BehaviorSubject<boolean>
+  allowsFdaApproval$: BehaviorSubject<boolean>
+}
 
 class EvidenceState extends EntityState {
+  fields: EvidenceFields
+  enums: EvidenceEnums
+  requires: EvidenceRequires
 
   constructor() {
     super(EntityName.EVIDENCE)
@@ -35,7 +63,8 @@ class EvidenceState extends EntityState {
     this.enums = {
       entityType$: new BehaviorSubject<CvcInputEnum[]>(this.getTypeOptions()),
       clinicalSignificance$: new BehaviorSubject<CvcInputEnum[]>([]),
-      direction$: new BehaviorSubject<CvcInputEnum[]>([])
+      direction$: new BehaviorSubject<CvcInputEnum[]>([]),
+      interaction$: new BehaviorSubject<CvcInputEnum[]>(this.getInteractionOptions()),
     }
 
     this.requires = {
@@ -51,20 +80,16 @@ class EvidenceState extends EntityState {
     // EVIDENCE TYPE SUBSCRIBER
     this.fields.evidenceType$.subscribe((et: Maybe<EvidenceType>) => {
       if (!et) {
-        // set all 'requires' fields to false, non-type options to []
+        // set all 'requires' fields to false, non-type enums to []
         Object.entries(this.requires).forEach(([key, value]) => {
           value.next(false)
         })
         this.enums.clinicalSignificance$.next([])
         this.enums.direction$.next([])
-          // this.options.evidenceDirectionOption$.next([])
-        // this.options.clinicalSignificanceOption$.next([])
         return
       }
-      const significanceEnums = this.getSignificanceOptions(et)
-      this.enums.clinicalSignificance$.next(significanceEnums)
-      const directionEnums = this.getDirectionOptions(et)
-      this.enums.direction$.next(directionEnums)
+      this.enums.clinicalSignificance$.next(this.getSignificanceOptions(et))
+      this.enums.direction$.next(this.getDirectionOptions(et))
 
       this.requires.requiresDisease$.next(this.requiresDisease(et))
       this.requires.requiresDrug$.next(this.requiresDrug(et))

@@ -6,6 +6,7 @@ import {
   AssertionClinicalSignificance,
   AssertionDirection,
   AssertionType,
+  DrugInteraction,
   EvidenceClinicalSignificance,
   EvidenceDirection,
   EvidenceType,
@@ -16,7 +17,8 @@ import { $enum } from 'ts-enum-util'
 
 export type EntityType = EvidenceType | AssertionType
 
-export type EntityClinicalSignificance = EvidenceClinicalSignificance
+export type EntityClinicalSignificance =
+  | EvidenceClinicalSignificance
   | AssertionClinicalSignificance
 
 export type EntityDirection = EvidenceDirection | AssertionDirection
@@ -48,10 +50,6 @@ export enum SelectType {
 export type EntityFieldSubjectMap = { [key: string]: BehaviorSubject<any> }
 
 export interface IEntityState {
-  fields: EntityFieldSubjectMap
-  enums: EntityFieldSubjectMap
-  options: EntityFieldSubjectMap
-  requires: EntityFieldSubjectMap
   validStates: Map<EntityType, ValidEntity>
   getTypeOptions: () => EntityType[]
   getSignificanceOptions: (et: EntityType) => EntityClinicalSignificance[]
@@ -122,6 +120,10 @@ class EntityState implements IEntityState {
   getSignificanceOptions = (et: EntityType): EntityClinicalSignificance[] => {
     const state = this.validStates.get(et)
     return state?.clinicalSignificance || []
+  }
+
+  getInteractionOptions = (): DrugInteraction[] => {
+    return $enum(DrugInteraction).map((value) => value)
   }
 
   isValidSignificanceOption = (

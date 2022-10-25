@@ -69,7 +69,7 @@ export class CvcDirectionSelectField
   defaultOptions: CvcDirectionSelectFieldOptions = {
     props: {
       label: 'Direction',
-      placeholder: 'Select ENTITY_TYPE Clinical Direction',
+      placeholder: 'Select ENTITY_TYPE Direction',
       requireTypePrompt: 'Select an ENTITY_NAME Type to select Direction',
     },
   }
@@ -112,14 +112,14 @@ export class CvcDirectionSelectField
     this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
     // CONFIGURE STATE INPUTS
-    // connect to state clinicalDirectionOptions$
+    // connect to state directionOptions$
     if (!this.state.enums.direction$) {
       console.error(
         `${this.field.id} could not find form state's direction$ to populate select.`
       )
       return
     }
-    // update direction enums when state clinicalDirection$ emits
+    // update direction enums when state direction$ emits
     this.state.enums.direction$
       .pipe(untilDestroyed(this))
       .subscribe((enums: CvcInputEnum[]) => {
