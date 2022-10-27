@@ -66,6 +66,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             props: {},
           },
           {
+            wrappers: ['field-group'],
             fieldGroup: [
               <CvcDrugSelectFieldOptions>{
                 key: 'drugIds',

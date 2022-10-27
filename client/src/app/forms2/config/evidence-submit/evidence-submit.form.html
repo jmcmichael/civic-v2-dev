@@ -1,6 +1,6 @@
 <form
   nz-form
-  [nzLayout]="formLayout"
+  [nzLayout]="(formLayout$ | ngrxPush)!"
   [formGroup]="form"
   (ngSubmit)="onSubmit(model)">
   <formly-form

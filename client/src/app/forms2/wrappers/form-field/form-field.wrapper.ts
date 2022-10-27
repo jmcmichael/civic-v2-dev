@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { EmbeddedProperty, NzAlign, NzJustify } from 'ng-zorro-antd/grid'
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 
 export type CvcFieldLayoutWrapperConfig = Partial<WrapperConfig>
 
@@ -60,6 +62,7 @@ export class CvcFormFieldWrapper
   implements OnInit
 {
   wrapper!: WrapperConfig
+  formLayout$!: BehaviorSubject<NzFormLayoutType>
 
   get errorState() {
     return this.showError ? 'error' : ''
@@ -70,6 +73,12 @@ export class CvcFormFieldWrapper
   }
 
   ngOnInit(): void {
+    if(this.options.formState.formLayout$) {
+      this.formLayout$ = this.options.formState.formLayout$
+    } else {
+      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('horizontal')
+    }
+
     // merge the defaults below w/ any field.props specified display, layout settings
     try {
       this.wrapper = {

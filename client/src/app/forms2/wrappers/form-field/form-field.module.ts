@@ -7,6 +7,7 @@ import { CvcFormFieldWrapper } from './form-field.wrapper';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
+import { ReactiveComponentModule } from '@ngrx/component';
 
 // NOTE: this wrapper replaces, and is heavily based on, ngx-formly's
 // ng-zorro base form-field wrapper. If after an ngx-formly update,
@@ -19,6 +20,7 @@ const wrapperConfig: ConfigOption = {
   declarations: [CvcFormFieldWrapper],
   imports: [
     CommonModule,
+    ReactiveComponentModule,
     ReactiveFormsModule,
     NzFormModule,
     NzIconModule,
