@@ -14,6 +14,7 @@ import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityType } from '@app/forms2/states/entity.state'
+import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/field-layout.wrapper'
 import {
   DiseaseSelectTagGQL,
   DiseaseSelectTagQuery,
@@ -61,6 +62,7 @@ export interface CvcDiseaseSelectFieldProps extends FormlyFieldProps {
     // placeholder if evidence/assertion type required & field disabled
     requireTypePrompt: string
   }
+  wrapper?: CvcFieldLayoutWrapperConfig
 }
 
 // NOTE: any multi-select field must have the string 'multi' in its type name,
@@ -192,9 +194,7 @@ export class CvcDiseaseSelectField
     if (!this.onRequiresDisease$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
     combineLatest([this.onRequiresDisease$, this.onEntityType$])
-      .pipe(
-        tag(`${this.field.id} combineLatest`),
-        untilDestroyed(this))
+      .pipe(tag(`${this.field.id} combineLatest`), untilDestroyed(this))
       .subscribe(
         ([requiresDisease, entityType]: [boolean, Maybe<EntityType>]) => {
           // diseases are not required for this entity type

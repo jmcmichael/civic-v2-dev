@@ -4,11 +4,11 @@ import { CvcDiseaseSelectFieldOptions } from '@app/forms2/types/disease-select/d
 import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
-import { CvcSignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
+import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
 // import { CvcBaseInputFieldConfig } from '@app/forms2/types/base-input/base-input.type'
 // import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
 // import { CvcEvidenceDirectionSelectFieldConfig } from '@app/forms2/types/direction-select/direction-select.type'
-import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/type-select/type-select.type'
+import { CvcEntityTypeSelectFieldConfig, CvcEntityTypeSelectFieldOptions } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 // import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
 // import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
@@ -53,31 +53,37 @@ const formFieldConfig: FormlyFieldConfig[] = [
               // requireGene: false
             },
           },
-          <CvcEntityTypeSelectFieldConfig>{
+          <CvcEntityTypeSelectFieldOptions>{
             key: 'evidenceType',
             type: 'type-select',
             props: {
               required: true,
             },
           },
-          <CvcSignificanceSelectFieldConfig>{
+          <CvcSignificanceSelectFieldOptions>{
             key: 'clinicalSignificance',
             type: 'significance-select',
             props: {
-              required: true,
             },
           },
           <CvcDirectionSelectFieldOptions>{
             key: 'evidenceDirection',
             type: 'direction-select',
             props: {
-              required: true,
             },
           },
           <CvcDrugSelectFieldOptions>{
             key: 'drugIds',
             type: 'drug-multi-select',
             props: {
+              // layout: {
+              //   label: {
+              //     span: 6
+              //   },
+              //   control: {
+              //     span: 16
+              //   }
+              // }
             },
           },
           <CvcInteractionSelectFieldOptions>{
@@ -89,6 +95,16 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'diseaseId',
             type: 'disease-select',
             props: {
+              wrapper: {
+                layout: {
+                  label: {
+                    span: 8
+                  },
+                  control: {
+                    span: 16
+                  }
+                }
+              }
             }
           },
           // <CvcRepeatFieldConfig>{

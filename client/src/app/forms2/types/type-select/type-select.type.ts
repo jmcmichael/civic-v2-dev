@@ -11,6 +11,7 @@ import { EntityType } from '@app/forms/config/states/entity.state'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
+import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/field-layout.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -18,16 +19,20 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, map, Subject, withLatestFrom } from 'rxjs'
+import { BehaviorSubject, map } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
+
+export type CvcEntityTypeSelectFieldOptions = Partial<
+  FieldTypeConfig<CvcEntityTypeSelectFieldProps>
+>
 
 interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   enumName: string
   isMultiSelect: boolean
+  layout?: CvcFieldLayoutWrapperConfig
 }
 
 export interface CvcEntityTypeSelectFieldConfig

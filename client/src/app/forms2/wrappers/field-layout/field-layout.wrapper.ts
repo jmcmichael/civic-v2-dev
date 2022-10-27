@@ -1,21 +1,21 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
-import {
-  FieldWrapper,
-  FormlyFieldConfig,
-  FormlyFieldProps,
-} from '@ngx-formly/core'
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
-import { NzFormTooltipIcon } from 'ng-zorro-antd/form'
 import { EmbeddedProperty, NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 
-export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
-  hideRequiredMarker?: boolean
-  hideLabel?: boolean
-  helpText?: string
+export type CvcFieldLayoutWrapperConfig = Partial<WrapperConfig>
+
+type WrapperConfig = {
+  display: {
+    ignoreRequiredState: boolean
+    noColon: boolean
+    hideLabel?: boolean
+    tooltip?: string
+    description?: string
+  }
   layout: {
-    // nz-form-item
-    item?: {
-      gutter?:
+    item: {
+      gutter:
         | string
         | number
         | IndexableObject
@@ -53,26 +53,55 @@ export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
   selector: 'formly-wrapper-nz-form-field',
   templateUrl: './field-layout.wrapper.html',
   styleUrls: ['./field-layout.wrapper.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcFormFieldWrapper
-  extends FieldWrapper<FormlyFieldConfig<CvcFormFieldWrapperProps>>
+  extends FieldWrapper<FormlyFieldConfig<any>>
   implements OnInit
 {
-  defaultProps: CvcFormFieldWrapperProps = {
-    layout: {
-      label: {
-        span: 4,
-      },
-      control: {
-        span: 20,
-      },
-    },
+  wrapper!: WrapperConfig
+
+  constructor() {
+    super()
   }
 
   ngOnInit(): void {
-    this.props.layout = this.props.layout || this.defaultProps.layout
+    // merge the defaults below w/ any field.props specified display, layout settings
+    try {
+      this.wrapper = {
+        display: {
+          noColon: true,
+          ignoreRequiredState: false,
+          ...(this.props.wrapper?.display
+            ? this.props.wrapper.display
+            : undefined),
+        },
+        layout: {
+          item: {
+            gutter: [6, 12],
+            ...(this.props.wrapper?.layout?.item
+              ? this.props.wrapper.layout.item
+              : undefined),
+          },
+          label: {
+            span: 4,
+            ...(this.props.wrapper?.layout?.label
+              ? this.props.wrapper.layout.label
+              : undefined),
+          },
+          control: {
+            span: 20,
+            ...(this.props.wrapper?.layout?.control
+              ? this.props.wrapper.layout?.control
+              : undefined),
+          },
+        },
+      }
+    } catch (err) {
+      console.error(err)
+    }
   }
+
   get errorState() {
     return this.showError ? 'error' : ''
   }

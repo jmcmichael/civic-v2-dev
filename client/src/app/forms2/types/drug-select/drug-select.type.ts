@@ -1,34 +1,35 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  QueryList,
-  TemplateRef,
-  Type,
-  ViewChildren,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    QueryList,
+    TemplateRef,
+    Type,
+    ViewChildren
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityState, EntityType } from '@app/forms2/states/entity.state'
+import { EntityType } from '@app/forms2/states/entity.state'
+import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/field-layout.wrapper'
 import {
-  DrugSelectTagGQL,
-  DrugSelectTagQuery,
-  DrugSelectTagQueryVariables,
-  DrugSelectTypeaheadFieldsFragment,
-  DrugSelectTypeaheadGQL,
-  DrugSelectTypeaheadQuery,
-  DrugSelectTypeaheadQueryVariables,
-  Maybe,
+    DrugSelectTagGQL,
+    DrugSelectTagQuery,
+    DrugSelectTagQueryVariables,
+    DrugSelectTypeaheadFieldsFragment,
+    DrugSelectTypeaheadGQL,
+    DrugSelectTypeaheadQuery,
+    DrugSelectTypeaheadQueryVariables,
+    Maybe
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldTypeConfig,
-  FormlyFieldConfig,
-  FormlyFieldProps,
+    FieldTypeConfig,
+    FormlyFieldConfig,
+    FormlyFieldProps
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
@@ -60,7 +61,8 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
     multiDefault: string
     // placeholder if evidence/assertion type required & field disabled
     requireTypePrompt: string
-  }
+  },
+  wrapper?: CvcFieldLayoutWrapperConfig
 }
 
 // NOTE: any multi-select field must have the string 'multi' in its type name,
@@ -192,9 +194,7 @@ export class CvcDrugSelectField
     if (!this.onRequiresDrug$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
     combineLatest([this.onRequiresDrug$, this.onEntityType$])
-      .pipe(
-        tag(`${this.field.id} combineLatest`),
-        untilDestroyed(this))
+      .pipe(tag(`${this.field.id} combineLatest`), untilDestroyed(this))
       .subscribe(([requiresDrug, entityType]: [boolean, Maybe<EntityType>]) => {
         // drugs are not required for this entity type
         if (!requiresDrug && entityType) {
