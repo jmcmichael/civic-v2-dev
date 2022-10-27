@@ -30,14 +30,14 @@ const typeConfig: ConfigOption = {
   types: [
     {
       name: 'disease-select',
-      wrappers: ['field-layout'],
+      wrappers: ['form-field'],
       // wrappers: ['form-field'],
       component: CvcDiseaseSelectField,
     },
     {
       // no label, for use in repeat-field types
       name: 'disease-multi-select',
-      wrappers: ['field-layout'],
+      wrappers: ['form-field'],
       component: CvcDiseaseSelectField,
       defaultOptions: <CvcDiseaseSelectFieldOptions>{
         props: {

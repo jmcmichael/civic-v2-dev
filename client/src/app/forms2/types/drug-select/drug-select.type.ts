@@ -14,7 +14,7 @@ import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityType } from '@app/forms2/states/entity.state'
-import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/field-layout.wrapper'
+import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
     DrugSelectTagGQL,
     DrugSelectTagQuery,

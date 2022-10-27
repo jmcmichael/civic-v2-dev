@@ -31,14 +31,14 @@ const typeConfig: ConfigOption = {
   types: [
     {
       name: 'drug-select',
-      wrappers: ['field-layout'],
+      wrappers: ['form-field'],
       // wrappers: ['form-field'],
       component: CvcDrugSelectField,
     },
     {
       // no label, for use in repeat-field types
       name: 'drug-multi-select',
-      wrappers: ['field-layout'],
+      wrappers: ['form-field'],
       component: CvcDrugSelectField,
       defaultOptions: <CvcDrugSelectFieldOptions>{
         props: {

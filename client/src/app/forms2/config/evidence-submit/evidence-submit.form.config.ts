@@ -58,33 +58,35 @@ const formFieldConfig: FormlyFieldConfig[] = [
           <CvcSignificanceSelectFieldOptions>{
             key: 'clinicalSignificance',
             type: 'significance-select',
-            props: {
-            },
+            props: {},
           },
           <CvcDirectionSelectFieldOptions>{
             key: 'evidenceDirection',
             type: 'direction-select',
-            props: {
-            },
+            props: {},
           },
-          <CvcDrugSelectFieldOptions>{
-            key: 'drugIds',
-            type: 'drug-multi-select',
-            props: {
-              // layout: {
-              //   label: {
-              //     span: 6
-              //   },
-              //   control: {
-              //     span: 16
-              //   }
-              // }
-            },
-          },
-          <CvcInteractionSelectFieldOptions>{
-            key: 'drugInteractionType',
-            type: 'interaction-select',
-            props: {}
+          {
+            fieldGroup: [
+              <CvcDrugSelectFieldOptions>{
+                key: 'drugIds',
+                type: 'drug-multi-select',
+                props: {
+                  // layout: {
+                  //   label: {
+                  //     span: 6
+                  //   },
+                  //   control: {
+                  //     span: 16
+                  //   }
+                  // }
+                },
+              },
+              <CvcInteractionSelectFieldOptions>{
+                key: 'drugInteractionType',
+                type: 'interaction-select',
+                props: {},
+              },
+            ],
           },
           <CvcDiseaseSelectFieldOptions>{
             key: 'diseaseId',
@@ -93,14 +95,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
               wrapper: {
                 layout: {
                   label: {
-                    span: 4
+                    span: 4,
                   },
                   control: {
-                    span: 20
-                  }
-                }
-              }
-            }
+                    span: 20,
+                  },
+                },
+              },
+            },
           },
           // <CvcRepeatFieldConfig>{
           //   key: 'geneIds',

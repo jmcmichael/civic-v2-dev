@@ -11,7 +11,7 @@ import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { EntityDirection } from '@app/forms2/states/entity.state'
-import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/field-layout.wrapper'
+import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {

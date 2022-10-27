@@ -17,7 +17,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/field-layout.wrapper'
+import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { BehaviorSubject, map } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 

@@ -14,7 +14,7 @@ const typeConfig: ConfigOption = {
   types: [
     {
       name: 'type-select',
-      wrappers: ['field-layout'],
+      wrappers: ['form-field'],
       component: CvcEntityTypeSelectField,
     },
   ],
