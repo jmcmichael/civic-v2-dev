@@ -1,3 +1,5 @@
+@import 'themes/global-variables.less';
+
 @helpIconSize: 14px;
 nz-form-item {
   flex-wrap: nowrap;
@@ -30,5 +32,10 @@ nz-form-item {
       font-size: @helpIconSize;
       opacity: 0;
     }
+  }
+  // maintain gap between fields even if no description/error
+  .description, error {
+    line-height: @line-height-base;
+    min-height: @line-height-base;
   }
 }

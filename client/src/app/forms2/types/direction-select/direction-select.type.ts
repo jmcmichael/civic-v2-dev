@@ -11,6 +11,7 @@ import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { EntityDirection } from '@app/forms2/states/entity.state'
+import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/field-layout.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -29,6 +30,9 @@ interface CvcDirectionSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   requireTypePrompt: string
+  enumName: string
+  isMultiSelect: boolean
+  layout?: CvcFieldLayoutWrapperConfig
 }
 
 export interface CvcDirectionSelectFieldConfig
@@ -68,7 +72,10 @@ export class CvcDirectionSelectField
   // FieldTypeConfig defaults
   defaultOptions: CvcDirectionSelectFieldOptions = {
     props: {
-      label: 'Direction',
+      label: 'Evidence Direction',
+      enumName: 'Direction',
+      required: true,
+      isMultiSelect: false,
       placeholder: 'Select ENTITY_TYPE Direction',
       requireTypePrompt: 'Select an ENTITY_NAME Type to select Direction',
     },
