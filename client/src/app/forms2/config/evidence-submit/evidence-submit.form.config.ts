@@ -5,15 +5,10 @@ import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-se
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
 import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
-// import { CvcBaseInputFieldConfig } from '@app/forms2/types/base-input/base-input.type'
-// import { CvcEntitySignificanceSelectFieldConfig } from '@app/forms2/types/significance-select/significance-select.type'
-// import { CvcEvidenceDirectionSelectFieldConfig } from '@app/forms2/types/direction-select/direction-select.type'
-import { CvcEntityTypeSelectFieldConfig, CvcEntityTypeSelectFieldOptions } from '@app/forms2/types/type-select/type-select.type'
+import { CvcEntityTypeSelectFieldOptions } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
-// import { CvcRepeatFieldConfig } from '@app/forms2/types/repeat-field/repeat-field.type'
-// import { CvcVariantSelectFieldConfig } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
-import { CvcFieldsLayoutWrapperProps } from '@app/forms2/wrappers/fields-layout/fields-layout.wrapper'
+import { CvcFormCardWrapperProps } from '@app/forms2/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
@@ -33,8 +28,8 @@ const formFieldConfig: FormlyFieldConfig[] = [
       },
       {
         key: 'fields',
-        wrappers: ['fields-layout'],
-        props: <CvcFieldsLayoutWrapperProps>{
+        wrappers: ['form-card'],
+        props: <CvcFormCardWrapperProps>{
           title: 'New Evidence Item',
         },
         fieldGroup: [
