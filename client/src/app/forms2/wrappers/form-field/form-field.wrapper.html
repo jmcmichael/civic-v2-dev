@@ -12,7 +12,7 @@
   </ng-container>
 
   <ng-template #horizontalFieldWrapper>
-    <nz-form-item [nzGutter]="wrapper.layout.item.gutter">
+    <nz-form-item [nzGutter]="wrapper.layout.item.gutter" class="layout-horizontal">
       <nz-col nzFlex="auto">
         <nz-row [nzGutter]="[6, 6]">
           <ng-container *ngIf="props.label && props.hideLabel !== true">
@@ -88,7 +88,7 @@
   </ng-template>
 
   <ng-template #baseFieldWrapper>
-    <nz-form-item>
+    <nz-form-item class="layout-base">
       <ng-container *ngIf="props.label && props.hideLabel !== true">
         <nz-form-label
           [nzRequired]="props.required && props.hideRequiredMarker !== true"
