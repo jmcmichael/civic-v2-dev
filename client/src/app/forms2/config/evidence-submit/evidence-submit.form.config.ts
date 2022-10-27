@@ -98,10 +98,10 @@ const formFieldConfig: FormlyFieldConfig[] = [
               wrapper: {
                 layout: {
                   label: {
-                    span: 8
+                    span: 4
                   },
                   control: {
-                    span: 16
+                    span: 20
                   }
                 }
               }

@@ -1,11 +1,11 @@
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  QueryList,
-  TemplateRef,
-  Type,
-  ViewChildren,
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    QueryList,
+    TemplateRef,
+    Type,
+    ViewChildren
 } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
@@ -15,9 +15,9 @@ import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/field-layout/f
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldTypeConfig,
-  FormlyFieldConfig,
-  FormlyFieldProps,
+    FieldTypeConfig,
+    FormlyFieldConfig,
+    FormlyFieldProps
 } from '@ngx-formly/core'
 import { BehaviorSubject, map } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'

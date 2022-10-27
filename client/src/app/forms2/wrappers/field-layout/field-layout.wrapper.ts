@@ -61,6 +61,10 @@ export class CvcFormFieldWrapper
 {
   wrapper!: WrapperConfig
 
+  get errorState() {
+    return this.showError ? 'error' : ''
+  }
+
   constructor() {
     super()
   }
@@ -102,7 +106,5 @@ export class CvcFormFieldWrapper
     }
   }
 
-  get errorState() {
-    return this.showError ? 'error' : ''
-  }
+
 }

@@ -123,7 +123,7 @@ export class CvcDrugSelectField
       placeholders: {
         default: 'Search Drugs',
         multiDefault: 'Select Drug(s) (max MULTI_MAX)',
-        requireTypePrompt: 'Select an ENTITY_NAME Type to select Drugs',
+        requireTypePrompt: 'Select an ENTITY_NAME Type to search Drugs',
       },
     },
   }
@@ -196,7 +196,7 @@ export class CvcDrugSelectField
     combineLatest([this.onRequiresDrug$, this.onEntityType$])
       .pipe(tag(`${this.field.id} combineLatest`), untilDestroyed(this))
       .subscribe(([requiresDrug, entityType]: [boolean, Maybe<EntityType>]) => {
-        // drugs are not required for this entity type
+        // drugs are not associated with this entity type
         if (!requiresDrug && entityType) {
           this.props.required = false
           this.props.disabled = true
@@ -213,7 +213,7 @@ export class CvcDrugSelectField
           this.props.disabled = true
           // no drug required, entity type not specified
           this.placeholder$.next(
-            `Select ${this.stateEntityName} Type to select drugs`
+            `Select ${this.stateEntityName} Type to search Drugs`
           )
         }
         // state indicates drug is required, set required, unset disabled, and show the placeholder (state will only return true from requiresDrug$ if entityType provided)

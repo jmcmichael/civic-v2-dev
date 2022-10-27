@@ -23,7 +23,7 @@
       </ng-container>
       <nz-form-control
         *ngIf="wrapper.layout.control as control"
-        [nzExtra]="!showError && wrapper.display.description ? descriptionTpl : undefined"
+        [nzExtra]="!showError ? descriptionTpl : undefined"
         [nzValidateStatus]="errorState"
         [nzErrorTip]="errorTpl"
         [nzSpan]="control.span ? control.span : null"
@@ -35,7 +35,9 @@
         [nzXXl]="control.reactive ? control.reactive.xxl : null">
         <ng-container #fieldComponent></ng-container>
         <ng-template #descriptionTpl>
+          <div class="description">
           {{ wrapper.display.description }}
+          </div>
         </ng-template>
         <ng-template
           #errorTpl
