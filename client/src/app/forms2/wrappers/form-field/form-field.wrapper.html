@@ -3,16 +3,18 @@
     <ng-container *ngSwitchCase="'horizontal'">
       <ng-container [ngTemplateOutlet]="horizontalFieldWrapper"></ng-container>
     </ng-container>
-    <ng-container *ngSwitchCase="'vertical'">
-      <ng-container [ngTemplateOutlet]="baseFieldWrapper"></ng-container>
-    </ng-container>
     <ng-container *ngSwitchCase="'inline'">
-      <ng-container [ngTemplateOutlet]="baseFieldWrapper"></ng-container>
+      <ng-container [ngTemplateOutlet]="inlineFieldWrapper"></ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="'vertical'">
+      <ng-container [ngTemplateOutlet]="verticalFieldWrapper"></ng-container>
     </ng-container>
   </ng-container>
 
   <ng-template #horizontalFieldWrapper>
-    <nz-form-item [nzGutter]="wrapper.layout.item.gutter" class="layout-horizontal">
+    <nz-form-item
+      [nzGutter]="wrapper.layout.item.gutter"
+      class="layout-horizontal">
       <nz-col nzFlex="auto">
         <nz-row [nzGutter]="[6, 6]">
           <ng-container *ngIf="props.label && props.hideLabel !== true">
@@ -50,8 +52,8 @@
             [nzXXl]="control.reactive ? control.reactive.xxl : null">
             <ng-container #fieldComponent></ng-container>
             <ng-template #descriptionTpl>
-              <div class="description">
-                {{ wrapper.display.description }}
+              <div class="ant-form-item-extra">
+                <span>{{ wrapper.display.description }}</span>
               </div>
             </ng-template>
             <ng-template
@@ -67,14 +69,14 @@
         nzFlex="14px"
         class="help-tooltip">
         <span
-          *ngIf="props.helpText; else iconSpacer"
+          *ngIf="wrapper.display.tooltip; else iconSpacer"
           class="icon-tooltip"
           nz-icon
           nzTheme="twotone"
           nzTwotoneColor="#bfbfbf"
           nzType="question-circle"
           nz-tooltip
-          [nzTooltipTitle]="props.helpText"></span>
+          [nzTooltipTitle]="wrapper.display.tooltip"></span>
         <ng-template #iconSpacer>
           <span
             class="icon-spacer"
@@ -87,8 +89,31 @@
     </nz-form-item>
   </ng-template>
 
-  <ng-template #baseFieldWrapper>
-    <nz-form-item class="layout-base">
+  <ng-template #verticalFieldWrapper>
+    <nz-form-item class="layout-vertical">
+      <ng-container *ngIf="props.label && props.hideLabel !== true">
+        <nz-form-label
+          [nzRequired]="props.required && props.hideRequiredMarker !== true"
+          [nzFor]="id">
+          {{ props.label }}
+        </nz-form-label>
+      </ng-container>
+      <nz-form-control
+        [nzValidateStatus]="errorState"
+        [nzErrorTip]="errorTpl">
+        <ng-container #fieldComponent></ng-container>
+        <ng-template
+          #errorTpl
+          let-control>
+          <formly-validation-message
+            [field]="field"></formly-validation-message>
+        </ng-template>
+      </nz-form-control>
+    </nz-form-item>
+  </ng-template>
+
+  <ng-template #inlineFieldWrapper>
+    <nz-form-item class="layout-inline">
       <ng-container *ngIf="props.label && props.hideLabel !== true">
         <nz-form-label
           [nzRequired]="props.required && props.hideRequiredMarker !== true"

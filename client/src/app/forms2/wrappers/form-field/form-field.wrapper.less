@@ -3,6 +3,7 @@
 @helpIconSize: 14px;
 nz-form-item.layout-horizontal {
   flex-wrap: nowrap;
+
   ::ng-deep nz-form-label:first-of-type {
     label {
       // remove label's before/after content
@@ -19,8 +20,7 @@ nz-form-item.layout-horizontal {
       }
     }
   }
-  ::ng-deep nz-form-control:first-of-type {
-  }
+
   .help-tooltip {
     text-align: right;
     line-height: 26px;
@@ -33,9 +33,38 @@ nz-form-item.layout-horizontal {
       opacity: 0;
     }
   }
+
   // maintain gap between fields even if no description/error
-  .description, error {
+  // .description,
+  // error {
+  //   line-height: 1.4em;
+  //   // line-height: @line-height-base;
+  // }
+}
+
+nz-form-item.layout-vertical {
+  // flex-wrap: nowrap;
+
+  ::ng-deep nz-form-label:first-of-type {
+    label {
+      // remove label's before/after content
+      &:before,
+      &:after {
+        content: none;
+      }
+      // embolden required labels
+      &.ant-form-item-required {
+        font-weight: bold;
+        &:before {
+          content: none;
+        }
+      }
+    }
+  }
+
+  // maintain gap between fields even if no description/error
+  .description,
+  error {
     line-height: @line-height-base;
-    min-height: @line-height-base;
   }
 }
