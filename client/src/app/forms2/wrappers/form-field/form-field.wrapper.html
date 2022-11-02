@@ -78,6 +78,15 @@
             nz-typography
             nzEllipsis
             [nzContent]="props.label"></span>
+        <span
+          *ngIf="wrapper.display.tooltip"
+          class="icon-tooltip"
+          nz-icon
+          nzTheme="twotone"
+          nzTwotoneColor="#bfbfbf"
+          nzType="question-circle"
+          nz-tooltip
+          [nzTooltipTitle]="wrapper.display.tooltip"></span>
         </nz-form-label>
       </ng-container>
       <nz-form-control
