@@ -36,7 +36,7 @@ type WrapperConfig = {
 }
 
 @Component({
-  selector: 'formly-wrapper-nz-form-field',
+  selector: 'cvc-form-field-wrapper',
   templateUrl: './form-field.wrapper.html',
   styleUrls: ['./form-field.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,

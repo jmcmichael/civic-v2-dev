@@ -1,26 +1,47 @@
 @import 'themes/global-variables.less';
 
 @helpIconSize: 14px;
+// .cvc-field-label() {
+//   ::ng-deep nz-form-label:first-of-type {
+//     label {
+//       // remove label's before/after content
+//       &:before,
+//       &:after {
+//         content: none;
+//       }
+//       // embolden required labels
+//       &.ant-form-item-required {
+//         font-weight: bold;
+//         &:before {
+//           content: none;
+//         }
+//       }
+//     }
+//   }
+// }
+.cvc-field-label() {
+  label {
+    // remove label's before/after content
+    &:before,
+    &:after {
+      content: none;
+    }
+    // embolden required labels
+    &.ant-form-item-required {
+      font-weight: bold;
+      &:before {
+        content: none;
+      }
+    }
+  }
+}
+
 nz-form-item.layout-horizontal {
   flex-wrap: nowrap;
 
   ::ng-deep nz-form-label:first-of-type {
-    label {
-      // remove label's before/after content
-      &:before,
-      &:after {
-        content: none;
-      }
-      // embolden required labels
-      &.ant-form-item-required {
-        font-weight: bold;
-        &:before {
-          content: none;
-        }
-      }
-    }
+    .cvc-field-label();
   }
-
   .help-tooltip {
     text-align: right;
     line-height: 26px;
@@ -33,38 +54,17 @@ nz-form-item.layout-horizontal {
       opacity: 0;
     }
   }
-
-  // maintain gap between fields even if no description/error
-  // .description,
-  // error {
-  //   line-height: 1.4em;
-  //   // line-height: @line-height-base;
-  // }
 }
 
 nz-form-item.layout-vertical {
-  // flex-wrap: nowrap;
-
   ::ng-deep nz-form-label:first-of-type {
-    label {
-      // remove label's before/after content
-      &:before,
-      &:after {
-        content: none;
-      }
-      // embolden required labels
-      &.ant-form-item-required {
-        font-weight: bold;
-        &:before {
-          content: none;
-        }
-      }
-    }
+    .cvc-field-label();
   }
-
-  // maintain gap between fields even if no description/error
-  .description,
-  error {
-    line-height: @line-height-base;
+  margin-bottom: 6px;
+}
+nz-form-item.layout-inline {
+  ::ng-deep nz-form-label:first-of-type {
+    .cvc-field-label();
+    margin-right: 6px;
   }
 }
