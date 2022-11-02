@@ -5,6 +5,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
 import { BehaviorSubject, filter, map, Observable } from 'rxjs'
 import { pluck } from 'rxjs-etc/operators'
+import { tag } from 'rxjs-spy/operators'
 
 export type BaseFieldValue = Maybe<
   number | string | boolean | string[] | number[]
@@ -46,7 +47,8 @@ export function BaseFieldType<
       // set up model and value changes observables
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.id === this.field.id), // filter out other fields
-        pluck('value')
+        pluck('value'),
+        tag(`${this.field.id} onModelChange$`)
       )
       this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
 
@@ -73,7 +75,10 @@ export function BaseFieldType<
       // will emit value changes from state.field.geneId$
       const stateField = `${this.field.key}$`
       if (!(this.state && this.state.fields[stateField])) {
-        console.warn(`${this.field.id} could not find state field ${stateField} on form state. State: `, this.state)
+        console.warn(
+          `${this.field.id} could not find state field ${stateField} on form state. State: `,
+          this.state
+        )
         return
       }
       this.stateValueChange$ = this.state.fields[stateField]
@@ -82,6 +87,7 @@ export function BaseFieldType<
           // some nz form components set model value to null when cleared,
           // but other fields expect undefined for an unset model value
           map((v: Maybe<V>) => (v === null ? undefined : v)),
+          // tag(`${this.field.id} onValueChange$`),
           untilDestroyed(this)
         )
         .subscribe((v) => {

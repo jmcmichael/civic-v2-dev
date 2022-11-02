@@ -28,25 +28,9 @@ type WrapperConfig = {
     }
     label: {
       span: number
-      reactive?: {
-        xs: string | number | EmbeddedProperty
-        sm: string | number | EmbeddedProperty
-        md: string | number | EmbeddedProperty
-        lg: string | number | EmbeddedProperty
-        xl: string | number | EmbeddedProperty
-        xxl: string | number | EmbeddedProperty
-      }
     }
     control: {
       span: number
-      reactive?: {
-        xs: string | number | EmbeddedProperty
-        sm: string | number | EmbeddedProperty
-        md: string | number | EmbeddedProperty
-        lg: string | number | EmbeddedProperty
-        xl: string | number | EmbeddedProperty
-        xxl: string | number | EmbeddedProperty
-      }
     }
   }
 }
@@ -83,6 +67,8 @@ export class CvcFormFieldWrapper
     try {
       this.wrapper = {
         display: {
+          tooltip: 'Field tooltip',
+          description: 'Field description goes here.',
           noColon: true,
           ignoreRequiredState: false,
           ...(this.props.wrapper?.display

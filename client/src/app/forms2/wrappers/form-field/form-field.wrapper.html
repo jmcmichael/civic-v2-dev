@@ -25,13 +25,7 @@
               "
               [nzFor]="id"
               [nzNoColon]="true"
-              [nzSpan]="label.span ? label.span : null"
-              [nzXs]="label.reactive ? label.reactive.xs : null"
-              [nzSm]="label.reactive ? label.reactive.sm : null"
-              [nzMd]="label.reactive ? label.reactive.md : null"
-              [nzLg]="label.reactive ? label.reactive.lg : null"
-              [nzXl]="label.reactive ? label.reactive.xl : null"
-              [nzXXl]="label.reactive ? label.reactive.xxl : null">
+              [nzSpan]="label.span ? label.span : null">
               <span
                 nz-typography
                 nzEllipsis
@@ -43,13 +37,7 @@
             [nzExtra]="!showError ? descriptionTpl : undefined"
             [nzValidateStatus]="errorState"
             [nzErrorTip]="errorTpl"
-            [nzSpan]="control.span ? control.span : null"
-            [nzXs]="control.reactive ? control.reactive.xs : null"
-            [nzSm]="control.reactive ? control.reactive.sm : null"
-            [nzMd]="control.reactive ? control.reactive.md : null"
-            [nzLg]="control.reactive ? control.reactive.lg : null"
-            [nzXl]="control.reactive ? control.reactive.xl : null"
-            [nzXXl]="control.reactive ? control.reactive.xxl : null">
+            [nzSpan]="control.span ? control.span : null">
             <ng-container #fieldComponent></ng-container>
             <ng-template #descriptionTpl>
               <div class="ant-form-item-extra">
