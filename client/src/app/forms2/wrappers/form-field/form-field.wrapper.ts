@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
@@ -34,12 +35,17 @@ type WrapperConfig = {
     }
   }
 }
-
+@UntilDestroy()
 @Component({
   selector: 'cvc-form-field-wrapper',
   templateUrl: './form-field.wrapper.html',
   styleUrls: ['./form-field.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.layout-horizontal]': `formLayout === 'horizontal'`,
+    '[class.layout-vertical]': `formLayout === 'vertical'`,
+    '[class.layout-inline]': `formLayout === 'inline'`,
+  }
 })
 export class CvcFormFieldWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>
@@ -47,7 +53,7 @@ export class CvcFormFieldWrapper
 {
   wrapper!: WrapperConfig
   formLayout$!: BehaviorSubject<NzFormLayoutType>
-
+  formLayout: NzFormLayoutType = 'horizontal'
   get errorState() {
     return this.showError ? 'error' : ''
   }
@@ -57,7 +63,12 @@ export class CvcFormFieldWrapper
   }
 
   ngOnInit(): void {
-    if(this.options.formState.formLayout$) {
+    if (this.options.formState.formLayout$) {
+      this.options.formState.formLayout$
+        .pipe(untilDestroyed(this))
+        .subscribe((layout: NzFormLayoutType) => {
+          this.formLayout = layout
+        })
       this.formLayout$ = this.options.formState.formLayout$
     } else {
       this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('horizontal')
@@ -100,6 +111,4 @@ export class CvcFormFieldWrapper
       console.error(err)
     }
   }
-
-
 }

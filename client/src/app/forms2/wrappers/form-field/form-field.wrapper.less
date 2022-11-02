@@ -1,6 +1,17 @@
 @import 'themes/global-variables.less';
 
 @helpIconSize: 14px;
+:host {
+  &.layout-inline {
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  &.layout-vertical {
+    display: inline-block;
+    margin-right: 12px;
+    margin-bottom: 6px;
+  }
+}
 // .cvc-field-label() {
 //   ::ng-deep nz-form-label:first-of-type {
 //     label {
@@ -37,7 +48,7 @@
 }
 
 nz-form-item.layout-horizontal {
-  flex-wrap: nowrap;
+  // flex-wrap: nowrap;
 
   ::ng-deep nz-form-label:first-of-type {
     .cvc-field-label();
