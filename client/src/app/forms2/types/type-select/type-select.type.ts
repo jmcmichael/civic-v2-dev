@@ -11,7 +11,7 @@ import { EntityType } from '@app/forms/config/states/entity.state'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
-import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
+import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -32,7 +32,7 @@ interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
   placeholder: string
   enumName: string
   isMultiSelect: boolean
-  layout?: CvcFieldLayoutWrapperConfig
+  layout?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcEntityTypeSelectFieldConfig

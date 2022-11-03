@@ -6,7 +6,7 @@ import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { EmbeddedProperty, NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 
-export type CvcFieldLayoutWrapperConfig = Partial<WrapperConfig>
+export type CvcFormFieldWrapperConfig = Partial<WrapperConfig>
 
 type WrapperConfig = {
   display: {
@@ -15,6 +15,7 @@ type WrapperConfig = {
     hideLabel?: boolean
     tooltip?: string
     description?: string
+    formLayout?: NzFormLayoutType
   }
   layout: {
     item: {
@@ -45,7 +46,7 @@ type WrapperConfig = {
     '[class.layout-horizontal]': `formLayout === 'horizontal'`,
     '[class.layout-vertical]': `formLayout === 'vertical'`,
     '[class.layout-inline]': `formLayout === 'inline'`,
-  }
+  },
 })
 export class CvcFormFieldWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>
@@ -63,17 +64,6 @@ export class CvcFormFieldWrapper
   }
 
   ngOnInit(): void {
-    if (this.options.formState.formLayout$) {
-      this.options.formState.formLayout$
-        .pipe(untilDestroyed(this))
-        .subscribe((layout: NzFormLayoutType) => {
-          this.formLayout = layout
-        })
-      this.formLayout$ = this.options.formState.formLayout$
-    } else {
-      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('horizontal')
-    }
-
     // merge the defaults below w/ any field.props specified display, layout settings
     try {
       this.wrapper = {
@@ -109,6 +99,22 @@ export class CvcFormFieldWrapper
       }
     } catch (err) {
       console.error(err)
+    }
+
+    // if formLayout specified, ignore formState's formLayout$
+    if (this.wrapper.display.formLayout) {
+      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>(
+        this.wrapper.display.formLayout
+      )
+    } else if (this.options.formState.formLayout$) {
+      this.options.formState.formLayout$
+        .pipe(untilDestroyed(this))
+        .subscribe((layout: NzFormLayoutType) => {
+          this.formLayout = layout
+        })
+      this.formLayout$ = this.options.formState.formLayout$
+    } else {
+      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('horizontal')
     }
   }
 }

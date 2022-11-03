@@ -10,26 +10,10 @@
     display: inline-block;
     margin-right: 12px;
     margin-bottom: 6px;
+    border: 1px solid #dedede;
   }
 }
-// .cvc-field-label() {
-//   ::ng-deep nz-form-label:first-of-type {
-//     label {
-//       // remove label's before/after content
-//       &:before,
-//       &:after {
-//         content: none;
-//       }
-//       // embolden required labels
-//       &.ant-form-item-required {
-//         font-weight: bold;
-//         &:before {
-//           content: none;
-//         }
-//       }
-//     }
-//   }
-// }
+
 .cvc-field-label() {
   label {
     // remove label's before/after content
@@ -48,8 +32,6 @@
 }
 
 nz-form-item.layout-horizontal {
-  // flex-wrap: nowrap;
-
   ::ng-deep nz-form-label:first-of-type {
     .cvc-field-label();
   }
@@ -71,8 +53,9 @@ nz-form-item.layout-vertical {
   ::ng-deep nz-form-label:first-of-type {
     .cvc-field-label();
     span.icon-tooltip {
-      margin-left: 6px;
-      font-size: @helpIconSize;
+      padding-left: 3px;
+      margin-top: -5px;
+      font-size: @helpIconSize / 4;
       cursor: help;
     }
   }
@@ -82,5 +65,11 @@ nz-form-item.layout-inline {
   ::ng-deep nz-form-label:first-of-type {
     .cvc-field-label();
     margin-right: 6px;
+  }
+  span.icon-tooltip {
+    padding-left: 3px;
+    margin-top: -5px;
+    font-size: @helpIconSize / 4;
+    cursor: help;
   }
 }

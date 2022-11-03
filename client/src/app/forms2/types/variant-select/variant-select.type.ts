@@ -14,6 +14,7 @@ import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
+import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
   LinkableGeneGQL,
   Maybe,
@@ -46,6 +47,7 @@ export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
   requireGenePlaceholder?: string // placeholder if geneId required & none is set
   requireGenePrompt?: string // placeholder prompt displayed after geneId set
+  wrapper?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcVariantSelectFieldConfig

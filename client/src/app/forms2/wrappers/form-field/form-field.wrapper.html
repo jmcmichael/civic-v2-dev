@@ -51,7 +51,7 @@
           nz-icon
           nzTheme="twotone"
           nzTwotoneColor="#bfbfbf"
-          nzType="question-circle"
+          nzType="info-circle"
           nz-tooltip
           [nzTooltipTitle]="wrapper.display.tooltip"></span>
         <ng-template #iconSpacer>
@@ -60,7 +60,7 @@
             nz-icon
             nzTheme="twotone"
             nzTwotoneColor="#FFFFFF"
-            nzType="question-circle"></span>
+            nzType="info-circle"></span>
         </ng-template>
       </nz-col>
     </nz-form-item>
@@ -78,15 +78,15 @@
             nz-typography
             nzEllipsis
             [nzContent]="props.label"></span>
-        <span
-          *ngIf="wrapper.display.tooltip"
-          class="icon-tooltip"
-          nz-icon
-          nzTheme="twotone"
-          nzTwotoneColor="#bfbfbf"
-          nzType="question-circle"
-          nz-tooltip
-          [nzTooltipTitle]="wrapper.display.tooltip"></span>
+          <span
+            *ngIf="wrapper.display.tooltip"
+            class="icon-tooltip"
+            nz-icon
+            nzTheme="twotone"
+            nzTwotoneColor="#bfbfbf"
+            nzType="info-circle"
+            nz-tooltip
+            [nzTooltipTitle]="wrapper.display.tooltip"></span>
         </nz-form-label>
       </ng-container>
       <nz-form-control
@@ -105,7 +105,19 @@
         <nz-form-label
           [nzRequired]="props.required && props.hideRequiredMarker !== true"
           [nzFor]="id">
-          {{ props.label }}
+          <span
+            nz-typography
+            nzEllipsis
+            [nzContent]="props.label"></span>
+          <span
+            *ngIf="wrapper.display.tooltip"
+            class="icon-tooltip"
+            nz-icon
+            nzTheme="twotone"
+            nzTwotoneColor="#bfbfbf"
+            nzType="info-circle"
+            nz-tooltip
+            [nzTooltipTitle]="wrapper.display.tooltip"></span>
         </nz-form-label>
       </ng-container>
       <nz-form-control

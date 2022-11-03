@@ -11,7 +11,7 @@ import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { EntityClinicalSignificance } from '@app/forms2/states/entity.state'
-import { CvcFieldLayoutWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
+import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -32,7 +32,7 @@ interface CvcSignificanceSelectFieldProps extends FormlyFieldProps {
   requireTypePrompt: string
   enumName: string
   isMultiSelect: boolean
-  layout?: CvcFieldLayoutWrapperConfig
+  layout?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcSignificanceSelectFieldConfig
@@ -135,7 +135,7 @@ export class CvcSignificanceSelectField
 
     // set up optionTemplates Observable
     if (!this.optionTemplates) {
-      console.error(
+      console.warn(
         `${this.field.id} could not find its optionTemplates QueryList to populate its select options, so simple text labels will be displayed.`
       )
     }
@@ -146,7 +146,7 @@ export class CvcSignificanceSelectField
       })
     )
 
-    // connect to state entityType$
+    // connect to form state's entityType$
     const etName = `${this.state.entityName.toLowerCase()}Type$`
     if (!this.state.fields[etName]) {
       console.error(

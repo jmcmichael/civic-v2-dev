@@ -5,7 +5,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { ReactiveComponentModule } from '@ngrx/component'
-import { ConfigOption, FieldTypeConfig, FormlyModule } from '@ngx-formly/core'
+import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
@@ -19,7 +19,10 @@ import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.form'
-import { CvcVariantSelectField, CvcVariantSelectFieldOptions, CvcVariantSelectFieldProps } from './variant-select.type'
+import {
+  CvcVariantSelectField,
+  CvcVariantSelectFieldOptions,
+} from './variant-select.type'
 
 const typeConfig: ConfigOption = {
   types: [

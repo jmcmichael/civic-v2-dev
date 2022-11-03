@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core';
 
-export type CvcFieldLayoutWrapperConfig = Partial<WrapperConfig>
+export type CvcFieldGroupLayoutWrapperConfig = Partial<WrapperConfig>
 
 type WrapperConfig = {
 
@@ -17,7 +17,7 @@ export class CvcFieldGroupWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>
   implements OnInit
 {
-  wrapper!: WrapperConfig
+  fieldGroupConfig!: WrapperConfig
   get errorState() {
     return this.showError ? 'error' : ''
   }
