@@ -1,16 +1,19 @@
 @import 'themes/global-variables.less';
 
 @helpIconSize: 14px;
+@helpIconColor: #CFCFDF;
+
 :host {
   &.layout-inline {
     display: inline-block;
     margin-bottom: 6px;
+    // background-color: lightblue;
   }
   &.layout-vertical {
     display: inline-block;
     margin-right: 12px;
     margin-bottom: 6px;
-    border: 1px solid #dedede;
+    // border: 1px solid #dedede;
   }
 }
 
@@ -40,6 +43,7 @@ nz-form-item.layout-horizontal {
     line-height: 26px;
     span.icon-tooltip {
       font-size: @helpIconSize;
+      color: @helpIconColor;
       cursor: help;
     }
     span.icon-spacer {
@@ -55,6 +59,7 @@ nz-form-item.layout-vertical {
     span.icon-tooltip {
       padding-left: 3px;
       margin-top: -5px;
+      color: @helpIconColor;
       font-size: @helpIconSize / 4;
       cursor: help;
     }
@@ -69,6 +74,7 @@ nz-form-item.layout-inline {
   span.icon-tooltip {
     padding-left: 3px;
     margin-top: -5px;
+    color: @helpIconColor;
     font-size: @helpIconSize / 4;
     cursor: help;
   }

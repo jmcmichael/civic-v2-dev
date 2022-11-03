@@ -8,6 +8,7 @@ import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significanc
 import { CvcEntityTypeSelectFieldOptions } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
+import { CvcFieldGroupWrapperConfig } from '@app/forms2/wrappers/field-group/field-group.wrapper'
 import { CvcFormCardWrapperProps } from '@app/forms2/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -39,10 +40,10 @@ const formFieldConfig: FormlyFieldConfig[] = [
             props: {
               required: true,
               wrapper: {
-                display: {
-                  formLayout: 'horizontal'
-                }
-              }
+                // display: {
+                //   formLayout: 'horizontal'
+                // }
+              },
             },
           },
           <CvcVariantSelectFieldOptions>{
@@ -50,7 +51,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'variant-select',
             props: {
               required: true,
-                // requireGene: false
+              // requireGene: false
             },
           },
           <CvcEntityTypeSelectFieldOptions>{
@@ -72,6 +73,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           {
             wrappers: ['field-group'],
+            props: {
+              wrapper: {
+                group: <CvcFieldGroupWrapperConfig>{
+                  formLayout: 'inline',
+                },
+              },
+            },
             fieldGroup: [
               <CvcDrugSelectFieldOptions>{
                 key: 'drugIds',

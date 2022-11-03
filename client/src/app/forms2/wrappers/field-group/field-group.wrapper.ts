@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core';
+import { NzFormLayoutType } from 'ng-zorro-antd/form';
 
-export type CvcFieldGroupLayoutWrapperConfig = Partial<WrapperConfig>
+export type CvcFieldGroupWrapperConfig = Partial<GroupConfig>
 
-type WrapperConfig = {
-
+type GroupConfig = {
+  formLayout?: NzFormLayoutType
 }
 
 @Component({
@@ -17,7 +18,7 @@ export class CvcFieldGroupWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>
   implements OnInit
 {
-  fieldGroupConfig!: WrapperConfig
+
   get errorState() {
     return this.showError ? 'error' : ''
   }
@@ -26,5 +27,9 @@ export class CvcFieldGroupWrapper
     super()
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.props.wrapper.group = {
+      ...(this.props.wrapper.group ? this.props.wrapper.group : undefined)
+    }
+  }
 }

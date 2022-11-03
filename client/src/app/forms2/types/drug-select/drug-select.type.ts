@@ -1,12 +1,12 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    QueryList,
-    TemplateRef,
-    Type,
-    ViewChildren
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  QueryList,
+  TemplateRef,
+  Type,
+  ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
@@ -16,20 +16,20 @@ import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityType } from '@app/forms2/states/entity.state'
 import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
-    DrugSelectTagGQL,
-    DrugSelectTagQuery,
-    DrugSelectTagQueryVariables,
-    DrugSelectTypeaheadFieldsFragment,
-    DrugSelectTypeaheadGQL,
-    DrugSelectTypeaheadQuery,
-    DrugSelectTypeaheadQueryVariables,
-    Maybe
+  DrugSelectTagGQL,
+  DrugSelectTagQuery,
+  DrugSelectTagQueryVariables,
+  DrugSelectTypeaheadFieldsFragment,
+  DrugSelectTypeaheadGQL,
+  DrugSelectTypeaheadQuery,
+  DrugSelectTypeaheadQueryVariables,
+  Maybe,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-    FieldTypeConfig,
-    FormlyFieldConfig,
-    FormlyFieldProps
+  FieldTypeConfig,
+  FormlyFieldConfig,
+  FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
@@ -61,7 +61,7 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
     multiDefault: string
     // placeholder if evidence/assertion type required & field disabled
     requireTypePrompt: string
-  },
+  }
   wrapper?: CvcFormFieldWrapperConfig
 }
 

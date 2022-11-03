@@ -5,6 +5,7 @@ import { IndexableObject } from 'ng-zorro-antd/core/types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { EmbeddedProperty, NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
+import { CvcFieldGroupWrapperConfig } from '../field-group/field-group.wrapper'
 
 export type CvcFormFieldWrapperConfig = Partial<WrapperConfig>
 
@@ -15,7 +16,7 @@ type WrapperConfig = {
     hideLabel?: boolean
     tooltip?: string
     description?: string
-    formLayout?: NzFormLayoutType
+    // TODO: move formLayout override to the form-group.wrapper - form-group will handle the config & layout CSS for overriding the main form's layout
   }
   layout: {
     item: {
@@ -35,6 +36,7 @@ type WrapperConfig = {
       span: number
     }
   }
+  group: CvcFieldGroupWrapperConfig
 }
 @UntilDestroy()
 @Component({
@@ -96,15 +98,20 @@ export class CvcFormFieldWrapper
               : undefined),
           },
         },
+        group: {
+          ...(this.props.wrapper?.display
+            ? this.props.wrapper.display
+            : undefined),
+        },
       }
     } catch (err) {
       console.error(err)
     }
 
     // if formLayout specified, ignore formState's formLayout$
-    if (this.wrapper.display.formLayout) {
+    if (this.wrapper.group.formLayout) {
       this.formLayout$ = new BehaviorSubject<NzFormLayoutType>(
-        this.wrapper.display.formLayout
+        this.wrapper.group.formLayout
       )
     } else if (this.options.formState.formLayout$) {
       this.options.formState.formLayout$
