@@ -8,6 +8,7 @@ import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 import { CvcFieldGroupWrapperConfig } from '../field-group/field-group.wrapper'
 
 export type CvcFormFieldWrapperConfig = Partial<WrapperConfig>
+export type CvcFormFieldFlowType = 'block' | 'inline'
 
 type WrapperConfig = {
   display: {
@@ -16,10 +17,10 @@ type WrapperConfig = {
     hideLabel?: boolean
     tooltip?: string
     description?: string
-    // TODO: move formLayout override to the form-group.wrapper - form-group will handle the config & layout CSS for overriding the main form's layout
   }
   layout: {
     item: {
+      flow?: CvcFormFieldFlowType
       gutter:
         | string
         | number
@@ -45,9 +46,8 @@ type WrapperConfig = {
   styleUrls: ['./form-field.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    '[class.layout-horizontal]': `formLayout === 'horizontal'`,
-    '[class.layout-vertical]': `formLayout === 'vertical'`,
-    '[class.layout-inline]': `formLayout === 'inline'`,
+    '[class.flow-inline]': `fieldFlow === 'inline'`,
+    '[class.flow-block]': `fieldFlow === 'block'`,
   },
 })
 export class CvcFormFieldWrapper
@@ -57,6 +57,8 @@ export class CvcFormFieldWrapper
   wrapper!: WrapperConfig
   formLayout$!: BehaviorSubject<NzFormLayoutType>
   formLayout: NzFormLayoutType = 'horizontal'
+  fieldFlow: CvcFormFieldFlowType = 'block'
+
   get errorState() {
     return this.showError ? 'error' : ''
   }
@@ -122,6 +124,11 @@ export class CvcFormFieldWrapper
       this.formLayout$ = this.options.formState.formLayout$
     } else {
       this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('horizontal')
+    }
+
+    // if wrapper config specifies item flow, set this field's flow
+    if(this.wrapper.layout.item.flow) {
+      this.fieldFlow = this.wrapper.layout.item.flow
     }
   }
 }
