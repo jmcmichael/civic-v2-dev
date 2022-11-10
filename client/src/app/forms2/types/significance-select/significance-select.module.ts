@@ -12,7 +12,7 @@ const typeConfig: ConfigOption = {
   types: [
     {
       name: 'significance-select',
-      wrappers: ['field-layout'],
+      wrappers: ['form-field'],
       component: CvcSignificanceSelectField,
     },
   ],

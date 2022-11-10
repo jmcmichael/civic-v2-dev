@@ -14,6 +14,7 @@ import { CvcSelectEntityName, CvcSelectMessageOptions } from '@app/forms2/compon
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
+import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
   GeneSelectTagGQL,
   GeneSelectTagQuery,
@@ -37,6 +38,7 @@ export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   selectMessages?: CvcSelectMessageOptions
   entityName: CvcSelectEntityName
   helpText?: string
+  wrapper?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcGeneSelectFieldConfig

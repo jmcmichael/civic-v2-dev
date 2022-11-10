@@ -1,0 +1,67 @@
+@import 'themes/global-variables.less';
+
+@helpIconSize: 14px;
+@helpIconColor: #CFCFDF;
+
+.cvc-field-label() {
+  label {
+    // remove label's before/after content
+    &:before,
+    &:after {
+      content: none;
+    }
+    // embolden required labels
+    &.ant-form-item-required {
+      font-weight: bold;
+      &:before {
+        content: none;
+      }
+    }
+  }
+}
+
+nz-form-item.layout-horizontal {
+  ::ng-deep nz-form-label:first-of-type {
+    .cvc-field-label();
+  }
+  .help-tooltip {
+    text-align: right;
+    line-height: 26px;
+    span.icon-tooltip {
+      font-size: @helpIconSize;
+      color: @helpIconColor;
+      cursor: help;
+    }
+    span.icon-spacer {
+      font-size: @helpIconSize;
+      opacity: 0;
+    }
+  }
+}
+
+nz-form-item.layout-vertical {
+  ::ng-deep nz-form-label:first-of-type {
+    .cvc-field-label();
+    span.icon-tooltip {
+      padding-left: 3px;
+      // margin-top: -5px;
+      color: @helpIconColor;
+      font-size: @helpIconSize / 4;
+      cursor: help;
+    }
+  }
+  margin-bottom: 6px;
+}
+nz-form-item.layout-inline {
+  ::ng-deep nz-form-label:first-of-type {
+    .cvc-field-label();
+    margin-right: 6px;
+  }
+  span.icon-tooltip {
+    padding-left: 3px;
+    margin-top: -5px;
+    color: @helpIconColor;
+    font-size: @helpIconSize / 4;
+    cursor: help;
+  }
+}

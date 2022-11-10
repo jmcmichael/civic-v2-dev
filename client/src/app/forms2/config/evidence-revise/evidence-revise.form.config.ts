@@ -4,7 +4,7 @@ import { CvcEntityTypeSelectFieldConfig } from "@app/forms2/types/type-select/ty
 import { CvcGeneSelectFieldConfig } from "@app/forms2/types/gene-select/gene-select.type"
 import { CvcVariantSelectFieldOptions } from "@app/forms2/types/variant-select/variant-select.type"
 import assignFieldConfigDefaultValues from "@app/forms2/utilities/assign-field-default-values"
-import { CvcFieldsLayoutWrapperProps } from "@app/forms2/wrappers/fields-layout/fields-layout.wrapper"
+import { CvcFormCardWrapperProps } from "@app/forms2/wrappers/form-card/form-card.wrapper"
 import { CvcFormLayoutWrapperProps } from "@app/forms2/wrappers/form-layout/form-layout.wrapper"
 import { FormlyFieldConfig } from "@ngx-formly/core"
 
@@ -24,8 +24,8 @@ const formFieldConfig: FormlyFieldConfig[] = [
       },
       {
         key: 'fields',
-        wrappers: ['fields-layout'],
-        props: <CvcFieldsLayoutWrapperProps>{
+        wrappers: ['form-card'],
+        props: <CvcFormCardWrapperProps>{
           title: 'Revise Evidence Item',
         },
         fieldGroup: [

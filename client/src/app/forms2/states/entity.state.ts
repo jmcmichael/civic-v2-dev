@@ -11,6 +11,7 @@ import {
   EvidenceDirection,
   EvidenceType,
 } from '@app/generated/civic.apollo'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
 import { $enum } from 'ts-enum-util'
@@ -50,6 +51,7 @@ export enum SelectType {
 export type EntityFieldSubjectMap = { [key: string]: BehaviorSubject<any> }
 
 export interface IEntityState {
+  formLayout$?: BehaviorSubject<NzFormLayoutType>
   validStates: Map<EntityType, ValidEntity>
   getTypeOptions: () => EntityType[]
   getSignificanceOptions: (et: EntityType) => EntityClinicalSignificance[]

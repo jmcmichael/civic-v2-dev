@@ -1,9 +1,14 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
-import { EmbeddedProperty, NzAlign, NzJustify } from 'ng-zorro-antd/grid'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
+import { NzAlign, NzJustify } from 'ng-zorro-antd/grid'
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
+import { CvcFieldGroupWrapperConfig } from '../field-group/field-group.wrapper'
 
-export type CvcFieldLayoutWrapperConfig = Partial<WrapperConfig>
+export type CvcFormFieldWrapperConfig = Partial<WrapperConfig>
+export type CvcFormFieldFlowType = 'block' | 'inline'
 
 type WrapperConfig = {
   display: {
@@ -26,33 +31,19 @@ type WrapperConfig = {
     }
     label: {
       span: number
-      reactive?: {
-        xs: string | number | EmbeddedProperty
-        sm: string | number | EmbeddedProperty
-        md: string | number | EmbeddedProperty
-        lg: string | number | EmbeddedProperty
-        xl: string | number | EmbeddedProperty
-        xxl: string | number | EmbeddedProperty
-      }
     }
     control: {
       span: number
-      reactive?: {
-        xs: string | number | EmbeddedProperty
-        sm: string | number | EmbeddedProperty
-        md: string | number | EmbeddedProperty
-        lg: string | number | EmbeddedProperty
-        xl: string | number | EmbeddedProperty
-        xxl: string | number | EmbeddedProperty
-      }
     }
   }
+  group: CvcFieldGroupWrapperConfig
 }
 
+@UntilDestroy()
 @Component({
-  selector: 'formly-wrapper-nz-form-field',
-  templateUrl: './field-layout.wrapper.html',
-  styleUrls: ['./field-layout.wrapper.less'],
+  selector: 'cvc-form-field-wrapper',
+  templateUrl: './form-field.wrapper.html',
+  styleUrls: ['./form-field.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcFormFieldWrapper
@@ -60,6 +51,7 @@ export class CvcFormFieldWrapper
   implements OnInit
 {
   wrapper!: WrapperConfig
+  formLayout$!: BehaviorSubject<NzFormLayoutType>
 
   get errorState() {
     return this.showError ? 'error' : ''
@@ -70,10 +62,12 @@ export class CvcFormFieldWrapper
   }
 
   ngOnInit(): void {
-    // merge the defaults below w/ any field.props specified display, layout settings
+    // merge local wrapper config with field config specified properties
     try {
       this.wrapper = {
         display: {
+          tooltip: 'Field tooltip',
+          description: 'Field description goes here.',
           noColon: true,
           ignoreRequiredState: false,
           ...(this.props.wrapper?.display
@@ -100,11 +94,21 @@ export class CvcFormFieldWrapper
               : undefined),
           },
         },
+        group: {
+          ...(this.props.wrapper?.display
+            ? this.props.wrapper.display
+            : undefined),
+        },
       }
     } catch (err) {
       console.error(err)
     }
+
+    if (this.options.formState.formLayout$) {
+      this.formLayout$ = this.options.formState.formLayout$
+    } else {
+      // emit default value
+      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('vertical')
+    }
   }
-
-
 }
