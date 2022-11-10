@@ -1,24 +1,29 @@
 @import 'themes/global-variables.less';
 
-.cvc-grid-config() {
-  grid-template-columns: 1fr 1fr;
+.cvc-grid-config(@columns) {
+  display: grid;
+  grid-template-columns: repeat(@columns, 1fr);
   gap: @margin-lg;
 }
 
 .field-grid {
-  &.layout-grid {
+  &.cols2 {
     ::ng-deep formly-group:first-of-type {
-      display: grid;
-      .cvc-grid-config();
-    }
-  }
-  &.layout-inline-grid {
-    ::ng-deep formly-group:first-of-type {
-      display: inline-grid;
-      .cvc-grid-config();
+      .cvc-grid-config(2);
     }
   }
 
+  &.cols3 {
+    ::ng-deep formly-group:first-of-type {
+      .cvc-grid-config(3);
+    }
+  }
+
+  &.cols4 {
+    ::ng-deep formly-group:first-of-type {
+      .cvc-grid-config(4);
+    }
+  }
   // ::ng-deep formly-group:first-of-type {
   //   display: grid;
 

@@ -6,7 +6,7 @@ export type CvcFieldGroupWrapperConfig = Partial<GroupConfig>
 
 type GroupConfig = {
   grid: {
-    layout: 'grid' | 'inline-grid'
+    cols: 2 | 3 | 4
   }
 }
 
@@ -27,7 +27,7 @@ export class CvcFieldGroupWrapper
   ngOnInit(): void {
     // set default layout to grid, merge w/ any specified grid props
     this.props.grid = {
-      layout: 'grid',
+      cols: 2,
       ...(this.props.grid ? this.props.grid : undefined)
     }
   }

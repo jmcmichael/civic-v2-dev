@@ -1,8 +1,5 @@
 <div
   class="field-grid"
-  [ngClass]="{
-    'layout-grid': props.grid.layout === 'grid',
-    'layout-inline-grid': props.grid.layout === 'inline-grid'
-  }">
+  [ngClass]="'cols' + props.grid.cols">
   <ng-container #fieldComponent> </ng-container>
 </div>

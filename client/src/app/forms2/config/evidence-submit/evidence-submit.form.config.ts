@@ -75,7 +75,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             wrappers: ['field-group'],
             props: <CvcFieldGroupWrapperConfig>{
               grid: {
-                layout: 'grid',
+                cols: 2,
               },
             },
             fieldGroup: [
