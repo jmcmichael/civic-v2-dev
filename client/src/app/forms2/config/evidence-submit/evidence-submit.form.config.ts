@@ -73,8 +73,10 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           {
             wrappers: ['field-group'],
-            props: {
-              layout: 'inline'
+            props: <CvcFieldGroupWrapperConfig>{
+              grid: {
+                layout: 'grid',
+              },
             },
             fieldGroup: [
               <CvcDrugSelectFieldOptions>{
