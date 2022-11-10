@@ -20,7 +20,6 @@ type WrapperConfig = {
   }
   layout: {
     item: {
-      flow?: CvcFormFieldFlowType
       gutter:
         | string
         | number
@@ -45,10 +44,10 @@ type WrapperConfig = {
   templateUrl: './form-field.wrapper.html',
   styleUrls: ['./form-field.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '[class.flow-inline]': `fieldFlow === 'inline'`,
-    '[class.flow-block]': `fieldFlow === 'block'`,
-  },
+  // host: {
+  //   '[class.flow-inline]': `fieldFlow === 'inline'`,
+  //   '[class.flow-block]': `fieldFlow === 'block'`,
+  // },
 })
 export class CvcFormFieldWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>
@@ -111,11 +110,7 @@ export class CvcFormFieldWrapper
     }
 
     // if formLayout specified, ignore formState's formLayout$
-    if (this.wrapper.group.formLayout) {
-      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>(
-        this.wrapper.group.formLayout
-      )
-    } else if (this.options.formState.formLayout$) {
+    if (this.options.formState.formLayout$) {
       this.options.formState.formLayout$
         .pipe(untilDestroyed(this))
         .subscribe((layout: NzFormLayoutType) => {
@@ -127,8 +122,8 @@ export class CvcFormFieldWrapper
     }
 
     // if wrapper config specifies item flow, set this field's flow
-    if(this.wrapper.layout.item.flow) {
-      this.fieldFlow = this.wrapper.layout.item.flow
-    }
+    // if (this.wrapper.layout.item.flow) {
+    //   this.fieldFlow = this.wrapper.layout.item.flow
+    // }
   }
 }

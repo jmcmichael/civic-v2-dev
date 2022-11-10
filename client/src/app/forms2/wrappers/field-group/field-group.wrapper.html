@@ -1,1 +1,7 @@
-<ng-container #fieldComponent> </ng-container>
+<div class="form-group-grid"
+  [ngClass]="{
+    'layout-block': groupLayout === 'block',
+    'layout-inline': groupLayout === 'inline'
+  }">
+  <ng-container #fieldComponent> </ng-container>
+</div>

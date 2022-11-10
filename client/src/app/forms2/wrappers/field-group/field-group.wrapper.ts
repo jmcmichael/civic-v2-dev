@@ -3,9 +3,10 @@ import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core';
 import { NzFormLayoutType } from 'ng-zorro-antd/form';
 
 export type CvcFieldGroupWrapperConfig = Partial<GroupConfig>
+export type CvcFormFieldFlowType = 'block' | 'inline'
 
 type GroupConfig = {
-  formLayout?: NzFormLayoutType
+  layout: CvcFormFieldFlowType
 }
 
 @Component({
@@ -23,13 +24,9 @@ export class CvcFieldGroupWrapper
     return this.showError ? 'error' : ''
   }
 
-  constructor() {
-    super()
-  }
+  groupLayout!: CvcFormFieldFlowType
 
   ngOnInit(): void {
-    this.props.wrapper.group = {
-      ...(this.props.wrapper.group ? this.props.wrapper.group : undefined)
-    }
+    this.groupLayout = this.props.layout || 'block'
   }
 }
