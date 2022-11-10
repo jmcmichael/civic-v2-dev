@@ -44,10 +44,6 @@ type WrapperConfig = {
   templateUrl: './form-field.wrapper.html',
   styleUrls: ['./form-field.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  // host: {
-  //   '[class.flow-inline]': `fieldFlow === 'inline'`,
-  //   '[class.flow-block]': `fieldFlow === 'block'`,
-  // },
 })
 export class CvcFormFieldWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>

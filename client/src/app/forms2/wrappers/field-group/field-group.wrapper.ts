@@ -7,6 +7,7 @@ export type CvcFormFieldFlowType = 'block' | 'inline'
 
 type GroupConfig = {
   layout: CvcFormFieldFlowType
+  columns?: number
 }
 
 @Component({
