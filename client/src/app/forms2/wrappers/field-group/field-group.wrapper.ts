@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
-import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core';
-import { NzFormLayoutType } from 'ng-zorro-antd/form';
+import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
 
 export type CvcFieldGroupWrapperConfig = Partial<GroupConfig>
-export type CvcFormFieldFlowType = 'block' | 'inline'
 
 type GroupConfig = {
-  layout: CvcFormFieldFlowType
-  columns?: number
+  grid: {
+    layout: 'grid' | 'inline-grid'
+  }
 }
 
 @Component({
@@ -20,14 +20,15 @@ export class CvcFieldGroupWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>
   implements OnInit
 {
-
   get errorState() {
     return this.showError ? 'error' : ''
   }
 
-  groupLayout!: CvcFormFieldFlowType
-
   ngOnInit(): void {
-    this.groupLayout = this.props.layout || 'block'
+    // set default layout to grid, merge w/ any specified grid props
+    this.props.grid = {
+      layout: 'grid',
+      ...(this.props.grid ? this.props.grid : undefined)
+    }
   }
 }

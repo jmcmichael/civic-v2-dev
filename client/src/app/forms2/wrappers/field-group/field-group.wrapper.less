@@ -1,16 +1,34 @@
 @import 'themes/global-variables.less';
 
-.form-group-grid {
-  &.layout-block {
-    ::ng-deep cvc-form-field-wrapper:first-of-type {
-      display: block;
-      background-color: lightgreen;
-    }
+.field-grid {
+  &.layout-grid {
+    display: grid;
   }
-  &.layout-inline {
-    ::ng-deep cvc-form-field-wrapper:first-of-type {
-      display: inline-block;
+  &.layout-inline-grid {
+    display: inline-grid;
+  }
+  ::ng-deep formly-group:first-of-type {
+    display: grid;
+    border: 1px solid lightgreen;
+    formly-field {
+      display: block;
       background-color: lightblue;
     }
   }
+  // ::ng-deep formly-field {
+  //   display: grid;
+  //   background-color: lightgreen;
+  // }
+  // &.layout-block {
+  //   ::ng-deep cvc-form-field-wrapper:first-of-type {
+  //     display: block;
+  //     background-color: lightgreen;
+  //   }
+  // }
+  // &.layout-inline {
+  //   ::ng-deep cvc-form-field-wrapper:first-of-type {
+  //     display: inline-block;
+  //     background-color: lightblue;
+  //   }
+  // }
 }

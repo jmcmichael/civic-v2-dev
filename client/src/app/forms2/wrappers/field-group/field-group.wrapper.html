@@ -1,7 +1,8 @@
-<div class="form-group-grid"
+<div
+  class="field-grid"
   [ngClass]="{
-    'layout-block': groupLayout === 'block',
-    'layout-inline': groupLayout === 'inline'
+    'layout-grid': props.grid.layout === 'grid',
+    'layout-inline-grid': props.grid.layout === 'inline-grid'
   }">
   <ng-container #fieldComponent> </ng-container>
 </div>
