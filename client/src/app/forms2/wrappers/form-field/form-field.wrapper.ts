@@ -3,7 +3,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
-import { EmbeddedProperty, NzAlign, NzJustify } from 'ng-zorro-antd/grid'
+import { NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 import { CvcFieldGroupWrapperConfig } from '../field-group/field-group.wrapper'
 
@@ -114,12 +114,7 @@ export class CvcFormFieldWrapper
         })
       this.formLayout$ = this.options.formState.formLayout$
     } else {
-      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('horizontal')
+      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('vertical')
     }
-
-    // if wrapper config specifies item flow, set this field's flow
-    // if (this.wrapper.layout.item.flow) {
-    //   this.fieldFlow = this.wrapper.layout.item.flow
-    // }
   }
 }

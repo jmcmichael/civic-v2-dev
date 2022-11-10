@@ -29,7 +29,7 @@ export class CvcEvidenceSubmitForm {
     this.options = {
       formState: new EvidenceState(),
     }
-    this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('horizontal')
+    this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('vertical')
 
     this.options.formState.formLayout$ = this.formLayout$
   }

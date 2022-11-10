@@ -39,11 +39,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'gene-select',
             props: {
               required: true,
-              wrapper: {
-                // display: {
-                //   formLayout: 'horizontal'
-                // }
-              },
             },
           },
           <CvcVariantSelectFieldOptions>{

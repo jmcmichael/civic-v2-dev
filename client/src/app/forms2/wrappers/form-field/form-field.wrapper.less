@@ -23,8 +23,6 @@
 nz-form-item.layout-horizontal {
   ::ng-deep nz-form-label:first-of-type {
     .cvc-field-label();
-    // provide min width when displayed inline-block
-    min-width: 10em;
   }
   .help-tooltip {
     text-align: right;
@@ -46,7 +44,7 @@ nz-form-item.layout-vertical {
     .cvc-field-label();
     span.icon-tooltip {
       padding-left: 3px;
-      margin-top: -5px;
+      // margin-top: -5px;
       color: @helpIconColor;
       font-size: @helpIconSize / 4;
       cursor: help;

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
-import { NzFormLayoutType } from 'ng-zorro-antd/form'
 
 export type CvcFieldGroupWrapperConfig = Partial<GroupConfig>
 
@@ -28,7 +27,7 @@ export class CvcFieldGroupWrapper
     // set default layout to grid, merge w/ any specified grid props
     this.props.grid = {
       cols: 2,
-      ...(this.props.grid ? this.props.grid : undefined)
+      ...(this.props.grid ? this.props.grid : undefined),
     }
   }
 }
