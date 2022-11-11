@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 
-export type CvcFieldGroupWrapperConfig = Partial<GroupConfig>
+export type CvcFieldGridWrapperConfig = Partial<GroupConfig>
 
 type GroupConfig = {
   grid: {
@@ -10,12 +10,12 @@ type GroupConfig = {
 }
 
 @Component({
-  selector: 'cvc-field-group',
-  templateUrl: './field-group.wrapper.html',
-  styleUrls: ['./field-group.wrapper.less'],
+  selector: 'cvc-field-grid',
+  templateUrl: './field-grid.wrapper.html',
+  styleUrls: ['./field-grid.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcFieldGroupWrapper
+export class CvcFieldGridWrapper
   extends FieldWrapper<FormlyFieldConfig<any>>
   implements OnInit
 {

@@ -8,7 +8,7 @@ import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significanc
 import { CvcEntityTypeSelectFieldOptions } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
-import { CvcFieldGroupWrapperConfig } from '@app/forms2/wrappers/field-group/field-group.wrapper'
+import { CvcFieldGridWrapperConfig } from '@app/forms2/wrappers/field-grid/field-grid.wrapper'
 import { CvcFormCardWrapperProps } from '@app/forms2/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -67,8 +67,8 @@ const formFieldConfig: FormlyFieldConfig[] = [
             props: {},
           },
           {
-            wrappers: ['field-group'],
-            props: <CvcFieldGroupWrapperConfig>{
+            wrappers: ['field-grid'],
+            props: <CvcFieldGridWrapperConfig>{
               grid: {
                 cols: 2,
               },

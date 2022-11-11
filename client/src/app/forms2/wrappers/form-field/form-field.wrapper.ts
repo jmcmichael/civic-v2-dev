@@ -5,7 +5,7 @@ import { IndexableObject } from 'ng-zorro-antd/core/types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
-import { CvcFieldGroupWrapperConfig } from '../field-group/field-group.wrapper'
+import { CvcFieldGridWrapperConfig } from '../field-grid/field-grid.wrapper'
 
 export type CvcFormFieldWrapperConfig = Partial<WrapperConfig>
 export type CvcFormFieldFlowType = 'block' | 'inline'
@@ -36,7 +36,6 @@ type WrapperConfig = {
       span: number
     }
   }
-  group: CvcFieldGroupWrapperConfig
 }
 
 @UntilDestroy()
@@ -93,11 +92,6 @@ export class CvcFormFieldWrapper
               ? this.props.wrapper.layout?.control
               : undefined),
           },
-        },
-        group: {
-          ...(this.props.wrapper?.display
-            ? this.props.wrapper.display
-            : undefined),
         },
       }
     } catch (err) {
