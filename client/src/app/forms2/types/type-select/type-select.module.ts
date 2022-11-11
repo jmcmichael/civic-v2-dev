@@ -9,6 +9,7 @@ import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-sel
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcAttributeTagModule } from '@app/forms2/components/attribute-tag/attribute-tag.module'
+import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -27,7 +28,7 @@ const typeConfig: ConfigOption = {
     ReactiveFormsModule,
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
-    FormlyNzFormFieldModule, // for form-field wrapper
+    CvcFormFieldWrapperModule,
     CvcAttributeTagModule,
     CvcEnumSelectModule,
   ],

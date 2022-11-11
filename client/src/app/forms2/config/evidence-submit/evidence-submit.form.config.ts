@@ -106,6 +106,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'checked',
             type: 'checkbox',
             props: {
+              disabled: true,
               label: 'Check'
             }
           },
