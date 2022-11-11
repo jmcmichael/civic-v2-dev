@@ -7,7 +7,6 @@ import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag
 import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
-import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
 import { NzButtonModule } from 'ng-zorro-antd/button'

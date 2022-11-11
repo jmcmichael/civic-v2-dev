@@ -1,4 +1,5 @@
 import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit.model'
+import { CvcCheckboxFieldOptions } from '@app/forms2/types/checkbox/checkbox.type'
 import { CvcDirectionSelectFieldOptions } from '@app/forms2/types/direction-select/direction-select.type'
 import { CvcDiseaseSelectFieldOptions } from '@app/forms2/types/disease-select/disease-select.type'
 import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
@@ -89,26 +90,38 @@ const formFieldConfig: FormlyFieldConfig[] = [
           <CvcDiseaseSelectFieldOptions>{
             key: 'diseaseId',
             type: 'disease-select',
-            props: {
-              wrapper: {
-                layout: {
-                  label: {
-                    span: 4,
-                  },
-                  control: {
-                    span: 20,
-                  },
-                },
-              },
-            },
+            props: {},
           },
           {
-            key: 'checked',
-            type: 'checkbox',
-            props: {
-              disabled: true,
-              label: 'Check'
-            }
+            wrappers: ['field-grid'],
+            props: <CvcFieldGridWrapperConfig>{
+              grid: {
+                cols: 3,
+              },
+            },
+            fieldGroup: [
+              <CvcCheckboxFieldOptions>{
+                key: 'checked1',
+                type: 'checkbox',
+                props: {
+                  label: 'FDA Approved',
+                },
+              },
+              <CvcCheckboxFieldOptions>{
+                key: 'checked2',
+                type: 'checkbox',
+                props: {
+                  label: 'Companion Test',
+                },
+              },
+              <CvcCheckboxFieldOptions>{
+                key: 'checked3',
+                type: 'checkbox',
+                props: {
+                  label: 'Long Label to Test',
+                },
+              },
+            ],
           },
           // {
           //   key: 'input',

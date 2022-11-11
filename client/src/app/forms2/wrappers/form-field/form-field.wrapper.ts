@@ -74,6 +74,7 @@ export class CvcFormFieldWrapper
             : undefined),
         },
         layout: {
+          // layout only relevant for horizontal nzLayout type
           item: {
             gutter: [6, 12],
             ...(this.props.wrapper?.layout?.item

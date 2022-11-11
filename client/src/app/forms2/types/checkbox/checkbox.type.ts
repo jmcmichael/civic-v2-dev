@@ -1,12 +1,15 @@
-import { Component, ChangeDetectionStrategy, Type } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Type, AfterViewInit } from '@angular/core';
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field';
 
-interface CheckboxProps extends FormlyFieldProps {
+export type CvcCheckboxFieldOptions = Partial<
+  FieldTypeConfig<CvcCheckboxFieldProps>
+>
+export interface CvcCheckboxFieldProps extends FormlyFieldProps {
   indeterminate?: boolean;
 }
 
-export interface FormlyCheckboxFieldConfig extends FormlyFieldConfig<CheckboxProps> {
+export interface FormlyCheckboxFieldConfig extends FormlyFieldConfig<CvcCheckboxFieldProps> {
   type: 'checkbox' | Type<CvcCheckboxField>;
 }
 
@@ -16,11 +19,15 @@ export interface FormlyCheckboxFieldConfig extends FormlyFieldConfig<CheckboxPro
   styleUrls: ['./checkbox.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcCheckboxField extends FieldType<FieldTypeConfig<CheckboxProps>> {
+export class CvcCheckboxField extends FieldType<FieldTypeConfig<CvcCheckboxFieldProps>> implements AfterViewInit {
   override defaultOptions = {
     props: {
       indeterminate: true,
       hideLabel: true,
     },
   };
+
+  ngAfterViewInit(): void {
+    console.log(this.props)
+  }
 }
