@@ -42,7 +42,9 @@ const BaseInputMixin = mixin(
 export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
   defaultOptions: Partial<FieldTypeConfig<CvcBaseInputFieldProps>> = {
     modelOptions: {
-      updateOn: 'blur', // update model when focus leaves field (see enter keydown.enter EventEmitter in template)
+      // update model when focus leaves field
+      // (template's keydown.enter listener blurs the field, updating the model)
+      updateOn: 'blur',
     },
     props: {
       label: 'Enter value',

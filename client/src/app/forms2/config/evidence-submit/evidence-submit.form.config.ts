@@ -77,16 +77,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
               <CvcDrugSelectFieldOptions>{
                 key: 'drugIds',
                 type: 'drug-multi-select',
-                props: {
-                  // layout: {
-                  //   label: {
-                  //     span: 6
-                  //   },
-                  //   control: {
-                  //     span: 16
-                  //   }
-                  // }
-                },
+                props: {},
               },
               <CvcInteractionSelectFieldOptions>{
                 key: 'drugInteractionType',
@@ -111,6 +102,20 @@ const formFieldConfig: FormlyFieldConfig[] = [
               },
             },
           },
+          {
+            key: 'checked',
+            type: 'checkbox',
+            props: {
+              label: 'Check'
+            }
+          },
+          // {
+          //   key: 'input',
+          //   type: 'input',
+          //   props: {
+          //     label: 'Input'
+          //   }
+          // },
           // <CvcRepeatFieldConfig>{
           //   key: 'geneIds',
           //   type: 'repeat-field',

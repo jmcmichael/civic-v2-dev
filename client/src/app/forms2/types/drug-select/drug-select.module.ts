@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
+import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
@@ -32,7 +33,6 @@ const typeConfig: ConfigOption = {
     {
       name: 'drug-select',
       wrappers: ['form-field'],
-      // wrappers: ['form-field'],
       component: CvcDrugSelectField,
     },
     {
@@ -56,7 +56,6 @@ const typeConfig: ConfigOption = {
     ReactiveFormsModule,
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
-    FormlyNzFormFieldModule, // for form-field wrapper
     NzAlertModule,
     NzButtonModule,
     NzSelectModule,
@@ -71,6 +70,7 @@ const typeConfig: ConfigOption = {
     NzAutocompleteModule,
     NzTypographyModule,
     NzTagModule,
+    CvcFormFieldWrapperModule,
     CvcEntitySelectModule,
     CvcPipesModule,
     CvcEntityTagModule,
