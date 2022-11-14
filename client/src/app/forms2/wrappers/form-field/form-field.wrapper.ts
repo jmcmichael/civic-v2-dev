@@ -1,11 +1,15 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
+import { UntilDestroy } from '@ngneat/until-destroy'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
+import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
-import { CvcFieldGridWrapperConfig } from '../field-grid/field-grid.wrapper'
+
+export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
+  wrapper: CvcFormFieldWrapperConfig
+}
 
 export type CvcFormFieldWrapperConfig = Partial<WrapperConfig>
 export type CvcFormFieldFlowType = 'block' | 'inline'
@@ -46,7 +50,7 @@ type WrapperConfig = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcFormFieldWrapper
-  extends FieldWrapper<FormlyFieldConfig<any>>
+  extends FieldWrapper<FormlyFieldConfig<CvcFormFieldWrapperProps>>
   implements OnInit
 {
   wrapper!: WrapperConfig

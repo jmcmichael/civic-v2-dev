@@ -1,27 +1,45 @@
 import {
-    AfterViewInit,
-    ChangeDetectorRef,
-    Component,
-    QueryList,
-    TemplateRef,
-    Type,
-    ViewChildren
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  QueryList,
+  TemplateRef,
+  Type,
+  ViewChildren,
 } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
-import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
+import {
+  CvcFormFieldWrapperConfig,
+  CvcFormFieldWrapperProps,
+} from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-    FieldTypeConfig,
-    FormlyFieldConfig,
-    FormlyFieldProps
+  FieldTypeConfig,
+  FormlyFieldConfig,
+  FormlyFieldProps,
 } from '@ngx-formly/core'
 import { BehaviorSubject, map } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
+
+const optionText: { [option: string]: string } = {
+  DIAGNOSTIC:
+    "Evidence pertains to a variant's impact on patient diagnosis (cancer subtype).",
+  PREDICTIVE:
+    "Evidence pertains to a variant's effect on therapeutic response.",
+  PROGNOSTIC:
+    "Evidence pertains to a variant's impact on disease progression, severity, or patient survival.",
+  PREDISPOSING:
+    "Evidence pertains to a germline variant's role in conferring susceptibility to disease (including pathogenicity evaluations).",
+  ONCOGENIC:
+    "Evidence pertains to a somatic variant's involvement in tumor pathogenesis as described by the Hallmarks of Cancer.",
+  FUNCTIONAL:
+    'Evidence pertains to a variant that alters biological function from the reference state.',
+}
 
 export type CvcEntityTypeSelectFieldOptions = Partial<
   FieldTypeConfig<CvcEntityTypeSelectFieldProps>
@@ -32,11 +50,13 @@ interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
   placeholder: string
   enumName: string
   isMultiSelect: boolean
-  layout?: CvcFormFieldWrapperConfig
+  description?: string
 }
 
 export interface CvcEntityTypeSelectFieldConfig
-  extends FormlyFieldConfig<CvcEntityTypeSelectFieldProps> {
+  extends FormlyFieldConfig<
+    CvcEntityTypeSelectFieldProps & CvcFormFieldWrapperProps
+  > {
   type: 'type-select' | Type<CvcEntityTypeSelectField>
 }
 
@@ -95,6 +115,13 @@ export class CvcEntityTypeSelectField
       optionTemplate$: this.optionTemplate$,
       changeDetectorRef: this.cdr,
     })
+
+    this.onValueChange$
+      .pipe(untilDestroyed(this))
+      .subscribe((v: Maybe<EntityType>) => {
+        if(!v) return
+        this.props.description = optionText[v]
+      })
   }
 
   configureStateConnections(): void {
