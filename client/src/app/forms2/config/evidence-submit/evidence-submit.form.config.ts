@@ -1,5 +1,4 @@
 import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit.model'
-import { CvcCheckboxFieldOptions } from '@app/forms2/types/checkbox/checkbox.type'
 import { CvcDirectionSelectFieldOptions } from '@app/forms2/types/direction-select/direction-select.type'
 import { CvcDiseaseSelectFieldOptions } from '@app/forms2/types/disease-select/disease-select.type'
 import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
@@ -15,6 +14,7 @@ import { CvcFormLayoutWrapperProps } from '@app/forms2/wrappers/form-layout/form
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
+  // form-layout wrapper embeds the form in an nz-grid row, allowing the form to be placed adjacent to other controls or page elements. Currently, it provides a toggleable dev panel. Could be used to add a preview of the entity being added/edited, or more extensive feedback like lists of similar entities, etc.
   {
     wrappers: ['form-layout'],
     props: <CvcFormLayoutWrapperProps>{
@@ -28,6 +28,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
           hidden: true,
         },
       },
+      // form-card wraps the form fields in a card, providing a place to put a title, and other controls e.g. form options, status
       {
         key: 'fields',
         wrappers: ['form-card'],
@@ -35,37 +36,73 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Evidence Item',
         },
         fieldGroup: [
-          <CvcGeneSelectFieldConfig>{
-            key: 'geneId',
-            type: 'gene-select',
-            props: {
-              required: true,
+          // field-grid wrapper places its fields in a css-grid, allowing for a wider variety of row-level layouts. Currently it provides multi-column layout of 2-4 columns
+          {
+            wrappers: ['field-grid'],
+            props: <CvcFieldGridWrapperConfig>{
+              grid: {
+                cols: 2,
+              },
             },
+            fieldGroup: [
+              <CvcGeneSelectFieldConfig>{
+                key: 'geneId',
+                type: 'gene-select',
+                props: {
+                  required: true,
+                },
+              },
+              <CvcVariantSelectFieldOptions>{
+                key: 'variantId',
+                type: 'variant-select',
+                props: {
+                  required: true,
+                  // requireGene: false
+                },
+              },
+            ],
           },
-          <CvcVariantSelectFieldOptions>{
-            key: 'variantId',
-            type: 'variant-select',
-            props: {
-              required: true,
-              // requireGene: false
+          {
+            wrappers: ['field-grid'],
+            props: <CvcFieldGridWrapperConfig>{
+              grid: {
+                cols: 2,
+              },
             },
+            fieldGroup: [
+              <CvcEntityTypeSelectFieldOptions>{
+                key: 'evidenceType',
+                type: 'type-select',
+                props: {
+                  required: true,
+                },
+              },
+              <CvcDirectionSelectFieldOptions>{
+                key: 'evidenceDirection',
+                type: 'direction-select',
+                props: {},
+              },
+            ],
           },
-          <CvcEntityTypeSelectFieldOptions>{
-            key: 'evidenceType',
-            type: 'type-select',
-            props: {
-              required: true,
+          {
+            wrappers: ['field-grid'],
+            props: <CvcFieldGridWrapperConfig>{
+              grid: {
+                cols: 2,
+              },
             },
-          },
-          <CvcSignificanceSelectFieldOptions>{
-            key: 'clinicalSignificance',
-            type: 'significance-select',
-            props: {},
-          },
-          <CvcDirectionSelectFieldOptions>{
-            key: 'evidenceDirection',
-            type: 'direction-select',
-            props: {},
+            fieldGroup: [
+              <CvcSignificanceSelectFieldOptions>{
+                key: 'clinicalSignificance',
+                type: 'significance-select',
+                props: {},
+              },
+              <CvcDiseaseSelectFieldOptions>{
+                key: 'diseaseId',
+                type: 'disease-select',
+                props: {},
+              },
+            ],
           },
           {
             wrappers: ['field-grid'],
@@ -87,116 +124,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
               },
             ],
           },
-          <CvcDiseaseSelectFieldOptions>{
-            key: 'diseaseId',
-            type: 'disease-select',
-            props: {},
-          },
-          {
-            wrappers: ['field-grid'],
-            props: <CvcFieldGridWrapperConfig>{
-              grid: {
-                cols: 3,
-              },
-            },
-            fieldGroup: [
-              <CvcCheckboxFieldOptions>{
-                key: 'checked1',
-                type: 'checkbox',
-                props: {
-                  label: 'FDA Approved',
-                },
-              },
-              <CvcCheckboxFieldOptions>{
-                key: 'checked2',
-                type: 'checkbox',
-                props: {
-                  label: 'Companion Test',
-                },
-              },
-              <CvcCheckboxFieldOptions>{
-                key: 'checked3',
-                type: 'checkbox',
-                props: {
-                  label: 'Long Label to Test',
-                },
-              },
-            ],
-          },
-          // {
-          //   key: 'input',
-          //   type: 'input',
-          //   props: {
-          //     label: 'Input'
-          //   }
-          // },
-          // <CvcRepeatFieldConfig>{
-          //   key: 'geneIds',
-          //   type: 'repeat-field',
-          //   props: {
-          //     label: 'Genes',
-          //   },
-          //   fieldArray: <CvcGeneSelectFieldConfig>{
-          //     type: 'gene-select-item',
-          //     props: {},
-          //   },
-          // },
-          // <CvcRepeatFieldConfig>{
-          //   key: 'variantIds',
-          //   type: 'repeat-field',
-          //   props: {
-          //     label: 'Variants',
-          //   },
-          //   fieldArray: <CvcVariantSelectFieldConfig>{
-          //     type: 'variant-select-item',
-          //     props: {},
-          //   },
-          // },
-          // <CvcRepeatFieldConfig>{
-          //   key: 'drugIds',
-          //   type: 'repeat-field',
-          //   props: {
-          //     label: 'Drugs',
-          //   },
-          //   fieldArray: <CvcDrugSelectFieldConfig>{
-          //     type: 'drug-select-item',
-          //     props: {},
-          //   },
-          // },
-          // <CvcBaseInputFieldConfig>{
-          //   key: 'version',
-          //   type: 'base-input',
-          //   props: { label: 'Version' },
-          // },
-          // <CvcRepeatFieldConfig>{
-          //   key: 'aliases',
-          //   type: 'repeat-field',
-          //   props: {
-          //     label: 'Aliases',
-          //   },
-          //   fieldArray: <CvcBaseInputFieldConfig>{
-          //     type: 'base-input-item',
-          //     props: {},
-          //   },
-          // },
-          // <CvcEntitySignificanceSelectFieldConfig>{
-          //   key: 'clinicalSignficance',
-          //   type: 'significance-select',
-          //   props: {
-          //     required: true,
-          //   },
-          // },
-          // <CvcRepeatFieldConfig>{
-          //   key: 'geneIds',
-          //   type: 'repeat-field',
-          //   props: {
-          //     label: 'Genes',
-          //   },
-          //   fieldArray: <CvcGeneSelectFieldConfig>{
-          //     type: 'gene-select-item',
-          //     props: {},
-          //   },
-          // },
         ],
       },
       {
