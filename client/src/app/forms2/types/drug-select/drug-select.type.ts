@@ -14,7 +14,6 @@ import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityType } from '@app/forms2/states/entity.state'
-import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
     DrugSelectTagGQL,
     DrugSelectTagQuery,
@@ -62,7 +61,6 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
     // placeholder if evidence/assertion type required & field disabled
     requireTypePrompt: string
   },
-  wrapper?: CvcFormFieldWrapperConfig,
 }
 
 // NOTE: any multi-select field must have the string 'multi' in its type name,

@@ -7,21 +7,7 @@ import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 
-export interface CvcFormFieldWrapperProps extends FormlyFieldProps {
-  wrapper: CvcFormFieldWrapperConfig
-}
-
-export type CvcFormFieldWrapperConfig = Partial<WrapperConfig>
-export type CvcFormFieldFlowType = 'block' | 'inline'
-
-type WrapperConfig = {
-  display: {
-    ignoreRequiredState: boolean
-    noColon: boolean
-    hideLabel?: boolean
-    tooltip?: string
-    description?: string
-  }
+export interface CvcFormFieldWrapperLayout {
   layout: {
     item: {
       gutter:
@@ -50,11 +36,11 @@ type WrapperConfig = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcFormFieldWrapper
-  extends FieldWrapper<FormlyFieldConfig<CvcFormFieldWrapperProps>>
+  extends FieldWrapper<FormlyFieldConfig>
   implements OnInit
 {
-  wrapper!: WrapperConfig
   formLayout$!: BehaviorSubject<NzFormLayoutType>
+  wrapper!: CvcFormFieldWrapperLayout
 
   get errorState() {
     return this.showError ? 'error' : ''
@@ -68,33 +54,29 @@ export class CvcFormFieldWrapper
     // merge local wrapper config with field config specified properties
     try {
       this.wrapper = {
-        display: {
-          tooltip: 'Field tooltip',
-          description: 'Field description goes here.',
-          noColon: true,
-          ignoreRequiredState: false,
-          ...(this.props.wrapper?.display
-            ? this.props.wrapper.display
-            : undefined),
-        },
+        // display: {
+        //   tooltip: 'Field tooltip',
+        //   description: 'Field description goes here.',
+        //   noColon: true,
+        //   ignoreRequiredState: false,
+        //   ...(this.props.display
+        //     ? this.props.wrapper.display
+        //     : undefined),
+        // },
         layout: {
           // layout only relevant for horizontal nzLayout type
           item: {
             gutter: [6, 12],
-            ...(this.props.wrapper?.layout?.item
-              ? this.props.wrapper.layout.item
-              : undefined),
+            ...(this.props.layout?.item ? this.props.layout.item : undefined),
           },
           label: {
             span: 4,
-            ...(this.props.wrapper?.layout?.label
-              ? this.props.wrapper.layout.label
-              : undefined),
+            ...(this.props.layout?.label ? this.props.layout.label : undefined),
           },
           control: {
             span: 20,
-            ...(this.props.wrapper?.layout?.control
-              ? this.props.wrapper.layout?.control
+            ...(this.props.layout?.control
+              ? this.props.layout?.control
               : undefined),
           },
         },

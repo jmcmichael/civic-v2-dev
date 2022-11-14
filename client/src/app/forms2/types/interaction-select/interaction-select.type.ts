@@ -17,7 +17,6 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { BehaviorSubject, map } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
@@ -30,7 +29,6 @@ interface CvcInteractionSelectFieldProps extends FormlyFieldProps {
   placeholder: string
   requireMultipleDrugs: boolean
   multipleDrugsPrompt: string
-  wrapper?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcInteractionSelectFieldConfig

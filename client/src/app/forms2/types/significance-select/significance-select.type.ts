@@ -11,7 +11,6 @@ import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { EntityClinicalSignificance } from '@app/forms2/states/entity.state'
-import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -32,7 +31,6 @@ interface CvcSignificanceSelectFieldProps extends FormlyFieldProps {
   requireTypePrompt: string
   enumName: string
   isMultiSelect: boolean
-  layout?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcSignificanceSelectFieldConfig

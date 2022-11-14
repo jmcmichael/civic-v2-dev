@@ -20,9 +20,7 @@
           <ng-container *ngIf="props.label && props.hideLabel !== true">
             <nz-form-label
               *ngIf="wrapper.layout.label as label"
-              [nzRequired]="
-                props.required && !wrapper.display.ignoreRequiredState
-              "
+              [nzRequired]="props.required"
               [nzFor]="id"
               [nzNoColon]="true"
               [nzSpan]="label.span ? label.span : null">
@@ -46,13 +44,13 @@
         nzFlex="14px"
         class="help-tooltip">
         <span
-          *ngIf="wrapper.display.tooltip; else iconSpacer"
+          *ngIf="props.tooltip; else iconSpacer"
           class="icon-tooltip"
           nz-icon
           nzTheme="outline"
           nzType="info-circle"
           nz-tooltip
-          [nzTooltipTitle]="wrapper.display.tooltip"></span>
+          [nzTooltipTitle]="props.tooltip"></span>
         <ng-template #iconSpacer>
           <span
             class="icon-spacer"
@@ -70,7 +68,7 @@
       <ng-container *ngIf="props.label && props.hideLabel !== true">
         <nz-form-label
           *ngIf="wrapper.layout.label as label"
-          [nzRequired]="props.required && !wrapper.display.ignoreRequiredState"
+          [nzRequired]="props.required"
           [nzFor]="id"
           [nzNoColon]="true">
           <span
@@ -78,14 +76,14 @@
             nzEllipsis
             [nzContent]="props.label"></span>
           <span
-            *ngIf="wrapper.display.tooltip"
+            *ngIf="props.tooltip"
             class="icon-tooltip"
             nz-icon
             nzTheme="outline"
             nzTwotoneColor="#bfbfbf"
             nzType="info-circle"
             nz-tooltip
-            [nzTooltipTitle]="wrapper.display.tooltip"></span>
+            [nzTooltipTitle]="props.tooltip"></span>
         </nz-form-label>
       </ng-container>
       <nz-form-control
@@ -102,21 +100,21 @@
     <nz-form-item class="layout-inline">
       <ng-container *ngIf="props.label && props.hideLabel !== true">
         <nz-form-label
-          [nzRequired]="props.required && props.hideRequiredMarker !== true"
+          [nzRequired]="props.required"
           [nzFor]="id">
           <span
             nz-typography
             nzEllipsis
             [nzContent]="props.label"></span>
           <span
-            *ngIf="wrapper.display.tooltip"
+            *ngIf="props.tooltip"
             class="icon-tooltip"
             nz-icon
             nzTheme="outline"
             nzTwotoneColor="#bfbfbf"
             nzType="info-circle"
             nz-tooltip
-            [nzTooltipTitle]="wrapper.display.tooltip"></span>
+            [nzTooltipTitle]="props.tooltip"></span>
         </nz-form-label>
       </ng-container>
       <nz-form-control

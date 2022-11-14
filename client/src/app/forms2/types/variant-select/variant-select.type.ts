@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  Injector,
   QueryList,
   TemplateRef,
   Type,
@@ -13,8 +12,6 @@ import { ApolloQueryResult } from '@apollo/client/core'
 import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityState } from '@app/forms2/states/entity.state'
-import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
   LinkableGeneGQL,
   Maybe,
@@ -33,7 +30,7 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, combineLatest, lastValueFrom } from 'rxjs'
+import { BehaviorSubject, lastValueFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export type CvcVariantSelectFieldOptions = Partial<
@@ -47,7 +44,6 @@ export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   placeholder: string // default placeholder
   requireGenePlaceholder?: string // placeholder if geneId required & none is set
   requireGenePrompt?: string // placeholder prompt displayed after geneId set
-  wrapper?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcVariantSelectFieldConfig

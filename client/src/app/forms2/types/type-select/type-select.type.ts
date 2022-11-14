@@ -1,26 +1,22 @@
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  QueryList,
-  TemplateRef,
-  Type,
-  ViewChildren,
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    QueryList,
+    TemplateRef,
+    Type,
+    ViewChildren
 } from '@angular/core'
 import { EntityType } from '@app/forms/config/states/entity.state'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
-import {
-  CvcFormFieldWrapperConfig,
-  CvcFormFieldWrapperProps,
-} from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldTypeConfig,
-  FormlyFieldConfig,
-  FormlyFieldProps,
+    FieldTypeConfig,
+    FormlyFieldConfig,
+    FormlyFieldProps
 } from '@ngx-formly/core'
 import { BehaviorSubject, map } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
@@ -54,9 +50,7 @@ interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
 }
 
 export interface CvcEntityTypeSelectFieldConfig
-  extends FormlyFieldConfig<
-    CvcEntityTypeSelectFieldProps & CvcFormFieldWrapperProps
-  > {
+  extends FormlyFieldConfig<CvcEntityTypeSelectFieldProps> {
   type: 'type-select' | Type<CvcEntityTypeSelectField>
 }
 
@@ -119,7 +113,7 @@ export class CvcEntityTypeSelectField
     this.onValueChange$
       .pipe(untilDestroyed(this))
       .subscribe((v: Maybe<EntityType>) => {
-        if(!v) return
+        if (!v) return
         this.props.description = optionText[v]
       })
   }

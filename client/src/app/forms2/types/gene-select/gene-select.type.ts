@@ -1,31 +1,27 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  Injector,
-  QueryList,
-  TemplateRef,
-  Type,
-  ViewChildren,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component, QueryList,
+    TemplateRef,
+    Type,
+    ViewChildren
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { CvcSelectEntityName, CvcSelectMessageOptions } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
-import { CvcFormFieldWrapperConfig } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
-  GeneSelectTagGQL,
-  GeneSelectTagQuery,
-  GeneSelectTagQueryVariables,
-  GeneSelectTypeaheadFieldsFragment,
-  GeneSelectTypeaheadGQL,
-  GeneSelectTypeaheadQuery,
-  GeneSelectTypeaheadQueryVariables,
-  Maybe,
+    GeneSelectTagGQL,
+    GeneSelectTagQuery,
+    GeneSelectTagQueryVariables,
+    GeneSelectTypeaheadFieldsFragment,
+    GeneSelectTypeaheadGQL,
+    GeneSelectTypeaheadQuery,
+    GeneSelectTypeaheadQueryVariables,
+    Maybe
 } from '@app/generated/civic.apollo'
-import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
@@ -38,7 +34,6 @@ export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   selectMessages?: CvcSelectMessageOptions
   entityName: CvcSelectEntityName
   helpText?: string
-  wrapper?: CvcFormFieldWrapperConfig
 }
 
 export interface CvcGeneSelectFieldConfig
