@@ -21,14 +21,6 @@ import { BehaviorSubject, from, map, withLatestFrom } from 'rxjs'
 import { $enum } from 'ts-enum-util'
 import mixin from 'ts-mixin-extended'
 
-const optionExtra = new Map<EvidenceLevel, string>([
-  [EvidenceLevel.A, 'Validated association'],
-  [EvidenceLevel.B, 'Clinical evidence'],
-  [EvidenceLevel.C, 'Case study'],
-  [EvidenceLevel.D, 'Preclinical evidence'],
-  [EvidenceLevel.E, 'Inferential association'],
-])
-
 const optionText = new Map<EvidenceLevel, string>([
   [EvidenceLevel.A, 'Evidence shows consensus association in human medicine'],
   [

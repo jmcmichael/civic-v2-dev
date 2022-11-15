@@ -5,6 +5,7 @@ import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-se
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
 import { CvcLevelSelectFieldOptions } from '@app/forms2/types/level-select/level-select.type'
+import { CvcRatingSelectFieldOptions } from '@app/forms2/types/rating-select/rating-select.type'
 import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
 import {
   CvcEntityTypeSelectFieldConfig,
@@ -132,6 +133,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: {},
               },
             ],
+          },
+          <CvcRatingSelectFieldOptions>{
+            key: 'evidenceRating',
+            type: 'rating-select',
+            props: {
+              required: true,
+            },
           },
         ],
       },
