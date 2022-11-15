@@ -57,7 +57,6 @@ export class CvcRatingSelectField
 {
   // LOCAL SOURCE STREAMS
   rating$: BehaviorSubject<Maybe<number>>
-  hover$: Subject<number>
 
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
@@ -74,7 +73,6 @@ export class CvcRatingSelectField
   constructor() {
     super()
     this.rating$ = new BehaviorSubject<Maybe<number>>(undefined)
-    this.hover$ = new Subject<number>()
   }
 
   ngAfterViewInit(): void {
@@ -90,10 +88,7 @@ export class CvcRatingSelectField
           this.props.description = optionText[rating]
         }
       })
-    // TODO: figure out how to clear description if rating component isn't hovered (couldn't get nzOnBlur emitter to work)
-    this.hover$.pipe(untilDestroyed(this)).subscribe((rating: number) => {
-      this.props.description = optionText[rating]
-    })
+    // TODO: figure out how to display rating descriptions on mouseover. nzOnHoverChange emitter works, but does only emits values when a star is hovered. Lack of a 'not hover' event leaves the description displayed, even if the field has a value whos description should be displayed. nzOnBlur does not fire, as far as I could tell, so it wasn't useful in resetting the description on blur. Might need to create a custom mouse position emitter to fire when mouse position exits the component bounds.
   }
 
   configureStateConnections(): void {
