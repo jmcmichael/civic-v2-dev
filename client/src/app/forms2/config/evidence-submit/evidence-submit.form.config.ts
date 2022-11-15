@@ -71,7 +71,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             wrappers: ['field-grid'],
             props: <CvcFieldGridWrapperConfig>{
               grid: {
-                cols: 3,
+                cols: 2,
               },
             },
             fieldGroup: [
@@ -85,11 +85,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
               <CvcDirectionSelectFieldOptions>{
                 key: 'evidenceDirection',
                 type: 'direction-select',
-                props: {},
-              },
-              <CvcLevelSelectFieldOptions>{
-                key: 'evidenceLevel',
-                type: 'level-select',
                 props: {},
               },
             ],
@@ -134,12 +129,27 @@ const formFieldConfig: FormlyFieldConfig[] = [
               },
             ],
           },
-          <CvcRatingSelectFieldOptions>{
-            key: 'evidenceRating',
-            type: 'rating-select',
-            props: {
-              required: true,
+          {
+            wrappers: ['field-grid'],
+            props: <CvcFieldGridWrapperConfig>{
+              grid: {
+                cols: 2,
+              },
             },
+            fieldGroup: [
+              <CvcLevelSelectFieldOptions>{
+                key: 'evidenceLevel',
+                type: 'level-select',
+                props: {},
+              },
+              <CvcRatingSelectFieldOptions>{
+                key: 'evidenceRating',
+                type: 'rating-select',
+                props: {
+                  required: true,
+                },
+              },
+            ],
           },
         ],
       },
