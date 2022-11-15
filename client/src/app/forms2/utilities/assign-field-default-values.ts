@@ -24,7 +24,7 @@ export default function assignFieldConfigDefaultValues(
 
   // for each attribute key in the initial model, finds the
   // field config object matching the key and assigns
-  // its default value from the initia model
+  // its default value from the initial model
   const assignDefs = (fg: FormlyFieldConfig[], model: any) => {
     // iterate over keys of initialModel, recursively
     for (let key of Object.keys(model)) {

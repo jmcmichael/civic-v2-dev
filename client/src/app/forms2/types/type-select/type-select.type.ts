@@ -1,22 +1,22 @@
 import {
-    AfterViewInit,
-    ChangeDetectorRef,
-    Component,
-    QueryList,
-    TemplateRef,
-    Type,
-    ViewChildren
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  QueryList,
+  TemplateRef,
+  Type,
+  ViewChildren,
 } from '@angular/core'
-import { EntityType } from '@app/forms/config/states/entity.state'
+import { EntityName, EntityType } from '@app/forms/config/states/entity.state'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-    FieldTypeConfig,
-    FormlyFieldConfig,
-    FormlyFieldProps
+  FieldTypeConfig,
+  FormlyFieldConfig,
+  FormlyFieldProps,
 } from '@ngx-formly/core'
 import { BehaviorSubject, map } from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
@@ -47,6 +47,7 @@ interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
   enumName: string
   isMultiSelect: boolean
   description?: string
+  tooltip?: string
 }
 
 export interface CvcEntityTypeSelectFieldConfig
@@ -138,6 +139,7 @@ export class CvcEntityTypeSelectField
       this.state.entityName
     )
     this.label$ = new BehaviorSubject<string>(this.props.label)
+    this.props.tooltip = `Type of clinical outcome associated with the ${this.state.entityName} statement.`
 
     // subscribe to state's type options
     if (!this.state.enums.entityType$) {

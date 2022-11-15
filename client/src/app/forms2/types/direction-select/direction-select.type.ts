@@ -18,8 +18,88 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { BehaviorSubject, map } from 'rxjs'
+import { BehaviorSubject, map, withLatestFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
+
+const optionText: any = {
+  Evidence: {
+    PREDICTIVE: {
+      SUPPORTS:
+        "The experiment or study supports this variant's response to a drug",
+      DOES_NOT_SUPPORT:
+        'The experiment or study does not support, or was inconclusive of an interaction between this variant and a drug',
+    },
+    DIAGNOSTIC: {
+      SUPPORTS:
+        "The experiment or study supports this variant's impact on the diagnosis of disease or subtype",
+      DOES_NOT_SUPPORT:
+        "The experiment or study does not support this variant's impact on diagnosis of disease or subtype",
+    },
+    PROGNOSTIC: {
+      SUPPORTS:
+        "The experiment or study supports this variant's impact on prognostic outcome",
+      DOES_NOT_SUPPORT:
+        'The experiment or study does not support a prognostic association between variant and outcome',
+    },
+    PREDISPOSING: {
+      SUPPORTS:
+        'The evidence suggests a pathogenic or a protective role for a germline variant in cancer',
+      DOES_NOT_SUPPORT:
+        'The evidence supports a benign (for Predisposition) or lack of protective (for Protectiveness) role for a germline variant in cancer.',
+    },
+    FUNCTIONAL: {
+      SUPPORTS:
+        'The experiment or study supports this variant causing alteration or non-alteration of the gene product function',
+      DOES_NOT_SUPPORT:
+        'The experiment or study does not support this variant causing alteration or non-alteration of the gene product function',
+    },
+    ONCOGENIC: {
+      NA: 'Evidence Direction is Not Applicable for Oncogenic Evidence Type.',
+      SUPPORTS:
+        'The evidence supports an oncogenic or protective role for a somatic variant.',
+      DOES_NOT_SUPPORT:
+        'The evidence supports a benign (for Oncogenicity) or lack of protective (for Protectiveness) role for a somatic variant in cancer.',
+    },
+  },
+  Assertion: {
+    PREDICTIVE: {
+      SUPPORTS:
+        "The Assertion and associated Evidence Items support this variant's response to a drug",
+      DOES_NOT_SUPPORT:
+        'The Assertion and associated evidence does not support, or was inconclusive of an interaction between this variant and a drug',
+    },
+    DIAGNOSTIC: {
+      SUPPORTS:
+        "The Assertion and associated Evidence Items support this variant's impact on the diagnosis of disease or subtype",
+      DOES_NOT_SUPPORT:
+        "The Assertion and associated evidence does not support this variant's impact on diagnosis of disease or subtype",
+    },
+    PROGNOSTIC: {
+      SUPPORTS:
+        "The Assertion and associated Evidence Items support this variant's impact on prognostic outcome",
+      DOES_NOT_SUPPORT:
+        'The Assertion and associated evidence does not support a prognostic association between variant and outcome',
+    },
+    PREDISPOSING: {
+      SUPPORTS:
+        'The Assertion suggests a pathogenic or a protective role for a germline variant in cancer',
+      DOES_NOT_SUPPORT:
+        'The Assertion does not support an association between the variant and disease causation.',
+    },
+    FUNCTIONAL: {
+      SUPPORTS:
+        'The Assertion and associated Evidence Items support this variant causing alteration or non-alteration of the gene product function',
+      DOES_NOT_SUPPORT:
+        'The Assertion and associated evidence does not support this variant causing alteration or non-alteration of the gene product function',
+    },
+    ONCOGENIC: {
+      SUPPORTS:
+        'The Assertion supports an oncogenic or protective role for a somatic variant.',
+      DOES_NOT_SUPPORT:
+        'The Assertion does not support an association between the variant and disease causation.',
+    },
+  },
+}
 
 export type CvcDirectionSelectFieldOptions = Partial<
   FieldTypeConfig<CvcDirectionSelectFieldProps>
@@ -31,6 +111,8 @@ interface CvcDirectionSelectFieldProps extends FormlyFieldProps {
   requireTypePrompt: string
   enumName: string
   isMultiSelect: boolean
+  description?: string
+  tooltip?: string
 }
 
 export interface CvcDirectionSelectFieldConfig
@@ -109,6 +191,8 @@ export class CvcDirectionSelectField
       return
     }
 
+    this.props.tooltip = `An indicator of whether the ${this.state.entityName} statement supports or refutes the clinical significance of an event.`
+
     // CONFIGURE PLACEHOLDER PROMPT
     this.props.requireTypePrompt = this.props.requireTypePrompt.replace(
       'ENTITY_NAME',
@@ -169,6 +253,14 @@ export class CvcDirectionSelectField
           )
           this.placeholder$.next(ph)
         }
+      })
+
+    this.onValueChange$
+      .pipe(withLatestFrom(this.onTypeSelect$), untilDestroyed(this))
+      .subscribe(([ed, et]: [Maybe<CvcInputEnum>,  Maybe<CvcInputEnum>]) => {
+        if (!et || !ed || !this.state) return
+        console.log(`evidence type: ${et}, evidence direction: ${ed}`)
+        this.props.description = optionText[this.state.entityName][et][ed]
       })
   }
 }
