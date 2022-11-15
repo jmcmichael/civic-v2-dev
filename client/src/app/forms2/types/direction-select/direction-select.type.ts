@@ -25,78 +25,78 @@ const optionText: any = {
   Evidence: {
     PREDICTIVE: {
       SUPPORTS:
-        "The experiment or study supports this variant's response to a drug",
+        "Experiment or study supports this variant's response to a drug",
       DOES_NOT_SUPPORT:
-        'The experiment or study does not support, or was inconclusive of an interaction between this variant and a drug',
+        'Experiment or study does not support, or was inconclusive of an interaction between this variant and a drug',
     },
     DIAGNOSTIC: {
       SUPPORTS:
-        "The experiment or study supports this variant's impact on the diagnosis of disease or subtype",
+        "Experiment or study supports this variant's impact on the diagnosis of disease or subtype",
       DOES_NOT_SUPPORT:
-        "The experiment or study does not support this variant's impact on diagnosis of disease or subtype",
+        "Experiment or study does not support this variant's impact on diagnosis of disease or subtype",
     },
     PROGNOSTIC: {
       SUPPORTS:
-        "The experiment or study supports this variant's impact on prognostic outcome",
+        "Experiment or study supports this variant's impact on prognostic outcome",
       DOES_NOT_SUPPORT:
-        'The experiment or study does not support a prognostic association between variant and outcome',
+        'Experiment or study does not support a prognostic association between variant and outcome',
     },
     PREDISPOSING: {
       SUPPORTS:
-        'The evidence suggests a pathogenic or a protective role for a germline variant in cancer',
+        'Suggests a pathogenic or a protective role for a germline variant in cancer',
       DOES_NOT_SUPPORT:
-        'The evidence supports a benign (for Predisposition) or lack of protective (for Protectiveness) role for a germline variant in cancer.',
+        'Supports a benign (for Predisposition) or lack of protective (for Protectiveness) role for a germline variant in cancer.',
     },
     FUNCTIONAL: {
       SUPPORTS:
-        'The experiment or study supports this variant causing alteration or non-alteration of the gene product function',
+        'Experiment or study supports this variant causing alteration or non-alteration of the gene product function',
       DOES_NOT_SUPPORT:
-        'The experiment or study does not support this variant causing alteration or non-alteration of the gene product function',
+        'Experiment or study does not support this variant causing alteration or non-alteration of the gene product function',
     },
     ONCOGENIC: {
-      NA: 'Evidence Direction is Not Applicable for Oncogenic Evidence Type.',
+      NA: 'Not Applicable for Oncogenic Evidence Type.',
       SUPPORTS:
-        'The evidence supports an oncogenic or protective role for a somatic variant.',
+        'Supports an oncogenic or protective role for a somatic variant.',
       DOES_NOT_SUPPORT:
-        'The evidence supports a benign (for Oncogenicity) or lack of protective (for Protectiveness) role for a somatic variant in cancer.',
+        'Supports a benign (for Oncogenicity) or lack of protective (for Protectiveness) role for a somatic variant in cancer.',
     },
   },
   Assertion: {
     PREDICTIVE: {
       SUPPORTS:
-        "The Assertion and associated Evidence Items support this variant's response to a drug",
+        "Support this variant's response to a drug",
       DOES_NOT_SUPPORT:
-        'The Assertion and associated evidence does not support, or was inconclusive of an interaction between this variant and a drug',
+        'Does not support, or was inconclusive of an interaction between this variant and a drug',
     },
     DIAGNOSTIC: {
       SUPPORTS:
-        "The Assertion and associated Evidence Items support this variant's impact on the diagnosis of disease or subtype",
+        "Supports this variant's impact on the diagnosis of disease or subtype",
       DOES_NOT_SUPPORT:
-        "The Assertion and associated evidence does not support this variant's impact on diagnosis of disease or subtype",
+        "Does not support this variant's impact on diagnosis of disease or subtype",
     },
     PROGNOSTIC: {
       SUPPORTS:
-        "The Assertion and associated Evidence Items support this variant's impact on prognostic outcome",
+        "Supports this variant's impact on prognostic outcome",
       DOES_NOT_SUPPORT:
-        'The Assertion and associated evidence does not support a prognostic association between variant and outcome',
+        'Does not support a prognostic association between variant and outcome',
     },
     PREDISPOSING: {
       SUPPORTS:
-        'The Assertion suggests a pathogenic or a protective role for a germline variant in cancer',
+        'Suggests a pathogenic or a protective role for a germline variant in cancer',
       DOES_NOT_SUPPORT:
-        'The Assertion does not support an association between the variant and disease causation.',
+        'Does not support an association between the variant and disease causation',
     },
     FUNCTIONAL: {
       SUPPORTS:
-        'The Assertion and associated Evidence Items support this variant causing alteration or non-alteration of the gene product function',
+        'Supports this variant causing alteration or non-alteration of the gene product function',
       DOES_NOT_SUPPORT:
-        'The Assertion and associated evidence does not support this variant causing alteration or non-alteration of the gene product function',
+        'Does not support this variant causing alteration or non-alteration of the gene product function',
     },
     ONCOGENIC: {
       SUPPORTS:
-        'The Assertion supports an oncogenic or protective role for a somatic variant.',
+        'Supports an oncogenic or protective role for a somatic variant',
       DOES_NOT_SUPPORT:
-        'The Assertion does not support an association between the variant and disease causation.',
+        'Does not support an association between the variant and disease causation',
     },
   },
 }

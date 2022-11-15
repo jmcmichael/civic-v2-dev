@@ -111,11 +111,15 @@ export class CvcEntityTypeSelectField
       changeDetectorRef: this.cdr,
     })
 
+    // update field description on value changes
     this.onValueChange$
       .pipe(untilDestroyed(this))
       .subscribe((v: Maybe<EntityType>) => {
-        if (!v) return
-        this.props.description = optionText[v]
+        if (!v) {
+          this.props.description = undefined
+        } else {
+          this.props.description = optionText[v]
+        }
       })
   }
 
@@ -169,5 +173,6 @@ export class CvcEntityTypeSelectField
         return ql.map((q) => q)
       })
     )
+
   }
 }
