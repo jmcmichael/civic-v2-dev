@@ -18,8 +18,78 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { BehaviorSubject, map } from 'rxjs'
+import { BehaviorSubject, map, withLatestFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
+
+const optionText: any = {
+  Evidence: {
+    'PREDICTIVE': {
+      'SENSITIVITYRESPONSE': 'Associated with a clinical or preclinical response to treatment',
+      'RESISTANCE': 'Associated with clinical or preclinical resistance to treatment',
+      'ADVERSE_RESPONSE': 'Associated with an adverse response to drug treatment',
+      'REDUCED_SENSITIVITY': 'Response to treatment is lower than seen in other treatment contexts',
+      'NA': 'Clinical Significance is not applicable.'
+    },
+    'DIAGNOSTIC': {
+      'POSITIVE': 'Associated with diagnosis of disease or subtype',
+      'NEGATIVE': 'Associated with lack of disease or subtype',
+    },
+    'PROGNOSTIC': {
+      'BETTER_OUTCOME': 'Demonstrates better than expected clinical outcome',
+      'POOR_OUTCOME': 'Demonstrates worse than expected clinical outcome',
+      'NA': 'Clinical Significance is not applicable.'
+    },
+    'PREDISPOSING': {
+      'PREDISPOSITION': 'Germline variant has predisposing potential for cancer, and may meet select ACMG/AMP criteria supporting pathogenic or benign classification.',
+      'PROTECTIVENESS': 'Germline variant has properties that protect individuals from acquiring cancer.'
+    },
+    'FUNCTIONAL': {
+      'GAIN_OF_FUNCTION': 'Sequence variant confers an increase in normal gene function',
+      'LOSS_OF_FUNCTION': 'Sequence variant confers a diminished or abolished function',
+      'UNALTERED_FUNCTION': 'Gene product of sequence variant is unchanged',
+      'NEOMORPHIC': 'Sequence variant creates a novel function',
+      'DOMINANT_NEGATIVE': 'Sequence variant abrogates function of wildtype allele gene product',
+      'UNKNOWN': 'Sequence variant that cannot be precisely defined by the other listed categories',
+    },
+    'ONCOGENIC': {
+      'ONCOGENICITY': 'Somatic variant has oncogenic potential for driving cancer, and may meet select ClinGen/CGC/VICC criteria supporting pathogenic or benign classification.',
+      'PROTECTIVENESS': 'Somatic variant has a protective role against cancer.'
+    }
+  },
+  Assertion: {
+    'PREDICTIVE': {
+      'SENSITIVITYRESPONSE': 'Associated with a clinical or preclinical response to treatment',
+      'RESISTANCE': 'Associated with clinical or preclinical resistance to treatment',
+      'ADVERSE_RESPONSE': 'Associated with an adverse response to drug treatment',
+      'REDUCED_SENSITIVITY': 'Response to treatment is lower than seen in other treatment contexts',
+      'NA': 'Clinical Significance is not applicable.'
+    },
+    'DIAGNOSTIC': {
+      'POSITIVE': 'Associated with diagnosis of disease or subtype',
+      'NEGATIVE': 'Associated with lack of disease or subtype',
+    },
+    'PROGNOSTIC': {
+      'BETTER_OUTCOME': 'Demonstrates better than expected clinical outcome',
+      'POOR_OUTCOME': 'Demonstrates worse than expected clinical outcome',
+      'NA': 'Clinical Significance is not applicable.'
+    },
+    'PREDISPOSING': {
+      'PATHOGENIC': 'Very strong evidence the variant is pathogenic',
+      'LIKELY_PATHOGENIC': 'Strong evidence (>90% certainty) the variant is pathogenic.',
+      'BENIGN': 'Very strong evidence the variant is benign',
+      'LIKELY_BENIGN': 'Not expected to have a major effect on disease',
+      'UNCERTAIN_SIGNIFICANCE': 'Does not meet the ACMG/AMP criteria for pathogenic/benign, or the evidence is conflicting',
+    },
+    'ONCOGENIC': {
+      'ONCOGENIC': 'Very strong evidence the variant is oncogenic.',
+      'LIKELY_ONCOGENIC': 'Strong evidence the variant is oncogenic.',
+      'BENIGN': 'Very strong evidence the variant does not have oncogenic properties.',
+      'LIKELY_BENIGN': 'Strong evidence the variant does not have oncogenic properties.',
+      'UNCERTAIN_SIGNIFICANCE': 'Does not meet guideline criteria for oncogenic/benign, or the evidence is conflicting.',
+
+    }
+  }
+}
 
 export type CvcSignificanceSelectFieldOptions = Partial<
   FieldTypeConfig<CvcSignificanceSelectFieldProps>
@@ -31,6 +101,8 @@ interface CvcSignificanceSelectFieldProps extends FormlyFieldProps {
   requireTypePrompt: string
   enumName: string
   isMultiSelect: boolean
+  tooltip?: string
+  description?: string
 }
 
 export interface CvcSignificanceSelectFieldConfig
@@ -76,6 +148,7 @@ export class CvcSignificanceSelectField
       isMultiSelect: false,
       placeholder: 'Select ENTITY_TYPE Clinical Significance',
       requireTypePrompt: 'Select an ENTITY_NAME Type to select Clinical Significance',
+      tooltip: 'Clinical impact of the variant'
     },
   }
 
@@ -169,6 +242,14 @@ export class CvcSignificanceSelectField
           )
           this.placeholder$.next(ph)
         }
+      })
+    // update field description on value changes
+    this.onValueChange$
+      .pipe(withLatestFrom(this.onTypeSelect$), untilDestroyed(this))
+      .subscribe(([cs, et]: [Maybe<CvcInputEnum>,  Maybe<CvcInputEnum>]) => {
+        if (!et || !cs || !this.state) return
+        console.log(`entity type: ${et}, clinical significance: ${cs}`)
+        this.props.description = optionText[this.state.entityName][et][cs]
       })
   }
 }
