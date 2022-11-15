@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  QueryList,
-  TemplateRef,
-  Type,
-  ViewChildren,
-} from '@angular/core'
+import { AfterViewInit, ChangeDetectionStrategy, Component, Type } from '@angular/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
@@ -15,7 +8,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { BehaviorSubject, map, Subject } from 'rxjs'
+import { BehaviorSubject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 const optionText: { [option: string]: string } = {
@@ -32,8 +25,10 @@ export type CvcRatingSelectFieldOptions = Partial<
 
 interface CvcRatingSelectFieldProps extends FormlyFieldProps {
   label: string
+  count: number
   description?: string
   tooltip?: string
+  hoverText: string[]
 }
 
 export interface CvcRatingSelectFieldConfig
@@ -50,6 +45,7 @@ const RatingSelectMixin = mixin(
   selector: 'cvc-rating-select',
   templateUrl: './rating-select.type.html',
   styleUrls: ['./rating-select.type.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CvcRatingSelectField
   extends RatingSelectMixin
@@ -66,7 +62,9 @@ export class CvcRatingSelectField
   defaultOptions: CvcRatingSelectFieldOptions = {
     props: {
       label: 'Evidence Rating',
-      tooltip: `An evaluation of the curator's confidence in the quality of the summarized evidence`,
+      count: 5,
+      tooltip: `A reprentation of the curator's confidence in the quality of the summarized evidence`,
+      hoverText: [],
     },
   }
 
@@ -78,6 +76,13 @@ export class CvcRatingSelectField
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
     this.configureStateConnections() // local fn
+
+    // provide strings for nz-rate's tooltips
+    Object.entries(optionText).map(([_key, val]) => {
+      this.props.hoverText.push(val)
+    })
+
+    // update field value descriptions
     this.rating$
       .pipe(untilDestroyed(this))
       .subscribe((rating: Maybe<number>) => {
@@ -88,7 +93,6 @@ export class CvcRatingSelectField
           this.props.description = optionText[rating]
         }
       })
-    // TODO: figure out how to display rating descriptions on mouseover. nzOnHoverChange emitter works, but does only emits values when a star is hovered. Lack of a 'not hover' event leaves the description displayed, even if the field has a value whos description should be displayed. nzOnBlur does not fire, as far as I could tell, so it wasn't useful in resetting the description on blur. Might need to create a custom mouse position emitter to fire when mouse position exits the component bounds.
   }
 
   configureStateConnections(): void {
