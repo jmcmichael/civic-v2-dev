@@ -63,8 +63,7 @@ const optionText: any = {
   },
   Assertion: {
     PREDICTIVE: {
-      SUPPORTS:
-        "Support this variant's response to a drug",
+      SUPPORTS: "Support this variant's response to a drug",
       DOES_NOT_SUPPORT:
         'Does not support, or was inconclusive of an interaction between this variant and a drug',
     },
@@ -75,8 +74,7 @@ const optionText: any = {
         "Does not support this variant's impact on diagnosis of disease or subtype",
     },
     PROGNOSTIC: {
-      SUPPORTS:
-        "Supports this variant's impact on prognostic outcome",
+      SUPPORTS: "Supports this variant's impact on prognostic outcome",
       DOES_NOT_SUPPORT:
         'Does not support a prognostic association between variant and outcome',
     },
@@ -257,10 +255,12 @@ export class CvcDirectionSelectField
 
     this.onValueChange$
       .pipe(withLatestFrom(this.onTypeSelect$), untilDestroyed(this))
-      .subscribe(([ed, et]: [Maybe<CvcInputEnum>,  Maybe<CvcInputEnum>]) => {
-        if (!et || !ed || !this.state) return
-        console.log(`evidence type: ${et}, evidence direction: ${ed}`)
-        this.props.description = optionText[this.state.entityName][et][ed]
+      .subscribe(([ed, et]: [Maybe<CvcInputEnum>, Maybe<CvcInputEnum>]) => {
+        if (!et || !ed || !this.state) {
+          this.props.description = undefined
+        } else {
+          this.props.description = optionText[this.state.entityName][et][ed]
+        }
       })
   }
 }

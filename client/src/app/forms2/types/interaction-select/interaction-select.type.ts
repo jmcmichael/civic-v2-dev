@@ -21,9 +21,12 @@ import { BehaviorSubject, map } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 const optionText: { [option: string]: string } = {
-  'COMBINATION': 'The drugs listed were used as part of a combination therapy approach',
-  'SEQUENTIAL': 'The drugs listed were used at separate timepoints in the same treatment plan',
-  'SUBSTITUTES': 'The drugs listed are often considered to be of the same family, or behave similarly in a treatment setting'
+  COMBINATION:
+    'Drugs specified were used as part of a combination therapy approach',
+  SEQUENTIAL:
+    'Drugs specified were used at separate timepoints in the same treatment plan',
+  SUBSTITUTES:
+    'Drugs specified are often considered to be of the same family, or behave similarly in a treatment setting',
 }
 
 export type CvcInteractionSelectFieldOptions = Partial<
@@ -167,12 +170,16 @@ export class CvcInteractionSelectField
           this.placeholder$.next(this.props.placeholder)
         }
       })
+
+    // update field description on value changes
     this.onValueChange$
       .pipe(untilDestroyed(this))
       .subscribe((int: Maybe<DrugInteraction>) => {
-        if (!int) return
-        this.props.description = optionText[int]
+        if (!int) {
+          this.props.description = undefined
+        } else {
+          this.props.description = optionText[int]
+        }
       })
-
   }
 }
