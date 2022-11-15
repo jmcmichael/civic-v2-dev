@@ -261,6 +261,7 @@ export class CvcSignificanceSelectField
           this.placeholder$.next(ph)
         }
       })
+
     // update field description on value changes
     this.onValueChange$
       .pipe(withLatestFrom(this.onTypeSelect$), untilDestroyed(this))

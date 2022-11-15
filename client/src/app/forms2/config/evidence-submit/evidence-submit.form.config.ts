@@ -4,8 +4,12 @@ import { CvcDiseaseSelectFieldOptions } from '@app/forms2/types/disease-select/d
 import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
+import { CvcLevelSelectFieldOptions } from '@app/forms2/types/level-select/level-select.type'
 import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
-import { CvcEntityTypeSelectFieldConfig, CvcEntityTypeSelectFieldOptions } from '@app/forms2/types/type-select/type-select.type'
+import {
+  CvcEntityTypeSelectFieldConfig,
+  CvcEntityTypeSelectFieldOptions,
+} from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
 import { CvcFieldGridWrapperConfig } from '@app/forms2/wrappers/field-grid/field-grid.wrapper'
@@ -66,7 +70,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             wrappers: ['field-grid'],
             props: <CvcFieldGridWrapperConfig>{
               grid: {
-                cols: 2,
+                cols: 3,
               },
             },
             fieldGroup: [
@@ -80,6 +84,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
               <CvcDirectionSelectFieldOptions>{
                 key: 'evidenceDirection',
                 type: 'direction-select',
+                props: {},
+              },
+              <CvcLevelSelectFieldOptions>{
+                key: 'evidenceLevel',
+                type: 'level-select',
                 props: {},
               },
             ],

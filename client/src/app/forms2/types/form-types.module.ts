@@ -6,6 +6,7 @@ import { CvcDiseaseSelectModule } from './disease-select/disease-select.module'
 import { CvcDrugSelectModule } from './drug-select/drug-select.module'
 import { CvcGeneSelectModule } from './gene-select/gene-select.module'
 import { CvcInteractionSelectModule } from './interaction-select/interaction-select.module'
+import { CvcLevelSelectModule } from './level-select/level-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
 import { CvcSignificanceSelectModule } from './significance-select/significance-select.module'
 import { CvcEntityTypeSelectModule } from './type-select/type-select.module'
@@ -24,6 +25,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcDiseaseSelectModule,
     CvcInteractionSelectModule,
     CvcCheckboxModule,
+    CvcLevelSelectModule,
     // CvcBaseInputFieldModule,
   ],
 })
