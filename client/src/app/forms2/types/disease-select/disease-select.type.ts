@@ -61,6 +61,8 @@ export interface CvcDiseaseSelectFieldProps extends FormlyFieldProps {
     // placeholder if evidence/assertion type required & field disabled
     requireTypePrompt: string
   }
+  tooltip?: string
+  description?: string
 }
 
 // NOTE: any multi-select field must have the string 'multi' in its type name,
@@ -110,6 +112,7 @@ export class CvcDiseaseSelectField
     props: {
       entityName: { singular: 'Disease', plural: 'Diseases' },
       label: 'Disease',
+      tooltip: 'Cancer or cancer subtype that is a result of the described variant',
       labels: {
         multi: 'Disease(s)',
         plural: 'Diseases',

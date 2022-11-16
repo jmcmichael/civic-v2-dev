@@ -61,6 +61,8 @@ export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
     // placeholder if evidence/assertion type required & field disabled
     requireTypePrompt: string
   },
+  tooltip?: string
+  description?: string
 }
 
 // NOTE: any multi-select field must have the string 'multi' in its type name,
@@ -116,6 +118,7 @@ export class CvcDrugSelectField
       },
       isMultiSelect: false,
       requireType: true,
+      tooltip: 'Drug(s) which have a sensitivity, resistance, or adverse response interaction with the indicated variant',
       // TODO: implement labels/placeholders w/ string replacement using typescript
       // template strings: https://www.codevscolor.com/typescript-template-string
       placeholders: {

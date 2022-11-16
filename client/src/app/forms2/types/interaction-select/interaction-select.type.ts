@@ -38,6 +38,8 @@ interface CvcInteractionSelectFieldProps extends FormlyFieldProps {
   placeholder: string
   requireMultipleDrugs: boolean
   multipleDrugsPrompt: string
+  tooltip?: string
+  description?: string
 }
 
 export interface CvcInteractionSelectFieldConfig
@@ -81,6 +83,7 @@ export class CvcInteractionSelectField
       placeholder: 'Select Drug Interaction',
       requireMultipleDrugs: true,
       multipleDrugsPrompt: 'Select multiple Drugs to choose their Interaction',
+      tooltip: 'Characterizes the interaction of a multi-drug treatment'
     },
   }
 
