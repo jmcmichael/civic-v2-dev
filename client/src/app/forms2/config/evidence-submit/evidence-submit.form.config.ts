@@ -5,12 +5,10 @@ import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-se
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
 import { CvcLevelSelectFieldOptions } from '@app/forms2/types/level-select/level-select.type'
+import { CvcOriginSelectFieldOptions } from '@app/forms2/types/origin-select/origin-select.type'
 import { CvcRatingSelectFieldOptions } from '@app/forms2/types/rating-select/rating-select.type'
 import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
-import {
-  CvcEntityTypeSelectFieldConfig,
-  CvcEntityTypeSelectFieldOptions,
-} from '@app/forms2/types/type-select/type-select.type'
+import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
 import { CvcFieldGridWrapperConfig } from '@app/forms2/wrappers/field-grid/field-grid.wrapper'
@@ -150,6 +148,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 },
               },
             ],
+          },
+          <CvcOriginSelectFieldOptions>{
+            key: 'variantOrigin',
+            type: 'origin-select',
+            props: {},
           },
         ],
       },

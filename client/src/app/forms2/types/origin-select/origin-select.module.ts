@@ -1,0 +1,34 @@
+import { CommonModule } from '@angular/common'
+import { NgModule } from '@angular/core'
+import { ReactiveFormsModule } from '@angular/forms'
+import { CvcAttributeTagModule } from '@app/forms2/components/attribute-tag/attribute-tag.module'
+import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
+import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
+import { ReactiveComponentModule } from '@ngrx/component'
+import { ConfigOption, FormlyModule } from '@ngx-formly/core'
+import { CvcOriginSelectField } from './origin-select.type'
+
+const typeConfig: ConfigOption = {
+  types: [
+    {
+      name: 'origin-select',
+      wrappers: ['form-field'],
+      component: CvcOriginSelectField,
+    },
+  ],
+}
+
+@NgModule({
+  declarations: [CvcOriginSelectField],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ReactiveComponentModule,
+    FormlyModule.forChild(typeConfig),
+    CvcFormFieldWrapperModule, // for form-field wrapper
+    CvcEnumSelectModule,
+    CvcAttributeTagModule,
+  ],
+  exports: [CvcOriginSelectField],
+})
+export class CvcOriginSelectModule {}
