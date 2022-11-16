@@ -14,7 +14,7 @@ fragment SourceSelectTypeaheadFields on Source {
   id
   name
   link
-  # citation
-  # citationId
-  # sourceType
+  citation
+  citationId
+  sourceType
 }

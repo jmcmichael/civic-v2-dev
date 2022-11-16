@@ -1,5 +1,6 @@
 import { TypePolicies } from '@apollo/client/cache';
 import { relayStylePagination } from '@apollo/client/utilities';
+import { CvcSourcePolicy } from './policies/source.policy';
 import { CvcUserPolicy } from './policies/user.policy';
 
 export const CvcTypePolicies: TypePolicies = {
@@ -163,4 +164,5 @@ export const CvcTypePolicies: TypePolicies = {
     },
   },
   User: CvcUserPolicy,
+  Source: CvcSourcePolicy,
 };

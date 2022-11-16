@@ -6196,16 +6196,16 @@ export type SourceSelectTypeaheadQueryVariables = Exact<{
 }>;
 
 
-export type SourceSelectTypeaheadQuery = { __typename: 'Query', sourceTypeahead: Array<{ __typename: 'Source', id: number, name: string, link: string }> };
+export type SourceSelectTypeaheadQuery = { __typename: 'Query', sourceTypeahead: Array<{ __typename: 'Source', id: number, name: string, link: string, citation?: string | undefined, citationId: string, sourceType: SourceSource }> };
 
 export type SourceSelectTagQueryVariables = Exact<{
   id: Scalars['Int'];
 }>;
 
 
-export type SourceSelectTagQuery = { __typename: 'Query', source?: { __typename: 'Source', id: number, name: string, link: string } | undefined };
+export type SourceSelectTagQuery = { __typename: 'Query', source?: { __typename: 'Source', id: number, name: string, link: string, citation?: string | undefined, citationId: string, sourceType: SourceSource } | undefined };
 
-export type SourceSelectTypeaheadFieldsFragment = { __typename: 'Source', id: number, name: string, link: string };
+export type SourceSelectTypeaheadFieldsFragment = { __typename: 'Source', id: number, name: string, link: string, citation?: string | undefined, citationId: string, sourceType: SourceSource };
 
 export type QuickAddVariantMutationVariables = Exact<{
   name: Scalars['String'];
@@ -7981,6 +7981,9 @@ export const SourceSelectTypeaheadFieldsFragmentDoc = gql`
   id
   name
   link
+  citation
+  citationId
+  sourceType
 }
     `;
 export const QuickAddVariantFieldsFragmentDoc = gql`
