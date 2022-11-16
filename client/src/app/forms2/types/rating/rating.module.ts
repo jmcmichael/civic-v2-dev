@@ -7,20 +7,20 @@ import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { NzRateModule } from 'ng-zorro-antd/rate'
-import { CvcRatingSelectField } from './rating-select.type'
+import { CvcRatingField } from './rating.type'
 
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'rating-select',
+      name: 'rating',
       wrappers: ['form-field'],
-      component: CvcRatingSelectField,
+      component: CvcRatingField,
     },
   ],
 }
 
 @NgModule({
-  declarations: [CvcRatingSelectField],
+  declarations: [CvcRatingField],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -32,6 +32,6 @@ const typeConfig: ConfigOption = {
     CvcFormFieldWrapperModule, // for form-field wrapper
     CvcEnumSelectModule,
   ],
-  exports: [CvcRatingSelectField],
+  exports: [CvcRatingField],
 })
-export class CvcRatingSelectModule {}
+export class CvcRatingModule {}
