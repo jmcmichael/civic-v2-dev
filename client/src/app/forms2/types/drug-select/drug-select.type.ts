@@ -118,7 +118,7 @@ export class CvcDrugSelectField
       },
       isMultiSelect: false,
       requireType: true,
-      tooltip: 'Drug(s) which have a sensitivity, resistance, or adverse response interaction with the indicated variant',
+      tooltip: 'Drug or drug combination which interacts with the specified variant',
       // TODO: implement labels/placeholders w/ string replacement using typescript
       // template strings: https://www.codevscolor.com/typescript-template-string
       placeholders: {

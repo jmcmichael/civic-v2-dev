@@ -17,20 +17,31 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { $enum } from 'ts-enum-util'
-import { BehaviorSubject, map, withLatestFrom } from 'rxjs'
+import { BehaviorSubject, map } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
-const optionText: { [option: string]: string } = {
-  SOMATIC:
+const optionMap = new Map<VariantOrigin, string>([
+  [
+    VariantOrigin.Somatic,
     'Variant is a mutation, found only in tumor cells, having arisen in a specific tissue (non-germ cell), and is not expected to be inherited or passed to offspring.',
-  RARE_GERMLINE:
+  ],
+  [
+    VariantOrigin.RareGermline,
     'Variant is found in every cell (not restricted to tumor/diseased cells) and is thought to exist in less than 1% of the population relevant to this evidence item.',
-  COMMON_GERMLINE:
+  ],
+  [
+    VariantOrigin.CommonGermline,
     'Variant is found in every cell (not restricted to tumor/diseased cells) and is thought to exist in at least 1% of the population relevant to this evidence item.',
-  UNKNOWN: 'The variant origin is uncertain based on the available evidence.',
-  NA: 'The variant type (e.g., expression) is not compatible (or easily classified) with the CIViC concept of variant origin.',
-}
+  ],
+  [
+    VariantOrigin.Unknown,
+    'The variant origin is uncertain based on the available evidence.',
+  ],
+  [
+    VariantOrigin.Na,
+    'The variant type (e.g., expression) is not compatible (or easily classified) with the CIViC concept of variant origin.',
+  ],
+])
 
 export type CvcOriginSelectFieldOptions = Partial<
   FieldTypeConfig<CvcOriginSelectFieldProps>
@@ -81,7 +92,7 @@ export class CvcOriginSelectField
       required: true,
       isMultiSelect: false,
       placeholder: 'Select Variant Origin',
-      tooltip: `Identifies whether the variant is inherited (germline mutation) or acquired (somatic mutation) in the context of the study`
+      tooltip: `Identifies whether the variant is inherited (germline mutation) or acquired (somatic mutation) in the context of the study`,
     },
   }
 
@@ -103,8 +114,9 @@ export class CvcOriginSelectField
       changeDetectorRef: this.cdr,
     })
 
-    this.originEnum$.next($enum(VariantOrigin).map((value) => value))
-  } // ngAfterViewInit()
+    // populate select options
+    this.originEnum$.next(Array.from(optionMap.keys()))
+  }
 
   configureStateConnections(): void {
     // set up optionTemplates Observable
@@ -120,13 +132,14 @@ export class CvcOriginSelectField
       })
     )
 
+    // update field value description
     this.onValueChange$
       .pipe(untilDestroyed(this))
-      .subscribe((origin: Maybe<CvcInputEnum>) => {
+      .subscribe((origin: Maybe<VariantOrigin>) => {
         if (!origin) {
           this.props.description = undefined
         } else {
-          this.props.description = optionText[origin]
+          this.props.description = optionMap.get(origin)
         }
       })
   }
