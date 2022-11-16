@@ -1,4 +1,9 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, Type } from '@angular/core'
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Type,
+} from '@angular/core'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { Maybe } from '@app/generated/civic.apollo'
@@ -45,7 +50,7 @@ const RatingSelectMixin = mixin(
   selector: 'cvc-rating-select',
   templateUrl: './rating-select.type.html',
   styleUrls: ['./rating-select.type.less'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcRatingSelectField
   extends RatingSelectMixin
@@ -82,21 +87,14 @@ export class CvcRatingSelectField
       this.props.hoverText.push(val)
     })
 
-    // update field value descriptions
+    // update field value on rating click
     this.rating$
       .pipe(untilDestroyed(this))
       .subscribe((rating: Maybe<number>) => {
         this.formControl.setValue(rating)
-        if (!rating) {
-          this.props.description = undefined
-        } else {
-          this.props.description = optionText[rating]
-        }
       })
-  }
 
-  configureStateConnections(): void {
-    // update field description on value changes
+    // update field value description on changes
     this.onValueChange$
       .pipe(untilDestroyed(this))
       .subscribe((rating: Maybe<number>) => {
@@ -106,5 +104,9 @@ export class CvcRatingSelectField
           this.props.description = optionText[rating]
         }
       })
+  }
+
+  configureStateConnections(): void {
+    // TODO: implement rating$ subject on state classes(?)
   }
 }
