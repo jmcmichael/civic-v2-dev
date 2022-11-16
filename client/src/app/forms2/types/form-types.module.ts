@@ -11,6 +11,7 @@ import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-but
 import { CvcOriginSelectModule } from './origin-select/origin-select.module'
 import { CvcRatingModule } from './rating/rating.module'
 import { CvcSignificanceSelectModule } from './significance-select/significance-select.module'
+import { CvcSourceSelectModule } from './source-select/source-select.module'
 import { CvcEntityTypeSelectModule } from './type-select/type-select.module'
 import { CvcVariantSelectModule } from './variant-select/variant-select.module'
 
@@ -30,6 +31,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcLevelSelectModule,
     CvcRatingModule,
     CvcOriginSelectModule,
+    CvcSourceSelectModule,
     // CvcBaseInputFieldModule,
   ],
 })
