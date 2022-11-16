@@ -13,7 +13,8 @@ query SourceSelectTag($id: Int!) {
 fragment SourceSelectTypeaheadFields on Source {
   id
   name
-  citation
-  citationId
-  sourceType
+  link
+  # citation
+  # citationId
+  # sourceType
 }
