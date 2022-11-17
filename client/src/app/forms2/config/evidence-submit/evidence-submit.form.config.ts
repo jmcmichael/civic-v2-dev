@@ -66,6 +66,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
               },
             ],
           },
+          <CvcSourceSelectFieldOptions>{
+            key: 'source',
+            type: 'source-select',
+            props: {},
+          },
           {
             wrappers: ['field-grid'],
             props: <CvcFieldGridWrapperConfig>{
@@ -153,11 +158,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
           <CvcOriginSelectFieldOptions>{
             key: 'variantOrigin',
             type: 'origin-select',
-            props: {},
-          },
-          <CvcSourceSelectFieldOptions>{
-            key: 'source',
-            type: 'source-select',
             props: {},
           },
         ],
