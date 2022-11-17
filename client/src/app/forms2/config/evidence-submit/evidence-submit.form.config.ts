@@ -67,7 +67,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             ],
           },
           <CvcSourceSelectFieldOptions>{
-            key: 'source',
+            key: 'sourceId',
             type: 'source-select',
             props: {},
           },
@@ -147,7 +147,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: {},
               },
               <CvcRatingFieldOptions>{
-                key: 'evidenceRating',
+                key: 'rating',
                 type: 'rating',
                 props: {
                   required: true,

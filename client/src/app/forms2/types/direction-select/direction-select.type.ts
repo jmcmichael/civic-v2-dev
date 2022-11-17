@@ -103,7 +103,7 @@ export type CvcDirectionSelectFieldOptions = Partial<
   FieldTypeConfig<CvcDirectionSelectFieldProps>
 >
 
-interface CvcDirectionSelectFieldProps extends FormlyFieldProps {
+export interface CvcDirectionSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   requireTypePrompt: string
