@@ -1,27 +1,27 @@
 @import 'themes/global-variables.less';
 
-.cvc-grid-config(@columns) {
+.cvc-grid-cols(@columns) {
   display: grid;
   grid-template-columns: repeat(@columns, 1fr);
   gap: @margin-lg;
 }
 
 .field-grid {
-  &.cols2 {
+  &.cols-2 {
     ::ng-deep formly-group:first-of-type {
-      .cvc-grid-config(2);
+      .cvc-grid-cols(2);
     }
   }
 
-  &.cols3 {
+  &.cols-3 {
     ::ng-deep formly-group:first-of-type {
-      .cvc-grid-config(3);
+      .cvc-grid-cols(3);
     }
   }
 
-  &.cols4 {
+  &.cols-4 {
     ::ng-deep formly-group:first-of-type {
-      .cvc-grid-config(4);
+      .cvc-grid-cols(4);
     }
   }
   // ::ng-deep formly-group:first-of-type {

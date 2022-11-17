@@ -14,7 +14,8 @@
   <ng-template #horizontalFieldWrapper>
     <nz-form-item
       [nzGutter]="wrapper.layout.item.gutter"
-      class="layout-horizontal">
+      class="layout-horizontal"
+    [ngClass]="{ 'showBorders': props.showBorders }">
       <nz-col nzFlex="auto">
         <nz-row [nzGutter]="[6, 6]">
           <ng-container *ngIf="props.label && props.hideLabel !== true">

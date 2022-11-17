@@ -5,7 +5,16 @@ export type CvcFieldGridWrapperConfig = Partial<GroupConfig>
 
 type GroupConfig = {
   grid: {
-    cols: 2 | 3 | 4
+    // columns of equal width
+    cols:
+      | 2
+      | 3
+      | 4
+      // thirds, quarters layouts
+      | '1-2'
+      | '2-1'
+      | '1-3'
+      | '3-1'
   }
 }
 
