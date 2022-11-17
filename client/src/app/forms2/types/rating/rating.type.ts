@@ -24,11 +24,11 @@ const optionText: { [option: string]: string } = {
   5: 'Excellent - Solid, well supported evidence from a lab or journal with respected academic standing. Experiments are well controlled, and results are clean and reproducible across multiple replicates. Evidence confirmed using separate methods.',
 }
 
-export type CvcRatingSelectFieldOptions = Partial<
-  FieldTypeConfig<CvcRatingSelectFieldProps>
+export type CvcRatingFieldOptions = Partial<
+  FieldTypeConfig<CvcRatingFieldProps>
 >
 
-interface CvcRatingSelectFieldProps extends FormlyFieldProps {
+interface CvcRatingFieldProps extends FormlyFieldProps {
   label: string
   count: number
   description?: string
@@ -37,23 +37,23 @@ interface CvcRatingSelectFieldProps extends FormlyFieldProps {
 }
 
 export interface CvcRatingSelectFieldConfig
-  extends FormlyFieldConfig<CvcRatingSelectFieldProps> {
-  type: 'rating-select' | Type<CvcRatingSelectField>
+  extends FormlyFieldConfig<CvcRatingFieldProps> {
+  type: 'rating' | Type<CvcRatingField>
 }
 
-const RatingSelectMixin = mixin(
-  BaseFieldType<FieldTypeConfig<CvcRatingSelectFieldProps>, Maybe<number>>(),
+const RatingMixin = mixin(
+  BaseFieldType<FieldTypeConfig<CvcRatingFieldProps>, Maybe<number>>(),
   EnumTagField<number, number>()
 )
 
 @Component({
-  selector: 'cvc-rating-select',
-  templateUrl: './rating-select.type.html',
-  styleUrls: ['./rating-select.type.less'],
+  selector: 'cvc-rating',
+  templateUrl: './rating.type.html',
+  styleUrls: ['./rating.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcRatingSelectField
-  extends RatingSelectMixin
+export class CvcRatingField
+  extends RatingMixin
   implements AfterViewInit
 {
   // LOCAL SOURCE STREAMS
@@ -64,11 +64,11 @@ export class CvcRatingSelectField
   label$!: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
-  defaultOptions: CvcRatingSelectFieldOptions = {
+  defaultOptions: CvcRatingFieldOptions = {
     props: {
       label: 'Evidence Rating',
       count: 5,
-      tooltip: `A reprentation of the curator's confidence in the quality of the summarized evidence`,
+      tooltip: `A representation of the curator's confidence in the quality of the summarized evidence`,
       hoverText: [],
     },
   }

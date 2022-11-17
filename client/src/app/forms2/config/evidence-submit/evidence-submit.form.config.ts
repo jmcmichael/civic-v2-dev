@@ -6,8 +6,9 @@ import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-sel
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
 import { CvcLevelSelectFieldOptions } from '@app/forms2/types/level-select/level-select.type'
 import { CvcOriginSelectFieldOptions } from '@app/forms2/types/origin-select/origin-select.type'
-import { CvcRatingSelectFieldOptions } from '@app/forms2/types/rating-select/rating-select.type'
+import { CvcRatingFieldOptions } from '@app/forms2/types/rating/rating.type'
 import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
+import { CvcSourceSelectFieldOptions } from '@app/forms2/types/source-select/source-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
@@ -140,9 +141,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 type: 'level-select',
                 props: {},
               },
-              <CvcRatingSelectFieldOptions>{
+              <CvcRatingFieldOptions>{
                 key: 'evidenceRating',
-                type: 'rating-select',
+                type: 'rating',
                 props: {
                   required: true,
                 },
@@ -152,6 +153,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
           <CvcOriginSelectFieldOptions>{
             key: 'variantOrigin',
             type: 'origin-select',
+            props: {},
+          },
+          <CvcSourceSelectFieldOptions>{
+            key: 'source',
+            type: 'source-select',
             props: {},
           },
         ],

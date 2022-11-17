@@ -6190,6 +6190,23 @@ export type GeneSelectTagQuery = { __typename: 'Query', gene?: { __typename: 'Ge
 
 export type GeneSelectTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
+export type SourceSelectTypeaheadQueryVariables = Exact<{
+  partialCitationId: Scalars['String'];
+  sourceType: SourceSource;
+}>;
+
+
+export type SourceSelectTypeaheadQuery = { __typename: 'Query', sourceTypeahead: Array<{ __typename: 'Source', id: number, name: string, link: string, citation?: string | undefined, citationId: string, sourceType: SourceSource }> };
+
+export type SourceSelectTagQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type SourceSelectTagQuery = { __typename: 'Query', source?: { __typename: 'Source', id: number, name: string, link: string, citation?: string | undefined, citationId: string, sourceType: SourceSource } | undefined };
+
+export type SourceSelectTypeaheadFieldsFragment = { __typename: 'Source', id: number, name: string, link: string, citation?: string | undefined, citationId: string, sourceType: SourceSource };
+
 export type QuickAddVariantMutationVariables = Exact<{
   name: Scalars['String'];
   geneId: Scalars['Int'];
@@ -7957,6 +7974,16 @@ export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
   name
   geneAliases
   link
+}
+    `;
+export const SourceSelectTypeaheadFieldsFragmentDoc = gql`
+    fragment SourceSelectTypeaheadFields on Source {
+  id
+  name
+  link
+  citation
+  citationId
+  sourceType
 }
     `;
 export const QuickAddVariantFieldsFragmentDoc = gql`
@@ -11830,6 +11857,42 @@ export const GeneSelectTagDocument = gql`
   })
   export class GeneSelectTagGQL extends Apollo.Query<GeneSelectTagQuery, GeneSelectTagQueryVariables> {
     document = GeneSelectTagDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const SourceSelectTypeaheadDocument = gql`
+    query SourceSelectTypeahead($partialCitationId: String!, $sourceType: SourceSource!) {
+  sourceTypeahead(citationId: $partialCitationId, sourceType: $sourceType) {
+    ...SourceSelectTypeaheadFields
+  }
+}
+    ${SourceSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class SourceSelectTypeaheadGQL extends Apollo.Query<SourceSelectTypeaheadQuery, SourceSelectTypeaheadQueryVariables> {
+    document = SourceSelectTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const SourceSelectTagDocument = gql`
+    query SourceSelectTag($id: Int!) {
+  source(id: $id) {
+    ...SourceSelectTypeaheadFields
+  }
+}
+    ${SourceSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class SourceSelectTagGQL extends Apollo.Query<SourceSelectTagQuery, SourceSelectTagQueryVariables> {
+    document = SourceSelectTagDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

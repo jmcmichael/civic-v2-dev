@@ -49,29 +49,32 @@ export type CvcSelectMessageOptions = {
 export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcFormControl!: FormControl
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
-
   @Input() cvcEntityName: CvcSelectEntityName = {
     singular: 'Entity',
     plural: 'Entities',
   }
   @Input() cvcSelectMessages?: CvcSelectMessageOptions
-
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
-
   @Input() cvcOptions?: NzSelectOptionInterface[] = []
+  // search results, provided by EntityTagFieldMixin's result$ (or other search results observable)
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
   @Input() cvcAllowClear: boolean = false
   @Input() cvcAutoClearSearchValue: boolean = true
-  @Input() cvcModelChange?: FormlyAttributeEvent
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
+  // additional content displayed at bottom of options dropdown
+  @Input() cvcDropdownExtra?: TemplateRef<any> | null = null
+  @Input() cvcDropdownClassname?: string | string[] = []
   // templateref w/ entity's quick-add form component
   @Input() cvcAddEntity: TemplateRef<any> | null = null
   @Input() cvcOnCreate?: Subject<number>
+  // model update callback fn - ngx-formly convention, implements props.change feature
+  @Input() cvcModelChange?: FormlyAttributeEvent
+
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
   @Output() readonly cvcOnFocus = new EventEmitter<void>()
 
@@ -248,7 +251,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           const create =
             this.cvcSelectMessages?.create ||
             `Create a new ENTITY_NAME_SINGULAR named "SEARCH_STRING"?'`
-          const msg = create.replace('SEARCH_STRING', search).replace('ENTITY_NAME_SINGULAR', this.cvcEntityName.singular)
+          const msg = create
+            .replace('SEARCH_STRING', search)
+            .replace('ENTITY_NAME_SINGULAR', this.cvcEntityName.singular)
           this.notFoundMessage$.next(undefined)
           this.loadingMessage$.next(undefined)
           this.focusMessage$.next(undefined)

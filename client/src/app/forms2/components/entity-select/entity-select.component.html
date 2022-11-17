@@ -6,16 +6,15 @@
   [formControl]="cvcFormControl"
   [formlyAttributes]="cvcFormlyAttributes"
   [nzMode]="cvcSelectMode"
-  [nzPlaceHolder]="
-    cvcPlaceholder ? cvcPlaceholder : 'Search ' + cvcEntityName.plural
-  "
-  [nzCustomTemplate]="cvcCustomTemplate ? cvcCustomTemplate : null"
+  [nzPlaceHolder]="cvcPlaceholder || 'Search ' + cvcEntityName.plural"
+  [nzCustomTemplate]="cvcCustomTemplate || null"
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
   [nzLoading]="cvcLoading"
   [nzAllowClear]="cvcAllowClear"
   [nzAutoClearSearchValue]="cvcAutoClearSearchValue"
-  [nzOptions]="cvcOptions ? cvcOptions : []"
+  [nzOptions]="cvcOptions || []"
+  [nzDropdownRender]="cvcDropdownExtra || null"
   [nzNotFoundContent]="notFound"
   (nzFocus)="cvcOnFocus.next()"
   (nzOnSearch)="onSearch$.next($event)"
@@ -44,7 +43,8 @@
   </ng-container>
 
   <!-- none found with optional param msg -->
-  <ng-container *ngIf="notFoundWithParamMessage$ | ngrxPush as notFoundWithParamMsg">
+  <ng-container
+    *ngIf="notFoundWithParamMessage$ | ngrxPush as notFoundWithParamMsg">
     {{ notFoundWithParamMsg }}
   </ng-container>
 
@@ -53,7 +53,7 @@
     <nz-alert
       nzType="info"
       [nzMessage]="createMsg"
-      style="margin-bottom: 12px;"
+      style="margin-bottom: 12px"
       nzShowIcon></nz-alert>
     <ng-container
       *ngrxLet="onSearch$ as searchString"

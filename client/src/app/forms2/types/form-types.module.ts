@@ -9,8 +9,9 @@ import { CvcInteractionSelectModule } from './interaction-select/interaction-sel
 import { CvcLevelSelectModule } from './level-select/level-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
 import { CvcOriginSelectModule } from './origin-select/origin-select.module'
-import { CvcRatingSelectModule } from './rating-select/rating-select.module'
+import { CvcRatingModule } from './rating/rating.module'
 import { CvcSignificanceSelectModule } from './significance-select/significance-select.module'
+import { CvcSourceSelectModule } from './source-select/source-select.module'
 import { CvcEntityTypeSelectModule } from './type-select/type-select.module'
 import { CvcVariantSelectModule } from './variant-select/variant-select.module'
 
@@ -28,8 +29,9 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcInteractionSelectModule,
     CvcCheckboxModule,
     CvcLevelSelectModule,
-    CvcRatingSelectModule,
+    CvcRatingModule,
     CvcOriginSelectModule,
+    CvcSourceSelectModule,
     // CvcBaseInputFieldModule,
   ],
 })
