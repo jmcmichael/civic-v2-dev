@@ -9,6 +9,7 @@ import {
   ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
+import { formatSourceTypeEnum } from '@app/core/utilities/enum-formatters/format-source-type-enum'
 import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
@@ -23,13 +24,14 @@ import {
   SourceSelectTypeaheadQueryVariables,
   SourceSource,
 } from '@app/generated/civic.apollo'
+import { untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subject, withLatestFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export type CvcSourceSelectFieldOptions = Partial<
@@ -77,7 +79,7 @@ const SourceSelectMixin = mixin(
     SourceSelectTypeaheadFieldsFragment,
     SourceSelectTagQuery,
     SourceSelectTagQueryVariables,
-    Maybe<number | number[]>
+    SourceSource
   >()
 )
 
@@ -93,8 +95,12 @@ export class CvcSourceSelectField
 {
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
+  sourceType$: BehaviorSubject<SourceSource>
   // LOCAL PRESENTATION STREAMS
   placeholder$: BehaviorSubject<string>
+  sourceTypeName$: BehaviorSubject<string>
+
+  defaultSourceType: SourceSource = SourceSource.Pubmed
 
   // FieldTypeConfig defaults
   defaultOptions: CvcSourceSelectFieldOptions = {
@@ -117,8 +123,6 @@ export class CvcSourceSelectField
   @ViewChildren('optionTemplates', { read: TemplateRef })
   optionTemplates?: QueryList<TemplateRef<any>>
 
-  stateEntityName?: string
-
   constructor(
     private taq: SourceSelectTypeaheadGQL,
     private tq: SourceSelectTagGQL,
@@ -128,6 +132,10 @@ export class CvcSourceSelectField
     this.placeholder$ = new BehaviorSubject<string>(
       this.defaultOptions.props!.placeholders!.default
     )
+    this.sourceType$ = new BehaviorSubject<SourceSource>(this.defaultSourceType)
+    this.sourceTypeName$ = new BehaviorSubject<string>(
+      formatSourceTypeEnum(this.defaultSourceType)
+    )
   }
 
   ngAfterViewInit(): void {
@@ -135,7 +143,8 @@ export class CvcSourceSelectField
     this.configureEntityTagField({
       // mixin fn
       typeaheadQuery: this.taq,
-      typeaheadParam$: undefined,
+      typeaheadParam$: this.sourceType$,
+      typeaheadParamName$: this.sourceTypeName$ || undefined,
       tagQuery: this.tq,
       getTypeaheadVarsFn: this.getTypeaheadVarsFn,
       getTypeaheadResultsFn: this.getTypeaheadResultsFn,
@@ -146,10 +155,21 @@ export class CvcSourceSelectField
       changeDetectorRef: this.changeDetectorRef,
     })
     this.configureLabels()
+
+    // TODO: implement using withLatestFrom(onSearch$), so we emit that from onSearch$.next() below. onSearch$ kicks off the search query, which needs to be updated w/ the new sourceType param
+    this.sourceType$
+      .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
+      .subscribe(([src, str]: [SourceSource, string]) => {
+        this.onSearch$.next(str)
+        this.sourceTypeName$.next(formatSourceTypeEnum(src))
+      })
   }
 
-  getTypeaheadVarsFn(partialId: string): SourceSelectTypeaheadQueryVariables {
-    return { partialCitationId: partialId, sourceType: SourceSource.Pubmed }
+  getTypeaheadVarsFn(
+    str: string,
+    param: SourceSource = SourceSource.Pubmed
+  ): SourceSelectTypeaheadQueryVariables {
+    return { partialCitationId: str, sourceType: param }
   }
 
   getTypeaheadResultsFn(r: ApolloQueryResult<SourceSelectTypeaheadQuery>) {

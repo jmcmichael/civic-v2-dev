@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { ReactiveFormsModule } from '@angular/forms'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
@@ -10,12 +10,14 @@ import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
 import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzDividerModule } from 'ng-zorro-antd/divider'
 import { NzFormModule } from 'ng-zorro-antd/form'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzModalModule } from 'ng-zorro-antd/modal'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzRadioModule } from 'ng-zorro-antd/radio'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTagModule } from 'ng-zorro-antd/tag'
@@ -51,11 +53,13 @@ const typeConfig: ConfigOption = {
   declarations: [CvcSourceSelectField, ],
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     ReactiveComponentModule,
     FormlyModule.forChild(typeConfig),
     NzAlertModule,
     NzButtonModule,
+    NzRadioModule,
     NzSelectModule,
     NzPopoverModule,
     NzModalModule,
@@ -67,6 +71,7 @@ const typeConfig: ConfigOption = {
     NzFormModule,
     NzAutocompleteModule,
     NzTypographyModule,
+    NzDividerModule,
     NzTagModule,
     CvcFormFieldWrapperModule,
     CvcEntitySelectModule,

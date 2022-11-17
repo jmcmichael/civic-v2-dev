@@ -55,7 +55,7 @@ export type GetSelectOptionsFn<TAF> = (
 export interface EntityTagFieldOptions<TAQ, TAV, TAP, TAF, TQ, TV> {
   typeaheadQuery: Query<TAQ, TAV>
   typeaheadParam$?: Observable<any>
-  typeaheadParamName$?: BehaviorSubject<Maybe<string>>
+  typeaheadParamName$?: BehaviorSubject<Maybe<any>>
   tagQuery: Query<TQ, TV>
   getTypeaheadVarsFn: GetTypeaheadVarsFn<TAV, TAP>
   getTypeaheadResultsFn: GetTypeaheadResultsFn<TAQ, TAF>
@@ -65,6 +65,15 @@ export interface EntityTagFieldOptions<TAQ, TAV, TAP, TAF, TQ, TV> {
   getSelectOptionsFn: GetSelectOptionsFn<TAF>
   changeDetectorRef: ChangeDetectorRef
 }
+
+/*
+ * TAQ = typeahead query
+ * TAV = typeahead query variables
+ * TAP = typeahead query optional parameters fragment
+ * TQ  = tag query
+ * TV  = tag query variables
+ * TAP = optional typeahead query paramters type
+ * */
 
 export function EntityTagField<
   // typeahead query data, vars, fragment

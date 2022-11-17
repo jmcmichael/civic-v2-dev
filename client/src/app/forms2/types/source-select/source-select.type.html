@@ -7,6 +7,7 @@
   [cvcPlaceholder]="placeholder$ | ngrxPush"
   [cvcResults]="result$ | ngrxPush"
   [cvcOptions]="selectOption$ | ngrxPush"
+  [cvcDropdownExtra]="sourceTypeSelect"
   [cvcShowError]="showError"
   [cvcDisabled]="props.disabled"
   [cvcLoading]="isLoading$ | ngrxPush"
@@ -16,9 +17,7 @@
 </cvc-entity-select>
 
 <!-- select option templates -->
-<!-- each search result$ creates an individual template, which is
-    dynamically attached to an NzSelectOptionTemplateInterface object in
-    optionTemplates.changes.subscribe()-->
+<!-- result$ updates generate an array of #optionTemplates. entity-tag-field.mixin watches #optionTemplates changes, and attaches each to an NzSelectOptionTemplateInterface object, which are emitted from selectOption$. selectOption$ is passed to <cvc-entity-select> via [cvcOptions] above -->
 <ng-container *ngrxLet="onSearch$ as searchString">
   <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
     <ng-template #optionTemplates>
@@ -44,6 +43,32 @@
     </ng-template>
   </ng-container>
 </ng-container>
+
+<!-- source type selector -->
+<ng-template #sourceTypeSelect>
+  <div class="source-type-select">
+    <nz-radio-group
+      nzButtonStyle="solid"
+      [ngModel]="sourceType$ | ngrxPush"
+      (ngModelChange)="sourceType$.next($event)">
+      <label
+        nz-radio-button
+        nzValue="PUBMED"
+        >PubMed</label
+      >
+      <label
+        nz-radio-button
+        nzValue="ASCO"
+        >ASCO</label
+      >
+      <label
+        nz-radio-button
+        nzValue="ASH"
+        >ASH</label
+      >
+    </nz-radio-group>
+  </div>
+</ng-template>
 
 <!-- selected option item template -->
 <!-- displays entity tag, specifying context and mode depending on
