@@ -2,9 +2,8 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import {
   AbstractControl,
-  FormControl,
-  ValidationErrors,
   ReactiveFormsModule,
+  ValidationErrors,
 } from '@angular/forms'
 import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { CvcAttributeTagModule } from '@app/forms2/components/attribute-tag/attribute-tag.module'
@@ -18,11 +17,7 @@ import {
 } from '@app/generated/civic.apollo'
 import { ReactiveComponentModule } from '@ngrx/component'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
-import {
-  FormlyFieldConfig,
-  TypeOption,
-  ValidationMessageOption,
-} from '@ngx-formly/core/lib/models'
+import { FormlyFieldConfig } from '@ngx-formly/core/lib/models'
 import {
   CvcDirectionSelectField,
   CvcDirectionSelectFieldProps,
@@ -35,7 +30,7 @@ const typeConfig: ConfigOption = {
       wrappers: ['form-field'],
       component: CvcDirectionSelectField,
       defaultOptions: {
-        validators: { validation: ['direction-option'] }
+        validators: { validation: ['direction-option'] },
       },
     },
   ],
@@ -89,10 +84,10 @@ export function directionOptionValidatorFn(
 
 export function directionOptionValidatorMessageFn(
   et: EvidenceType,
-  f: FormlyFieldConfig
+  ffc: FormlyFieldConfig
 ): string {
   return `'${formatEvidenceEnum(
-    f.formControl?.value
+    ffc.formControl?.value
   )}' is not a valid Clinical Significance for ${formatEvidenceEnum(
     et
   )} Evidence.`
