@@ -238,10 +238,10 @@ export function EntityTagField<
           )
           this.result$.pipe(untilDestroyed(this)).subscribe((r: TAF[]) => {
             this.selectOption$.next(
-              r.map((drug) => {
+              r.map((entity) => {
                 return {
-                  label: drug.name,
-                  value: drug.id,
+                  label: entity.name,
+                  value: entity.id,
                 }
               })
             )

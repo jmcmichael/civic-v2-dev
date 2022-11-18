@@ -16,8 +16,10 @@ import {
 } from '@ngx-formly/core'
 import mixin from 'ts-mixin-extended'
 
+export type CvcBaseInputFieldOptions = Partial<
+  FieldTypeConfig<CvcBaseInputFieldProps>
+>
 export interface CvcBaseInputFieldProps extends FormlyFieldProps {
-  isRepeatItem: boolean
 }
 
 export interface CvcBaseInputFieldConfig
@@ -48,7 +50,6 @@ export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {
     },
     props: {
       label: 'Enter value',
-      isRepeatItem: false,
     },
   }
 

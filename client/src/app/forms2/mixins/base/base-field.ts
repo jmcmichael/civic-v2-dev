@@ -23,6 +23,7 @@ export function BaseFieldType<
     // SOURCE STREAMS
     // emits all field model changes
     onModelChange$!: Observable<Maybe<V>>
+
     // emits values for both model changes and non-model value updates
     // e.g. query param, tag close, restore saved form state
     onValueChange$!: BehaviorSubject<Maybe<V>>
