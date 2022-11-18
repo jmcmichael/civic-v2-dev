@@ -170,7 +170,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'textarea',
             props: {
               label: 'Comment',
-              // required: true,
+              required: true,
             },
           },
           {
