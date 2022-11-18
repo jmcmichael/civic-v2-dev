@@ -48,10 +48,16 @@ export function BaseFieldType<
       // set up model and value changes observables
       this.onModelChange$ = this.field.options.fieldChanges.pipe(
         filter((c) => c.field.id === this.field.id), // filter out other fields
-        pluck('value'),
+        pluck('value')
         // tag(`${this.field.id} onModelChange$`)
       )
-      this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
+      // update state if field has been prepopulated w/ query param or
+      // form component model e.g. revise forms
+      if (this.formControl.value) {
+        this.onValueChange$ = new BehaviorSubject<Maybe<V>>(this.formControl.value)
+      } else {
+        this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
+      }
 
       // emit value from onValueChange$ for every model change
       this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {
@@ -94,12 +100,6 @@ export function BaseFieldType<
         .subscribe((v) => {
           if (this.stateValueChange$) this.stateValueChange$.next(v)
         })
-
-      // update state if field has been prepopulated w/ query param or
-      // form component model e.g. revise forms
-      if (this.formControl.value) {
-        this.stateValueChange$.next(this.formControl.value)
-      }
     }
 
     configureLabels(): void {

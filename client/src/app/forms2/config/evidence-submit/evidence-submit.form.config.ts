@@ -166,16 +166,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
             key: 'baseInputTest',
             type: 'base-input',
             props: {
-              label: 'Input Test'
-            }
+              label: 'Input Test',
+            },
           },
           <CvcPhenotypeSelectFieldOptions>{
             key: 'phenotypeIds',
             type: 'phenotype-multi-select',
-            props: {
-              label: 'Phenotype(s)'
-            }
-          }
+            props: {},
+          },
         ],
       },
       {
