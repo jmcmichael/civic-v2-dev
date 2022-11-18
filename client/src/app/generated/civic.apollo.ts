@@ -6190,6 +6190,22 @@ export type GeneSelectTagQuery = { __typename: 'Query', gene?: { __typename: 'Ge
 
 export type GeneSelectTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
+export type PhenotypeSelectTypeaheadQueryVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type PhenotypeSelectTypeaheadQuery = { __typename: 'Query', phenotypeTypeahead: Array<{ __typename: 'Phenotype', id: number, name: string, link: string, hpoId: string }> };
+
+export type PhenotypeSelectTagQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type PhenotypeSelectTagQuery = { __typename: 'Query', phenotype?: { __typename: 'Phenotype', id: number, name: string, link: string, hpoId: string } | undefined };
+
+export type PhenotypeSelectTypeaheadFieldsFragment = { __typename: 'Phenotype', id: number, name: string, link: string, hpoId: string };
+
 export type SourceSelectTypeaheadQueryVariables = Exact<{
   partialCitationId: Scalars['String'];
   sourceType: SourceSource;
@@ -7974,6 +7990,14 @@ export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
   name
   geneAliases
   link
+}
+    `;
+export const PhenotypeSelectTypeaheadFieldsFragmentDoc = gql`
+    fragment PhenotypeSelectTypeaheadFields on Phenotype {
+  id
+  name
+  link
+  hpoId
 }
     `;
 export const SourceSelectTypeaheadFieldsFragmentDoc = gql`
@@ -11857,6 +11881,42 @@ export const GeneSelectTagDocument = gql`
   })
   export class GeneSelectTagGQL extends Apollo.Query<GeneSelectTagQuery, GeneSelectTagQueryVariables> {
     document = GeneSelectTagDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const PhenotypeSelectTypeaheadDocument = gql`
+    query PhenotypeSelectTypeahead($name: String!) {
+  phenotypeTypeahead(queryTerm: $name) {
+    ...PhenotypeSelectTypeaheadFields
+  }
+}
+    ${PhenotypeSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class PhenotypeSelectTypeaheadGQL extends Apollo.Query<PhenotypeSelectTypeaheadQuery, PhenotypeSelectTypeaheadQueryVariables> {
+    document = PhenotypeSelectTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const PhenotypeSelectTagDocument = gql`
+    query PhenotypeSelectTag($id: Int!) {
+  phenotype(id: $id) {
+    ...PhenotypeSelectTypeaheadFields
+  }
+}
+    ${PhenotypeSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class PhenotypeSelectTagGQL extends Apollo.Query<PhenotypeSelectTagQuery, PhenotypeSelectTagQueryVariables> {
+    document = PhenotypeSelectTagDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);

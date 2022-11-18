@@ -10,6 +10,7 @@ import { CvcInteractionSelectModule } from './interaction-select/interaction-sel
 import { CvcLevelSelectModule } from './level-select/level-select.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
 import { CvcOriginSelectModule } from './origin-select/origin-select.module'
+import { CvcPhenotypeSelectModule } from './phenotype-select/phenotype-select.module'
 import { CvcRatingModule } from './rating/rating.module'
 import { CvcSignificanceSelectModule } from './significance-select/significance-select.module'
 import { CvcSourceSelectModule } from './source-select/source-select.module'
@@ -36,6 +37,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcSourceSelectModule,
     CvcTextareaFieldModule,
     CvcBaseInputFieldModule,
+    CvcPhenotypeSelectModule,
   ],
 })
 export class CvcFormTypesModule {}

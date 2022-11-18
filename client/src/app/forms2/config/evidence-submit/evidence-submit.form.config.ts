@@ -7,6 +7,7 @@ import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-sel
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
 import { CvcLevelSelectFieldOptions } from '@app/forms2/types/level-select/level-select.type'
 import { CvcOriginSelectFieldOptions } from '@app/forms2/types/origin-select/origin-select.type'
+import { CvcPhenotypeSelectFieldOptions } from '@app/forms2/types/phenotype-select/phenotype-select.type'
 import { CvcRatingFieldOptions } from '@app/forms2/types/rating/rating.type'
 import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
 import { CvcSourceSelectFieldOptions } from '@app/forms2/types/source-select/source-select.type'
@@ -166,6 +167,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'base-input',
             props: {
               label: 'Input Test'
+            }
+          },
+          <CvcPhenotypeSelectFieldOptions>{
+            key: 'phenotypeIds',
+            type: 'phenotype-multi-select',
+            props: {
+              label: 'Phenotype(s)'
             }
           }
         ],
