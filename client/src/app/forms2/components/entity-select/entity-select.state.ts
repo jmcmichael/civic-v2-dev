@@ -1,41 +1,44 @@
 import { TemplateRef } from '@angular/core'
 import { Maybe } from '@app/generated/civic.apollo'
 
+interface SelectMessages {
+  placeholder: Maybe<string>
+  description: Maybe<string>
+  prompt: Maybe<string | TemplateRef<any>>
+  add: Maybe<TemplateRef<any>>
+}
+
 interface SelectContext {
   messages: {
-    initial: Maybe<string | TemplateRef<any>>
-    focus: Maybe<string | TemplateRef<any>>
-    search: Maybe<string | TemplateRef<any>>
-    result: Maybe<string | TemplateRef<any>>
-    noResult: Maybe<string | TemplateRef<any>>
-    create: Maybe<string | TemplateRef<any>>
-    error: Maybe<string | TemplateRef<any>>
+    idle: SelectMessages
+    focus: SelectMessages
+    search: SelectMessages
+    empty: SelectMessages
+    create: SelectMessages
+    error: SelectMessages
   }
 }
 
 interface SelectStateSchema {
   states: {
     idle: {}
-    focus: {}
-    search: {}
-    result: {
-      // results returned, select options displayed
-      select: {}
-      // no results
-      none: {}
-      // no results, create entity
-      create: {}
+    focus: {
+      search: {}
+      options: {}
+      added: {}
+      blur: {}
+      error: {}
     }
-    created: {}
-    error: {}
   }
 }
 
 type SelectEvent =
-  | { type: 'IDLE'; value: string }
+  | { type: 'IDLE' }
+  | { type: 'FOCUS' }
+  | { type: 'BLUR' }
   | { type: 'SEARCH'; value: string }
-  | { type: 'RESULT'; value: number }
-  | { type: 'CREATE'; value: string }
+  | { type: 'OPTIONS'; value: any[] }
+  | { type: 'ADDED'; value: number }
   | { type: 'ERROR'; value: string }
 
 const selectStateConfig = {
@@ -50,52 +53,51 @@ const selectStateConfig = {
       },
     },
     focus: {
-      // if minLength search string specified, show 'enter query of n length to search'
-      // else trigger search state w/ empty string to populate options
       on: {
         SEARCH: {
           target: 'search',
         },
-        IDLE: {
-          target: 'idle'
-        }
+        BLUR: {
+          target: '.blur',
+        },
       },
       states: {
         search: {
           on: {
-            RESULT: {
-              target: 'result',
+            OPTIONS: {
+              target: 'options',
             },
             ERROR: {
               target: 'error',
             },
           },
         },
-        result: {
-          // if results > 0, hide messages (options will be displayed)
-          // if no results and no optional search param, show std not found msg
-          // if no results, and optional param provided, show param not found msg
-          // if no results, and create entity templateRef provided, show create msg & form
+        options: {
+          // if options.length > 0, hide messages (options will be displayed)
+          // if no results and no optional search param, show not found msg/tmpl
+          //
+          // NOTE: entity-select's cvcSelectMessage attr provides these message strings/templates, so will display:
+          // - a standard no results msg, e.g. 'No entity found matching search'
+          // - a msg including the optional parameter name, e.g. 'No BRAF variant found matching search'
+          // - a quick-add template, if provided, which will provide its own msg, prompt, and add button, e.g. 'No BRAF variant found matching 'abc123', would you like to create a new variant 'ABC123'?'
           on: {
-            CREATE: {
-              target: 'create'
-            }
-
+            ADDED: {
+              // add form successfully added entity, emitted entity ID
+              target: 'added',
+            },
           },
         },
-        create: {
-          // show 'entity created' msg, pause, return to idle state
-          on: {
-            IDLE: {
-              target: 'idle'
-            }
-          }
+        added: {
+          // show 'entity created' msg, pause, update model
+          // NOTE: model update should cause select component to hide options overlay, and blur the field, thus emiting a BLUR event, which executes and returns state machine to idle
         },
         error: {
           // show error msg
-          on: {},
         },
       },
+    },
+    blur: {
+      // reset displays, return to idle state
     },
   },
 }
