@@ -1,3 +1,4 @@
+<!-- NOTE: entity-field.mixin provides the observables passed to cvc-entity-select below -->
 <cvc-entity-select
   [cvcSelectMode]="props.isMultiSelect ? 'multiple' : 'default'"
   [cvcCustomTemplate]="selectedTemplate"
@@ -9,12 +10,13 @@
   [cvcShowError]="showError"
   [cvcLoading]="isLoading$ | ngrxPush"
   (cvcOnSearch)="onSearch$.next($event)"
-  (cvcOnFocus)="onFocus$.next($event)"
+  (cvcOnFocus)="onFocus$.next()"
+  (cvcOnBlur)="onBlur$.next()"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
 
 <!-- select option templates -->
-<!-- result$ updates generate an array of #optionTemplates. entity-tag-field.mixin watches #optionTemplates changes, and attaches each to an NzSelectOptionTemplateInterface object, which are emitted from selectOption$. selectOption$ is passed to <cvc-entity-select> via [cvcOptions] above -->
+<!-- result$ updates generate an array of #optionTemplates. entity-tag-field.mixin watches #optionTemplates changes, and attaches each to an NzSelectOptionTemplateInterface an object, which are emitted from selectOption$. selectOption$ is passed to <cvc-entity-select> via [cvcOptions] above -->
 <ng-container *ngrxLet="onSearch$ as searchString">
   <ng-container *ngFor="let result of result$ | ngrxPush; index as i">
     <ng-template #optionTemplates>

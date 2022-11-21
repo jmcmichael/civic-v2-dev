@@ -77,7 +77,6 @@ export class CvcEntityTypeSelectField
   typeEnums$!: BehaviorSubject<CvcInputEnum[]>
 
   // LOCAL SOURCE STREAMS
-  onFocus$: BehaviorSubject<void>
 
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
@@ -99,7 +98,6 @@ export class CvcEntityTypeSelectField
   constructor(private cdr: ChangeDetectorRef) {
     super()
     this.typeEnums$ = new BehaviorSubject<CvcInputEnum[]>([])
-    this.onFocus$ = new BehaviorSubject<void>(undefined)
   }
 
   ngAfterViewInit(): void {

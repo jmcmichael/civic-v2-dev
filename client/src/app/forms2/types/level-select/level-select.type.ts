@@ -79,7 +79,6 @@ export class CvcLevelSelectField
   onTypeSelect$?: BehaviorSubject<Maybe<CvcInputEnum>>
 
   // LOCAL SOURCE STREAMS
-  onFocus$: BehaviorSubject<void>
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
   label$!: BehaviorSubject<string>
@@ -102,7 +101,6 @@ export class CvcLevelSelectField
   constructor(private cdr: ChangeDetectorRef) {
     super()
     this.levelEnum$ = new BehaviorSubject<CvcInputEnum[]>([])
-    this.onFocus$ = new BehaviorSubject<void>(undefined)
   }
 
   ngAfterViewInit(): void {

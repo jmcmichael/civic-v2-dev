@@ -77,9 +77,11 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
   @Output() readonly cvcOnFocus = new EventEmitter<void>()
+  @Output() readonly cvcOnBlur = new EventEmitter<void>()
 
   // SOURCE STREAMS
-  onFocus$: BehaviorSubject<void>
+  onFocus$: Subject<void>
+  onBlur$: Subject<void>
   onSearch$: BehaviorSubject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
@@ -97,7 +99,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   constructor(private cdr: ChangeDetectorRef) {
     // create streams
-    this.onFocus$ = new BehaviorSubject<void>(void 0)
+    this.onFocus$ = new Subject<void>()
+    this.onBlur$ = new Subject<void>()
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onResult$ = new BehaviorSubject<Maybe<any[]>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
@@ -112,6 +115,14 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+      console.log(`entity-select onFocus`)
+      this.cvcOnFocus.next()
+    })
+    this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
+      console.log(`entity-select onBlur`)
+      this.cvcOnBlur.next()
+    })
     // emit search queries
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((s) => {
       if (s !== undefined) this.cvcOnSearch.next(s)

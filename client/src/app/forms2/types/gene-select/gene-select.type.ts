@@ -1,26 +1,30 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component, QueryList,
-    TemplateRef,
-    Type,
-    ViewChildren
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  QueryList,
+  TemplateRef,
+  Type,
+  ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { CvcSelectEntityName, CvcSelectMessageOptions } from '@app/forms2/components/entity-select/entity-select.component'
+import {
+  CvcSelectEntityName,
+  CvcSelectMessageOptions,
+} from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityState } from '@app/forms2/states/entity.state'
 import {
-    GeneSelectTagGQL,
-    GeneSelectTagQuery,
-    GeneSelectTagQueryVariables,
-    GeneSelectTypeaheadFieldsFragment,
-    GeneSelectTypeaheadGQL,
-    GeneSelectTypeaheadQuery,
-    GeneSelectTypeaheadQueryVariables,
-    Maybe
+  GeneSelectTagGQL,
+  GeneSelectTagQuery,
+  GeneSelectTagQueryVariables,
+  GeneSelectTypeaheadFieldsFragment,
+  GeneSelectTypeaheadGQL,
+  GeneSelectTypeaheadQuery,
+  GeneSelectTypeaheadQueryVariables,
+  Maybe,
 } from '@app/generated/civic.apollo'
 import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
@@ -42,14 +46,17 @@ export interface CvcGeneSelectFieldConfig
 }
 
 const GeneSelectMixin = mixin(
-  BaseFieldType<FieldTypeConfig<CvcGeneSelectFieldProps>, Maybe<number|number[]>>(),
+  BaseFieldType<
+    FieldTypeConfig<CvcGeneSelectFieldProps>,
+    Maybe<number | number[]>
+  >(),
   EntityTagField<
     GeneSelectTypeaheadQuery,
     GeneSelectTypeaheadQueryVariables,
     GeneSelectTypeaheadFieldsFragment,
     GeneSelectTagQuery,
     GeneSelectTagQueryVariables,
-    Maybe<number|number[]>
+    Maybe<number | number[]>
   >()
 )
 
@@ -63,14 +70,13 @@ export class CvcGeneSelectField
   extends GeneSelectMixin
   implements AfterViewInit
 {
-  state?: EntityState
-  // STATE SOURCE STREAMS
-  // LOCAL SOURCE STREAMS
-  // LOCAL INTERMEDIATE STREAMS
-  // LOCAL PRESENTATION STREAMS
-
-  // STATE OUTPUT STREAMS
-  stateValueChange$?: BehaviorSubject<Maybe<number|number[]>>
+  // entity-field.mixin provides the various observables passed to cvc-entity-select:
+  // onFocus$
+  // onBlur$
+  // onSearch$
+  // isLoading$
+  // result$
+  // selectOption$
 
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
@@ -79,7 +85,8 @@ export class CvcGeneSelectField
       placeholder: 'Search Genes',
       isMultiSelect: false,
       entityName: { singular: 'Gene', plural: 'Genes' },
-      helpText: 'Entrez Gene (e.g. BRAF). Gene must be known to the Entrez database.'
+      helpText:
+        'Entrez Gene (e.g. BRAF). Gene must be known to the Entrez database.',
     },
   }
 
@@ -96,7 +103,8 @@ export class CvcGeneSelectField
 
   ngAfterViewInit(): void {
     this.configureBaseField() // mixin fn
-    this.configureEntityTagField({ // mixin fn
+    this.configureEntityTagField({
+      // mixin fn
       typeaheadQuery: this.taq,
       typeaheadParam$: undefined,
       tagQuery: this.tq,
@@ -147,5 +155,4 @@ export class CvcGeneSelectField
       }
     )
   }
-
 }

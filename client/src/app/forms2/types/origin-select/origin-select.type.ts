@@ -81,7 +81,6 @@ export class CvcOriginSelectField
   originEnum$: BehaviorSubject<CvcInputEnum[]>
 
   // LOCAL SOURCE STREAMS
-  onFocus$: BehaviorSubject<void>
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
 
@@ -102,7 +101,6 @@ export class CvcOriginSelectField
   constructor(private cdr: ChangeDetectorRef) {
     super()
     this.originEnum$ = new BehaviorSubject<CvcInputEnum[]>([])
-    this.onFocus$ = new BehaviorSubject<void>(undefined)
   }
 
   ngAfterViewInit(): void {

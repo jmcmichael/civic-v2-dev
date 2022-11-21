@@ -97,6 +97,7 @@ export function EntityTagField<
 
       // LOCAL SOURCE STREAMS
       onFocus$!: Subject<void>
+      onBlur$!: Subject<void>
       onSearch$!: Subject<string> // emits on typeahead keypress
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
       onCreate$!: Subject<TAF> // emits entity on create
@@ -147,6 +148,7 @@ export function EntityTagField<
 
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
+        this.onBlur$ = new Subject<void>()
         this.isLoading$ = new Subject<boolean>()
         this.result$ = new BehaviorSubject<TAF[]>([])
         this.onTagClose$ = new Subject<MouseEvent>()
@@ -156,7 +158,8 @@ export function EntityTagField<
         // this.selectOption$.pipe(tag(`${this.field.id} selectOption$`)).subscribe()
         // this.onSearch$.pipe(tag(`${this.field.id} onSearch$`)).subscribe()
         // this.result$.pipe(tag(`${this.field.id} result$`)).subscribe()
-        this.onFocus$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
+        // this.onFocus$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
+        // this.onBlur$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
 
         // check if base field tag properly configured
         if (!this.onValueChange$) {

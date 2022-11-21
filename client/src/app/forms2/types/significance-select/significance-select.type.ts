@@ -18,7 +18,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { BehaviorSubject, map, withLatestFrom } from 'rxjs'
+import { BehaviorSubject, map, Subject, withLatestFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 const optionText: any = {
@@ -150,7 +150,7 @@ export class CvcSignificanceSelectField
   onTypeSelect$?: BehaviorSubject<Maybe<CvcInputEnum>>
 
   // LOCAL SOURCE STREAMS
-  onFocus$: BehaviorSubject<void>
+
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
   label$!: BehaviorSubject<string>
@@ -176,7 +176,6 @@ export class CvcSignificanceSelectField
   constructor(private cdr: ChangeDetectorRef) {
     super()
     this.significanceEnum$ = new BehaviorSubject<CvcInputEnum[]>([])
-    this.onFocus$ = new BehaviorSubject<void>(undefined)
   }
 
   ngAfterViewInit(): void {

@@ -7,8 +7,7 @@
   [cvcCustomTemplate]="selectedTemplate"
   [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
-  [cvcDisabled]="props.disabled"
-  (cvcOnFocus)="onFocus$.next()"></cvc-enum-select>
+  [cvcDisabled]="props.disabled"></cvc-enum-select>
 <ng-container *ngFor="let enum of interactionEnum$ | ngrxPush; index as i">
   <ng-template #optionTemplates>
     <cvc-attribute-tag [cvcAttrValue]="enum"></cvc-attribute-tag>
