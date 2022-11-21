@@ -24,7 +24,7 @@ export interface CvcBaseInputFieldProps extends FormlyFieldProps {
 
 export interface CvcBaseInputFieldConfig
   extends FormlyFieldConfig<CvcBaseInputFieldProps> {
-  type: 'base-input' | 'base-input-item' | Type<CvcBaseInputField>
+  type: 'tag-input' | 'tag-input-item' | Type<CvcBaseInputField>
 }
 
 const BaseInputMixin = mixin(
@@ -36,9 +36,9 @@ const BaseInputMixin = mixin(
 )
 
 @Component({
-  selector: 'cvc-base-input',
-  templateUrl: './base-input.type.html',
-  styleUrls: ['./base-input.type.less'],
+  selector: 'cvc-tag-input',
+  templateUrl: './tag-input.type.html',
+  styleUrls: ['./tag-input.type.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcBaseInputField extends BaseInputMixin implements AfterViewInit {

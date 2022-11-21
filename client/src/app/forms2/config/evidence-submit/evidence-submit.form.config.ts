@@ -1,5 +1,5 @@
 import { evidenceSubmitFormInitialModel } from '@app/forms2/models/evidence-submit.model'
-import { CvcBaseInputFieldOptions } from '@app/forms2/types/base-input/base-input.type'
+import { CvcBaseInputFieldOptions } from '@app/forms2/types/tag-input/tag-input.type'
 import { CvcDirectionSelectFieldOptions } from '@app/forms2/types/direction-select/direction-select.type'
 import { CvcDiseaseSelectFieldOptions } from '@app/forms2/types/disease-select/disease-select.type'
 import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
@@ -164,7 +164,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           <CvcBaseInputFieldOptions>{
             key: 'baseInputTest',
-            type: 'base-input',
+            type: 'tag-input',
             props: {
               label: 'Input Test',
             },

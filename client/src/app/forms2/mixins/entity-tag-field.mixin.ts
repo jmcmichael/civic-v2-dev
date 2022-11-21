@@ -326,7 +326,7 @@ export function EntityTagField<
               this.selectOption$.next(options)
             })
         }
-      } // end configureDisplayEntityTag()
+      } // configureDisplayEntityTag()
 
       getFetchFn(ids: number[]): Observable<ApolloQueryResult<TQ>>[] {
         const queries = ids.map((id) =>
