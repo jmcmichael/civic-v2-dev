@@ -4,7 +4,6 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
-  Injector,
   Input,
   OnChanges,
   Output,
@@ -17,11 +16,9 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
-import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
+import { BehaviorSubject, combineLatest, Subject, Subscription } from 'rxjs'
+import { InternalMachineOptions } from 'xstate'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
-
 import {
   EntitySelectStateContext,
   EntitySelectStateEvent,
@@ -49,7 +46,7 @@ export type CvcSelectMessageOptions = {
   create: string
 }
 
-@UntilDestroy()
+@UntilDestroy({ arrayName: 'stateSubscriptions' })
 @Component({
   selector: 'cvc-entity-select',
   templateUrl: './entity-select.component.html',
@@ -67,12 +64,14 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
-  @Input() cvcOptions?: NzSelectOptionInterface[] = []
+  @Input() cvcOptions?: NzSelectOptionInterface[]
   // search results, provided by EntityTagFieldMixin's result$ (or other search results observable)
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
-  @Input() cvcAllowClear: boolean = false
+  @Input() cvcAllowClear: boolean = true
+  @Input() cvcBorderless?: boolean = false
+  @Input() cvcShowArrow?: boolean
   @Input() cvcAutoClearSearchValue: boolean = true
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
@@ -114,6 +113,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     EntitySelectStateEvent
   >
 
+  stateSubscriptions!: Subscription[]
+
   constructor(
     private stateService: XstateAngular<
       EntitySelectStateContext,
@@ -137,47 +138,31 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       undefined
     )
     this.createMessage$ = new BehaviorSubject<Maybe<string>>(undefined)
+  }
 
-    const selectStateConfig: EntitySelectStateSchema = {
-      states: {
-        idle: {
-          on: {
-            FOCUS: { target: 'focus' },
-          },
+  ngAfterViewInit(): void {
+    const stateOptions: InternalMachineOptions<
+      EntitySelectStateContext,
+      EntitySelectStateEvent,
+      any
+    > = {
+      actions: {
+        log: (
+          context: EntitySelectStateContext,
+          event: EntitySelectStateEvent
+        ) => {
+          console.log(
+            'entity-select.component state.actions.test():',
+            context,
+            event
+          )
         },
-        focus: {
-          on: {
-            SEARCH: { target: 'search' },
-            BLUR: { target: 'blur' },
-          },
-        },
-        search: {
-          on: {
-            LOAD: { target: 'load' },
-          },
-        },
-        load: {
-          on: {
-            OPTIONS: { target: 'options' },
-            ERROR: { target: 'error' },
-          },
-        },
-        options: {
-          on: {
-            ADD: { target: 'added' },
-            SELECT: { target: 'selected' },
-          },
-        },
-        selected: {},
-        added: {},
-        blur: {},
-        error: {},
       },
     }
 
     try {
       this.state = this.stateService.useMachine(
-        getEntitySelectStateMachine(selectStateConfig),
+        getEntitySelectStateMachine(stateOptions),
         {
           devTools: true,
         }
@@ -185,24 +170,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     } catch (err) {
       console.log(err)
     }
-
-    // hook up state to event streams
-    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.state.send({ type: 'FOCUS' })
-    })
-    this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.state.send({ type: 'BLUR' })
-    })
-    this.onSearch$.pipe(untilDestroyed(this)).subscribe((searchString) => {
-      if (searchString !== undefined)
-        this.state.send({ type: 'SEARCH', value: searchString })
-    })
-    this.onLoading$.pipe(untilDestroyed(this)).subscribe((isLoading) => {
-      this.state.send({ type: 'LOAD', value: isLoading })
-    })
-    this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
-      this.state.send({ type: 'OPTIONS', value: options })
-    })
 
     try {
       this.state.state$
@@ -214,22 +181,39 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     } catch (err) {
       console.log(err)
     }
-  }
 
-  ngAfterViewInit(): void {
+    // non-state emitters
     this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.state.send({ type: 'FOCUS' })
       this.cvcOnFocus.next()
     })
     this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.state.send({ type: 'BLUR' })
       this.cvcOnBlur.next()
     })
     // emit search queries
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((s) => {
       if (s !== undefined) this.cvcOnSearch.next(s)
-      if (s !== undefined) this.state.send({ type: 'SEARCH', value: s })
     })
+
+    // hook up state to event streams
+    this.stateSubscriptions = [
+      this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+        this.state.send({ type: 'FOCUS' })
+      }),
+      this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
+        this.state.send({ type: 'BLUR' })
+      }),
+      this.onSearch$.pipe(untilDestroyed(this)).subscribe((searchString) => {
+        if (searchString && searchString.length > 0)
+          this.state.send({ type: 'SEARCH', value: searchString })
+      }),
+      this.onLoading$.pipe(untilDestroyed(this)).subscribe((isLoading) => {
+        console.log(`entity-select isLoading: ${isLoading}`)
+        this.state.send({ type: 'LOAD', value: isLoading })
+      }),
+      this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
+        this.state.send({ type: 'OPTIONS', value: options })
+      }),
+    ]
 
     //
     // SELECT MSG HELPER FUNCTIONS

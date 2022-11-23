@@ -1,5 +1,5 @@
 import { Maybe } from '@app/generated/civic.apollo'
-import { Machine, StateMachine } from 'xstate'
+import { InternalMachineOptions, Machine, StateMachine, StateSchema } from 'xstate'
 
 interface EntitySelectStateMessages {
   // standard select placeholder, displayed in idle state, describes what the select will do, e.g. 'search entity, select enum'
@@ -49,8 +49,55 @@ export interface EntitySelectStateSchema {
   }
 }
 
+export const selectStateConfig: EntitySelectStateSchema = {
+  states: {
+    idle: {
+      on: {
+        FOCUS: { target: 'focus' },
+      },
+    },
+    focus: {
+      entry: ['log'],
+      on: {
+        SEARCH: { target: 'search' },
+        BLUR: { target: 'blur' },
+      },
+    },
+    search: {
+      entry: ['log'],
+      on: {
+        SEARCH: { target: 'search' },
+        LOAD: { target: 'load' },
+      },
+    },
+    load: {
+      entry: ['log'],
+      on: {
+        LOAD: { target: 'load' },
+        OPTIONS: { target: 'options' },
+        ERROR: { target: 'error' },
+      },
+    },
+    options: {
+      entry: ['log'],
+      on: {
+        ADD: { target: 'added' },
+        SELECT: { target: 'selected' },
+      },
+    },
+    selected: {},
+    added: {},
+    blur: {},
+    error: {},
+  },
+}
+
 export function getEntitySelectStateMachine(
-  config: EntitySelectStateSchema
+  options?: InternalMachineOptions<
+    EntitySelectStateContext,
+    EntitySelectStateEvent,
+    any
+  >
 ): StateMachine<
   EntitySelectStateContext,
   EntitySelectStateSchema,
@@ -63,8 +110,8 @@ export function getEntitySelectStateMachine(
   >({
     id: 'entity-select',
     initial: 'idle',
-    ...config,
-  })
+    ...selectStateConfig,
+  }, options)
 }
 
 // const selectStateConfig: Partial<EntitySelectStateSchema> = {
