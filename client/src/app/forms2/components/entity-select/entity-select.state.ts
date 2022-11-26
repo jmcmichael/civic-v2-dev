@@ -19,7 +19,7 @@ export type EntitySelectStateEventMessage = {
   // displayed below select field w/ error styles. any form/field errors will supercede the display of this error message.
   error?: Maybe<string>
 
-    // NOTE: entity-select does not provide a message for the 'added' state, which should be displayed by the quick-add form component in its initial, idle state.
+    // NOTE: entity-select does not provide a message for the 'created' state, which should be displayed by the quick-add form component in its initial, idle state.
 }
 
 export type EntitySelectStateContext = {
@@ -29,7 +29,6 @@ export type EntitySelectStateContext = {
     load: EntitySelectStateEventMessage
     search: EntitySelectStateEventMessage
     empty: EntitySelectStateEventMessage
-    added: EntitySelectStateEventMessage
     error: EntitySelectStateEventMessage
   }
 }
@@ -42,7 +41,6 @@ export type EntitySelectStateEvent =
   | { type: 'SEARCH'; value: string }
   | { type: 'OPTIONS'; value: any[] }
   | { type: 'CHANGE'; value: any | any[] }
-  | { type: 'ADD'; value: number }
   | { type: 'ERROR'; value: string }
 
 export interface EntitySelectStateSchema {
@@ -53,8 +51,7 @@ export interface EntitySelectStateSchema {
     search: {}
     load: {}
     options: {}
-    changed: {}
-    added: {}
+    created: {}
     error: {}
   }
 }
@@ -92,16 +89,16 @@ export const selectStateConfig: EntitySelectStateSchema = {
     options: {
       entry: ['log'],
       on: {
-        ADD: { target: 'added' },
         CHANGE: { target: 'changed' },
+        CREATE: { target: 'created' },
         BLUR: { target: 'blur' },
       },
     },
-    added: {
-      // triggered by quick add output event, passing entity id. on enter, execute linkable tag query, then display '[spinner] Adding [tag]...' for a second, then update field with setValue()
-      entry:['fetchTag']
+    created: {entry: ['log'],
+      on: {
+        BLUR: 'blur'
+      }
     },
-    changed: {},
     blur: {},
     error: {},
   },
@@ -131,52 +128,3 @@ export function getEntitySelectStateMachine(
     options
   )
 }
-
-// const selectStateConfig: Partial<EntitySelectStateSchema> = {
-//     states: {
-//       idle: {
-//         on: {
-//           FOCUS: { target: 'focus' },
-//         },
-//       },
-//       focus: {
-//         on: {
-//           SEARCH: { target: 'search' },
-//           BLUR: { target: 'blur' }
-//         },
-//       },
-//       search: {
-//         on: {
-//           LOAD: { target: 'load' },
-//         },
-//       },
-//       load: {
-//         on: {
-//           OPTIONS: { target: 'options' },
-//           ERROR: { target: 'error' },
-//         },
-//       },
-//       options: {
-//         on: {
-//           ADD: { target: 'added' },
-//           SELECT: { target: 'selected' }
-//         }
-//       },
-//       selected: {},
-//       added: {},
-//       blur: {},
-//       error: {},
-//     },
-// }
-
-// export const entitySelectStateMachine = Machine<
-//   EntitySelectStateContext,
-//   EntitySelectStateSchema,
-//   EntitySelectStateEvent
-// >(
-//   {
-//     id: 'entity-select',
-//     initial: 'idle',
-//     ...selectStateConfig,
-//   }
-// )

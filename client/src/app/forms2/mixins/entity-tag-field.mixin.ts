@@ -3,10 +3,9 @@ import {
   Injectable,
   QueryList,
   TemplateRef,
-  TrackByFunction,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { InputMaybe, Maybe } from '@app/generated/civic.apollo'
+import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType } from '@ngx-formly/core'
 import { Query, QueryRef } from 'apollo-angular'
@@ -17,11 +16,9 @@ import {
   BehaviorSubject,
   defer,
   distinctUntilChanged,
-  EMPTY,
   filter,
   from,
   iif,
-  lastValueFrom,
   map,
   Observable,
   of,
@@ -30,9 +27,8 @@ import {
   throttleTime,
   withLatestFrom,
 } from 'rxjs'
-import { combineLatestArray, isNonNulled } from 'rxjs-etc'
+import { combineLatestArray } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
 
 export type GetTypeaheadVarsFn<TAV extends EmptyObject, TAP> = (
@@ -155,12 +151,6 @@ export function EntityTagField<
         this.onCreate$ = new Subject<TAF>()
         this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
 
-        // this.selectOption$.pipe(tag(`${this.field.id} selectOption$`)).subscribe()
-        // this.onSearch$.pipe(tag(`${this.field.id} onSearch$`)).subscribe()
-        // this.result$.pipe(tag(`${this.field.id} result$`)).subscribe()
-        // this.onFocus$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
-        // this.onBlur$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
-
         // check if base field tag properly configured
         if (!this.onValueChange$) {
           console.error(
@@ -269,9 +259,25 @@ export function EntityTagField<
             )
         }
 
-        // TODO: call tag query here, and emit a proper NzSelectOption w/ a generated templateRef. Currently, this just displays a text name for the option, looks like crap.
         this.onCreate$.pipe(untilDestroyed(this)).subscribe((entity: TAF) => {
-          this.selectOption$.next([{ label: entity.name, value: entity.id }])
+          this.tagQuery
+            .fetch(this.getTagQueryVars(entity.id), {
+              fetchPolicy: 'cache-first',
+            })
+            .pipe(
+              filter((r) => !!r.data),
+              untilDestroyed(this)
+            )
+            .subscribe((result) => {
+              const item = this.getTagQueryResults(result)
+              if (!item) {
+                this.selectOption$.next([
+                  { label: entity.name, value: entity.id },
+                ])
+              } else {
+                this.result$.next([item])
+              }
+            })
         })
 
         this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
@@ -281,38 +287,28 @@ export function EntityTagField<
         // if a prepopulated form value exists, set by the observe-query-param extension,
         // use tagQuery to create select option(s) for it so that nz-select's tags render
         if (this.formControl.value) {
-          const v = this.formControl.value
-          if (Object.keys(v).length > 0 && v.constructor === Object) {
+          const value = this.formControl.value
+          if (Object.keys(value).length > 0 && value.constructor === Object) {
             console.error(
               `${this.field.id} prepopulated value must be a primitive or array of primitives, value is an object:`,
-              v
+              value
             )
             return
           }
 
-          combineLatestArray(this.getFetchFn(v))
+          combineLatestArray(this.getTagQueries(value))
             .pipe(
               // tag(`${this.field.id} combineLatestArray(queries)`),
               map((queries) => {
                 if (!(queries.length > 0)) return []
-                if (
-                  !queries.every(
-                    (r: ApolloQueryResult<TQ>) =>
-                      this.getTagQueryResults(r) !== undefined
-                  )
-                ) {
-                  console.error(
-                    `${this.field.id} pre-populate failed, one or more entity tag queries did not succeed.`
-                  )
-                  return []
-                }
                 return queries.map(
                   (result: ApolloQueryResult<TQ>): NzSelectOptionInterface => {
                     const item = this.getTagQueryResults(result)
                     return this.getSelectedItemOption(item!)
                   }
                 )
-              })
+              }),
+              untilDestroyed(this)
             )
             .subscribe((options) => {
               if (!options || !options.every((o) => typeof o !== 'undefined')) {
@@ -326,8 +322,10 @@ export function EntityTagField<
         }
       } // configureDisplayEntityTag()
 
-      getFetchFn(ids: number | number[]): Observable<ApolloQueryResult<TQ>>[] {
-        if(typeof ids === 'number') ids = [ids]
+      getTagQueries(
+        ids: number | number[]
+      ): Observable<ApolloQueryResult<TQ>>[] {
+        if (typeof ids === 'number') ids = [ids]
         const queries = ids.map((id) =>
           this.tagQuery
             .fetch(this.getTagQueryVars(id), { fetchPolicy: 'cache-first' })
