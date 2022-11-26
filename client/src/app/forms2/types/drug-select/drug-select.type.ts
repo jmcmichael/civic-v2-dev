@@ -195,7 +195,7 @@ export class CvcDrugSelectField
     if (!this.onRequiresDrug$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
     combineLatest([this.onRequiresDrug$, this.onEntityType$])
-      .pipe(tag(`${this.field.id} combineLatest`), untilDestroyed(this))
+      .pipe(untilDestroyed(this))
       .subscribe(([requiresDrug, entityType]: [boolean, Maybe<EntityType>]) => {
         // drugs are not associated with this entity type
         if (!requiresDrug && entityType) {

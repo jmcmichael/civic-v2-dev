@@ -165,7 +165,7 @@ export class CvcEntityTypeSelectField
       )
     }
     this.optionTemplate$ = this.optionTemplates?.changes.pipe(
-      tag(`${this.field.id} optionTemplate$`),
+      // tag(`${this.field.id} optionTemplate$`),
       // return QueryLists's array of TemplateRefs
       map((ql: QueryList<TemplateRef<any>>) => {
         return ql.map((q) => q)

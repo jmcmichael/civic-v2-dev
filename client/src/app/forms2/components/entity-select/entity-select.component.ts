@@ -192,16 +192,16 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       console.log(err)
     }
 
-    try {
-      this.state.state$
-        .pipe(
-          // pluck(),
-          untilDestroyed(this)
-        )
-        .subscribe((e) => console.log(e))
-    } catch (err) {
-      console.log(err)
-    }
+    // try {
+    //   this.state.state$
+    //     .pipe(
+    //       // pluck(),
+    //       untilDestroyed(this)
+    //     )
+    //     .subscribe((e) => console.log(e))
+    // } catch (err) {
+    //   console.log(err)
+    // }
 
     // non-state emitters
     this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
