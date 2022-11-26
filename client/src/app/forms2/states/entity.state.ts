@@ -1,15 +1,15 @@
 import {
-  formatEvidenceEnum,
-  InputEnum,
+    formatEvidenceEnum,
+    InputEnum
 } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import {
-  AssertionClinicalSignificance,
-  AssertionDirection,
-  AssertionType,
-  DrugInteraction,
-  EvidenceClinicalSignificance,
-  EvidenceDirection,
-  EvidenceType,
+    AssertionClinicalSignificance,
+    AssertionDirection,
+    AssertionType,
+    DrugInteraction,
+    EvidenceClinicalSignificance,
+    EvidenceDirection,
+    EvidenceType
 } from '@app/generated/civic.apollo'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
@@ -35,8 +35,6 @@ export type ValidEntity = {
   requiresClingenCodes: boolean
   allowsFdaApproval: boolean
 }
-
-export type NzSelectOption = { [key: string | number]: string | number }
 
 export enum EntityName {
   EVIDENCE = 'Evidence',
@@ -192,8 +190,8 @@ class EntityState implements IEntityState {
   }
 
   onDestroy() {
-    // this function needs to be present for concrete states' untilDestroyed(this, 'onDestroy') in subscriptions to work.
-    console.info('entity.state onDestroy() called.')
+    // this function needs to be present for concrete states' untilDestroyed(this, 'onDestroy')
+    // must be called by component instantiating the state
   }
 }
 

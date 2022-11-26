@@ -162,13 +162,13 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'origin-select',
             props: {},
           },
-          <CvcBaseInputFieldOptions>{
-            key: 'baseInputTest',
-            type: 'tag-input',
-            props: {
-              label: 'Input Test',
-            },
-          },
+          // <CvcBaseInputFieldOptions>{
+          //   key: 'baseInputTest',
+          //   type: 'tag-input',
+          //   props: {
+          //     label: 'Input Test',
+          //   },
+          // },
           <CvcPhenotypeSelectFieldOptions>{
             key: 'phenotypeIds',
             type: 'phenotype-multi-select',

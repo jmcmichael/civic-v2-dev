@@ -167,70 +167,9 @@ export class CvcPhenotypeSelectField
 
   configureStateConnections(): void {
     if (!this.state) return
-    this.stateEntityName = this.state.entityName
-    // connect to onRequiresPhenotype$
-    if (!this.state.requires.requiresPhenotype$) {
-      console.warn(
-        `${this.field.id} field's form provides a state, but could not find requiresPhenotype$ subject to attach.`
-      )
-    } else {
-      this.onRequiresPhenotype$ = this.state.requires.requiresPhenotype$
-    }
-
-    // connect onEntityType$
-    if (this.props.requireType) {
-      const etName = `${this.stateEntityName.toLowerCase()}Type$`
-      if (!this.state.fields[etName]) {
-        console.error(
-          `${this.field.id} requireType is true, however form state does not provide Subject ${etName}.`
-        )
-      } else {
-        this.onEntityType$ = this.state.fields[etName]
-        // this.onEntityType$.pipe(tag(`${this.field.id} onEntityType$`)).subscribe()
-      }
-    }
   }
 
   configurePlaceholders(): void {
-    if (!this.onRequiresPhenotype$ || !this.onEntityType$) return
-    // update field placeholders & required status on state input events
-    combineLatest([this.onRequiresPhenotype$, this.onEntityType$])
-      .pipe(tag(`${this.field.id} combineLatest`), untilDestroyed(this))
-      .subscribe(([requiresPhenotype, entityType]: [boolean, Maybe<EntityType>]) => {
-        // phenotypes are not associated with this entity type
-        if (!requiresPhenotype && entityType) {
-          this.props.required = false
-          this.props.disabled = true
-          // no phenotype required, entity type specified
-          this.placeholder$.next(
-            `${formatEvidenceEnum(entityType)} ${
-              this.stateEntityName
-            } does not include associated phenotypes`
-          )
-        }
-        // if entity type is required, toggle field required property off and show a 'Select Type..' prompt
-        if (!entityType && this.props.requireType) {
-          this.props.required = false
-          this.props.disabled = true
-          // no phenotype required, entity type not specified
-          this.placeholder$.next(
-            `Select ${this.stateEntityName} Type to search Phenotypes`
-          )
-        }
-        // state indicates phenotype is required, set required, unset disabled, and show the placeholder (state will only return true from requiresPhenotype$ if entityType provided)
-        if (requiresPhenotype) {
-          this.props.required = true
-          this.props.disabled = false
-          this.placeholder$.next('Search Phenotypes')
-        }
-        // field currently has a value, but state indicates no phenotype is required, or no type is provided && type is required, so reset field
-        if (
-          (!requiresPhenotype && this.formControl.value) ||
-          (this.props.requireType && !entityType && this.formControl.value)
-        ) {
-          this.resetField()
-        }
-      })
   }
 
   getTypeaheadVarsFn(str: string): PhenotypeSelectTypeaheadQueryVariables {

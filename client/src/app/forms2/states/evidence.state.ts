@@ -4,7 +4,8 @@ import {
     EvidenceDirection,
     EvidenceLevel,
     EvidenceType,
-    Maybe
+    Maybe,
+    VariantOrigin
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { BehaviorSubject } from 'rxjs'
@@ -15,6 +16,7 @@ import { EntityName, EntityState } from './entity.state'
 export type EvidenceFields = {
   geneId$: BehaviorSubject<Maybe<number>>
   variantId$: BehaviorSubject<Maybe<number>>
+  variantOrigin$: BehaviorSubject<Maybe<VariantOrigin>>
   evidenceType$: BehaviorSubject<Maybe<EvidenceType>>
   evidenceLevel$: BehaviorSubject<Maybe<EvidenceLevel>>
   evidenceDirection$: BehaviorSubject<Maybe<EvidenceDirection>>
@@ -23,6 +25,8 @@ export type EvidenceFields = {
   drugIds$: BehaviorSubject<Maybe<number[]>>
   drugInteractionType$: BehaviorSubject<Maybe<DrugInteraction>>
   rating$: BehaviorSubject<Maybe<number>>
+  sourceId$: BehaviorSubject<Maybe<number>>
+  phenotypeIds$: BehaviorSubject<Maybe<number[]>>
 }
 
 export type EvidenceEnums = {
@@ -65,12 +69,15 @@ class EvidenceState extends EntityState {
       clinicalSignificance$: new BehaviorSubject<
         Maybe<EvidenceClinicalSignificance>
       >(def.clinicalSignificance),
+      variantOrigin$: new BehaviorSubject<Maybe<VariantOrigin>>(def.variantOrigin),
       diseaseId$: new BehaviorSubject<Maybe<number>>(def.diseaseId),
       drugIds$: new BehaviorSubject<Maybe<number[]>>(def.drugIds),
       drugInteractionType$: new BehaviorSubject<Maybe<DrugInteraction>>(
         def.drugInteractionType
       ),
       rating$: new BehaviorSubject<Maybe<number>>(def.rating),
+      phenotypeIds$: new BehaviorSubject<Maybe<number[]>>(def.phenotypeIds),
+      sourceId$: new BehaviorSubject<Maybe<number>>(def.sourceId)
     }
 
     this.enums = {
