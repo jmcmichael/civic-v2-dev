@@ -190,6 +190,11 @@ class EntityState implements IEntityState {
       return { value: value, label: formatEvidenceEnum(value) }
     })
   }
+
+  onDestroy() {
+    // this function needs to be present for concrete states' untilDestroyed(this, 'onDestroy') in subscriptions to work.
+    console.info('entity.state onDestroy() called.')
+  }
 }
 
 export { EntityState }
