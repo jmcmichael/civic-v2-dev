@@ -95,9 +95,11 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
   @Output() readonly cvcOnFocus = new EventEmitter<void>()
   @Output() readonly cvcOnBlur = new EventEmitter<void>()
+  @Output() readonly cvcOnOpenChange = new EventEmitter<boolean>()
 
   // SOURCE STREAMS
   onFocus$: Subject<void>
+  onOpenChange$: Subject<boolean>
   onBlur$: Subject<void>
   onSearch$: BehaviorSubject<Maybe<string>>
 
@@ -133,6 +135,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   ) {
     // create streams
     this.onFocus$ = new Subject<void>()
+    this.onOpenChange$ = new Subject<boolean>()
     this.onBlur$ = new Subject<void>()
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onResult$ = new BehaviorSubject<Maybe<any[]>>(undefined)
@@ -207,6 +210,11 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
       this.cvcOnBlur.next()
     })
+    this.onOpenChange$
+      .pipe(untilDestroyed(this))
+      .subscribe((change: boolean) => {
+        this.cvcOnOpenChange.next(change)
+      })
     // emit search queries
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((s) => {
       if (s !== undefined) this.cvcOnSearch.next(s)
@@ -217,6 +225,11 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
         this.state.send({ type: 'FOCUS' })
       }),
+      this.onOpenChange$
+        .pipe(untilDestroyed(this))
+        .subscribe((change: boolean) => {
+          this.state.send({ type: 'OPEN', value: change})
+        }),
       this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
         this.state.send({ type: 'BLUR' })
       }),
@@ -227,7 +240,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       this.onLoading$
         .pipe(distinctUntilChanged(), untilDestroyed(this))
         .subscribe((isLoading) => {
-          console.log(`entity-select isLoading: ${isLoading}`)
           this.state.send({ type: 'LOAD', value: isLoading })
         }),
       this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {

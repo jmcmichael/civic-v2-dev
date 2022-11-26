@@ -19,7 +19,7 @@ export type EntitySelectStateEventMessage = {
   // displayed below select field w/ error styles. any form/field errors will supercede the display of this error message.
   error?: Maybe<string>
 
-    // NOTE: entity-select does not provide a message for the 'created' state, which should be displayed by the quick-add form component in its initial, idle state.
+  // NOTE: entity-select does not provide a message for the 'created' state, which should be displayed by the quick-add form component in its initial, idle state.
 }
 
 export type EntitySelectStateContext = {
@@ -37,6 +37,7 @@ export type EntitySelectStateEvent =
   | { type: 'IDLE' }
   | { type: 'FOCUS' }
   | { type: 'BLUR' }
+  | { type: 'OPEN', value: boolean }
   | { type: 'LOAD'; value: boolean }
   | { type: 'SEARCH'; value: string }
   | { type: 'OPTIONS'; value: any[] }
@@ -47,7 +48,9 @@ export interface EntitySelectStateSchema {
   states: {
     idle: {}
     focus: {}
+    opened: {}
     blur: {}
+    closed: {}
     search: {}
     load: {}
     options: {}
@@ -61,7 +64,6 @@ export const selectStateConfig: EntitySelectStateSchema = {
     idle: {
       on: {
         FOCUS: { target: 'focus' },
-        CHANGED: { target: 'changed' },
       },
     },
     focus: {
@@ -89,16 +91,18 @@ export const selectStateConfig: EntitySelectStateSchema = {
     options: {
       entry: ['log'],
       on: {
-        CHANGE: { target: 'changed' },
         CREATE: { target: 'created' },
         BLUR: { target: 'blur' },
       },
     },
-    created: {entry: ['log'],
+    created: {
+      entry: ['log'],
       on: {
-        BLUR: 'blur'
-      }
+        BLUR: 'blur',
+      },
     },
+    opened: { entry: ['log'] },
+    closed: { entry: ['log'] },
     blur: {},
     error: {},
   },
