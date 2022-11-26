@@ -228,7 +228,7 @@ export function EntityTagField<
           .pipe(
             filter((r) => !r.loading),
             map((r) => this.getTypeahedResults(r)),
-            // tag(`${this.field.id} entity-tag-field.mixin result$`),
+            // tag(`${this.field.id} entity-tag-field.mixin response$`),
             untilDestroyed(this)
           )
           .subscribe((results: TAF[]) => {
@@ -252,7 +252,7 @@ export function EntityTagField<
         } else {
           // subscribe to optionTemplates ViewChildren changes,
           // which are re-rendered whenever result$ emits. For each
-          // template, getSelectOptions() generates a NzSelectOption that
+          // option template instance, getSelectOptions() generates a NzSelectOption that
           // attaches the pre-generated row template to a result value.
           this.optionTemplates.changes
             .pipe(
@@ -269,6 +269,7 @@ export function EntityTagField<
             )
         }
 
+        // TODO: call tag query here, and emit a proper NzSelectOption w/ a generated templateRef. Currently, this just displays a text name for the option, looks like crap.
         this.onCreate$.pipe(untilDestroyed(this)).subscribe((entity: TAF) => {
           this.selectOption$.next([{ label: entity.name, value: entity.id }])
         })
@@ -288,14 +289,8 @@ export function EntityTagField<
             )
             return
           }
-          let queries: Observable<ApolloQueryResult<TQ>>[]
-          // wrap primitives in array
-          if (typeof v === 'number') {
-            queries = this.getFetchFn([v])
-          } else {
-            queries = this.getFetchFn(v)
-          }
-          combineLatestArray(queries)
+
+          combineLatestArray(this.getFetchFn(v))
             .pipe(
               // tag(`${this.field.id} combineLatestArray(queries)`),
               map((queries) => {
@@ -331,7 +326,8 @@ export function EntityTagField<
         }
       } // configureDisplayEntityTag()
 
-      getFetchFn(ids: number[]): Observable<ApolloQueryResult<TQ>>[] {
+      getFetchFn(ids: number | number[]): Observable<ApolloQueryResult<TQ>>[] {
+        if(typeof ids === 'number') ids = [ids]
         const queries = ids.map((id) =>
           this.tagQuery
             .fetch(this.getTagQueryVars(id), { fetchPolicy: 'cache-first' })
@@ -354,7 +350,6 @@ export function EntityTagField<
         // if cached results are returned
         if (this.result$) this.result$.next([])
       }
-
     }
 
     return EntityTagFieldMixin

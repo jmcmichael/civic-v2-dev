@@ -16,7 +16,13 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, combineLatest, Subject, Subscription } from 'rxjs'
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  Subject,
+  Subscription,
+} from 'rxjs'
 import { InternalMachineOptions } from 'xstate'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
 import {
@@ -45,6 +51,8 @@ export type CvcSelectMessageOptions = {
   // e.g. 'Create an entity named "SEARCH_STRING"?'
   create: string
 }
+
+// const defaultSelectMessages: EntitySelectStateMessages = {}
 
 @UntilDestroy({ arrayName: 'stateSubscriptions' })
 @Component({
@@ -152,7 +160,17 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           event: EntitySelectStateEvent
         ) => {
           console.log(
-            'entity-select.component state.actions.test():',
+            'entity-select.component state.actions.log():',
+            context,
+            event
+          )
+        },
+        fetchTag: (
+          context: EntitySelectStateContext,
+          event: EntitySelectStateEvent
+        ) => {
+          console.log(
+            'entity-select.component state.actions.fetchTag():',
             context,
             event
           )
@@ -206,10 +224,12 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         if (searchString && searchString.length > 0)
           this.state.send({ type: 'SEARCH', value: searchString })
       }),
-      this.onLoading$.pipe(untilDestroyed(this)).subscribe((isLoading) => {
-        console.log(`entity-select isLoading: ${isLoading}`)
-        this.state.send({ type: 'LOAD', value: isLoading })
-      }),
+      this.onLoading$
+        .pipe(distinctUntilChanged(), untilDestroyed(this))
+        .subscribe((isLoading) => {
+          console.log(`entity-select isLoading: ${isLoading}`)
+          this.state.send({ type: 'LOAD', value: isLoading })
+        }),
       this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
         this.state.send({ type: 'OPTIONS', value: options })
       }),
