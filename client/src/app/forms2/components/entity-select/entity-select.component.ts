@@ -192,16 +192,16 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       console.log(err)
     }
 
-    // try {
-    //   this.state.state$
-    //     .pipe(
-    //       // pluck(),
-    //       untilDestroyed(this)
-    //     )
-    //     .subscribe((e) => console.log(e))
-    // } catch (err) {
-    //   console.log(err)
-    // }
+    try {
+      this.state.state$
+        .pipe(
+          // pluck(),
+          untilDestroyed(this)
+        )
+        .subscribe((e) => console.log(e.value))
+    } catch (err) {
+      console.log(err)
+    }
 
     // non-state emitters
     this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
@@ -228,7 +228,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       this.onOpenChange$
         .pipe(untilDestroyed(this))
         .subscribe((change: boolean) => {
-          this.state.send({ type: 'OPEN', value: change})
+          this.state.send({ type: change === true ? 'OPEN' : 'CLOSE' })
         }),
       this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
         this.state.send({ type: 'BLUR' })

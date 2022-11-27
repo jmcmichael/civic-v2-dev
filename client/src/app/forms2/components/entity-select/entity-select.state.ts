@@ -37,7 +37,8 @@ export type EntitySelectStateEvent =
   | { type: 'IDLE' }
   | { type: 'FOCUS' }
   | { type: 'BLUR' }
-  | { type: 'OPEN', value: boolean }
+  | { type: 'OPEN' }
+  | { type: 'CLOSE' }
   | { type: 'LOAD'; value: boolean }
   | { type: 'SEARCH'; value: string }
   | { type: 'OPTIONS'; value: any[] }
@@ -48,63 +49,83 @@ export interface EntitySelectStateSchema {
   states: {
     idle: {}
     focus: {}
-    opened: {}
-    blur: {}
-    closed: {}
-    search: {}
-    load: {}
-    options: {}
-    created: {}
-    error: {}
+    // opened: {}
+    // closed: {}
+    // blur: {}
+    // search: {}
+    // load: {}
+    // options: {}
+    // created: {}
+    // error: {}
   }
 }
 
 export const selectStateConfig: EntitySelectStateSchema = {
   states: {
     idle: {
+      entry: ['log'],
       on: {
-        FOCUS: { target: 'focus' },
+        FOCUS: 'focus'
+        // OPEN: { target: 'opened' },
       },
     },
     focus: {
       entry: ['log'],
       on: {
-        SEARCH: { target: 'search' },
-        BLUR: { target: 'blur' },
+        // SEARCH: { target: 'search' },
+        // BLUR: { target: 'idle' },
+        CLOSE: { target: 'idle' },
       },
     },
-    search: {
-      entry: ['log'],
-      on: {
-        SEARCH: { target: 'search' },
-        LOAD: { target: 'load' },
-      },
-    },
-    load: {
-      entry: ['log'],
-      on: {
-        LOAD: { target: 'load' },
-        OPTIONS: { target: 'options' },
-        ERROR: { target: 'error' },
-      },
-    },
-    options: {
-      entry: ['log'],
-      on: {
-        CREATE: { target: 'created' },
-        BLUR: { target: 'blur' },
-      },
-    },
-    created: {
-      entry: ['log'],
-      on: {
-        BLUR: 'blur',
-      },
-    },
-    opened: { entry: ['log'] },
-    closed: { entry: ['log'] },
-    blur: {},
-    error: {},
+    // opened: {
+    //   entry: ['log'],
+    //   on: {
+    //     CLOSE: { target: 'closed' },
+    //   },
+    // },
+    // closed: {
+    //   entry: ['log'],
+    //   on: {
+    //     IDLE: { target: 'idle' },
+    //   },
+    // },
+    // focus: {
+    //   entry: ['log'],
+    //   on: {
+    //     // SEARCH: { target: 'search' },
+    //     BLUR: { target: 'idle' },
+    //   },
+    // },
+    // search: {
+    //   entry: ['log'],
+    //   on: {
+    //     SEARCH: { target: 'search' },
+    //     LOAD: { target: 'load' },
+    //   },
+    // },
+    // load: {
+    //   entry: ['log'],
+    //   on: {
+    //     LOAD: { target: 'load' },
+    //     OPTIONS: { target: 'options' },
+    //     ERROR: { target: 'error' },
+    //   },
+    // },
+    // options: {
+    //   entry: ['log'],
+    //   on: {
+    //     CREATE: { target: 'created' },
+    //     BLUR: { target: 'blur' },
+    //   },
+    // },
+    // created: {
+    //   entry: ['log'],
+    //   on: {
+    //     BLUR: 'blur',
+    //   },
+    // },
+    // blur: {},
+    // error: {},
   },
 }
 
