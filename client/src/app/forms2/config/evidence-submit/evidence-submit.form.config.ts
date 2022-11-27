@@ -58,110 +58,110 @@ const formFieldConfig: FormlyFieldConfig[] = [
                   required: true,
                 },
               },
-              <CvcVariantSelectFieldOptions>{
-                key: 'variantId',
-                type: 'variant-select',
-                props: {
-                  required: true,
-                  // requireGene: false
-                },
-              },
+              // <CvcVariantSelectFieldOptions>{
+              //   key: 'variantId',
+              //   type: 'variant-select',
+              //   props: {
+              //     required: true,
+              //     // requireGene: false
+              //   },
+              // },
             ],
           },
-          <CvcSourceSelectFieldOptions>{
-            key: 'sourceId',
-            type: 'source-select',
-            props: {},
-          },
-          {
-            wrappers: ['field-grid'],
-            props: <CvcFieldGridWrapperConfig>{
-              grid: {
-                cols: 2,
-              },
-            },
-            fieldGroup: [
-              <CvcEntityTypeSelectFieldConfig>{
-                key: 'evidenceType',
-                type: 'type-select',
-                props: {
-                  required: true,
-                },
-              },
-              <CvcDirectionSelectFieldOptions>{
-                key: 'evidenceDirection',
-                type: 'direction-select',
-                props: {},
-              },
-            ],
-          },
-          {
-            wrappers: ['field-grid'],
-            props: <CvcFieldGridWrapperConfig>{
-              grid: {
-                cols: 2,
-              },
-            },
-            fieldGroup: [
-              <CvcSignificanceSelectFieldOptions>{
-                key: 'clinicalSignificance',
-                type: 'significance-select',
-                props: {},
-              },
-              <CvcDiseaseSelectFieldOptions>{
-                key: 'diseaseId',
-                type: 'disease-select',
-                props: {},
-              },
-            ],
-          },
-          {
-            wrappers: ['field-grid'],
-            props: <CvcFieldGridWrapperConfig>{
-              grid: {
-                cols: 2,
-              },
-            },
-            fieldGroup: [
-              <CvcDrugSelectFieldOptions>{
-                key: 'drugIds',
-                type: 'drug-multi-select',
-                props: {},
-              },
-              <CvcInteractionSelectFieldOptions>{
-                key: 'drugInteractionType',
-                type: 'interaction-select',
-                props: {},
-              },
-            ],
-          },
-          {
-            wrappers: ['field-grid'],
-            props: <CvcFieldGridWrapperConfig>{
-              grid: {
-                cols: 2,
-              },
-            },
-            fieldGroup: [
-              <CvcLevelSelectFieldOptions>{
-                key: 'evidenceLevel',
-                type: 'level-select',
-                props: {},
-              },
-              <CvcRatingFieldOptions>{
-                key: 'rating',
-                type: 'rating',
-                props: {
-                  required: true,
-                },
-              },
-            ],
-          },
-          <CvcOriginSelectFieldOptions>{
-            key: 'variantOrigin',
-            type: 'origin-select',
-            props: {},
-          },
+          // <CvcSourceSelectFieldOptions>{
+          //   key: 'sourceId',
+          //   type: 'source-select',
+          //   props: {},
+          // },
+          // {
+          //   wrappers: ['field-grid'],
+          //   props: <CvcFieldGridWrapperConfig>{
+          //     grid: {
+          //       cols: 2,
+          //     },
+          //   },
+          //   fieldGroup: [
+          //     <CvcEntityTypeSelectFieldConfig>{
+          //       key: 'evidenceType',
+          //       type: 'type-select',
+          //       props: {
+          //         required: true,
+          //       },
+          //     },
+          //     <CvcDirectionSelectFieldOptions>{
+          //       key: 'evidenceDirection',
+          //       type: 'direction-select',
+          //       props: {},
+          //     },
+          //   ],
+          // },
+          // {
+          //   wrappers: ['field-grid'],
+          //   props: <CvcFieldGridWrapperConfig>{
+          //     grid: {
+          //       cols: 2,
+          //     },
+          //   },
+          //   fieldGroup: [
+          //     <CvcSignificanceSelectFieldOptions>{
+          //       key: 'clinicalSignificance',
+          //       type: 'significance-select',
+          //       props: {},
+          //     },
+          //     <CvcDiseaseSelectFieldOptions>{
+          //       key: 'diseaseId',
+          //       type: 'disease-select',
+          //       props: {},
+          //     },
+          //   ],
+          // },
+          // {
+          //   wrappers: ['field-grid'],
+          //   props: <CvcFieldGridWrapperConfig>{
+          //     grid: {
+          //       cols: 2,
+          //     },
+          //   },
+          //   fieldGroup: [
+          //     <CvcDrugSelectFieldOptions>{
+          //       key: 'drugIds',
+          //       type: 'drug-multi-select',
+          //       props: {},
+          //     },
+          //     <CvcInteractionSelectFieldOptions>{
+          //       key: 'drugInteractionType',
+          //       type: 'interaction-select',
+          //       props: {},
+          //     },
+          //   ],
+          // },
+          // {
+          //   wrappers: ['field-grid'],
+          //   props: <CvcFieldGridWrapperConfig>{
+          //     grid: {
+          //       cols: 2,
+          //     },
+          //   },
+          //   fieldGroup: [
+          //     <CvcLevelSelectFieldOptions>{
+          //       key: 'evidenceLevel',
+          //       type: 'level-select',
+          //       props: {},
+          //     },
+          //     <CvcRatingFieldOptions>{
+          //       key: 'rating',
+          //       type: 'rating',
+          //       props: {
+          //         required: true,
+          //       },
+          //     },
+          //   ],
+          // },
+          // <CvcOriginSelectFieldOptions>{
+          //   key: 'variantOrigin',
+          //   type: 'origin-select',
+          //   props: {},
+          // },
           // <CvcBaseInputFieldOptions>{
           //   key: 'baseInputTest',
           //   type: 'tag-input',
@@ -169,11 +169,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
           //     label: 'Input Test',
           //   },
           // },
-          <CvcPhenotypeSelectFieldOptions>{
-            key: 'phenotypeIds',
-            type: 'phenotype-multi-select',
-            props: {},
-          },
+          // <CvcPhenotypeSelectFieldOptions>{
+          //   key: 'phenotypeIds',
+          //   type: 'phenotype-multi-select',
+          //   props: {},
+          // },
         ],
       },
       {
