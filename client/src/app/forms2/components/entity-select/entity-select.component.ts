@@ -29,17 +29,15 @@ export type CvcSelectEntityName = { singular: string; plural: string }
 
 export type CvcEntitySelectParamMsgFn = {
   description: string
-  (strings: string[], search: string, param: string): string
+  (searchStr: string, paramStr: string): string
 }
 
-/* FIELD MESSAGES - various messages displayed by the field
- *  - prompt (below field): if disabled, hints to user how to enable field, e.g. "Select a Gene to search Variants."
- * - loading (inside dropdown): while API requests loading, e.g. "Loading Variants..."
- * - empty: (inside dropdown): if no results returned, e.g. "No BRAF Variants found matching V600000"
+/* SELECT MESSAGES - displayed at top of options dropdown
+ * - loading: while API requests loading, e.g. "Loading Variants..."
+ * - empty: if no results returned, e.g. "No BRAF Variants found matching V600000"
  *   NOTE: if cvcCreateEntity provided, its quick-add form will be displayed instead, which will include its own prompt, e.g. "No BRAF Variants found matching V60000, would you like to create it?"
  * */
 export type CvcEntitySelectMessageOptions2 = Partial<{
-  prompt: string | CvcEntitySelectParamMsgFn
   loading: string | CvcEntitySelectParamMsgFn
   empty: string | CvcEntitySelectParamMsgFn
 }>
@@ -109,13 +107,11 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   // SOURCE STREAMS
   onFocus$: Subject<void>
   onOpenChange$: Subject<boolean>
-  onBlur$: Subject<void>
   onSearch$: BehaviorSubject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
 
   // PRESENTATION STREAMS
-  onResult$: BehaviorSubject<Maybe<any[]>>
   onLoading$: BehaviorSubject<boolean>
   onOption$: Subject<NzSelectOptionInterface[]>
 
@@ -134,51 +130,42 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   ) {
     this.onFocus$ = new Subject<void>()
     this.onOpenChange$ = new Subject<boolean>()
-    this.onBlur$ = new Subject<void>()
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
-    this.onResult$ = new BehaviorSubject<Maybe<any[]>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
   }
 
   ngAfterViewInit(): void {
+    // wrapping state creation in try/catch b/c it can fail silently while initializing
     try {
       this.state = this.stateService.useMachine(getEntitySelectMachine(), {
         devTools: true,
       })
     } catch (err) {
-      console.log(err)
+      console.error(err)
     }
 
-    try {
-      this.state.state$
-        .pipe(
-          // pluck(),
-          untilDestroyed(this)
-        )
-        .subscribe((e) => console.log(e.value))
-    } catch (err) {
-      console.log(err)
-    }
+    // DEBUG
+    this.state.state$
+      .pipe(untilDestroyed(this))
+      .subscribe((e) => console.log(e))
 
     // hook up Outputs and state Events
     this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
       this.cvcOnFocus.next()
-      this.state.send({ type: 'FOCUS' })
     })
-    this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.cvcOnBlur.next()
-    })
+
     this.onOpenChange$
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
         this.cvcOnOpenChange.next(change)
         this.state.send({ type: change === true ? 'OPEN' : 'CLOSE' })
       })
+
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((str) => {
       if (str) {
         this.cvcOnSearch.next(str)
-        this.state.send({ type: 'SEARCH', searchStr: str })
+        // this.state.send({ type: 'SEARCH', searchStr: str })
       }
     })
   } // ngAfterViewInit()
@@ -187,6 +174,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.cvcLoading) {
       this.onLoading$.next(changes.cvcLoading.currentValue)
+      this.state.send({
+        type: 'LOAD',
+        loading: changes.cvcLoading.currentValue,
+      })
     }
     if (changes.cvcOptions) {
       this.onOption$.next(changes.cvcOptions.currentValue)

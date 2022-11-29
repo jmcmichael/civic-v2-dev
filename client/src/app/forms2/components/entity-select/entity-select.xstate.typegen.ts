@@ -17,11 +17,11 @@ export interface Typegen0 {
   eventsCausingGuards: {}
   eventsCausingDelays: {}
   matchesStates:
-    | 'focused'
-    | 'focused.empty'
-    | 'focused.loading'
-    | 'focused.options'
     | 'idle'
-    | { focused?: 'empty' | 'loading' | 'options' }
+    | 'open'
+    | 'open.empty'
+    | 'open.loading'
+    | 'open.options'
+    | { open?: 'empty' | 'loading' | 'options' }
   tags: never
 }

@@ -21,7 +21,6 @@
   [nzNotFoundContent]="notFound"
   (nzFocus)="onFocus$.next($event)"
   (nzOpenChange)="onOpenChange$.next($event)"
-  (nzBlur)="onBlur$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)

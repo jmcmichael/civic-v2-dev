@@ -29,6 +29,7 @@ import {
 } from 'rxjs'
 import { combineLatestArray } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
+import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
 
 export type GetTypeaheadVarsFn<TAV extends EmptyObject, TAP> = (
@@ -93,8 +94,9 @@ export function EntityTagField<
 
       // LOCAL SOURCE STREAMS
       onFocus$!: Subject<void>
+      onOpenChange$!: Subject<boolean>
       onBlur$!: Subject<void>
-      onSearch$!: Subject<string> // emits on typeahead keypress
+      onSearch$!: BehaviorSubject<string> // emits on typeahead keypress
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
       onCreate$!: Subject<TAF> // emits entity on create
 
@@ -142,8 +144,9 @@ export function EntityTagField<
         this.typeaheadParamName$ = options.typeaheadParamName$
         this.cdr = options.changeDetectorRef
 
-        this.onSearch$ = new Subject<string>()
+        this.onSearch$ = new BehaviorSubject<string>('')
         this.onFocus$ = new Subject<void>()
+        this.onOpenChange$ = new Subject<boolean>()
         this.onBlur$ = new Subject<void>()
         this.isLoading$ = new Subject<boolean>()
         this.result$ = new BehaviorSubject<TAF[]>([])
@@ -164,6 +167,13 @@ export function EntityTagField<
           .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
           .subscribe(([_, searchStr]) => {
             this.onSearch$.next(searchStr)
+          })
+
+        this.onOpenChange$
+          .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
+          .subscribe(([isOpen, searchStr]) => {
+            // send empty query on open to immediately display options
+            if(isOpen) this.onSearch$.next('')
           })
 
         // set up typeahead watch & fetch calls

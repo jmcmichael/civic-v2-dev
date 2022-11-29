@@ -1,33 +1,31 @@
-import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { createMachine, InternalMachineOptions, StateMachine } from 'xstate'
+import {
+    createMachine, StateMachine
+} from 'xstate'
 
 export interface EntitySelectContext {
-  messages: {
-    prompt: string
-    focus: string
-    loading: string
-    options: string
-    empty: string
-    description: string
-    error: string
-  }
+  message: string
+  // messages: {
+  //   entering: string
+  //   loading: string
+  //   empty: string
+  //   error: string
+  // }
 }
 
 export type EntitySelectEvent =
-  | { type: 'FOCUS' }
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
-  | { type: 'SEARCH'; searchStr: string }
+  | { type: 'LOAD'; loading: boolean }
+// | { type: 'ENTER'; searchStr: string }
 
 export interface EntitySelectSchema {
   states: {
     idle: {}
-    focused: {
+    open: {
       states: {
-        searching: {}
         loading: {}
-        // options: {}
-        // empty: {}
+        options: {}
+        empty: {}
       }
     }
   }
@@ -39,19 +37,15 @@ export type EntitySelectTypestate =
       context: EntitySelectContext
     }
   | {
-      value: 'focused.searching'
-      context: EntitySelectContext & { searchStr: string }
+      value: 'loading.loading'
+      context: EntitySelectContext & { loading: boolean }
     }
   | {
-      value: 'focused.loading'
+      value: 'loading.options'
       context: EntitySelectContext
     }
   | {
-      value: 'focused.options'
-      context: EntitySelectContext
-    }
-  | {
-      value: 'focused.empty'
+      value: 'loading.empty'
       context: EntitySelectContext
     }
 
@@ -68,24 +62,26 @@ export function getEntitySelectMachine(): StateMachine<
     any
   >(
     {
-      tsTypes: {} as import('./entity-select.xstate.typegen').Typegen0,
       predictableActionArguments: true,
+      tsTypes: {} as import('./entity-select.xstate.typegen').Typegen0,
       id: 'entity-select',
       initial: 'idle',
       states: {
         idle: {
           on: {
-            FOCUS: 'focused'
+            OPEN: 'open',
           },
         },
-        focused: {
+        open: {
           initial: 'loading',
           on: {
-            CLOSE: 'idle'
+            CLOSE: 'idle',
           },
           states: {
             loading: {
-              /* ... */
+              on: {
+                LOAD: 'loading',
+              },
             },
             options: {
               /* ... */
@@ -102,13 +98,6 @@ export function getEntitySelectMachine(): StateMachine<
         log: (context: EntitySelectContext, event: EntitySelectEvent) => {
           console.log(
             'entity-select.component state.actions.log():',
-            context,
-            event
-          )
-        },
-        fetchTag: (context: EntitySelectContext, event: EntitySelectEvent) => {
-          console.log(
-            'entity-select.component state.actions.fetchTag():',
             context,
             event
           )
