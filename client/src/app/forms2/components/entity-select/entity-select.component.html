@@ -11,7 +11,6 @@
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
   [nzLoading]="cvcLoading"
-  [nzOpen]="onForceOpen$ | ngrxPush"
   [nzAllowClear]="cvcAllowClear"
   [nzBorderless]="cvcBorderless"
   [nzSuffixIcon]="'search'"
@@ -29,11 +28,17 @@
 </nz-select>
 <ng-template #notFound>
   <ng-container *ngrxLet="onMessageMode$ as mode">
-    <ng-container *ngIf="mode === 'loading'">
-      <ng-container *ngTemplateOutlet="loadingMsg"></ng-container>
+    <ng-container [ngSwitch]="onMessageMode$ | ngrxPush">
+      <ng-container *ngSwitchCase="'loading'">
+        <ng-container *ngTemplateOutlet="loadingMsg"></ng-container>
+      </ng-container>
+      <ng-container *ngSwitchCase="'empty'">
+        No results found matching search string.
+      </ng-container>
+      <ng-container *ngSwitchCase="'error'">
+        Server error.
+      </ng-container>
     </ng-container>
-    <ng-container *ngIf="mode === 'empty'"> No results found matching search string.</ng-container>
-    <ng-container *ngIf="mode === 'error'"> ERROR </ng-container>
   </ng-container>
 
   <ng-template #loadingMsg>

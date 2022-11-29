@@ -115,7 +115,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   // SOURCE STREAMS
   onFocus$: Subject<void>
-  onForceOpen$: BehaviorSubject<boolean>
   onOpenChange$: Subject<boolean>
   onSearch$: BehaviorSubject<Maybe<string>>
   onMessageMode$: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
@@ -125,6 +124,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   // PRESENTATION STREAMS
   onLoading$: BehaviorSubject<boolean>
   onOption$: Subject<NzSelectOptionInterface[]>
+  onResult$: Subject<any[]>
 
   state!: InterpretedService<
     EntitySelectContext,
@@ -140,20 +140,19 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     private cdr: ChangeDetectorRef
   ) {
     this.onFocus$ = new Subject<void>()
-    this.onForceOpen$ = new BehaviorSubject<boolean>(false)
     this.onOpenChange$ = new Subject<boolean>()
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
+    this.onResult$ = new Subject<any[]>()
     this.onMessageMode$ = new BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>(undefined)
-
   }
 
   ngAfterViewInit(): void {
     // DEBUG
-    this.onMessageMode$
-      .pipe(tag('entity-select.component onMessageMode$'), untilDestroyed(this))
-      .subscribe()
+    // this.onMessageMode$
+    //   .pipe(tag('entity-select.component onMessageMode$'), untilDestroyed(this))
+    //   .subscribe()
 
     // wrapping state creation in try/catch b/c it can fail silently while initializing
     try {
@@ -172,12 +171,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       .pipe(untilDestroyed(this))
       .subscribe((e) => console.log(e.value, e.event))
 
-    // hook up Outputs and state Events
-    // this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-    //   // this.cvcOnFocus.next()
-    //   this.onForceOpen$.next(true)
-    // })
-
     this.onOpenChange$
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
@@ -192,12 +185,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       }
     })
 
-    this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
-      if (options.length > 0) {
-        this.state.send({ type: 'SUCCESS', options: options })
-      } else {
-        this.state.send({ type: 'FAIL' })
-      }
+    this.onResult$.pipe(untilDestroyed(this)).subscribe((results) => {
+      if (results.length > 0) this.state.send({ type: 'SUCCESS' })
+      if (results.length === 0) this.state.send({ type: 'FAIL' })
     })
   } // ngAfterViewInit()
 
@@ -214,6 +204,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     }
     if (changes.cvcOptions) {
       this.onOption$.next(changes.cvcOptions.currentValue)
+    }
+    if (changes.cvcResults) {
+      this.onResult$.next(changes.cvcResults.currentValue)
     }
   }
   testRender(str: string) {

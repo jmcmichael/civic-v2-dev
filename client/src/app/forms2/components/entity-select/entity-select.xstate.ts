@@ -10,7 +10,7 @@ export type EntitySelectEvent =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
   | { type: 'LOAD' }
-  | { type: 'SUCCESS'; options: NzSelectOptionInterface[] }
+  | { type: 'SUCCESS' }
   | { type: 'FAIL' }
   | { type: 'ERROR' }
 
