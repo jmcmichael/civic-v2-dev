@@ -12,13 +12,18 @@ import {
 } from '@angular/core'
 import { FormControl } from '@angular/forms'
 import { Maybe } from '@app/generated/civic.apollo'
-import { UntilDestroy } from '@ngneat/until-destroy'
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
-import { EntitySelectContext, EntitySelectEvent, EntitySelectSchema } from './entity-select.xstate'
+import {
+  EntitySelectContext,
+  EntitySelectEvent,
+  EntitySelectSchema,
+  getEntitySelectMachine,
+} from './entity-select.xstate'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 
@@ -125,7 +130,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       EntitySelectSchema,
       EntitySelectEvent
     >,
-    private cdr: ChangeDetectorRef) {
+    private cdr: ChangeDetectorRef
+  ) {
     this.onFocus$ = new Subject<void>()
     this.onOpenChange$ = new Subject<boolean>()
     this.onBlur$ = new Subject<void>()
@@ -135,8 +141,55 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
   }
 
-  ngAfterViewInit(): void {} // ngAfterViewInit()
+  ngAfterViewInit(): void {
+    try {
+      this.state = this.stateService.useMachine(getEntitySelectMachine(), {
+        devTools: true,
+      })
+    } catch (err) {
+      console.log(err)
+    }
+
+    try {
+      this.state.state$
+        .pipe(
+          // pluck(),
+          untilDestroyed(this)
+        )
+        .subscribe((e) => console.log(e.value))
+    } catch (err) {
+      console.log(err)
+    }
+
+    // hook up Outputs and state Events
+    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+      this.cvcOnFocus.next()
+      this.state.send({ type: 'FOCUS' })
+    })
+    this.onBlur$.pipe(untilDestroyed(this)).subscribe((_) => {
+      this.cvcOnBlur.next()
+    })
+    this.onOpenChange$
+      .pipe(untilDestroyed(this))
+      .subscribe((change: boolean) => {
+        this.cvcOnOpenChange.next(change)
+        this.state.send({ type: change === true ? 'OPEN' : 'CLOSE' })
+      })
+    this.onSearch$.pipe(untilDestroyed(this)).subscribe((str) => {
+      if (str) {
+        this.cvcOnSearch.next(str)
+        this.state.send({ type: 'SEARCH', searchStr: str })
+      }
+    })
+  } // ngAfterViewInit()
 
   // attach some Inputs to Subjects for use in observable chains
-  ngOnChanges(changes: SimpleChanges): void {}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.cvcLoading) {
+      this.onLoading$.next(changes.cvcLoading.currentValue)
+    }
+    if (changes.cvcOptions) {
+      this.onOption$.next(changes.cvcOptions.currentValue)
+    }
+  }
 }

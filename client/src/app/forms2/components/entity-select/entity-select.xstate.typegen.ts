@@ -16,6 +16,12 @@ export interface Typegen0 {
   eventsCausingServices: {}
   eventsCausingGuards: {}
   eventsCausingDelays: {}
-  matchesStates: 'empty' | 'idle' | 'loading' | 'options'
+  matchesStates:
+    | 'focused'
+    | 'focused.empty'
+    | 'focused.loading'
+    | 'focused.options'
+    | 'idle'
+    | { focused?: 'empty' | 'loading' | 'options' }
   tags: never
 }

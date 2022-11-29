@@ -15,8 +15,8 @@
     "generate-icons": "yarn run generate-svgo && svg-to-ts",
     "generate-apollo": "graphql-codegen",
     "generate-apollo:start": "graphql-codegen --watch",
-    "generate-states": "yarn xstate typegen 'src/app/**/*.ts'",
-    "generate-states:start": "yarn xstate typegen 'src/app/**/*.ts' --watch"
+    "generate-states": "yarn xstate typegen 'src/app/**/*.xstate.ts'",
+    "generate-states:start": "yarn xstate typegen 'src/app/**/*.xstate.ts' --watch"
   },
   "private": true,
   "resolutions": {
