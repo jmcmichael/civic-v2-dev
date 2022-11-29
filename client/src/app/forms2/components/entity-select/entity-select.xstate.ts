@@ -1,5 +1,6 @@
+import { Maybe } from '@app/generated/civic.apollo'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { Subject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 import { createMachine, StateMachine } from 'xstate'
 import { CvcEntitySelectMessageMode } from './entity-select.component'
 
@@ -8,7 +9,7 @@ export interface EntitySelectContext {}
 export type EntitySelectEvent =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
-  | { type: 'LOAD'; loading: boolean }
+  | { type: 'LOAD' }
   | { type: 'SUCCESS'; options: NzSelectOptionInterface[] }
   | { type: 'FAIL' }
   | { type: 'ERROR' }
@@ -16,15 +17,10 @@ export type EntitySelectEvent =
 export interface EntitySelectSchema {
   states: {
     idle: {}
-    open: {
-      states: {
-        entering: {}
-        loading: {}
-        options: {}
-        empty: {}
-        error: {}
-      }
-    }
+    loading: {}
+    options: {}
+    empty: {}
+    error: {}
   }
 }
 
@@ -34,28 +30,24 @@ export type EntitySelectTypestate =
       context: EntitySelectContext
     }
   | {
-      value: 'open.entering'
-      context: EntitySelectContext & { searchStr: string }
-    }
-  | {
-      value: 'open.loading'
-      context: EntitySelectContext & { loading: boolean }
-    }
-  | {
-      value: 'open.options'
-      context: EntitySelectContext & { options: NzSelectOptionInterface[] }
-    }
-  | {
-      value: 'open.empty'
+      value: 'loading'
       context: EntitySelectContext
     }
   | {
-      value: 'open.error'
+      value: 'options'
+      context: EntitySelectContext & { options: NzSelectOptionInterface[] }
+    }
+  | {
+      value: 'empty'
+      context: EntitySelectContext
+    }
+  | {
+      value: 'error'
       context: EntitySelectContext
     }
 
 export function getEntitySelectMachine(
-  onMessageMode: Subject<CvcEntitySelectMessageMode>
+  onMessageMode: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
 ): StateMachine<EntitySelectContext, EntitySelectSchema, EntitySelectEvent> {
   return createMachine<
     EntitySelectContext,
@@ -73,39 +65,67 @@ export function getEntitySelectMachine(
         idle: {
           entry: ['emitMessageMode'],
           on: {
-            OPEN: 'open',
+            LOAD: 'loading',
           },
         },
-        open: {
-          initial: 'entering',
+        loading: {
+          entry: ['emitMessageMode'],
+          on: {
+            SUCCESS: 'options',
+            FAIL: 'empty',
+            ERROR: 'error',
+            CLOSE: 'idle',
+          },
+        },
+        options: {
           entry: ['emitMessageMode'],
           on: {
             CLOSE: 'idle',
-            LOAD: 'open.loading',
-          },
-          states: {
-            entering: {
-              entry: ['emitMessageMode'],
-            },
-            loading: {
-              entry: ['emitMessageMode'],
-              on: {
-                SUCCESS: 'options',
-                FAIL: 'empty',
-                ERROR: 'error',
-              },
-            },
-            options: {
-              entry: ['emitMessageMode'],
-            },
-            empty: {
-              entry: ['emitMessageMode'],
-            },
-            error: {
-              entry: ['emitMessageMode'],
-            },
+            LOAD: 'loading',
           },
         },
+        empty: {
+          entry: ['emitMessageMode'],
+          on: {
+            LOAD: 'loading',
+          }
+        },
+        error: {
+          entry: ['emitMessageMode'],
+          on: {
+            LOAD: 'loading',
+          }
+        },
+        // open: {
+        //   initial: 'entering',
+        //   entry: ['emitMessageMode'],
+        //   on: {
+        //     CLOSE: 'idle',
+        //     LOAD: 'open.loading',
+        //   },
+        //   states: {
+        //     entering: {
+        //       entry: ['emitMessageMode'],
+        //     },
+        //     loading: {
+        //       entry: ['emitMessageMode'],
+        //       on: {
+        //         SUCCESS: 'options',
+        //         FAIL: 'empty',
+        //         ERROR: 'error',
+        //       },
+        //     },
+        //     options: {
+        //       entry: ['emitMessageMode'],
+        //     },
+        //     empty: {
+        //       entry: ['emitMessageMode'],
+        //     },
+        //     error: {
+        //       entry: ['emitMessageMode'],
+        //     },
+        //   },
+        // },
       },
     },
     {
@@ -119,7 +139,7 @@ export function getEntitySelectMachine(
               onMessageMode.next('entering')
               break
             case 'LOAD':
-              if (event.loading) onMessageMode.next('loading')
+              onMessageMode.next('loading')
               break
             case 'SUCCESS':
               onMessageMode.next('options')

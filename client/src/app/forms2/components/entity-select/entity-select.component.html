@@ -1,4 +1,3 @@
-{{ onMessageMode$ | ngrxPush | json  }}
 <nz-select
   nzShowSearch
   nzServerSearch
@@ -30,18 +29,18 @@
 </nz-select>
 <ng-template #notFound>
   <ng-container *ngrxLet="onMessageMode$ as mode">
-    <ng-container *ngIf="mode === 'loading' || mode === 'entering'">
+    <ng-container *ngIf="mode === 'loading'">
+      <ng-container *ngTemplateOutlet="loadingMsg"></ng-container>
+    </ng-container>
+    <ng-container *ngIf="mode === 'empty'"> No results found matching search string.</ng-container>
+    <ng-container *ngIf="mode === 'error'"> ERROR </ng-container>
+  </ng-container>
+
+  <ng-template #loadingMsg>
     <span
       nz-icon
       nzType="loading"
       class="loading-icon"></span>
     Loading
-    </ng-container>
-    <ng-container *ngIf="mode === 'empty'">
-      EMPTY
-    </ng-container>
-    <ng-container *ngIf="mode === 'error'">
-      ERROR
-    </ng-container>
-  </ng-container>
+  </ng-template>
 </ng-template>

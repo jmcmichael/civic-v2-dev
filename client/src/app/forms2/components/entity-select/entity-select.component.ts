@@ -118,7 +118,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   onForceOpen$: BehaviorSubject<boolean>
   onOpenChange$: Subject<boolean>
   onSearch$: BehaviorSubject<Maybe<string>>
-  onMessageMode$: Subject<CvcEntitySelectMessageMode>
+  onMessageMode$: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
 
   // INTERMEDIATE STREAMS
 
@@ -145,7 +145,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
-    this.onMessageMode$ = new Subject<CvcEntitySelectMessageMode>()
+    this.onMessageMode$ = new BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>(undefined)
+
   }
 
   ngAfterViewInit(): void {
@@ -204,13 +205,18 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.cvcLoading) {
       this.onLoading$.next(changes.cvcLoading.currentValue)
-      this.state.send({
-        type: 'LOAD',
-        loading: changes.cvcLoading.currentValue,
-      })
+      // only send LOAD events if loading value is true
+      if (changes.cvcLoading.currentValue) {
+        this.state.send({
+          type: 'LOAD',
+        })
+      }
     }
     if (changes.cvcOptions) {
       this.onOption$.next(changes.cvcOptions.currentValue)
     }
+  }
+  testRender(str: string) {
+    console.log(`testRender: ${str}`)
   }
 }
