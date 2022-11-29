@@ -59,7 +59,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
   @Input() cvcOptions?: NzSelectOptionInterface[]
-  // search results, provided by EntityTagFieldMixin's result$ (or other search results observable)
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
@@ -67,14 +66,22 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcBorderless?: boolean = false
   @Input() cvcShowArrow?: boolean
   @Input() cvcAutoClearSearchValue: boolean = true
+
   // custom template for field value render
   @Input() cvcCustomTemplate?: TemplateRef<any> | null = null
+
   // additional content displayed at bottom of options dropdown
   @Input() cvcDropdownExtra?: TemplateRef<any> | null = null
-  @Input() cvcDropdownClassname?: string | string[] = []
+
+  // name of entity specified by optional param value, for constructing messages
+  @Input() cvcParamName?: string
+
   // templateref w/ entity's quick-add form component
   @Input() cvcAddEntity: TemplateRef<any> | null = null
+
+  // called on entity creation
   @Input() cvcOnCreate?: Subject<number>
+
   // model update callback fn - ngx-formly convention, implements props.change feature
   @Input() cvcModelChange?: FormlyAttributeEvent
 

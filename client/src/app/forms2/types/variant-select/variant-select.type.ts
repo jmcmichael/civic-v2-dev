@@ -203,6 +203,7 @@ export class CvcVariantSelectField
     if (!gid && this.props.requireGene && this.props.requireGenePrompt) {
       this.resetField()
       this.placeholder$.next(this.props.requireGenePrompt)
+      this.onGeneName$.next(undefined)
     } else if (gid) {
       // id provided, so fetch its name and update the placeholder string
       // lastValueFrom is used b/c fetch could return 'loading' events

@@ -10,6 +10,7 @@
   [cvcOptions]="(selectOption$ | ngrxPush)!"
   [cvcShowError]="showError"
   [cvcLoading]="isLoading$ | ngrxPush"
+  [cvcParamName]="onGeneName$ | ngrxPush"
   (cvcOnSearch)="onSearch$.next($event)"
   (cvcOnFocus)="onFocus$.next($event)"
   (cvcOnBlur)="onBlur$.next()"
