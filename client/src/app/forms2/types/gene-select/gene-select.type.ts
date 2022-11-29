@@ -85,6 +85,7 @@ export class CvcGeneSelectField
       entityName: { singular: 'Gene', plural: 'Genes' },
       helpText:
         'Entrez Gene (e.g. BRAF). Gene must be known to the Entrez database.',
+      description: 'Description.'
     },
   }
 
