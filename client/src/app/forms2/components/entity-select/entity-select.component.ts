@@ -16,8 +16,7 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, Subject } from 'rxjs'
-import { tag } from 'rxjs-spy/operators'
+import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
 import {
   EntitySelectContext,
@@ -33,9 +32,14 @@ export type CvcSelectEntityName = { singular: string; plural: string }
  * - empty: if no results returned, e.g. "No BRAF Variants found matching V600000"
  *   NOTE: if cvcCreateEntity provided, its quick-add form will be displayed instead, which will include its own prompt, e.g. "No BRAF Variants found matching V60000, would you like to create it?"
  * */
+type SelectMessageFn = (
+  entityName: string,
+  searchStr: string,
+  paramName?: string
+) => string
 export type CvcEntitySelectMessageOptions = {
-  loading: (entityName: string, searchStr: string) => string
-  empty: (entityName: string, searchStr: string) => string
+  loading: SelectMessageFn
+  empty: SelectMessageFn
 }
 
 export type CvcEntitySelectMessageMode = 'idle' | 'loading' | 'empty'
@@ -94,6 +98,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   onOpenChange$: Subject<boolean>
   onSearch$: BehaviorSubject<Maybe<string>>
   onMessageMode$: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
+  onParamName$: BehaviorSubject<Maybe<string>>
 
   // INTERMEDIATE STREAMS
   onResult$: Subject<any[]>
@@ -110,15 +115,25 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   // default message functions
   messageOptions: CvcEntitySelectMessageOptions = {
-    loading: (entityName, searchStr) => {
-      if (searchStr.length > 0) {
+    loading: (entityName, searchStr, paramName) => {
+      if (paramName && searchStr.length > 0) {
+        return `Searching ${paramName} ${entityName} matching "${searchStr}""...`
+      } else if (!paramName && searchStr.length > 0) {
         return `Searching ${entityName} matching "${searchStr}""...`
+      } else if (paramName && searchStr.length === 0) {
+        return `Listing all ${paramName} ${entityName}...`
       } else {
-        return `Listing all ${entityName}...`
+        return `Searching ${entityName}...`
       }
     },
-    empty: (entityName, searchStr) => {
-      return `No ${entityName} found matching "${searchStr}"`
+    empty: (entityName, searchStr, paramName) => {
+      if (paramName && searchStr.length > 0) {
+        return `No ${paramName} ${entityName} found matching "${searchStr}"`
+      } else if (paramName && searchStr.length === 0) {
+        return `No ${paramName} ${entityName} found`
+      } else {
+        return `No ${entityName} found matching "${searchStr}"`
+      }
     },
   }
 
@@ -136,6 +151,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
+    this.onParamName$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onResult$ = new Subject<any[]>()
     this.onMessageMode$ = new BehaviorSubject<
       Maybe<CvcEntitySelectMessageMode>
@@ -155,6 +171,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       console.error(err)
     }
 
+    // inform state machine when select opens or closes
     this.onOpenChange$
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
@@ -162,26 +179,37 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         this.cvcOnOpenChange.next(change)
       })
 
+    // regenerate select messages when search str or param name changes
+    combineLatest([this.onSearch$, this.onParamName$])
+      .pipe(untilDestroyed(this))
+      .subscribe(([str, param]) => {
+        if (str === undefined) return
+        this.selectMessages.loading = this.messageOptions.loading(
+          this.cvcEntityName.plural,
+          str,
+          param
+        )
+        this.selectMessages.empty = this.messageOptions.empty(
+          this.cvcEntityName.plural,
+          str,
+          param
+        )
+        this.cvcOnSearch.next(str)
+      })
+
+    // emit search events
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((str) => {
-      if (str === undefined) return
-      this.selectMessages.loading = this.messageOptions.loading(
-        this.cvcEntityName.plural,
-        str
-      )
-      this.selectMessages.empty = this.messageOptions.empty(
-        this.cvcEntityName.plural,
-        str
-      )
-      this.cvcOnSearch.next(str)
+      if (typeof str === 'string') this.cvcOnSearch.next(str)
     })
 
+    // watch results to send query success/fail events to state machine
     this.onResult$.pipe(untilDestroyed(this)).subscribe((results) => {
       if (results.length > 0) this.state.send({ type: 'SUCCESS' })
       if (results.length === 0) this.state.send({ type: 'FAIL' })
     })
   } // ngAfterViewInit()
 
-  // attach some Inputs to Subjects for use in observable chains
+  // some inputs need to be emitted from observables to allow subscriptions
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.cvcLoading) {
       this.onLoading$.next(changes.cvcLoading.currentValue)
@@ -197,6 +225,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     }
     if (changes.cvcResults) {
       this.onResult$.next(changes.cvcResults.currentValue)
+    }
+    if (changes.cvcParamName) {
+      this.onParamName$.next(changes.cvcParamName.currentValue)
     }
   }
   testRender(str: string) {

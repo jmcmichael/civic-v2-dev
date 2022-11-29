@@ -98,36 +98,6 @@ export function getEntitySelectMachine(
             LOAD: 'loading',
           }
         },
-        // open: {
-        //   initial: 'entering',
-        //   entry: ['emitMessageMode'],
-        //   on: {
-        //     CLOSE: 'idle',
-        //     LOAD: 'open.loading',
-        //   },
-        //   states: {
-        //     entering: {
-        //       entry: ['emitMessageMode'],
-        //     },
-        //     loading: {
-        //       entry: ['emitMessageMode'],
-        //       on: {
-        //         SUCCESS: 'options',
-        //         FAIL: 'empty',
-        //         ERROR: 'error',
-        //       },
-        //     },
-        //     options: {
-        //       entry: ['emitMessageMode'],
-        //     },
-        //     empty: {
-        //       entry: ['emitMessageMode'],
-        //     },
-        //     error: {
-        //       entry: ['emitMessageMode'],
-        //     },
-        //   },
-        // },
       },
     },
     {

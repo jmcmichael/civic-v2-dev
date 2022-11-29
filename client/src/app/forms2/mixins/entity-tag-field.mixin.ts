@@ -256,7 +256,7 @@ export function EntityTagField<
           // attaches the pre-generated row template to a result value.
           this.optionTemplates.changes
             .pipe(
-              tag(`${this.field.id} optionTemplates.changes`),
+              // tag(`${this.field.id} optionTemplates.changes`),
               withLatestFrom(this.result$),
               untilDestroyed(this)
             )

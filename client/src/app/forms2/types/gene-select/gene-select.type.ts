@@ -10,12 +10,11 @@ import {
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import {
-  CvcSelectEntityName,
   CvcEntitySelectMessageOptions,
+  CvcSelectEntityName,
 } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityState } from '@app/forms2/states/entity.state'
 import {
   GeneSelectTagGQL,
   GeneSelectTagQuery,
@@ -29,7 +28,6 @@ import {
 import { FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
