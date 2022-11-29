@@ -96,7 +96,7 @@ export function EntityTagField<
       onFocus$!: Subject<void>
       onOpenChange$!: Subject<boolean>
       onBlur$!: Subject<void>
-      onSearch$!: BehaviorSubject<string> // emits on typeahead keypress
+      onSearch$!: Subject<string> // emits on typeahead keypress
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
       onCreate$!: Subject<TAF> // emits entity on create
 
@@ -144,7 +144,7 @@ export function EntityTagField<
         this.typeaheadParamName$ = options.typeaheadParamName$
         this.cdr = options.changeDetectorRef
 
-        this.onSearch$ = new BehaviorSubject<string>('')
+        this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
         this.onOpenChange$ = new Subject<boolean>()
         this.onBlur$ = new Subject<void>()
@@ -163,15 +163,15 @@ export function EntityTagField<
         }
 
         // execute a search on typeahead focus to immediately display options
-        this.onFocus$
-          .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
-          .subscribe(([_, searchStr]) => {
-            this.onSearch$.next(searchStr)
-          })
+        // this.onFocus$
+        //   .pipe(untilDestroyed(this))
+        //   .subscribe((_) => {
+        //     // this.onSearch$.next(searchStr)
+        //   })
 
         this.onOpenChange$
-          .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
-          .subscribe(([isOpen, searchStr]) => {
+          .pipe(untilDestroyed(this))
+          .subscribe((isOpen) => {
             // send empty query on open to immediately display options
             if(isOpen) this.onSearch$.next('')
           })

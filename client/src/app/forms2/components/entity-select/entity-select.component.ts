@@ -17,6 +17,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
+import { tag } from 'rxjs-spy/operators'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
 import {
   EntitySelectContext,
@@ -41,6 +42,8 @@ export type CvcEntitySelectMessageOptions2 = Partial<{
   loading: string | CvcEntitySelectParamMsgFn
   empty: string | CvcEntitySelectParamMsgFn
 }>
+
+export type CvcEntitySelectMessageMode = 'idle' | 'entering' | 'loading' | 'options' | 'empty' | 'error'
 
 export type CvcSelectMessageOptions = {
   // displayed after click or select, helptext indicating
@@ -106,8 +109,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   // SOURCE STREAMS
   onFocus$: Subject<void>
+  onForceOpen$: BehaviorSubject<boolean>
   onOpenChange$: Subject<boolean>
   onSearch$: BehaviorSubject<Maybe<string>>
+  onMessageMode$: Subject<CvcEntitySelectMessageMode>
 
   // INTERMEDIATE STREAMS
 
@@ -129,16 +134,23 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     private cdr: ChangeDetectorRef
   ) {
     this.onFocus$ = new Subject<void>()
+    this.onForceOpen$ = new BehaviorSubject<boolean>(false)
     this.onOpenChange$ = new Subject<boolean>()
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
+    this.onMessageMode$ = new Subject<CvcEntitySelectMessageMode>()
   }
 
   ngAfterViewInit(): void {
+    // DEBUG
+    this.onMessageMode$.pipe(
+      tag('entity-select.component onMessageMode$'),
+      untilDestroyed(this)).subscribe()
+
     // wrapping state creation in try/catch b/c it can fail silently while initializing
     try {
-      this.state = this.stateService.useMachine(getEntitySelectMachine(), {
+      this.state = this.stateService.useMachine(getEntitySelectMachine(this.onMessageMode$), {
         devTools: true,
       })
     } catch (err) {
@@ -148,25 +160,31 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // DEBUG
     this.state.state$
       .pipe(untilDestroyed(this))
-      .subscribe((e) => console.log(e))
+      .subscribe((e) => console.log(e.value))
 
     // hook up Outputs and state Events
-    this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
-      this.cvcOnFocus.next()
-    })
+    // this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
+    //   // this.cvcOnFocus.next()
+    //   this.onForceOpen$.next(true)
+    // })
 
     this.onOpenChange$
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
-        this.cvcOnOpenChange.next(change)
         this.state.send({ type: change === true ? 'OPEN' : 'CLOSE' })
+        this.cvcOnOpenChange.next(change)
       })
 
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((str) => {
       if (str) {
-        this.cvcOnSearch.next(str)
         // this.state.send({ type: 'SEARCH', searchStr: str })
+        this.cvcOnSearch.next(str)
       }
+    })
+
+    this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
+      if(options.length > 0) this.state.send({ type: 'SUCCESS', options: options })
+      else this.state.send({ type: 'FAIL' })
     })
   } // ngAfterViewInit()
 

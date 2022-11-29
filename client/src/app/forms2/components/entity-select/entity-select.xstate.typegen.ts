@@ -12,7 +12,9 @@ export interface Typegen0 {
     guards: never
     delays: never
   }
-  eventsCausingActions: {}
+  eventsCausingActions: {
+    emitMessageMode: 'ERROR' | 'FAIL' | 'LOAD' | 'OPEN' | 'SUCCESS'
+  }
   eventsCausingServices: {}
   eventsCausingGuards: {}
   eventsCausingDelays: {}
@@ -20,8 +22,9 @@ export interface Typegen0 {
     | 'idle'
     | 'open'
     | 'open.empty'
+    | 'open.error'
     | 'open.loading'
     | 'open.options'
-    | { open?: 'empty' | 'loading' | 'options' }
+    | { open?: 'empty' | 'error' | 'loading' | 'options' }
   tags: never
 }

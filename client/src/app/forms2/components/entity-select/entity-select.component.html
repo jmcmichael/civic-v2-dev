@@ -11,6 +11,7 @@
   [nzOptionHeightPx]="30"
   [nzDisabled]="cvcDisabled"
   [nzLoading]="cvcLoading"
+  [nzOpen]="onForceOpen$ | ngrxPush"
   [nzAllowClear]="cvcAllowClear"
   [nzBorderless]="cvcBorderless"
   [nzSuffixIcon]="'search'"
@@ -27,6 +28,12 @@
   ">
 </nz-select>
 <ng-template #notFound>
+  <ng-container [ngSwitch]="onMessageMode$ | ngrxPush">
+    <span *ngSwitchCase="'loading'">Loading</span>
+    <span *ngSwitchCase="'empty'">Empty</span>
+    <span *ngSwitchCase="'error'">Error</span>
+    <span *ngSwitchDefault>DEFAULT</span>
+  </ng-container>
   <!-- loading msg -->
 <!-- <ng-container *ngIf="loadingMessage$ | ngrxPush as loadingMsg">
     <span

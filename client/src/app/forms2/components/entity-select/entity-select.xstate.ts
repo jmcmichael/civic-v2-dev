@@ -1,22 +1,17 @@
-import {
-    createMachine, StateMachine
-} from 'xstate'
+import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
+import { Subject } from 'rxjs'
+import { createMachine, StateMachine } from 'xstate'
+import { CvcEntitySelectMessageMode } from './entity-select.component'
 
-export interface EntitySelectContext {
-  message: string
-  // messages: {
-  //   entering: string
-  //   loading: string
-  //   empty: string
-  //   error: string
-  // }
-}
+export interface EntitySelectContext {}
 
 export type EntitySelectEvent =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
   | { type: 'LOAD'; loading: boolean }
-// | { type: 'ENTER'; searchStr: string }
+  | { type: 'SUCCESS'; options: NzSelectOptionInterface[] }
+  | { type: 'FAIL' }
+  | { type: 'ERROR' }
 
 export interface EntitySelectSchema {
   states: {
@@ -26,6 +21,7 @@ export interface EntitySelectSchema {
         loading: {}
         options: {}
         empty: {}
+        error: {}
       }
     }
   }
@@ -37,23 +33,25 @@ export type EntitySelectTypestate =
       context: EntitySelectContext
     }
   | {
-      value: 'loading.loading'
+      value: 'open.loading'
       context: EntitySelectContext & { loading: boolean }
     }
   | {
-      value: 'loading.options'
+      value: 'open.options'
+      context: EntitySelectContext & { options: NzSelectOptionInterface[] }
+    }
+  | {
+      value: 'open.empty'
       context: EntitySelectContext
     }
   | {
-      value: 'loading.empty'
+      value: 'open.error'
       context: EntitySelectContext
     }
 
-export function getEntitySelectMachine(): StateMachine<
-  EntitySelectContext,
-  EntitySelectSchema,
-  EntitySelectEvent
-> {
+export function getEntitySelectMachine(
+  onMessageMode: Subject<CvcEntitySelectMessageMode>
+): StateMachine<EntitySelectContext, EntitySelectSchema, EntitySelectEvent> {
   return createMachine<
     EntitySelectContext,
     EntitySelectEvent,
@@ -74,20 +72,28 @@ export function getEntitySelectMachine(): StateMachine<
         },
         open: {
           initial: 'loading',
+          // entry: ['emitMessageMode'],
           on: {
             CLOSE: 'idle',
+            LOAD: 'open.loading',
           },
           states: {
             loading: {
+              entry: ['emitMessageMode'],
               on: {
-                LOAD: 'loading',
+                SUCCESS: 'options',
+                FAIL: 'empty',
+                ERROR: 'error',
               },
             },
             options: {
-              /* ... */
+              entry: ['emitMessageMode'],
             },
             empty: {
-              /* ... */
+              entry: ['emitMessageMode'],
+            },
+            error: {
+              entry: ['emitMessageMode'],
             },
           },
         },
@@ -95,6 +101,28 @@ export function getEntitySelectMachine(): StateMachine<
     },
     {
       actions: {
+        emitMessageMode: (
+          _context: EntitySelectContext,
+          event: EntitySelectEvent
+        ) => {
+          switch (event.type) {
+            case 'OPEN':
+              onMessageMode.next('entering')
+              break
+            case 'LOAD':
+              if (event.loading) onMessageMode.next('loading')
+              break
+            case 'SUCCESS':
+              onMessageMode.next('options')
+              break
+            case 'FAIL':
+              onMessageMode.next('empty')
+              break
+            case 'ERROR':
+              onMessageMode.next('error')
+              break
+          }
+        },
         log: (context: EntitySelectContext, event: EntitySelectEvent) => {
           console.log(
             'entity-select.component state.actions.log():',
