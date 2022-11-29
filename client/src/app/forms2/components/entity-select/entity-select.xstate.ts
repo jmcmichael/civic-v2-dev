@@ -17,6 +17,7 @@ export type EntitySelectEvent =
 export interface EntitySelectSchema {
   states: {
     idle: {}
+    open: {}
     loading: {}
     options: {}
     empty: {}
@@ -27,6 +28,10 @@ export interface EntitySelectSchema {
 export type EntitySelectTypestate =
   | {
       value: 'idle'
+      context: EntitySelectContext
+    }
+  | {
+      value: 'open'
       context: EntitySelectContext
     }
   | {
@@ -65,8 +70,15 @@ export function getEntitySelectMachine(
         idle: {
           entry: ['emitMessageMode'],
           on: {
-            LOAD: 'loading',
+            OPEN: 'open'
           },
+        },
+        open: {
+          entry: ['emitMessageMode'],
+          on: {
+            LOAD: 'loading',
+            CLOSE: 'idle'
+          }
         },
         loading: {
           entry: ['emitMessageMode'],
@@ -112,6 +124,9 @@ export function getEntitySelectMachine(
               break
             case 'FAIL':
               onMessageMode.next('empty')
+              break
+            case 'OPEN':
+              onMessageMode.next('open')
               break
           }
         },

@@ -42,7 +42,7 @@ export type CvcEntitySelectMessageOptions = {
   empty: SelectMessageFn
 }
 
-export type CvcEntitySelectMessageMode = 'idle' | 'loading' | 'empty'
+export type CvcEntitySelectMessageMode = 'idle' | 'open' | 'loading' | 'empty'
 
 @UntilDestroy({ arrayName: 'stateSubscriptions' })
 @Component({
@@ -180,9 +180,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       })
 
     // regenerate select messages when search str or param name changes
-    combineLatest([this.onSearch$, this.onParamName$])
+    combineLatest([this.onSearch$, this.onParamName$, this.onOpenChange$])
       .pipe(untilDestroyed(this))
-      .subscribe(([str, param]) => {
+      .subscribe(([str, param, open]) => {
         if (str === undefined) return
         this.selectMessages.loading = this.messageOptions.loading(
           this.cvcEntityName.plural,
@@ -209,7 +209,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     })
   } // ngAfterViewInit()
 
-  // some inputs need to be emitted from observables to allow subscriptions
+  // some inputs need to be emitted from observables to allow subscriptions and/or perform some logic
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.cvcLoading) {
       this.onLoading$.next(changes.cvcLoading.currentValue)

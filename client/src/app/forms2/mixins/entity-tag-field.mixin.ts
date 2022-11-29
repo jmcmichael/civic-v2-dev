@@ -27,7 +27,7 @@ import {
   throttleTime,
   withLatestFrom,
 } from 'rxjs'
-import { combineLatestArray } from 'rxjs-etc'
+import { combineLatestArray, isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
@@ -161,20 +161,6 @@ export function EntityTagField<
           )
           return
         }
-
-        // execute a search on typeahead focus to immediately display options
-        // this.onFocus$
-        //   .pipe(untilDestroyed(this))
-        //   .subscribe((_) => {
-        //     // this.onSearch$.next(searchStr)
-        //   })
-
-        this.onOpenChange$
-          .pipe(untilDestroyed(this))
-          .subscribe((isOpen) => {
-            // send empty query on open to immediately display options
-            if(isOpen) this.onSearch$.next('')
-          })
 
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(

@@ -55,6 +55,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 key: 'geneId',
                 type: 'gene-select',
                 props: {
+
                   required: true,
                 },
               },
