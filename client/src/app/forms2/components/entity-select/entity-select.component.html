@@ -1,3 +1,4 @@
+{{ onMessageMode$ | ngrxPush | json  }}
 <nz-select
   nzShowSearch
   nzServerSearch
@@ -28,51 +29,19 @@
   ">
 </nz-select>
 <ng-template #notFound>
-  <ng-container [ngSwitch]="onMessageMode$ | ngrxPush">
-    <span *ngSwitchCase="'loading'">Loading</span>
-    <span *ngSwitchCase="'empty'">Empty</span>
-    <span *ngSwitchCase="'error'">Error</span>
-    <span *ngSwitchDefault>DEFAULT</span>
-  </ng-container>
-  <!-- loading msg -->
-<!-- <ng-container *ngIf="loadingMessage$ | ngrxPush as loadingMsg">
+  <ng-container *ngrxLet="onMessageMode$ as mode">
+    <ng-container *ngIf="mode === 'loading' || mode === 'entering'">
     <span
       nz-icon
       nzType="loading"
       class="loading-icon"></span>
-    {{ loadingMsg }}
-  </ng-container> -->
-
-  <!-- 'enter search query' msg -->
-<!-- <ng-container *ngIf="focusMessage$ | ngrxPush as focusMsg">
-    {{ focusMsg }}
-  </ng-container> -->
-
-  <!-- none found msg -->
-<!-- <ng-container *ngIf="notFoundMessage$ | ngrxPush as notFoundMsg">
-    {{ notFoundMsg }}
-  </ng-container> -->
-
-  <!-- none found with optional param msg -->
-<!-- <ng-container
-    *ngIf="notFoundWithParamMessage$ | ngrxPush as notFoundWithParamMsg">
-    {{ notFoundWithParamMsg }}
-  </ng-container> -->
-
-  <!-- create new entity template-->
-<!-- <ng-container *ngIf="createMessage$ | ngrxPush as createMsg">
-    <nz-alert
-      nzType="info"
-      [nzMessage]="createMsg"
-      style="margin-bottom: 12px"
-      nzShowIcon></nz-alert>
-    <ng-container
-      *ngrxLet="onSearch$ as searchString"
-      [ngTemplateOutlet]="cvcAddEntity"
-      [ngTemplateOutletContext]="{
-        $implicit: searchString,
-        createMsg: createMsg
-      }">
+    Loading
     </ng-container>
-  </ng-container> -->
+    <ng-container *ngIf="mode === 'empty'">
+      EMPTY
+    </ng-container>
+    <ng-container *ngIf="mode === 'error'">
+      ERROR
+    </ng-container>
+  </ng-container>
 </ng-template>

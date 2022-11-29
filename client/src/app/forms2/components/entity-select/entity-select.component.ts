@@ -43,7 +43,13 @@ export type CvcEntitySelectMessageOptions2 = Partial<{
   empty: string | CvcEntitySelectParamMsgFn
 }>
 
-export type CvcEntitySelectMessageMode = 'idle' | 'entering' | 'loading' | 'options' | 'empty' | 'error'
+export type CvcEntitySelectMessageMode =
+  | 'idle'
+  | 'entering'
+  | 'loading'
+  | 'options'
+  | 'empty'
+  | 'error'
 
 export type CvcSelectMessageOptions = {
   // displayed after click or select, helptext indicating
@@ -144,15 +150,18 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   ngAfterViewInit(): void {
     // DEBUG
-    this.onMessageMode$.pipe(
-      tag('entity-select.component onMessageMode$'),
-      untilDestroyed(this)).subscribe()
+    this.onMessageMode$
+      .pipe(tag('entity-select.component onMessageMode$'), untilDestroyed(this))
+      .subscribe()
 
     // wrapping state creation in try/catch b/c it can fail silently while initializing
     try {
-      this.state = this.stateService.useMachine(getEntitySelectMachine(this.onMessageMode$), {
-        devTools: true,
-      })
+      this.state = this.stateService.useMachine(
+        getEntitySelectMachine(this.onMessageMode$),
+        {
+          devTools: true,
+        }
+      )
     } catch (err) {
       console.error(err)
     }
@@ -160,7 +169,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // DEBUG
     this.state.state$
       .pipe(untilDestroyed(this))
-      .subscribe((e) => console.log(e.value))
+      .subscribe((e) => console.log(e.value, e.event))
 
     // hook up Outputs and state Events
     // this.onFocus$.pipe(untilDestroyed(this)).subscribe((_) => {
@@ -183,8 +192,11 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     })
 
     this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
-      if(options.length > 0) this.state.send({ type: 'SUCCESS', options: options })
-      else this.state.send({ type: 'FAIL' })
+      if (options.length > 0) {
+        this.state.send({ type: 'SUCCESS', options: options })
+      } else {
+        this.state.send({ type: 'FAIL' })
+      }
     })
   } // ngAfterViewInit()
 

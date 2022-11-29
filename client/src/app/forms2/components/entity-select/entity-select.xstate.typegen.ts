@@ -13,7 +13,14 @@ export interface Typegen0 {
     delays: never
   }
   eventsCausingActions: {
-    emitMessageMode: 'ERROR' | 'FAIL' | 'LOAD' | 'OPEN' | 'SUCCESS'
+    emitMessageMode:
+      | 'CLOSE'
+      | 'ERROR'
+      | 'FAIL'
+      | 'LOAD'
+      | 'OPEN'
+      | 'SUCCESS'
+      | 'xstate.init'
   }
   eventsCausingServices: {}
   eventsCausingGuards: {}
@@ -22,9 +29,10 @@ export interface Typegen0 {
     | 'idle'
     | 'open'
     | 'open.empty'
+    | 'open.entering'
     | 'open.error'
     | 'open.loading'
     | 'open.options'
-    | { open?: 'empty' | 'error' | 'loading' | 'options' }
+    | { open?: 'empty' | 'entering' | 'error' | 'loading' | 'options' }
   tags: never
 }

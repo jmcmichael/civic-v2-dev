@@ -18,6 +18,7 @@ export interface EntitySelectSchema {
     idle: {}
     open: {
       states: {
+        entering: {}
         loading: {}
         options: {}
         empty: {}
@@ -31,6 +32,10 @@ export type EntitySelectTypestate =
   | {
       value: 'idle'
       context: EntitySelectContext
+    }
+  | {
+      value: 'open.entering'
+      context: EntitySelectContext & { searchStr: string }
     }
   | {
       value: 'open.loading'
@@ -66,18 +71,22 @@ export function getEntitySelectMachine(
       initial: 'idle',
       states: {
         idle: {
+          entry: ['emitMessageMode'],
           on: {
             OPEN: 'open',
           },
         },
         open: {
-          initial: 'loading',
-          // entry: ['emitMessageMode'],
+          initial: 'entering',
+          entry: ['emitMessageMode'],
           on: {
             CLOSE: 'idle',
             LOAD: 'open.loading',
           },
           states: {
+            entering: {
+              entry: ['emitMessageMode'],
+            },
             loading: {
               entry: ['emitMessageMode'],
               on: {
@@ -121,6 +130,8 @@ export function getEntitySelectMachine(
             case 'ERROR':
               onMessageMode.next('error')
               break
+            default:
+              onMessageMode.next('idle')
           }
         },
         log: (context: EntitySelectContext, event: EntitySelectEvent) => {
