@@ -28,10 +28,10 @@ import {
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 
-export type CvcEntitySelectParamMsgFn = {
-  description: string
-  (searchStr: string, paramStr: string): string
-}
+export type CvcEntitySelectParamMsgFn = (
+  searchStr: string,
+  paramStr?: string
+) => string
 
 /* SELECT MESSAGES - displayed at top of options dropdown
  * - loading: while API requests loading, e.g. "Loading Variants..."
@@ -39,8 +39,8 @@ export type CvcEntitySelectParamMsgFn = {
  *   NOTE: if cvcCreateEntity provided, its quick-add form will be displayed instead, which will include its own prompt, e.g. "No BRAF Variants found matching V60000, would you like to create it?"
  * */
 export type CvcEntitySelectMessageOptions2 = Partial<{
-  loading: string | CvcEntitySelectParamMsgFn
-  empty: string | CvcEntitySelectParamMsgFn
+  loading: CvcEntitySelectParamMsgFn
+  empty: CvcEntitySelectParamMsgFn
 }>
 
 export type CvcEntitySelectMessageMode =
@@ -120,17 +120,38 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   onMessageMode$: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
 
   // INTERMEDIATE STREAMS
+  onResult$: Subject<any[]>
 
   // PRESENTATION STREAMS
   onLoading$: BehaviorSubject<boolean>
   onOption$: Subject<NzSelectOptionInterface[]>
-  onResult$: Subject<any[]>
 
   state!: InterpretedService<
     EntitySelectContext,
     EntitySelectSchema,
     EntitySelectEvent
   >
+
+  // default message functions
+  messageOptions: CvcEntitySelectMessageOptions2 = {
+    loading: (searchStr) => {
+      return `Searching ${this.cvcEntityName.plural}...`
+    },
+    empty: (searchStr, paramStr) => {
+      if(paramStr && searchStr.length > 0) {
+        return `No ${this.cvcEntityName.plural} found matching ${paramStr}, ${searchStr}`
+      } else if (searchStr.length > 0){
+        return `No ${this.cvcEntityName.plural} found matching query ${searchStr}`
+      } else if (paramStr && searchStr.length === 0) {
+        return `No ${this.cvcEntityName.plural} found that match ${paramStr}`
+      } else {
+        return `No ${this.cvcEntityName.plural} found.`
+      }
+    },
+  }
+
+  selectMessages!: { [key in CvcEntitySelectMessageMode]: string }
+
   constructor(
     private stateService: XstateAngular<
       EntitySelectContext,
@@ -145,15 +166,12 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onLoading$ = new BehaviorSubject<boolean>(false)
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
     this.onResult$ = new Subject<any[]>()
-    this.onMessageMode$ = new BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>(undefined)
+    this.onMessageMode$ = new BehaviorSubject<
+      Maybe<CvcEntitySelectMessageMode>
+    >(undefined)
   }
 
   ngAfterViewInit(): void {
-    // DEBUG
-    // this.onMessageMode$
-    //   .pipe(tag('entity-select.component onMessageMode$'), untilDestroyed(this))
-    //   .subscribe()
-
     // wrapping state creation in try/catch b/c it can fail silently while initializing
     try {
       this.state = this.stateService.useMachine(
@@ -166,11 +184,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       console.error(err)
     }
 
-    // DEBUG
-    this.state.state$
-      .pipe(untilDestroyed(this))
-      .subscribe((e) => console.log(e.value, e.event))
-
     this.onOpenChange$
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
@@ -179,10 +192,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       })
 
     this.onSearch$.pipe(untilDestroyed(this)).subscribe((str) => {
-      if (str) {
-        // this.state.send({ type: 'SEARCH', searchStr: str })
-        this.cvcOnSearch.next(str)
-      }
+      if (typeof str === 'string') this.cvcOnSearch.next(str)
     })
 
     this.onResult$.pipe(untilDestroyed(this)).subscribe((results) => {
