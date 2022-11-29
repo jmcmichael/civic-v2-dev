@@ -19,7 +19,6 @@
   [nzOptions]="cvcOptions || []"
   [nzDropdownRender]="cvcDropdownExtra || null"
   [nzNotFoundContent]="notFound"
-  (nzFocus)="onFocus$.next($event)"
   (nzOpenChange)="onOpenChange$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="
@@ -29,23 +28,19 @@
 <ng-template #notFound>
   <ng-container *ngrxLet="onMessageMode$ as mode">
     <ng-container [ngSwitch]="onMessageMode$ | ngrxPush">
+      <!-- LOADING MSG -->
       <ng-container *ngSwitchCase="'loading'">
-        <ng-container *ngTemplateOutlet="loadingMsg"></ng-container>
+        <span
+          nz-icon
+          nzType="loading"
+          class="loading-icon"></span>
+        {{ selectMessages.loading }}
       </ng-container>
+      <!-- EMPTY RESULTS MSG -->
       <ng-container *ngSwitchCase="'empty'">
-        No results found matching search string.
-      </ng-container>
-      <ng-container *ngSwitchCase="'error'">
-        Server error.
+        {{ selectMessages.empty }}
       </ng-container>
     </ng-container>
   </ng-container>
 
-  <ng-template #loadingMsg>
-    <span
-      nz-icon
-      nzType="loading"
-      class="loading-icon"></span>
-    Loading
-  </ng-template>
 </ng-template>

@@ -87,12 +87,14 @@ export function getEntitySelectMachine(
         empty: {
           entry: ['emitMessageMode'],
           on: {
+            CLOSE: 'idle',
             LOAD: 'loading',
           }
         },
         error: {
           entry: ['emitMessageMode'],
           on: {
+            CLOSE: 'idle',
             LOAD: 'loading',
           }
         },
@@ -135,23 +137,12 @@ export function getEntitySelectMachine(
           event: EntitySelectEvent
         ) => {
           switch (event.type) {
-            case 'OPEN':
-              onMessageMode.next('entering')
-              break
             case 'LOAD':
               onMessageMode.next('loading')
-              break
-            case 'SUCCESS':
-              onMessageMode.next('options')
               break
             case 'FAIL':
               onMessageMode.next('empty')
               break
-            case 'ERROR':
-              onMessageMode.next('error')
-              break
-            default:
-              onMessageMode.next('idle')
           }
         },
         log: (context: EntitySelectContext, event: EntitySelectEvent) => {

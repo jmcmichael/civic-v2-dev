@@ -11,7 +11,7 @@ import {
 import { ApolloQueryResult } from '@apollo/client/core'
 import {
   CvcSelectEntityName,
-  CvcSelectMessageOptions,
+  CvcEntitySelectMessageOptions,
 } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
@@ -35,7 +35,7 @@ import mixin from 'ts-mixin-extended'
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder?: string
   isMultiSelect: boolean
-  selectMessages?: CvcSelectMessageOptions
+  selectMessages?: CvcEntitySelectMessageOptions
   entityName: CvcSelectEntityName
   helpText?: string
 }

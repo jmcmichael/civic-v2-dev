@@ -58,14 +58,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
                   required: true,
                 },
               },
-              // <CvcVariantSelectFieldOptions>{
-              //   key: 'variantId',
-              //   type: 'variant-select',
-              //   props: {
-              //     required: true,
-              //     // requireGene: false
-              //   },
-              // },
+              <CvcVariantSelectFieldOptions>{
+                key: 'variantId',
+                type: 'variant-select',
+                props: {
+                  required: true,
+                  // requireGene: false
+                },
+              },
             ],
           },
           // <CvcSourceSelectFieldOptions>{
