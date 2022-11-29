@@ -12,56 +12,47 @@
   [nzDisabled]="cvcDisabled"
   [nzLoading]="cvcLoading"
   [nzAllowClear]="cvcAllowClear"
+  [nzBorderless]="cvcBorderless"
+  [nzSuffixIcon]="'search'"
+  [nzShowArrow]="cvcShowArrow || true"
   [nzAutoClearSearchValue]="cvcAutoClearSearchValue"
   [nzOptions]="cvcOptions || []"
   [nzDropdownRender]="cvcDropdownExtra || null"
   [nzNotFoundContent]="notFound"
-  (nzFocus)="cvcOnFocus.next()"
+  (nzOpenChange)="onOpenChange$.next($event)"
   (nzOnSearch)="onSearch$.next($event)"
   (ngModelChange)="
     cvcModelChange && cvcModelChange(cvcFormlyAttributes, $event)
   ">
 </nz-select>
+
 <ng-template #notFound>
-  <!-- loading msg -->
-  <ng-container *ngIf="loadingMessage$ | ngrxPush as loadingMsg">
-    <span
-      nz-icon
-      nzType="loading"
-      class="loading-icon"></span>
-    {{ loadingMsg }}
-  </ng-container>
+  <ng-container *ngrxLet="onMessageMode$ as mode">
+    <ng-container [ngSwitch]="mode">
+      <!-- show loading icon for both open and loading states -->
+      <!-- For now, open msg is same as loading until we need to add min search str length and
+           show a 'enter more chars to search' msg. -->
+      <ng-container *ngIf="mode === 'open' || mode === 'loading'">
+        <span
+          nz-icon
+          nzType="loading"
+          class="loading-icon"></span>
+      </ng-container>
 
-  <!-- 'enter search query' msg -->
-  <ng-container *ngIf="focusMessage$ | ngrxPush as focusMsg">
-    {{ focusMsg }}
-  </ng-container>
+      <!-- OPEN MSG - displayed immediately on dropdown reveal -->
+      <ng-container *ngSwitchCase="'open'">
+        {{ selectMessages.loading }}
+      </ng-container>
 
-  <!-- none found msg -->
-  <ng-container *ngIf="notFoundMessage$ | ngrxPush as notFoundMsg">
-    {{ notFoundMsg }}
-  </ng-container>
+      <!-- LOADING MSG -->
+      <ng-container *ngSwitchCase="'loading'">
+        {{ selectMessages.loading }}
+      </ng-container>
 
-  <!-- none found with optional param msg -->
-  <ng-container
-    *ngIf="notFoundWithParamMessage$ | ngrxPush as notFoundWithParamMsg">
-    {{ notFoundWithParamMsg }}
-  </ng-container>
-
-  <!-- create new entity template-->
-  <ng-container *ngIf="createMessage$ | ngrxPush as createMsg">
-    <nz-alert
-      nzType="info"
-      [nzMessage]="createMsg"
-      style="margin-bottom: 12px"
-      nzShowIcon></nz-alert>
-    <ng-container
-      *ngrxLet="onSearch$ as searchString"
-      [ngTemplateOutlet]="cvcAddEntity"
-      [ngTemplateOutletContext]="{
-        $implicit: searchString,
-        createMsg: createMsg
-      }">
+      <!-- EMPTY RESULTS MSG -->
+      <ng-container *ngSwitchCase="'empty'">
+        {{ selectMessages.empty }}
+      </ng-container>
     </ng-container>
   </ng-container>
 </ng-template>

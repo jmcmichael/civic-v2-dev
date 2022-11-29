@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import {
   CvcBaseInputField,
   CvcBaseInputFieldProps,
-} from './base-input.type'
+} from './tag-input.type'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { ReactiveComponentModule } from '@ngrx/component'
@@ -15,13 +15,13 @@ import { CvcStringTagModule } from '@app/forms2/components/string-tag/string-tag
 const typeConfig: ConfigOption = {
   types: [
     {
-      name: 'base-input',
+      name: 'tag-input',
       wrappers: ['form-field'],
       component: CvcBaseInputField,
     },
     {
       // for use in repeat-field types
-      name: 'base-input-item',
+      name: 'tag-input-item',
       wrappers: ['form-field'],
       component: CvcBaseInputField,
       defaultOptions: {

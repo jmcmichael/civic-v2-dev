@@ -58,7 +58,6 @@ export function BaseFieldType<
       } else {
         this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
       }
-      this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
 
       // emit value from onValueChange$ for every model change
       this.onModelChange$.pipe(untilDestroyed(this)).subscribe((v) => {

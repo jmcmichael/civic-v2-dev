@@ -3,10 +3,9 @@ import {
   Injectable,
   QueryList,
   TemplateRef,
-  TrackByFunction,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { InputMaybe, Maybe } from '@app/generated/civic.apollo'
+import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType } from '@ngx-formly/core'
 import { Query, QueryRef } from 'apollo-angular'
@@ -17,11 +16,9 @@ import {
   BehaviorSubject,
   defer,
   distinctUntilChanged,
-  EMPTY,
   filter,
   from,
   iif,
-  lastValueFrom,
   map,
   Observable,
   of,
@@ -97,6 +94,8 @@ export function EntityTagField<
 
       // LOCAL SOURCE STREAMS
       onFocus$!: Subject<void>
+      onOpenChange$!: Subject<boolean>
+      onBlur$!: Subject<void>
       onSearch$!: Subject<string> // emits on typeahead keypress
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
       onCreate$!: Subject<TAF> // emits entity on create
@@ -147,16 +146,13 @@ export function EntityTagField<
 
         this.onSearch$ = new Subject<string>()
         this.onFocus$ = new Subject<void>()
+        this.onOpenChange$ = new Subject<boolean>()
+        this.onBlur$ = new Subject<void>()
         this.isLoading$ = new Subject<boolean>()
         this.result$ = new BehaviorSubject<TAF[]>([])
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onCreate$ = new Subject<TAF>()
         this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
-
-        // this.selectOption$.pipe(tag(`${this.field.id} selectOption$`)).subscribe()
-        // this.onSearch$.pipe(tag(`${this.field.id} onSearch$`)).subscribe()
-        // this.result$.pipe(tag(`${this.field.id} result$`)).subscribe()
-        this.onFocus$.pipe(tag(`${this.field.id} onFocus$`)).subscribe()
 
         // check if base field tag properly configured
         if (!this.onValueChange$) {
@@ -165,13 +161,6 @@ export function EntityTagField<
           )
           return
         }
-
-        // execute a search on typeahead focus to immediately display options
-        this.onFocus$
-          .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
-          .subscribe(([_, searchStr]) => {
-            this.onSearch$.next(searchStr)
-          })
 
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(
@@ -225,7 +214,7 @@ export function EntityTagField<
           .pipe(
             filter((r) => !r.loading),
             map((r) => this.getTypeahedResults(r)),
-            // tag(`${this.field.id} entity-tag-field.mixin result$`),
+            // tag(`${this.field.id} entity-tag-field.mixin response$`),
             untilDestroyed(this)
           )
           .subscribe((results: TAF[]) => {
@@ -249,7 +238,7 @@ export function EntityTagField<
         } else {
           // subscribe to optionTemplates ViewChildren changes,
           // which are re-rendered whenever result$ emits. For each
-          // template, getSelectOptions() generates a NzSelectOption that
+          // option template instance, getSelectOptions() generates a NzSelectOption that
           // attaches the pre-generated row template to a result value.
           this.optionTemplates.changes
             .pipe(
@@ -267,7 +256,24 @@ export function EntityTagField<
         }
 
         this.onCreate$.pipe(untilDestroyed(this)).subscribe((entity: TAF) => {
-          this.selectOption$.next([{ label: entity.name, value: entity.id }])
+          this.tagQuery
+            .fetch(this.getTagQueryVars(entity.id), {
+              fetchPolicy: 'cache-first',
+            })
+            .pipe(
+              filter((r) => !!r.data),
+              untilDestroyed(this)
+            )
+            .subscribe((result) => {
+              const item = this.getTagQueryResults(result)
+              if (!item) {
+                this.selectOption$.next([
+                  { label: entity.name, value: entity.id },
+                ])
+              } else {
+                this.result$.next([item])
+              }
+            })
         })
 
         this.onTagClose$.pipe(untilDestroyed(this)).subscribe((_) => {
@@ -277,44 +283,28 @@ export function EntityTagField<
         // if a prepopulated form value exists, set by the observe-query-param extension,
         // use tagQuery to create select option(s) for it so that nz-select's tags render
         if (this.formControl.value) {
-          const v = this.formControl.value
-          if (Object.keys(v).length > 0 && v.constructor === Object) {
+          const value = this.formControl.value
+          if (Object.keys(value).length > 0 && value.constructor === Object) {
             console.error(
               `${this.field.id} prepopulated value must be a primitive or array of primitives, value is an object:`,
-              v
+              value
             )
             return
           }
-          let queries: Observable<ApolloQueryResult<TQ>>[]
-          // wrap primitives in array
-          if (typeof v === 'number') {
-            queries = this.getFetchFn([v])
-          } else {
-            queries = this.getFetchFn(v)
-          }
-          combineLatestArray(queries)
+
+          combineLatestArray(this.getTagQueries(value))
             .pipe(
               // tag(`${this.field.id} combineLatestArray(queries)`),
               map((queries) => {
                 if (!(queries.length > 0)) return []
-                if (
-                  !queries.every(
-                    (r: ApolloQueryResult<TQ>) =>
-                      this.getTagQueryResults(r) !== undefined
-                  )
-                ) {
-                  console.error(
-                    `${this.field.id} pre-populate failed, one or more entity tag queries did not succeed.`
-                  )
-                  return []
-                }
                 return queries.map(
                   (result: ApolloQueryResult<TQ>): NzSelectOptionInterface => {
                     const item = this.getTagQueryResults(result)
                     return this.getSelectedItemOption(item!)
                   }
                 )
-              })
+              }),
+              untilDestroyed(this)
             )
             .subscribe((options) => {
               if (!options || !options.every((o) => typeof o !== 'undefined')) {
@@ -326,9 +316,12 @@ export function EntityTagField<
               this.selectOption$.next(options)
             })
         }
-      } // end configureDisplayEntityTag()
+      } // configureDisplayEntityTag()
 
-      getFetchFn(ids: number[]): Observable<ApolloQueryResult<TQ>>[] {
+      getTagQueries(
+        ids: number | number[]
+      ): Observable<ApolloQueryResult<TQ>>[] {
+        if (typeof ids === 'number') ids = [ids]
         const queries = ids.map((id) =>
           this.tagQuery
             .fetch(this.getTagQueryVars(id), { fetchPolicy: 'cache-first' })
@@ -351,7 +344,6 @@ export function EntityTagField<
         // if cached results are returned
         if (this.result$) this.result$.next([])
       }
-
     }
 
     return EntityTagFieldMixin

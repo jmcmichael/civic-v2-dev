@@ -70,7 +70,6 @@ export class CvcInteractionSelectField
   onDrug$?: BehaviorSubject<Maybe<number[]>>
 
   // LOCAL SOURCE STREAMS
-  onFocus$: BehaviorSubject<void>
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
   label$!: BehaviorSubject<string>
@@ -93,7 +92,6 @@ export class CvcInteractionSelectField
   constructor(private cdr: ChangeDetectorRef) {
     super()
     this.interactionEnum$ = new BehaviorSubject<CvcInputEnum[]>([])
-    this.onFocus$ = new BehaviorSubject<void>(undefined)
   }
 
   ngAfterViewInit(): void {

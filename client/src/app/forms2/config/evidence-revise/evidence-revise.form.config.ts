@@ -100,7 +100,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
           // },
           // <CvcBaseInputFieldConfig>{
           //   key: 'version',
-          //   type: 'base-input',
+          //   type: 'tag-input',
           //   props: { label: 'Version' },
           // },
           // <CvcRepeatFieldConfig>{
@@ -110,7 +110,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
           //     label: 'Aliases',
           //   },
           //   fieldArray: <CvcBaseInputFieldConfig>{
-          //     type: 'base-input-item',
+          //     type: 'tag-input-item',
           //     props: {},
           //   },
           // },

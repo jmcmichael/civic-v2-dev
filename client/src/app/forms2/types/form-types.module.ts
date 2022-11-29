@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { CvcBaseInputFieldModule } from './base-input/base-input.module'
+import { CvcBaseInputFieldModule } from './tag-input/tag-input.module'
 import { CvcCheckboxModule } from './checkbox/checkbox.module'
 import { CvcDirectionSelectModule } from './direction-select/direction-select.module'
 import { CvcDiseaseSelectModule } from './disease-select/disease-select.module'

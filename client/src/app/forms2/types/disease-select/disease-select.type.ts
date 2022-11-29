@@ -112,7 +112,8 @@ export class CvcDiseaseSelectField
     props: {
       entityName: { singular: 'Disease', plural: 'Diseases' },
       label: 'Disease',
-      tooltip: 'Cancer or cancer subtype that is a result of the described variant',
+      tooltip:
+        'Cancer or cancer subtype that is a result of the described variant',
       labels: {
         multi: 'Disease(s)',
         plural: 'Diseases',
@@ -195,7 +196,7 @@ export class CvcDiseaseSelectField
     if (!this.onRequiresDisease$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
     combineLatest([this.onRequiresDisease$, this.onEntityType$])
-      .pipe(tag(`${this.field.id} combineLatest`), untilDestroyed(this))
+      .pipe(untilDestroyed(this))
       .subscribe(
         ([requiresDisease, entityType]: [boolean, Maybe<EntityType>]) => {
           // diseases are not required for this entity type
