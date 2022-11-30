@@ -14,6 +14,7 @@ import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityType } from '@app/forms2/states/entity.state'
+import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
   DiseaseSelectTagGQL,
   DiseaseSelectTagQuery,
@@ -41,28 +42,18 @@ export type CvcDiseaseSelectFieldOptions = Partial<
 // TODO: finish implementing updated props interface w/ labels, placeholders groups,
 // and multiMax limits, multiDefault placeholder
 export interface CvcDiseaseSelectFieldProps extends FormlyFieldProps {
-  // entity names, singular & plural
   entityName: CvcSelectEntityName
-  // if true, field is a multi-select & its model value should be an array
   isMultiSelect: boolean
-  // if true, field disabled when no entity type available
   requireType: boolean
   labels: {
-    // label if a multi type, showing optional plurality, e.g. 'Variant(s)'
     multi: string
-    // label if multi type & model value length > 1
     plural: string
   }
-  placeholders: {
-    // default placeholder
-    default: string
-    // default placeholder for multi-selects
-    multiDefault: string
-    // placeholder if evidence/assertion type required & field disabled
-    requireTypePrompt: string
-  }
+  placeholder: string
+  requireTypePromptFn: (entityName: string, isMultiSelect?: boolean) => string
   tooltip?: string
   description?: string
+  extraType?: CvcFormFieldExtraType
 }
 
 // NOTE: any multi-select field must have the string 'multi' in its type name,
@@ -105,7 +96,7 @@ export class CvcDiseaseSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  placeholder$: BehaviorSubject<string>
+  placeholder$: BehaviorSubject<Maybe<string>>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcDiseaseSelectFieldOptions = {
@@ -120,13 +111,11 @@ export class CvcDiseaseSelectField
       },
       isMultiSelect: false,
       requireType: true,
-      // TODO: implement labels/placeholders w/ string replacement using typescript
-      // template strings: https://www.codevscolor.com/typescript-template-string
-      placeholders: {
-        default: 'Search Diseases',
-        multiDefault: 'Select Disease(s) (max MULTI_MAX)',
-        requireTypePrompt: 'Select an ENTITY_NAME Type to select Diseases',
-      },
+      placeholder: 'Search Diseases',
+      requireTypePromptFn: (entityName: string, isMultiSelect?: boolean) =>
+        `Select an ${entityName} Type to search associated Disease${
+          isMultiSelect ? '(s)' : ''
+        }`,
     },
   }
 
@@ -141,9 +130,7 @@ export class CvcDiseaseSelectField
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super()
-    this.placeholder$ = new BehaviorSubject<string>(
-      this.defaultOptions.props!.placeholders!.default
-    )
+    this.placeholder$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 
   ngAfterViewInit(): void {
@@ -168,7 +155,6 @@ export class CvcDiseaseSelectField
 
   configureStateConnections(): void {
     if (!this.state) return
-    this.stateEntityName = this.state.entityName
     // connect to onRequiresDisease$
     if (!this.state.requires.requiresDisease$) {
       console.warn(
@@ -180,14 +166,13 @@ export class CvcDiseaseSelectField
 
     // connect onEntityType$
     if (this.props.requireType) {
-      const etName = `${this.stateEntityName.toLowerCase()}Type$`
+      const etName = `${this.state.entityName.toLowerCase()}Type$`
       if (!this.state.fields[etName]) {
         console.error(
           `${this.field.id} requireType is true, however form state does not provide Subject ${etName}.`
         )
       } else {
         this.onEntityType$ = this.state.fields[etName]
-        // this.onEntityType$.pipe(tag(`${this.field.id} onEntityType$`)).subscribe()
       }
     }
   }
@@ -204,28 +189,28 @@ export class CvcDiseaseSelectField
             this.props.required = false
             this.props.disabled = true
             // no disease required, entity type specified
-            this.placeholder$.next(
-              `${formatEvidenceEnum(entityType)} ${
-                this.stateEntityName
-              } does not include associated diseases`
-            )
+            this.props.description = `${formatEvidenceEnum(entityType)} ${
+              this.state!.entityName
+            } does not include associated diseases`
+            this.props.extraType = 'prompt'
           }
           // if entity type is required, toggle field required property off,
           // and show a 'Select Type..' prompt
           if (!requiresDisease && !entityType && this.props.requireType) {
             this.props.required = false
             this.props.disabled = false
-            // no disease required, entity type not specified
-            this.placeholder$.next(
-              `Select ${this.stateEntityName} Type to select diseases`
+            this.props.description = this.props.requireTypePromptFn(
+              this.state!.entityName, this.props.isMultiSelect
             )
+            this.props.extraType = 'prompt'
           }
           // state indicates disease is required, toggle field required property,
           // and show the placeholder
           if (requiresDisease) {
             this.props.required = true
             this.props.disabled = false
-            this.placeholder$.next('Search Diseases')
+            this.props.description = undefined
+            this.props.extraType = undefined
           }
           // field currently has a value, but state indicates no disease is required,
           // or no type is provided && type is required, so reset field

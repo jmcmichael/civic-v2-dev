@@ -94,7 +94,7 @@ export class CvcVariantSelectField
       requireGenePlaceholderFn: (geneName: string) => {
         return `Search ${geneName} Variants`
       },
-      requireGenePrompt: 'Select a Gene to search Variants',
+      requireGenePrompt: 'Select a Gene to search its Variants',
       isMultiSelect: false,
       entityName: { singular: 'Variant', plural: 'Variants' },
     },
