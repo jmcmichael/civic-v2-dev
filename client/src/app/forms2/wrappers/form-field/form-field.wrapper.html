@@ -138,8 +138,7 @@
 <!-- SHARED COMPONENT TEMPLATES -->
 <!-- displays the field value description -->
 <ng-template #descriptionTpl>
-  <div
-    class="ant-form-item-extra cvc-form-field-description">
+  <div class="ant-form-item-extra cvc-form-field-description">
     <span>{{ props.description }}</span>
   </div>
 </ng-template>
@@ -148,8 +147,7 @@
 <ng-template
   #errorTpl
   let-control>
-  <div
-    class="cvc-form-field-validation">
+  <div class="cvc-form-field-validation">
     <formly-validation-message [field]="field"></formly-validation-message>
   </div>
 </ng-template>

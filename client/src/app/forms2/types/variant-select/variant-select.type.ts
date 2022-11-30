@@ -42,8 +42,8 @@ export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   entityName: CvcSelectEntityName
   requireGene: boolean // if true, disables field if no geneId$
   placeholder: string // default placeholder
-  requireGenePlaceholder?: string // placeholder if geneId required & none is set
-  requireGenePrompt?: string // placeholder prompt displayed after geneId set
+  requireGenePlaceholderFn: (geneName: string) => string // returns placeholder that includes gene name
+  requireGenePrompt: string // prompt displayed if gene unspecified
 }
 
 export interface CvcVariantSelectFieldConfig
@@ -88,7 +88,9 @@ export class CvcVariantSelectField
       label: 'Variant',
       placeholder: 'Search Variants',
       requireGene: true,
-      requireGenePlaceholder: 'Search GENE_NAME Variants',
+      requireGenePlaceholderFn: (geneName: string) => {
+        return `Search ${geneName} Variants`
+      },
       requireGenePrompt: 'Select a Gene to search Variants',
       isMultiSelect: false,
       entityName: { singular: 'Variant', plural: 'Variants' },
@@ -128,14 +130,7 @@ export class CvcVariantSelectField
       changeDetectorRef: this.changeDetectorRef,
     })
 
-    // set initial placeholder
-    let initialPlaceholder: string
-    if (this.props.requireGene && this.props.requireGenePrompt) {
-      initialPlaceholder = this.props.requireGenePrompt
-    } else {
-      initialPlaceholder = this.props.placeholder
-    }
-    this.placeholder$.next(initialPlaceholder)
+    this.placeholder$.next(this.props.placeholder)
   } // ngAfterViewInit
 
   private configureStateConnections() {
@@ -202,9 +197,10 @@ export class CvcVariantSelectField
     // and set placeholder to the 'requires gene' placeholder
     if (!gid && this.props.requireGene && this.props.requireGenePrompt) {
       this.resetField()
-      this.placeholder$.next(this.props.requireGenePrompt)
+      this.props.description = this.props.requireGenePrompt
       this.onGeneName$.next(undefined)
     } else if (gid) {
+      this.props.description = undefined
       // id provided, so fetch its name and update the placeholder string
       // lastValueFrom is used b/c fetch could return 'loading' events
       lastValueFrom(
@@ -216,12 +212,10 @@ export class CvcVariantSelectField
           )
         } else {
           // apply regex to include gene name in placeholder string
-          if (this.props.requireGenePlaceholder) {
-            const ph = this.props.requireGenePlaceholder.replace(
-              'GENE_NAME',
-              data.gene.name
+          if (this.props.requireGene) {
+            this.placeholder$.next(
+              this.props.requireGenePlaceholderFn(data.gene.name)
             )
-            this.placeholder$.next(ph)
           } else {
             this.placeholder$.next(this.props.placeholder)
           }

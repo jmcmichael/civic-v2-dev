@@ -54,15 +54,6 @@ export class CvcFormFieldWrapper
     // merge local wrapper config with field config specified properties
     try {
       this.wrapper = {
-        // display: {
-        //   tooltip: 'Field tooltip',
-        //   description: 'Field description goes here.',
-        //   noColon: true,
-        //   ignoreRequiredState: false,
-        //   ...(this.props.display
-        //     ? this.props.wrapper.display
-        //     : undefined),
-        // },
         layout: {
           // layout only relevant for horizontal nzLayout type
           item: {
