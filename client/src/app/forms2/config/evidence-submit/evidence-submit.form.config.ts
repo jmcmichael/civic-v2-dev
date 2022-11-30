@@ -69,11 +69,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
               },
             ],
           },
-          // <CvcSourceSelectFieldOptions>{
-          //   key: 'sourceId',
-          //   type: 'source-select',
-          //   props: {},
-          // },
+          <CvcSourceSelectFieldOptions>{
+            key: 'sourceId',
+            type: 'source-select',
+            props: {},
+          },
           // {
           //   wrappers: ['field-grid'],
           //   props: <CvcFieldGridWrapperConfig>{

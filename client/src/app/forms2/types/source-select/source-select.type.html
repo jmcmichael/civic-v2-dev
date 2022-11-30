@@ -25,22 +25,15 @@
       <cvc-entity-tag
         [cvcCacheId]="result.__typename + ':' + result.id"
         [cvcEmphasize]="searchString"></cvc-entity-tag>
-      <!-- <span
-           nz-typography
-           nzType="secondary">
-           Aliases:
-           <ng-container *ngIf="result.drugAliases.length > 0; else noAliases">
-           <em>
-           <span
-           nz-typography
-           nzType="secondary"
-           [innerHtml]="
-           result.drugAliases.join(', ') | highlightTypeahead: searchString
-           "></span
-           ></em>
-           </ng-container>
-           <ng-template #noAliases>--</ng-template>
-           </span> -->
+      <span
+        nz-typography
+        nzType="secondary">
+        ID:
+        <span
+          nz-typography
+          nzType="secondary"
+          [innerHtml]="result.citationId.toString() | highlightTypeahead: searchString"></span>
+      </span>
     </ng-template>
   </ng-container>
 </ng-container>
