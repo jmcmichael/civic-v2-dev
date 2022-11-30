@@ -20,7 +20,6 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 export class CvcEnumSelectComponent {
   @Input() cvcFormControl!: FormControl
   @Input() cvcFormlyAttributes!: FormlyFieldConfig
-  @Input() cvcEnumName: string = 'Attribute'
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder?: string = 'Select an option'
   @Input() cvcOptions?: NzSelectOptionInterface[] = []

@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   QueryList,
@@ -7,6 +8,7 @@ import {
   Type,
   ViewChildren,
 } from '@angular/core'
+import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
@@ -25,19 +27,19 @@ const optionText: any = {
   Evidence: {
     PREDICTIVE: {
       SUPPORTS:
-        "Experiment or study supports this variant's response to a drug",
+        "Experiment or study supports the variant's response to a drug",
       DOES_NOT_SUPPORT:
-        'Experiment or study does not support, or was inconclusive of an interaction between this variant and a drug',
+        'Experiment or study does not support, or was inconclusive of an interaction between the variant and a drug',
     },
     DIAGNOSTIC: {
       SUPPORTS:
-        "Experiment or study supports this variant's impact on the diagnosis of disease or subtype",
+        "Experiment or study supports the variant's impact on the diagnosis of disease or subtype",
       DOES_NOT_SUPPORT:
-        "Experiment or study does not support this variant's impact on diagnosis of disease or subtype",
+        "Experiment or study does not support the variant's impact on diagnosis of disease or subtype",
     },
     PROGNOSTIC: {
       SUPPORTS:
-        "Experiment or study supports this variant's impact on prognostic outcome",
+        "Experiment or study supports the variant's impact on prognostic outcome",
       DOES_NOT_SUPPORT:
         'Experiment or study does not support a prognostic association between variant and outcome',
     },
@@ -49,9 +51,9 @@ const optionText: any = {
     },
     FUNCTIONAL: {
       SUPPORTS:
-        'Experiment or study supports this variant causing alteration or non-alteration of the gene product function',
+        'Experiment or study supports the variant causing alteration or non-alteration of the gene product function',
       DOES_NOT_SUPPORT:
-        'Experiment or study does not support this variant causing alteration or non-alteration of the gene product function',
+        'Experiment or study does not support the variant causing alteration or non-alteration of the gene product function',
     },
     ONCOGENIC: {
       NA: 'Not Applicable for Oncogenic Evidence Type.',
@@ -63,18 +65,18 @@ const optionText: any = {
   },
   Assertion: {
     PREDICTIVE: {
-      SUPPORTS: "Support this variant's response to a drug",
+      SUPPORTS: "Support the variant's response to a drug",
       DOES_NOT_SUPPORT:
-        'Does not support, or was inconclusive of an interaction between this variant and a drug',
+        'Does not support, or was inconclusive of an interaction between the variant and a drug',
     },
     DIAGNOSTIC: {
       SUPPORTS:
-        "Supports this variant's impact on the diagnosis of disease or subtype",
+        "Supports the variant's impact on the diagnosis of disease or subtype",
       DOES_NOT_SUPPORT:
-        "Does not support this variant's impact on diagnosis of disease or subtype",
+        "Does not support the variant's impact on diagnosis of disease or subtype",
     },
     PROGNOSTIC: {
-      SUPPORTS: "Supports this variant's impact on prognostic outcome",
+      SUPPORTS: "Supports the variant's impact on prognostic outcome",
       DOES_NOT_SUPPORT:
         'Does not support a prognostic association between variant and outcome',
     },
@@ -86,9 +88,9 @@ const optionText: any = {
     },
     FUNCTIONAL: {
       SUPPORTS:
-        'Supports this variant causing alteration or non-alteration of the gene product function',
+        'Supports the variant causing alteration or non-alteration of the gene product function',
       DOES_NOT_SUPPORT:
-        'Does not support this variant causing alteration or non-alteration of the gene product function',
+        'Does not support the variant causing alteration or non-alteration of the gene product function',
     },
     ONCOGENIC: {
       SUPPORTS:
@@ -105,11 +107,11 @@ export type CvcDirectionSelectFieldOptions = Partial<
 
 export interface CvcDirectionSelectFieldProps extends FormlyFieldProps {
   label: string
+  labelFn: (entityName: string) => string
   placeholder: string
-  requireTypePrompt: string
-  enumName: string
+  placeholderFn: (entityName: string, entityType?: string) => string
   isMultiSelect: boolean
-  description?: string
+  requireTypePromptFn: (entityName: string) => string
   tooltip?: string
 }
 
@@ -130,6 +132,7 @@ const DirectionSelectMixin = mixin(
   selector: 'cvc-direction-select',
   templateUrl: './direction-select.type.html',
   styleUrls: ['./direction-select.type.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcDirectionSelectField
   extends DirectionSelectMixin
@@ -138,23 +141,25 @@ export class CvcDirectionSelectField
   //TODO: implement more precise types so specific enum-selects like this one can specify their enums, e.g. EntityDirection instead of CvcInputEnum
   // STATE SOURCE STREAMS
   directionEnum$: BehaviorSubject<CvcInputEnum[]>
-  onTypeSelect$?: BehaviorSubject<Maybe<CvcInputEnum>>
+  onEntityType$?: BehaviorSubject<Maybe<CvcInputEnum>>
 
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcDirectionSelectFieldOptions = {
     props: {
-      label: 'Evidence Direction',
-      enumName: 'Direction',
+      label: 'Direction',
+      labelFn: (entityName: string) => `${entityName} Direction`,
       required: true,
       isMultiSelect: false,
-      placeholder: 'Select ENTITY_TYPE Direction',
-      requireTypePrompt: 'Select an ENTITY_NAME Type to select Direction',
+      placeholder: 'Select Entity Direction',
+      placeholderFn: (entityName: string, entityType?: string) =>
+        `Select ${entityType ? entityType + ' ' : ''}${entityName} Direction`,
+      requireTypePromptFn: (entityName: string) =>
+        `Select ${entityName} Type to select its Direction`,
     },
   }
 
@@ -190,11 +195,9 @@ export class CvcDirectionSelectField
     this.props.tooltip = `An indicator of whether the ${this.state.entityName} statement supports or refutes the clinical significance of an event.`
 
     // CONFIGURE PLACEHOLDER PROMPT
-    this.props.requireTypePrompt = this.props.requireTypePrompt.replace(
-      'ENTITY_NAME',
-      this.state.entityName
+    this.placeholder$ = new BehaviorSubject<string>(
+      this.props.placeholderFn(this.state.entityName)
     )
-    this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
     // CONFIGURE STATE INPUTS
     // connect to state directionOptions$
@@ -204,6 +207,7 @@ export class CvcDirectionSelectField
       )
       return
     }
+
     // update direction enums when state direction$ emits
     this.state.enums.direction$
       .pipe(untilDestroyed(this))
@@ -213,12 +217,13 @@ export class CvcDirectionSelectField
 
     // set up optionTemplates Observable
     if (!this.optionTemplates) {
-      console.error(
+      console.info(
         `${this.field.id} could not find its optionTemplates QueryList to populate its select options, so simple text labels will be displayed.`
       )
     }
+
     this.optionTemplate$ = this.optionTemplates?.changes.pipe(
-      // return QueryLists's array of TemplateRefs
+      // return QueryList's array of TemplateRefs
       map((ql: QueryList<TemplateRef<any>>) => {
         return ql.map((q) => q)
       })
@@ -232,33 +237,32 @@ export class CvcDirectionSelectField
       )
       return
     }
-    this.onTypeSelect$ = this.state.fields[etName]
+
+    this.onEntityType$ = this.state.fields[etName]
     // if new entityType received, reset field, then based on entityType value, toggle disabled state, update placeholder
-    this.onTypeSelect$
+    this.onEntityType$
       .pipe(untilDestroyed(this))
       .subscribe((et: Maybe<CvcInputEnum>) => {
-        this.formControl.setValue(undefined)
         if (!et) {
           this.props.disabled = true
-          this.placeholder$.next(this.props.requireTypePrompt)
+          this.props.description = this.props.requireTypePromptFn(
+            this.state!.entityName
+          )
+          if (this.formControl.value) this.formControl.setValue(undefined)
         } else {
           this.props.disabled = false
-          const ph = this.props.placeholder.replace(
-            'ENTITY_TYPE',
-            et.charAt(0).toUpperCase() + et.slice(1).toLowerCase()
+          this.props.description = undefined
+          this.placeholder$.next(
+            this.props.placeholderFn(this.state!.entityName, formatEvidenceEnum(et))
           )
-          this.placeholder$.next(ph)
         }
       })
 
     this.onValueChange$
-      .pipe(withLatestFrom(this.onTypeSelect$), untilDestroyed(this))
+      .pipe(withLatestFrom(this.onEntityType$), untilDestroyed(this))
       .subscribe(([ed, et]: [Maybe<CvcInputEnum>, Maybe<CvcInputEnum>]) => {
-        if (!et || !ed || !this.state) {
-          this.props.description = undefined
-        } else {
-          this.props.description = optionText[this.state.entityName][et][ed]
-        }
+        if (!et || !ed || !this.state) return
+        this.props.description = optionText[this.state.entityName][et][ed]
       })
   }
 }

@@ -61,7 +61,6 @@ export class CvcRatingField
 
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  label$!: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcRatingFieldOptions = {

@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   QueryList,
@@ -44,7 +45,6 @@ export type CvcEntityTypeSelectFieldOptions = Partial<
 interface CvcEntityTypeSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
-  enumName: string
   isMultiSelect: boolean
   description?: string
   tooltip?: string
@@ -67,6 +67,7 @@ const EntityTypeSelectMixin = mixin(
   selector: 'cvc-type-select',
   templateUrl: './type-select.type.html',
   styleUrls: ['./type-select.type.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEntityTypeSelectField
   extends EntityTypeSelectMixin
@@ -80,14 +81,12 @@ export class CvcEntityTypeSelectField
 
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
 
   defaultOptions: Partial<FieldTypeConfig<CvcEntityTypeSelectFieldProps>> = {
     props: {
       label: 'ENTITY_NAME Type',
       placeholder: 'Select an ENTITY_NAME Type',
-      enumName: 'Type',
       isMultiSelect: false,
     },
   }
@@ -140,7 +139,6 @@ export class CvcEntityTypeSelectField
       'ENTITY_NAME',
       this.state.entityName
     )
-    this.label$ = new BehaviorSubject<string>(this.props.label)
     this.props.tooltip = `Type of clinical outcome associated with the ${this.state.entityName} statement.`
 
     // subscribe to state's type options

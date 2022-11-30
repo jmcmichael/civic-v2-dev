@@ -116,7 +116,6 @@ interface CvcSignificanceSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   requireTypePrompt: string
-  enumName: string
   isMultiSelect: boolean
   tooltip?: string
   description?: string
@@ -153,14 +152,12 @@ export class CvcSignificanceSelectField
 
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcSignificanceSelectFieldOptions = {
     props: {
       label: 'Clinical Significance',
-      enumName: 'Significance',
       required: true,
       isMultiSelect: false,
       placeholder: 'Select ENTITY_TYPE Clinical Significance',

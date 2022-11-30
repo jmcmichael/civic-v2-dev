@@ -45,7 +45,6 @@ export type CvcLevelSelectFieldOptions = Partial<
 interface CvcLevelSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
-  enumName: string
   isMultiSelect: boolean
   description?: string
   tooltip?: string
@@ -81,14 +80,12 @@ export class CvcLevelSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcLevelSelectFieldOptions = {
     props: {
       label: 'Evidence Level',
-      enumName: 'Evidence Level',
       required: true,
       isMultiSelect: false,
       placeholder: 'Select Evidence Level',

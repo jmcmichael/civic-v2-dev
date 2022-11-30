@@ -40,8 +40,9 @@ export type CvcVariantSelectFieldOptions = Partial<
 export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   isMultiSelect: boolean // is child of a repeat-field type
   entityName: CvcSelectEntityName
-  requireGene: boolean // if true, disables field if no geneId$
-  placeholder: string // default placeholder
+  placeholder: string
+  tooltip?: string
+  requireGene: boolean // if true, disables field if no geneId, and adjust placeholders, prompts
   requireGenePlaceholderFn: (geneName: string) => string // returns placeholder that includes gene name
   requireGenePrompt: string // prompt displayed if gene unspecified
 }
@@ -201,7 +202,7 @@ export class CvcVariantSelectField
       this.onGeneName$.next(undefined)
     } else if (gid) {
       this.props.description = undefined
-      // id provided, so fetch its name and update the placeholder string
+      // id provided, so fetch its name and update the placeholder string.
       // lastValueFrom is used b/c fetch could return 'loading' events
       lastValueFrom(
         this.geneQuery.fetch({ geneId: gid }, { fetchPolicy: 'cache-first' })
@@ -211,7 +212,7 @@ export class CvcVariantSelectField
             `${this.field.id} could not fetch gene name for Gene:${gid}.`
           )
         } else {
-          // apply regex to include gene name in placeholder string
+          // update placeholder
           if (this.props.requireGene) {
             this.placeholder$.next(
               this.props.requireGenePlaceholderFn(data.gene.name)

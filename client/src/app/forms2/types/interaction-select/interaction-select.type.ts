@@ -72,7 +72,6 @@ export class CvcInteractionSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  label$!: BehaviorSubject<string>
   placeholder$!: BehaviorSubject<string>
 
   // FieldTypeConfig defaults
