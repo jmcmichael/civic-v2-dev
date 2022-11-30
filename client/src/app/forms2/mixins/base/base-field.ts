@@ -31,10 +31,13 @@ export function BaseFieldType<
     // STATE OUTPUT STREAM
     stateValueChange$?: BehaviorSubject<Maybe<V>>
 
-    initialLabel?: string
+    // PRESENTATION STREAMS
+    extraType$: BehaviorSubject<Maybe<'description' | 'prompt'>>
 
+    initialLabel?: string
     constructor() {
       super() // call abstract FieldType's constructor
+      this.extraType$ = new BehaviorSubject<Maybe<'description' | 'prompt'>>(undefined)
     }
 
     configureBaseField(): void {

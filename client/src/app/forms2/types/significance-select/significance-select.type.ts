@@ -11,6 +11,7 @@ import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { EntityClinicalSignificance } from '@app/forms2/states/entity.state'
+import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -18,7 +19,7 @@ import {
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { BehaviorSubject, map, Subject, withLatestFrom } from 'rxjs'
+import { BehaviorSubject, map, withLatestFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
 const optionText: any = {
@@ -115,10 +116,12 @@ export type CvcSignificanceSelectFieldOptions = Partial<
 interface CvcSignificanceSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
-  requireTypePrompt: string
+  placeholderFn: (entityName: string, entityType?: string) => string
+  requireTypePromptFn: (entityName: string) => string
   isMultiSelect: boolean
   tooltip?: string
   description?: string
+  extraType?: CvcFormFieldExtraType
 }
 
 export interface CvcSignificanceSelectFieldConfig
@@ -160,9 +163,11 @@ export class CvcSignificanceSelectField
       label: 'Clinical Significance',
       required: true,
       isMultiSelect: false,
-      placeholder: 'Select ENTITY_TYPE Clinical Significance',
-      requireTypePrompt:
-        'Select an ENTITY_NAME Type to select Clinical Significance',
+      placeholder: 'Select Clinical Significance',
+      placeholderFn: (entityName: string) =>
+        `Select ${entityName ? entityName + ' ' : ''}Clinical Significance`,
+      requireTypePromptFn: (entityName: string) =>
+        `Select ${entityName} Type to select its Clinical Significance`,
       tooltip: 'Clinical impact of the variant',
     },
   }
@@ -197,11 +202,9 @@ export class CvcSignificanceSelectField
     }
 
     // CONFIGURE PLACEHOLDER PROMPT
-    this.props.requireTypePrompt = this.props.requireTypePrompt.replace(
-      'ENTITY_NAME',
-      this.state.entityName
+    this.placeholder$ = new BehaviorSubject<string>(
+      this.props.placeholderFn(this.state.entityName)
     )
-    this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
 
     // CONFIGURE STATE INPUTS
     // connect to state clinicalSignificanceOptions$
@@ -211,19 +214,19 @@ export class CvcSignificanceSelectField
       )
       return
     }
-    // update significance enums when state clinicalSignificance$ emits
     this.state.enums.clinicalSignificance$
       .pipe(untilDestroyed(this))
       .subscribe((enums: CvcInputEnum[]) => {
         this.significanceEnum$.next(enums)
       })
 
-    // set up optionTemplates Observable
+    // set up optionTemplate$ Observable for enum-select's cvcOptions
     if (!this.optionTemplates) {
       console.warn(
         `${this.field.id} could not find its optionTemplates QueryList to populate its select options, so simple text labels will be displayed.`
       )
     }
+    // watch optionTemplates ViewChildren, map QueryList => TemplateRef[]
     this.optionTemplate$ = this.optionTemplates?.changes.pipe(
       // return QueryLists's array of TemplateRefs
       map((ql: QueryList<TemplateRef<any>>) => {
@@ -244,17 +247,20 @@ export class CvcSignificanceSelectField
     this.onTypeSelect$
       .pipe(untilDestroyed(this))
       .subscribe((et: Maybe<CvcInputEnum>) => {
-        this.formControl.setValue(undefined)
         if (!et) {
           this.props.disabled = true
-          this.placeholder$.next(this.props.requireTypePrompt)
+          this.props.description = this.props.requireTypePromptFn(
+            this.state!.entityName
+          )
+          this.props.extraType = 'prompt'
+          // if (this.formControl.value) this.formControl.setValue(undefined)
         } else {
           this.props.disabled = false
-          const ph = this.props.placeholder.replace(
-            'ENTITY_TYPE',
-            et.charAt(0).toUpperCase() + et.slice(1).toLowerCase()
+          this.props.description = undefined
+          this.props.extraType = undefined
+          this.placeholder$.next(
+            this.props.placeholderFn(this.state!.entityName)
           )
-          this.placeholder$.next(ph)
         }
       })
 
@@ -262,12 +268,10 @@ export class CvcSignificanceSelectField
     this.onValueChange$
       .pipe(withLatestFrom(this.onTypeSelect$), untilDestroyed(this))
       .subscribe(([cs, et]: [Maybe<CvcInputEnum>, Maybe<CvcInputEnum>]) => {
-        if (!et || !cs || !this.state) {
-          this.props.description = undefined
-        } else {
-          console.log(`entity type: ${et}, clinical significance: ${cs}`)
-          this.props.description = optionText[this.state.entityName][et][cs]
-        }
+        if (!et || !cs || !this.state) return
+        this.props.description = undefined
+        this.props.extraType = 'description'
+        this.props.description = optionText[this.state.entityName][et][cs]
       })
   }
 }

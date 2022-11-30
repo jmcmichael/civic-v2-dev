@@ -13,6 +13,7 @@ import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
 import { EntityDirection } from '@app/forms2/states/entity.state'
+import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
@@ -26,8 +27,7 @@ import mixin from 'ts-mixin-extended'
 const optionText: any = {
   Evidence: {
     PREDICTIVE: {
-      SUPPORTS:
-        "Experiment or study supports the variant's response to a drug",
+      SUPPORTS: "Experiment or study supports the variant's response to a drug",
       DOES_NOT_SUPPORT:
         'Experiment or study does not support, or was inconclusive of an interaction between the variant and a drug',
     },
@@ -113,6 +113,7 @@ export interface CvcDirectionSelectFieldProps extends FormlyFieldProps {
   isMultiSelect: boolean
   requireTypePromptFn: (entityName: string) => string
   tooltip?: string
+  extraType?: CvcFormFieldExtraType
 }
 
 export interface CvcDirectionSelectFieldConfig
@@ -191,7 +192,7 @@ export class CvcDirectionSelectField
       )
       return
     }
-
+    this.props.label = this.props.labelFn(this.state.entityName)
     this.props.tooltip = `An indicator of whether the ${this.state.entityName} statement supports or refutes the clinical significance of an event.`
 
     // CONFIGURE PLACEHOLDER PROMPT
@@ -248,12 +249,17 @@ export class CvcDirectionSelectField
           this.props.description = this.props.requireTypePromptFn(
             this.state!.entityName
           )
-          if (this.formControl.value) this.formControl.setValue(undefined)
+          this.props.extraType = 'prompt'
+          // if (this.formControl.value) this.formControl.setValue(undefined)
         } else {
           this.props.disabled = false
           this.props.description = undefined
+          this.props.extraType = undefined
           this.placeholder$.next(
-            this.props.placeholderFn(this.state!.entityName, formatEvidenceEnum(et))
+            this.props.placeholderFn(
+              this.state!.entityName,
+              formatEvidenceEnum(et)
+            )
           )
         }
       })
@@ -262,6 +268,7 @@ export class CvcDirectionSelectField
       .pipe(withLatestFrom(this.onEntityType$), untilDestroyed(this))
       .subscribe(([ed, et]: [Maybe<CvcInputEnum>, Maybe<CvcInputEnum>]) => {
         if (!et || !ed || !this.state) return
+        this.props.extraType = 'description'
         this.props.description = optionText[this.state.entityName][et][ed]
       })
   }

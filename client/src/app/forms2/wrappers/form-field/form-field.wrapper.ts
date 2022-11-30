@@ -7,6 +7,8 @@ import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzAlign, NzJustify } from 'ng-zorro-antd/grid'
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 
+export type CvcFormFieldExtraType = 'description' | 'prompt'
+
 export interface CvcFormFieldWrapperLayout {
   layout: {
     item: {

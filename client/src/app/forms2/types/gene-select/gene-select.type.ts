@@ -15,6 +15,7 @@ import {
 } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
+import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
   GeneSelectTagGQL,
   GeneSelectTagQuery,
@@ -36,6 +37,7 @@ export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   selectMessages?: CvcEntitySelectMessageOptions
   entityName: CvcSelectEntityName
   helpText?: string
+  extraType?: CvcFormFieldExtraType
 }
 
 export interface CvcGeneSelectFieldConfig

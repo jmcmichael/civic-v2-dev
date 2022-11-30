@@ -12,6 +12,7 @@ import { ApolloQueryResult } from '@apollo/client/core'
 import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
+import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
   LinkableGeneGQL,
   Maybe,
@@ -45,6 +46,7 @@ export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
   requireGene: boolean // if true, disables field if no geneId, and adjust placeholders, prompts
   requireGenePlaceholderFn: (geneName: string) => string // returns placeholder that includes gene name
   requireGenePrompt: string // prompt displayed if gene unspecified
+  extraType?: CvcFormFieldExtraType
 }
 
 export interface CvcVariantSelectFieldConfig
@@ -199,9 +201,11 @@ export class CvcVariantSelectField
     if (!gid && this.props.requireGene && this.props.requireGenePrompt) {
       this.resetField()
       this.props.description = this.props.requireGenePrompt
+      this.props.extraType = 'prompt'
       this.onGeneName$.next(undefined)
     } else if (gid) {
       this.props.description = undefined
+      this.props.extraType = undefined
       // id provided, so fetch its name and update the placeholder string.
       // lastValueFrom is used b/c fetch could return 'loading' events
       lastValueFrom(

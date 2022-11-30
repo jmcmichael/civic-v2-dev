@@ -26,9 +26,23 @@
   border-radius: 6px;
 }
 
-.ant-form-item-extra {
+.cvc-form-field-validation,
+.cvc-form-field-description {
   // ensure consistent height of description, validation message line
-  min-height: 20px;
+  min-height: 16px;
+  line-height: 1.2;
+  font-size: 95%;
+  margin-top: 4px;
+  .extra-prompt {
+    font-weight: 600;
+  }
+  .extra-description {
+    font-style: oblique;
+  }
+}
+
+.cvc-form-field-validation {
+  font-weight: 600;
 }
 
 nz-form-item.layout-horizontal {

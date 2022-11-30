@@ -114,8 +114,10 @@ export class CvcEntityTypeSelectField
       .subscribe((v: Maybe<EntityType>) => {
         if (!v) {
           this.props.description = undefined
+          this.props.extraType = undefined
         } else {
           this.props.description = optionText[v]
+          this.props.extraType = 'description'
         }
       })
   }

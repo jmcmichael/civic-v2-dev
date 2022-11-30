@@ -138,8 +138,12 @@
 <!-- SHARED COMPONENT TEMPLATES -->
 <!-- displays the field value description -->
 <ng-template #descriptionTpl>
-  <div class="ant-form-item-extra cvc-form-field-description">
-    <span>{{ props.description }}</span>
+  <div class="cvc-form-field-description">
+    <ng-container [ngSwitch]="props.extraType">
+      <span *ngSwitchCase="'prompt'" class="extra-prompt">{{ props.description }}</span>
+      <span *ngSwitchCase="'description'" class="extra-description">{{ props.description }}</span>
+      <span *ngSwitchDefault>{{ props.description }}</span>
+    </ng-container>
   </div>
 </ng-template>
 
