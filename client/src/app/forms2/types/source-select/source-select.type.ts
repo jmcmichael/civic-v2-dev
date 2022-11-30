@@ -37,8 +37,6 @@ import mixin from 'ts-mixin-extended'
 export type CvcSourceSelectFieldOptions = Partial<
   FieldTypeConfig<CvcSourceSelectFieldProps>
 >
-// TODO: finish implementing updated props interface w/ labels, placeholders groups,
-// and multiMax limits, multiDefault placeholder
 export interface CvcSourceSelectFieldProps extends FormlyFieldProps {
   // entity names, singular & plural
   entityName: CvcSelectEntityName
@@ -53,15 +51,22 @@ export interface CvcSourceSelectFieldProps extends FormlyFieldProps {
   placeholders: {
     // default placeholder
     default: string
-    // default placeholder for multi-selects
-    multiDefault: string
+    // fn to substitute selected SourceSouce name
+    contextualFn: (sourceName: string) => string
   }
   tooltip?: string
   description?: string
 }
 
+export function getPlaceholder(
+  strings: TemplateStringsArray,
+  sourceType: SourceSource
+) {
+  return `${strings[0]}${sourceType}${strings[1]}`
+}
+
 // NOTE: any multi-select field must have the string 'multi' in its type name,
-// as UI logic (currently in base-field) depends on its presence to differentiate
+// as UI logic in base-field.component depends on its presence to differentiate
 // field types in some expressions
 export interface CvcSourceSelectFieldConfig
   extends FormlyFieldConfig<CvcSourceSelectFieldProps> {
@@ -114,8 +119,10 @@ export class CvcSourceSelectField
       isMultiSelect: false,
       tooltip: 'Source(s) that support items, statements or descriptions.',
       placeholders: {
-        default: 'Search Sources',
-        multiDefault: 'Select Source(s)',
+        default: 'Search PubMed, ASCO, and ASH Sources',
+        contextualFn: (sourceName: string) => {
+          return `Search ${sourceName} Sources`
+        },
       },
     },
   }
@@ -156,12 +163,23 @@ export class CvcSourceSelectField
     })
     this.configureLabels()
 
-    // TODO: implement using withLatestFrom(onSearch$), so we emit that from onSearch$.next() below. onSearch$ kicks off the search query, which needs to be updated w/ the new sourceType param
     this.sourceType$
       .pipe(withLatestFrom(this.onSearch$), untilDestroyed(this))
       .subscribe(([src, str]: [SourceSource, string]) => {
         this.onSearch$.next(str)
-        this.sourceTypeName$.next(formatSourceTypeEnum(src))
+        const srcName = formatSourceTypeEnum(src)
+        this.sourceTypeName$.next(srcName)
+        this.placeholder$.next(this.props.placeholders.contextualFn(srcName))
+      })
+    // replace default placeholder with specific source selected
+    this.onOpenChange$
+      .pipe(withLatestFrom(this.sourceTypeName$), untilDestroyed(this))
+      .subscribe(([isOpen, srcName]) => {
+        if (isOpen) {
+          this.placeholder$.next(this.props.placeholders.contextualFn(srcName))
+        } else {
+          this.placeholder$.next(this.props.placeholders.default)
+        }
       })
   }
 
