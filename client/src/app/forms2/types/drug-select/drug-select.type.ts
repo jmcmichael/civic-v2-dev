@@ -1,12 +1,12 @@
 import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    QueryList,
-    TemplateRef,
-    Type,
-    ViewChildren
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  QueryList,
+  TemplateRef,
+  Type,
+  ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
@@ -14,21 +14,22 @@ import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { EntityType } from '@app/forms2/states/entity.state'
+import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import {
-    DrugSelectTagGQL,
-    DrugSelectTagQuery,
-    DrugSelectTagQueryVariables,
-    DrugSelectTypeaheadFieldsFragment,
-    DrugSelectTypeaheadGQL,
-    DrugSelectTypeaheadQuery,
-    DrugSelectTypeaheadQueryVariables,
-    Maybe
+  DrugSelectTagGQL,
+  DrugSelectTagQuery,
+  DrugSelectTagQueryVariables,
+  DrugSelectTypeaheadFieldsFragment,
+  DrugSelectTypeaheadGQL,
+  DrugSelectTypeaheadQuery,
+  DrugSelectTypeaheadQueryVariables,
+  Maybe,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-    FieldTypeConfig,
-    FormlyFieldConfig,
-    FormlyFieldProps
+  FieldTypeConfig,
+  FormlyFieldConfig,
+  FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
@@ -41,28 +42,18 @@ export type CvcDrugSelectFieldOptions = Partial<
 // TODO: finish implementing updated props interface w/ labels, placeholders groups,
 // and multiMax limits, multiDefault placeholder
 export interface CvcDrugSelectFieldProps extends FormlyFieldProps {
-  // entity names, singular & plural
   entityName: CvcSelectEntityName
-  // if true, field is a multi-select & its model value should be an array
   isMultiSelect: boolean
-  // if true, field disabled when no entity type available
   requireType: boolean
   labels: {
-    // label if a multi type, showing optional plurality, e.g. 'Variant(s)'
     multi: string
-    // label if multi type & model value length > 1
     plural: string
   }
-  placeholders: {
-    // default placeholder
-    default: string
-    // default placeholder for multi-selects
-    multiDefault: string
-    // placeholder if evidence/assertion type required & field disabled
-    requireTypePrompt: string
-  },
+  placeholder: string
+  requireTypePromptFn: (entityName: string, isMultiSelect?: boolean) => string
   tooltip?: string
   description?: string
+  extraType?: CvcFormFieldExtraType
 }
 
 // NOTE: any multi-select field must have the string 'multi' in its type name,
@@ -105,7 +96,7 @@ export class CvcDrugSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  placeholder$: BehaviorSubject<string>
+  placeholder$: BehaviorSubject<Maybe<string>>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcDrugSelectFieldOptions = {
@@ -118,14 +109,15 @@ export class CvcDrugSelectField
       },
       isMultiSelect: false,
       requireType: true,
-      tooltip: 'Drug or drug combination which interacts with the specified variant',
+      tooltip:
+        'Drug or drug combination which interacts with the specified variant',
       // TODO: implement labels/placeholders w/ string replacement using typescript
       // template strings: https://www.codevscolor.com/typescript-template-string
-      placeholders: {
-        default: 'Search Drugs',
-        multiDefault: 'Select Drug(s) (max MULTI_MAX)',
-        requireTypePrompt: 'Select an ENTITY_NAME Type to search Drugs',
-      },
+      placeholder: 'Search Drugs',
+      requireTypePromptFn: (entityName: string, isMultiSelect?: boolean) =>
+        `Select an ${entityName} Type to search associated Drug${
+          isMultiSelect ? '(s)' : ''
+        }`,
     },
   }
 
@@ -140,9 +132,7 @@ export class CvcDrugSelectField
     private changeDetectorRef: ChangeDetectorRef
   ) {
     super()
-    this.placeholder$ = new BehaviorSubject<string>(
-      this.defaultOptions.props!.placeholders!.default
-    )
+    this.placeholder$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 
   ngAfterViewInit(): void {
@@ -202,26 +192,28 @@ export class CvcDrugSelectField
           this.props.required = false
           this.props.disabled = true
           // no drug required, entity type specified
-          this.placeholder$.next(
-            `${formatEvidenceEnum(entityType)} ${
-              this.stateEntityName
-            } does not include associated drugs`
-          )
+          this.props.description = `${formatEvidenceEnum(entityType)} ${
+            this.state!.entityName
+          } does not include associated drugs`
+          this.props.extraType = 'prompt'
         }
-        // if entity type is required, toggle field required property off and show a 'Select Type..' prompt
-        if (!entityType && this.props.requireType) {
+        // if type required, toggle field required property off and show a 'Select Type..' prompt
+        if (this.props.requireType && !entityType) {
           this.props.required = false
           this.props.disabled = true
           // no drug required, entity type not specified
-          this.placeholder$.next(
-            `Select ${this.stateEntityName} Type to search Drugs`
+          this.props.description = this.props.requireTypePromptFn(
+            this.state!.entityName,
+            this.props.isMultiSelect
           )
+          this.props.extraType = 'prompt'
         }
         // state indicates drug is required, set required, unset disabled, and show the placeholder (state will only return true from requiresDrug$ if entityType provided)
         if (requiresDrug) {
           this.props.required = true
           this.props.disabled = false
-          this.placeholder$.next('Search Drugs')
+          this.props.description = undefined
+          this.props.extraType = undefined
         }
         // field currently has a value, but state indicates no drug is required, or no type is provided && type is required, so reset field
         if (

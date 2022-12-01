@@ -39,8 +39,6 @@ import mixin from 'ts-mixin-extended'
 export type CvcDiseaseSelectFieldOptions = Partial<
   FieldTypeConfig<CvcDiseaseSelectFieldProps>
 >
-// TODO: finish implementing updated props interface w/ labels, placeholders groups,
-// and multiMax limits, multiDefault placeholder
 export interface CvcDiseaseSelectFieldProps extends FormlyFieldProps {
   entityName: CvcSelectEntityName
   isMultiSelect: boolean
@@ -178,6 +176,7 @@ export class CvcDiseaseSelectField
   }
 
   configurePlaceholders(): void {
+    this.placeholder$.next(this.props.placeholder)
     if (!this.onRequiresDisease$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
     combineLatest([this.onRequiresDisease$, this.onEntityType$])
