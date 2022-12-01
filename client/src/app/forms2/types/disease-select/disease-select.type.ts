@@ -197,7 +197,7 @@ export class CvcDiseaseSelectField
           // and show a 'Select Type..' prompt
           if (!requiresDisease && !entityType && this.props.requireType) {
             this.props.required = false
-            this.props.disabled = false
+            this.props.disabled = true
             this.props.description = this.props.requireTypePromptFn(
               this.state!.entityName, this.props.isMultiSelect
             )

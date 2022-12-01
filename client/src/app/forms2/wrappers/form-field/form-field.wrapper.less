@@ -18,6 +18,12 @@
       }
     }
   }
+  &.disabled label ::ng-deep span{
+    color: @text-color-secondary;
+  }
+  &.error label ::ng-deep span{
+    color: @error-color;
+  }
 }
 .cvc-form-field-card() {
   border: 1px solid #ebebeb;

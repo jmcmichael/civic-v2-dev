@@ -69,6 +69,7 @@
       <ng-container *ngIf="props.label && props.hideLabel !== true">
         <nz-form-label
           *ngIf="wrapper.layout.label as label"
+          [ngClass]="{'disabled': props.disabled, 'error': showError}"
           [nzRequired]="props.required"
           [nzFor]="id"
           [nzNoColon]="true">
