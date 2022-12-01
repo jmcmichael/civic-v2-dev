@@ -189,56 +189,47 @@ export class CvcDiseaseSelectField
       )
       .subscribe(
         ([requiresDisease, entityType]: [boolean, Maybe<EntityType>]) => {
-          // type not required, set disabled to false, skip msgs and required logic
-          // (required status will be determined by props.required)
-          if (!this.props.requireType) {
-            this.props.disabled = false
-            return
-          }
-          // FOLLOWING LOGIC ASSUMES TYPE IS REQUIRED
-
-          if (!requiresDisease && !entityType) {
-            this.props.disabled = true
-            this.props.required = false
-            this.props.description = this.props.requireTypePromptFn(
-              this.state!.entityName,
-              this.props.isMultiSelect
-            )
-            this.props.extraType = 'prompt'
-          }
-          if (requiresDisease && !entityType) {
-            this.props.disabled = true
-            this.props.required = false
-            this.props.description = this.props.requireTypePromptFn(
-              this.state!.entityName,
-              this.props.isMultiSelect
-            )
-            this.props.extraType = 'prompt'
-          }
+          // diseases are not associated with this entity type
           if (!requiresDisease && entityType) {
-            this.props.disabled = true
             this.props.required = false
+            this.props.disabled = true
             // no disease required, entity type specified
-            this.props.description = `${formatEvidenceEnum(entityType)} ${
-              this.state!.entityName
-            } does not include associated diseases`
+            try {
+              this.props.description = `${formatEvidenceEnum(entityType)} ${
+                this.state!.entityName
+              } does not include associated diseases`
+            } catch (error) {
+              console.log(error)
+            }
+            this.props.extraType = 'prompt'
+            // TODO: figure out why markForCheck is required here, when identical code in drug-select does not require it. If this is removed, this description msg is not updated.
+            this.cdr.markForCheck()
+          }
+          // if type required, toggle field required property off and show a 'Select Type..' prompt
+          if (this.props.requireType && !entityType) {
+            this.props.required = false
+            this.props.disabled = true
+            // no disease required, entity type not specified
+            this.props.description = this.props.requireTypePromptFn(
+              this.state!.entityName,
+              this.props.isMultiSelect
+            )
             this.props.extraType = 'prompt'
           }
-          if (requiresDisease && entityType) {
-            this.props.disabled = false
+          // state indicates disease is required, set required, unset disabled, and show the placeholder (state will only return true from requiresDisease$ if entityType provided)
+          if (requiresDisease) {
             this.props.required = true
+            this.props.disabled = false
             this.props.description = undefined
             this.props.extraType = undefined
           }
-          this.cdr.detectChanges()
-          // field currently has a value, but state indicates no disease is required,
-          // or no type is provided && type is required, so reset field
-          // if (
-          //   (!requiresDisease && this.formControl.value) ||
-          //   (this.props.requireType && !entityType && this.formControl.value)
-          // ) {
-          //   this.resetField()
-          // }
+          // field currently has a value, but state indicates no disease is required, or no type is provided && type is required, so reset field
+          if (
+            (!requiresDisease && this.formControl.value) ||
+            (this.props.requireType && !entityType && this.formControl.value)
+          ) {
+            this.resetField()
+          }
         }
       )
   }

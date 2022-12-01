@@ -83,7 +83,7 @@ export class CvcInteractionSelectField
       placeholder: 'Select Drug Interaction',
       requireMultipleDrugs: true,
       requireMultipleDrugsPromptFn: () =>
-        `Select multiple associated Drugs to specify their Interaction`,
+        `A single associated drug does not have an Interaction type`,
       tooltip: 'Characterizes the interaction of a multi-drug treatment',
     },
   }

@@ -203,6 +203,7 @@ export class CvcVariantSelectField
       this.props.description = this.props.requireGenePrompt
       this.props.extraType = 'prompt'
       this.onGeneName$.next(undefined)
+      this.placeholder$.next(this.props.placeholder)
     } else if (gid) {
       this.props.description = undefined
       this.props.extraType = undefined

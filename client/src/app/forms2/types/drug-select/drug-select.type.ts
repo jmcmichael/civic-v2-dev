@@ -111,8 +111,6 @@ export class CvcDrugSelectField
       requireType: true,
       tooltip:
         'Drug or drug combination which interacts with the specified variant',
-      // TODO: implement labels/placeholders w/ string replacement using typescript
-      // template strings: https://www.codevscolor.com/typescript-template-string
       placeholder: 'Search Drugs',
       requireTypePromptFn: (entityName: string, isMultiSelect?: boolean) =>
         `Select an ${entityName} Type to search associated Drugs`,
@@ -180,10 +178,16 @@ export class CvcDrugSelectField
   }
 
   configurePlaceholders(): void {
+    this.placeholder$.next(this.props.placeholder)
     if (!this.onRequiresDrug$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
     combineLatest([this.onRequiresDrug$, this.onEntityType$])
-      .pipe(untilDestroyed(this))
+      .pipe(
+        tag(
+          `${this.field.id} combineLatest([this.onRequiresDrug$, this.onEntityType$])`
+        ),
+        untilDestroyed(this)
+      )
       .subscribe(([requiresDrug, entityType]: [boolean, Maybe<EntityType>]) => {
         // drugs are not associated with this entity type
         if (!requiresDrug && entityType) {
