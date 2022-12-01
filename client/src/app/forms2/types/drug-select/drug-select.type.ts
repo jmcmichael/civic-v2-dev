@@ -115,9 +115,7 @@ export class CvcDrugSelectField
       // template strings: https://www.codevscolor.com/typescript-template-string
       placeholder: 'Search Drugs',
       requireTypePromptFn: (entityName: string, isMultiSelect?: boolean) =>
-        `Select an ${entityName} Type to search associated Drug${
-          isMultiSelect ? '(s)' : ''
-        }`,
+        `Select an ${entityName} Type to search associated Drugs`,
     },
   }
 

@@ -1,21 +1,22 @@
 import {
-  AfterViewInit,
-  ChangeDetectorRef,
-  Component,
-  QueryList,
-  TemplateRef,
-  Type,
-  ViewChildren,
+    AfterViewInit,
+    ChangeDetectorRef,
+    Component,
+    QueryList,
+    TemplateRef,
+    Type,
+    ViewChildren
 } from '@angular/core'
 import { CvcInputEnum } from '@app/forms2/forms2.types'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EnumTagField } from '@app/forms2/mixins/enum-tag-field.mixin'
+import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
 import { DrugInteraction, Maybe } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import {
-  FieldTypeConfig,
-  FormlyFieldConfig,
-  FormlyFieldProps,
+    FieldTypeConfig,
+    FormlyFieldConfig,
+    FormlyFieldProps
 } from '@ngx-formly/core'
 import { BehaviorSubject, map } from 'rxjs'
 import mixin from 'ts-mixin-extended'
@@ -37,9 +38,10 @@ interface CvcInteractionSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   requireMultipleDrugs: boolean
-  multipleDrugsPrompt: string
+  requireMultipleDrugsPromptFn: () => string
   tooltip?: string
   description?: string
+  extraType?: CvcFormFieldExtraType
 }
 
 export interface CvcInteractionSelectFieldConfig
@@ -72,7 +74,7 @@ export class CvcInteractionSelectField
   // LOCAL SOURCE STREAMS
   // LOCAL INTERMEDIATE STREAMS
   // LOCAL PRESENTATION STREAMS
-  placeholder$!: BehaviorSubject<string>
+  placeholder$!: BehaviorSubject<Maybe<string>>
 
   // FieldTypeConfig defaults
   defaultOptions: CvcInteractionSelectFieldOptions = {
@@ -80,8 +82,9 @@ export class CvcInteractionSelectField
       label: 'Drug Interaction',
       placeholder: 'Select Drug Interaction',
       requireMultipleDrugs: true,
-      multipleDrugsPrompt: 'Select multiple Drugs to choose their Interaction',
-      tooltip: 'Characterizes the interaction of a multi-drug treatment'
+      requireMultipleDrugsPromptFn: () =>
+        `Select multiple associated Drugs to specify their Interaction`,
+      tooltip: 'Characterizes the interaction of a multi-drug treatment',
     },
   }
 
@@ -91,6 +94,7 @@ export class CvcInteractionSelectField
   constructor(private cdr: ChangeDetectorRef) {
     super()
     this.interactionEnum$ = new BehaviorSubject<CvcInputEnum[]>([])
+    this.placeholder$ = new BehaviorSubject<Maybe<string>>(undefined)
   }
 
   ngAfterViewInit(): void {
@@ -108,14 +112,12 @@ export class CvcInteractionSelectField
       console.error(
         `${this.field.id} requires a form state to populate its options, none was found.`
       )
-      this.placeholder$ = new BehaviorSubject<string>(
-        'ERROR: Form state not found'
-      )
+      this.placeholder$.next('ERROR: Form state not found')
       return
     }
 
     // CONFIGURE PLACEHOLDER PROMPT
-    this.placeholder$ = new BehaviorSubject<string>(this.props.placeholder)
+    this.placeholder$.next(this.props.placeholder)
 
     // CONFIGURE STATE INPUTS
     // connect to state clinicalInteractionOptions$
@@ -155,31 +157,42 @@ export class CvcInteractionSelectField
     this.onDrug$
       .pipe(untilDestroyed(this))
       .subscribe((drugs: Maybe<number[]>) => {
-        if (
-          !drugs ||
-          (this.props.requireMultipleDrugs && drugs && drugs.length <= 1)
-        ) {
+        if (!drugs) return
+        if (!this.props.requireMultipleDrugs) {
+          this.props.disabled = false
+          return
+        }
+        if (drugs.length <= 1) {
+          this.setPrompt()
           this.props.disabled = true
           this.props.required = false
-          this.formControl.setValue(undefined)
-          this.placeholder$.next(this.props.multipleDrugsPrompt)
-        }
-        if (drugs && drugs.length > 1) {
+          if (this.formControl.value !== undefined)
+            this.formControl.setValue(undefined)
+        } else {
+          this.resetDescription()
           this.props.disabled = false
           this.props.required = true
-          this.placeholder$.next(this.props.placeholder)
         }
       })
 
     // update field description on value changes
     this.onValueChange$
       .pipe(untilDestroyed(this))
-      .subscribe((int: Maybe<DrugInteraction>) => {
-        if (!int) {
-          this.props.description = undefined
-        } else {
-          this.props.description = optionText[int]
+      .subscribe((interaction: Maybe<DrugInteraction>) => {
+        if (interaction) {
+          this.props.description = optionText[interaction]
+          this.props.extraType = 'description'
         }
       })
+  }
+
+  setPrompt() {
+    this.props.description = this.props.requireMultipleDrugsPromptFn()
+    this.props.extraType = 'prompt'
+  }
+
+  resetDescription() {
+    this.props.description = undefined
+    this.props.extraType = undefined
   }
 }
