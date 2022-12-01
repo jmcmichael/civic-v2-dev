@@ -65,11 +65,17 @@
   </ng-template>
 
   <ng-template #verticalFieldWrapper>
-    <nz-form-item class="layout-vertical">
+    <nz-form-item
+      class="layout-vertical"
+      [ngClass]="{
+        disabled: props.disabled,
+        error: showError,
+        required: props.required
+      }">
       <ng-container *ngIf="props.label && props.hideLabel !== true">
         <nz-form-label
           *ngIf="wrapper.layout.label as label"
-          [ngClass]="{'disabled': props.disabled, 'error': showError}"
+          [ngClass]="{ disabled: props.disabled, error: showError }"
           [nzRequired]="props.required"
           [nzFor]="id"
           [nzNoColon]="true">
@@ -141,8 +147,16 @@
 <ng-template #descriptionTpl>
   <div class="cvc-form-field-description">
     <ng-container [ngSwitch]="props.extraType">
-      <span *ngSwitchCase="'prompt'" class="extra-prompt">{{ props.description }}</span>
-      <span *ngSwitchCase="'description'" class="extra-description">{{ props.description }}</span>
+      <span
+        *ngSwitchCase="'prompt'"
+        class="extra-prompt"
+        >{{ props.description }}</span
+      >
+      <span
+        *ngSwitchCase="'description'"
+        class="extra-description"
+        >{{ props.description }}</span
+      >
       <span *ngSwitchDefault>{{ props.description }}</span>
     </ng-container>
   </div>

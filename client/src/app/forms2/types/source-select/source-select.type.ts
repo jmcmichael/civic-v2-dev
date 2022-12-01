@@ -38,20 +38,14 @@ export type CvcSourceSelectFieldOptions = Partial<
   FieldTypeConfig<CvcSourceSelectFieldProps>
 >
 export interface CvcSourceSelectFieldProps extends FormlyFieldProps {
-  // entity names, singular & plural
   entityName: CvcSelectEntityName
-  // if true, field is a multi-select & its model value should be an array
   isMultiSelect: boolean
   labels: {
-    // label if a multi type, showing optional plurality, e.g. 'Variant(s)'
     multi: string
-    // label if multi type & model value length > 1
     plural: string
   }
   placeholders: {
-    // default placeholder
     default: string
-    // fn to substitute selected SourceSouce name
     contextualFn: (sourceName: string) => string
   }
   tooltip?: string

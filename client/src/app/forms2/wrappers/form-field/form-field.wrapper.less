@@ -18,18 +18,27 @@
       }
     }
   }
-  &.disabled label ::ng-deep span{
+  &.disabled label ::ng-deep span {
     color: @text-color-secondary;
   }
-  &.error label ::ng-deep span{
+  &.error label ::ng-deep span {
     color: @error-color;
   }
 }
 .cvc-form-field-card() {
-  border: 1px solid #ebebeb;
-  background-color: #fcfcfc;
+  border: 1px solid #dadada;
+  background-color: #fafafa;
   padding: 4px 8px;
   border-radius: 6px;
+  &.disabled {
+    border: 1px solid white;
+    background-color: white;
+    // background-color: #f9f9f9;
+  }
+  &.disabled.required {
+    background-color: white;
+    border: 1px solid #dadada;
+  }
 }
 
 .cvc-form-field-validation,
