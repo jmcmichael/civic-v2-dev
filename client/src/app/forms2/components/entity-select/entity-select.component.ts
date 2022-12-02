@@ -157,7 +157,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onMessageMode$ = new BehaviorSubject<
       Maybe<CvcEntitySelectMessageMode>
     >(undefined)
-    this.onMessageMode$.pipe(tag('entity-select onMessageMode$')).subscribe()
+    // this.onMessageMode$.pipe(tag('entity-select onMessageMode$')).subscribe()
   }
 
   ngAfterViewInit(): void {
@@ -176,8 +176,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // DEBUG
     this.state.state$
       .pipe(untilDestroyed(this))
-      .subscribe((e) => {
-        console.log(e.value, e.event)
+      .subscribe((state) => {
+        if(this.cvcEntityName.singular === 'Gene')
+        console.log('state.value:', state.value, '; state.event:', state.event)
       })
 
     // inform state machine when select opens or closes

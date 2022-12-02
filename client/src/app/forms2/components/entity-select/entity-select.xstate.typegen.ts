@@ -12,19 +12,18 @@ export interface Typegen0 {
     guards: never
     delays: never
   }
-  eventsCausingActions: {
-    emitMessageMode:
-      | 'CLOSE'
-      | 'ERROR'
-      | 'FAIL'
-      | 'LOAD'
-      | 'OPEN'
-      | 'SUCCESS'
-      | 'xstate.init'
-  }
+  eventsCausingActions: {}
   eventsCausingServices: {}
   eventsCausingGuards: {}
   eventsCausingDelays: {}
-  matchesStates: 'empty' | 'error' | 'idle' | 'loading' | 'open' | 'options'
+  matchesStates:
+    | 'idle'
+    | 'open'
+    | 'open.empty'
+    | 'open.error'
+    | 'open.listing'
+    | 'open.loading'
+    | 'open.query'
+    | { open?: 'empty' | 'error' | 'listing' | 'loading' | 'query' }
   tags: never
 }

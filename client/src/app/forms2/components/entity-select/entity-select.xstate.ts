@@ -19,14 +19,8 @@ export type EntitySelectEvent =
   | { type: 'ERROR' }
 
 export interface EntitySelectSchema extends StateSchema {
-  states: {
-    idle: {}
-    open: {}
-    loading: {}
-    options: {}
-    empty: {}
-    error: {}
-  }
+  context: EntitySelectContext
+  events: EntitySelectEvent
 }
 
 export type EntitySelectTypestate =
@@ -35,23 +29,23 @@ export type EntitySelectTypestate =
       context: EntitySelectContext
     }
   | {
-      value: 'open'
+      value: 'open.query'
       context: EntitySelectContext
     }
   | {
-      value: 'loading'
+      value: 'open.loading'
       context: EntitySelectContext
     }
   | {
-      value: 'options'
-      context: EntitySelectContext & { options: NzSelectOptionInterface[] }
-    }
-  | {
-      value: 'empty'
+      value: 'open.listing'
       context: EntitySelectContext
     }
   | {
-      value: 'error'
+      value: 'open.empty'
+      context: EntitySelectContext
+    }
+  | {
+      value: 'open.error'
       context: EntitySelectContext
     }
 
@@ -72,46 +66,43 @@ export function getEntitySelectMachine(
       initial: 'idle',
       states: {
         idle: {
-          entry: ['emitMessageMode'],
           on: {
-            OPEN: 'open',
+            OPEN: {
+              target: 'open',
+            },
           },
         },
         open: {
-          entry: ['emitMessageMode'],
-          on: {
-            LOAD: 'loading',
-            CLOSE: 'idle',
+          initial: 'query',
+          states: {
+            query: {
+              on: {
+                LOAD: {
+                  target: 'loading',
+                },
+              },
+            },
+            loading: {
+              on: {
+                SUCCESS: {
+                  target: 'listing',
+                },
+                FAIL: {
+                  target: 'empty',
+                },
+                ERROR: {
+                  target: 'error',
+                },
+              },
+            },
+            listing: {},
+            empty: {},
+            error: {},
           },
-        },
-        loading: {
-          entry: ['emitMessageMode'],
           on: {
-            SUCCESS: 'options',
-            FAIL: 'empty',
-            ERROR: 'error',
-            CLOSE: 'idle',
-          },
-        },
-        options: {
-          entry: ['emitMessageMode'],
-          on: {
-            CLOSE: 'idle',
-            LOAD: 'loading',
-          },
-        },
-        empty: {
-          entry: ['emitMessageMode'],
-          on: {
-            CLOSE: 'idle',
-            LOAD: 'loading',
-          },
-        },
-        error: {
-          entry: ['emitMessageMode'],
-          on: {
-            CLOSE: 'idle',
-            LOAD: 'loading',
+            CLOSE: {
+              target: 'idle',
+            },
           },
         },
       },

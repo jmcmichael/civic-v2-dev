@@ -181,12 +181,12 @@ export class CvcDiseaseSelectField
     if (!this.onRequiresDisease$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
     combineLatest([this.onRequiresDisease$, this.onEntityType$])
-      .pipe(
-        tag(
-          `${this.field.id} combineLatest([this.onRequiresDisease$, this.onEntityType$])`
-        ),
-        untilDestroyed(this)
-      )
+      // .pipe(
+      //   tag(
+      //     `${this.field.id} combineLatest([this.onRequiresDisease$, this.onEntityType$])`
+      //   ),
+      //   untilDestroyed(this)
+      // )
       .subscribe(
         ([requiresDisease, entityType]: [boolean, Maybe<EntityType>]) => {
           // diseases are not associated with this entity type
