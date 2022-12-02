@@ -198,7 +198,7 @@ export class CvcVariantSelectField
     // if field config indicates that a geneId is required, and none is provided,
     // set model to undefined (this resets the variant model if gene field is reset)
     // and set placeholder to the 'requires gene' placeholder
-    if (!gid && this.props.requireGene && this.props.requireGenePrompt) {
+    if (!gid && this.props.requireGene) {
       this.resetField()
       this.props.description = this.props.requireGenePrompt
       this.props.extraType = 'prompt'

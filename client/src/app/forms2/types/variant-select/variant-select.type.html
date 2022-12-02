@@ -7,7 +7,7 @@
   [cvcPlaceholder]="(placeholder$ | ngrxPush)!"
   [cvcResults]="result$ | ngrxPush"
   [cvcDisabled]="props.requireGene && !(onGeneId$ | ngrxPush)"
-  [cvcOptions]="(selectOption$ | ngrxPush)!"
+  [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
   [cvcLoading]="isLoading$ | ngrxPush"
   [cvcParamName]="onGeneName$ | ngrxPush"
@@ -35,7 +35,8 @@
               nz-typography
               nzType="secondary"
               [innerHtml]="
-                result.variantAliases.join(', ') | highlightTypeahead: searchString
+                result.variantAliases.join(', ')
+                  | highlightTypeahead: searchString
               "></span
           ></em>
         </ng-container>

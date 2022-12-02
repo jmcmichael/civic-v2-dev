@@ -12,7 +12,10 @@ export interface Typegen0 {
     guards: never
     delays: never
   }
-  eventsCausingActions: {}
+  eventsCausingActions: {
+    assignOptions: 'SUCCESS'
+    emitMessageMode: 'CLOSE' | 'ERROR' | 'FAIL' | 'OPEN' | 'xstate.init'
+  }
   eventsCausingServices: {}
   eventsCausingGuards: {}
   eventsCausingDelays: {}

@@ -174,12 +174,17 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     }
 
     // DEBUG
-    this.state.state$
-      .pipe(untilDestroyed(this))
-      .subscribe((state) => {
-        if(this.cvcEntityName.singular === 'Gene')
-        console.log('state.value:', state.value, '; state.event:', state.event)
-      })
+    this.state.state$.pipe(untilDestroyed(this)).subscribe((state) => {
+      if (this.cvcEntityName.singular === 'Gene')
+        console.log(
+          'state.value:',
+          state.value,
+          '; state.event:',
+          state.event,
+          'state.context:',
+          state.context
+        )
+    })
 
     // inform state machine when select opens or closes
     this.onOpenChange$
@@ -212,10 +217,15 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       if (typeof str === 'string') this.cvcOnSearch.next(str)
     })
 
-    // watch results to send query success/fail events to state machine
+    // watch for empty results to send FAIL event if empty array
     this.onResult$.pipe(untilDestroyed(this)).subscribe((results) => {
-      if (results.length > 0) this.state.send({ type: 'SUCCESS' })
       if (results.length === 0) this.state.send({ type: 'FAIL' })
+    })
+
+    // watch incoming select options to send with SUCCESS event
+    this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
+      if (options.length > 0)
+        this.state.send({ type: 'SUCCESS', options: options })
     })
   } // ngAfterViewInit()
 

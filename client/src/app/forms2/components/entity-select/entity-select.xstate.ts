@@ -1,12 +1,20 @@
 import { Maybe } from '@app/generated/civic.apollo'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { createMachine, StateMachine, StateSchema } from 'xstate'
+import {
+  ActionObject,
+  assign,
+  createMachine,
+  InternalMachineOptions,
+  StateMachine,
+  StateSchema,
+} from 'xstate'
 import { CvcEntitySelectMessageMode } from './entity-select.component'
 
 export interface EntitySelectContext {
   options: NzSelectOptionInterface[]
   message: string
+  mode: string
   showSpinner: boolean
 }
 
@@ -14,7 +22,7 @@ export type EntitySelectEvent =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
   | { type: 'LOAD' }
-  | { type: 'SUCCESS' }
+  | { type: 'SUCCESS'; options: NzSelectOptionInterface[] }
   | { type: 'FAIL' }
   | { type: 'ERROR' }
 
@@ -26,6 +34,10 @@ export interface EntitySelectSchema extends StateSchema {
 export type EntitySelectTypestate =
   | {
       value: 'idle'
+      context: EntitySelectContext
+    }
+  | {
+      value: 'open'
       context: EntitySelectContext
     }
   | {
@@ -52,6 +64,30 @@ export type EntitySelectTypestate =
 export function getEntitySelectMachine(
   onMessageMode: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
 ): StateMachine<EntitySelectContext, EntitySelectSchema, EntitySelectEvent> {
+  function emitMessageMode(
+    _context: EntitySelectContext,
+    event: EntitySelectEvent
+  ): void {
+    switch (event.type) {
+      case 'LOAD':
+        onMessageMode.next('loading')
+        break
+      case 'FAIL':
+        onMessageMode.next('empty')
+        break
+      case 'OPEN':
+        onMessageMode.next('open')
+        break
+    }
+  }
+
+  const assignOptions = assign<EntitySelectContext, EntitySelectEvent>({
+    options: (context, event) => {
+      if(event.type !== 'SUCCESS') return context.options
+      return event.options
+    }
+  })
+
   return createMachine<
     EntitySelectContext,
     EntitySelectEvent,
@@ -66,6 +102,7 @@ export function getEntitySelectMachine(
       initial: 'idle',
       states: {
         idle: {
+          entry: ['emitMessageMode'],
           on: {
             OPEN: {
               target: 'open',
@@ -74,8 +111,10 @@ export function getEntitySelectMachine(
         },
         open: {
           initial: 'query',
+          entry: ['emitMessageMode'],
           states: {
             query: {
+              entry: ['emitMessageMode'],
               on: {
                 LOAD: {
                   target: 'loading',
@@ -95,9 +134,15 @@ export function getEntitySelectMachine(
                 },
               },
             },
-            listing: {},
-            empty: {},
-            error: {},
+            listing: {
+              entry: ['assignOptions'],
+            },
+            empty: {
+              entry: ['emitMessageMode'],
+            },
+            error: {
+              entry: ['emitMessageMode'],
+            },
           },
           on: {
             CLOSE: {
@@ -109,29 +154,8 @@ export function getEntitySelectMachine(
     },
     {
       actions: {
-        emitMessageMode: (
-          _context: EntitySelectContext,
-          event: EntitySelectEvent
-        ) => {
-          switch (event.type) {
-            case 'LOAD':
-              onMessageMode.next('loading')
-              break
-            case 'FAIL':
-              onMessageMode.next('empty')
-              break
-            case 'OPEN':
-              onMessageMode.next('open')
-              break
-          }
-        },
-        log: (context: EntitySelectContext, event: EntitySelectEvent) => {
-          console.log(
-            'entity-select.component state.actions.log():',
-            context,
-            event
-          )
-        },
+        emitMessageMode: emitMessageMode,
+        assignOptions: assignOptions,
       },
     }
   )

@@ -66,7 +66,7 @@ export interface EntityTagFieldOptions<TAQ, TAV, TAP, TAF, TQ, TV> {
 /*
  * TAQ = typeahead query
  * TAV = typeahead query variables
- * TAP = typeahead query optional parameters fragment
+ * TAF = typeahead query optional parameters fragment
  * TQ  = tag query
  * TV  = tag query variables
  * TAP = optional typeahead query paramters type
@@ -126,7 +126,7 @@ export function EntityTagField<
       cdr!: ChangeDetectorRef
 
       // LOCAL REFS
-      queryRef!: QueryRef<TAQ, TAV>
+      queryRef?: QueryRef<TAQ, TAV>
       optionTemplates?: QueryList<TemplateRef<any>>
 
       configureEntityTagField(
@@ -194,7 +194,14 @@ export function EntityTagField<
             }
             const fetchQuery = (query: TAV) => {
               // returns observable from refetch() promise
-              return from(this.queryRef.refetch(query))
+              if (this.queryRef) {
+                return from(this.queryRef.refetch(query))
+              } else {
+                console.warn(
+                  `entity-tag-field.mixin's fetchQuery could not find queryRef, this should not happen!`
+                )
+                return watchQuery(query)
+              }
             }
 
             // this iif operator prevents double-calling the API:
