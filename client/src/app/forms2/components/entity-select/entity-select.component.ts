@@ -17,6 +17,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
+import { tag } from 'rxjs-spy/operators'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
 import {
   EntitySelectContext,
@@ -156,6 +157,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onMessageMode$ = new BehaviorSubject<
       Maybe<CvcEntitySelectMessageMode>
     >(undefined)
+    this.onMessageMode$.pipe(tag('entity-select onMessageMode$')).subscribe()
   }
 
   ngAfterViewInit(): void {
@@ -170,6 +172,13 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     } catch (err) {
       console.error(err)
     }
+
+    // DEBUG
+    this.state.state$
+      .pipe(untilDestroyed(this))
+      .subscribe((e) => {
+        console.log(e.value, e.event)
+      })
 
     // inform state machine when select opens or closes
     this.onOpenChange$

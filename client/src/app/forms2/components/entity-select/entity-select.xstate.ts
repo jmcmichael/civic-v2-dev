@@ -1,10 +1,14 @@
 import { Maybe } from '@app/generated/civic.apollo'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject } from 'rxjs'
-import { createMachine, StateMachine } from 'xstate'
+import { createMachine, StateMachine, StateSchema } from 'xstate'
 import { CvcEntitySelectMessageMode } from './entity-select.component'
 
-export interface EntitySelectContext {}
+export interface EntitySelectContext {
+  options: NzSelectOptionInterface[]
+  message: string
+  showSpinner: boolean
+}
 
 export type EntitySelectEvent =
   | { type: 'OPEN' }
@@ -14,7 +18,7 @@ export type EntitySelectEvent =
   | { type: 'FAIL' }
   | { type: 'ERROR' }
 
-export interface EntitySelectSchema {
+export interface EntitySelectSchema extends StateSchema {
   states: {
     idle: {}
     open: {}
@@ -70,15 +74,15 @@ export function getEntitySelectMachine(
         idle: {
           entry: ['emitMessageMode'],
           on: {
-            OPEN: 'open'
+            OPEN: 'open',
           },
         },
         open: {
           entry: ['emitMessageMode'],
           on: {
             LOAD: 'loading',
-            CLOSE: 'idle'
-          }
+            CLOSE: 'idle',
+          },
         },
         loading: {
           entry: ['emitMessageMode'],
@@ -101,14 +105,14 @@ export function getEntitySelectMachine(
           on: {
             CLOSE: 'idle',
             LOAD: 'loading',
-          }
+          },
         },
         error: {
           entry: ['emitMessageMode'],
           on: {
             CLOSE: 'idle',
             LOAD: 'loading',
-          }
+          },
         },
       },
     },

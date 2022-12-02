@@ -18,12 +18,13 @@ export interface Typegen0 {
       | 'ERROR'
       | 'FAIL'
       | 'LOAD'
+      | 'OPEN'
       | 'SUCCESS'
       | 'xstate.init'
   }
   eventsCausingServices: {}
   eventsCausingGuards: {}
   eventsCausingDelays: {}
-  matchesStates: 'empty' | 'error' | 'idle' | 'loading' | 'options'
+  matchesStates: 'empty' | 'error' | 'idle' | 'loading' | 'open' | 'options'
   tags: never
 }
