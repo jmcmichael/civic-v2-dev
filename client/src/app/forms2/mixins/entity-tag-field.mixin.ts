@@ -184,6 +184,7 @@ export function EntityTagField<
               // emit loading events from isLoading$
               this.queryRef.valueChanges
                 .pipe(
+                  tag(`${this.field.id} queryRef.valueChanges`),
                   pluck('loading'),
                   distinctUntilChanged(),
                   untilDestroyed(this)

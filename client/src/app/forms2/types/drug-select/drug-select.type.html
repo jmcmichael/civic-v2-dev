@@ -12,7 +12,6 @@
   [cvcLoading]="isLoading$ | ngrxPush"
   [cvcAddEntity]="addDrug"
   (cvcOnSearch)="onSearch$.next($event)"
-  (cvcOnFocus)="onFocus$.next($event)"
   (cvcOnBlur)="onBlur$.next()"
   [cvcModelChange]="props.change">
 </cvc-entity-select>

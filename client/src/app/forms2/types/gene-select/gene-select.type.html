@@ -10,7 +10,6 @@
   [cvcShowError]="showError"
   [cvcLoading]="isLoading$ | ngrxPush"
   (cvcOnSearch)="onSearch$.next($event)"
-  (cvcOnFocus)="onFocus$.next()"
   (cvcOnOpenChange)="onOpenChange$.next($event)"
   (cvcOnBlur)="onBlur$.next()"
   [cvcModelChange]="props.change">

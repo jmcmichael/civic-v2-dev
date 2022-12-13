@@ -11,7 +11,6 @@
   [cvcDisabled]="onRequiresDisease$ && !(onRequiresDisease$ | ngrxPush)"
   [cvcLoading]="isLoading$ | ngrxPush"
   (cvcOnSearch)="onSearch$.next($event)"
-  (cvcOnFocus)="onFocus$.next($event)"
   (cvcOnBlur)="onBlur$.next()"
   [cvcModelChange]="props.change">
 </cvc-entity-select>
@@ -36,7 +35,8 @@
               nz-typography
               nzType="secondary"
               [innerHtml]="
-                result.diseaseAliases.join(', ') | highlightTypeahead: searchString
+                result.diseaseAliases.join(', ')
+                  | highlightTypeahead: searchString
               "></span
           ></em>
         </ng-container>

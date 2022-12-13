@@ -91,7 +91,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcModelChange?: FormlyAttributeEvent
 
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
-  @Output() readonly cvcOnFocus = new EventEmitter<void>()
   @Output() readonly cvcOnBlur = new EventEmitter<void>()
   @Output() readonly cvcOnOpenChange = new EventEmitter<boolean>()
 
