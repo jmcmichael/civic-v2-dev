@@ -13,18 +13,24 @@ import { CvcEntitySelectMessageMode } from './entity-select.component'
 
 export interface EntitySelectContext {
   options: NzSelectOptionInterface[]
-  message: string
   mode: string
+  query: string
+  message: string
   showSpinner: boolean
+  isLoading: boolean
 }
-
-export type EntitySelectEvent =
+type BaseEvents =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
-  | { type: 'LOAD' }
+  | { type: 'SEARCH'; query: string }
+  | { type: 'LOAD'; isLoading: boolean }
   | { type: 'SUCCESS'; options: NzSelectOptionInterface[] }
   | { type: 'FAIL' }
   | { type: 'ERROR' }
+
+type EventExtension = { message?: string }
+type ExtendEvents<E, X> = X & E
+export type EntitySelectEvent = ExtendEvents<BaseEvents, EventExtension>
 
 export interface EntitySelectSchema extends StateSchema {
   context: EntitySelectContext
@@ -64,6 +70,7 @@ export type EntitySelectTypestate =
 export function getEntitySelectMachine(
   onMessageMode: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
 ): StateMachine<EntitySelectContext, EntitySelectSchema, EntitySelectEvent> {
+  // actions functions
   function emitMessageMode(
     _context: EntitySelectContext,
     event: EntitySelectEvent
@@ -78,14 +85,40 @@ export function getEntitySelectMachine(
       case 'OPEN':
         onMessageMode.next('open')
         break
+      case 'SEARCH':
+        onMessageMode.next('query')
     }
   }
 
+  const assignMessage = assign<EntitySelectContext, EntitySelectEvent>({
+    message: (_context, event) => {
+      if (event.message) return event.message
+      else return ''
+    },
+    showSpinner: (_context, event) => {
+      if (
+        event.type === 'LOAD' ||
+        (event.type === 'SEARCH' && event.query.length === 0)
+      ) {
+        return true
+      } else {
+        return false
+      }
+    },
+  })
+
   const assignOptions = assign<EntitySelectContext, EntitySelectEvent>({
     options: (context, event) => {
-      if(event.type !== 'SUCCESS') return context.options
+      if (event.type !== 'SUCCESS') return context.options
       return event.options
-    }
+    },
+  })
+
+  const assignQuery = assign<EntitySelectContext, EntitySelectEvent>({
+    query: (context, event) => {
+      if (event.type !== 'SEARCH') return context.query
+      return event.query
+    },
   })
 
   return createMachine<
@@ -114,10 +147,13 @@ export function getEntitySelectMachine(
           entry: ['emitMessageMode'],
           states: {
             query: {
-              entry: ['emitMessageMode'],
+              entry: ['emitMessageMode', 'assignQuery'],
               on: {
                 LOAD: {
                   target: 'loading',
+                },
+                SEARCH: {
+                  target: 'query',
                 },
               },
             },
@@ -131,6 +167,9 @@ export function getEntitySelectMachine(
                 },
                 ERROR: {
                   target: 'error',
+                },
+                LOAD: {
+                  target: 'loading',
                 },
               },
             },
@@ -156,6 +195,7 @@ export function getEntitySelectMachine(
       actions: {
         emitMessageMode: emitMessageMode,
         assignOptions: assignOptions,
+        assignQuery: assignQuery,
       },
     }
   )

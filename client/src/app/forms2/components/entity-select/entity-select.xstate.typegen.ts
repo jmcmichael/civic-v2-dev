@@ -14,7 +14,14 @@ export interface Typegen0 {
   }
   eventsCausingActions: {
     assignOptions: 'SUCCESS'
-    emitMessageMode: 'CLOSE' | 'ERROR' | 'FAIL' | 'OPEN' | 'xstate.init'
+    assignQuery: 'OPEN' | 'SEARCH'
+    emitMessageMode:
+      | 'CLOSE'
+      | 'ERROR'
+      | 'FAIL'
+      | 'OPEN'
+      | 'SEARCH'
+      | 'xstate.init'
   }
   eventsCausingServices: {}
   eventsCausingGuards: {}

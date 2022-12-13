@@ -16,8 +16,17 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  Observable,
+  Subject,
+} from 'rxjs'
+import { isNonNulled } from 'rxjs-etc'
+import { pluck } from 'rxjs-etc/operators'
 import { tag } from 'rxjs-spy/operators'
+import { State } from 'xstate'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
 import {
   EntitySelectContext,
@@ -43,7 +52,12 @@ export type CvcEntitySelectMessageOptions = {
   empty: SelectMessageFn
 }
 
-export type CvcEntitySelectMessageMode = 'idle' | 'open' | 'loading' | 'empty'
+export type CvcEntitySelectMessageMode =
+  | 'idle'
+  | 'open'
+  | 'loading'
+  | 'empty'
+  | 'query'
 
 @UntilDestroy({ arrayName: 'stateSubscriptions' })
 @Component({
@@ -113,6 +127,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     EntitySelectEvent
   >
 
+  state$!: Observable<
+    State<EntitySelectContext, EntitySelectEvent, EntitySelectSchema>
+  >
+
   // default message functions
   messageOptions: CvcEntitySelectMessageOptions = {
     loading: (entityName, searchStr, paramName) => {
@@ -168,13 +186,14 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           devTools: true,
         }
       )
+      this.state$ = this.state.state$
     } catch (err) {
       console.error(err)
     }
 
     // DEBUG
-    this.state.state$.pipe(untilDestroyed(this)).subscribe((state) => {
-      if (this.cvcEntityName.singular === 'Gene')
+    this.state$.pipe(untilDestroyed(this)).subscribe((state) => {
+      if (this.cvcEntityName.singular === 'Variant')
         console.log(
           'state.value:',
           state.value,
@@ -185,7 +204,33 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         )
     })
 
-    // inform state machine when select opens or closes
+    // EMIT OUTPUTS FROM STATE EVENTS
+    this.state$
+      .pipe(untilDestroyed(this))
+      .subscribe(
+        (
+          state: State<
+            EntitySelectContext,
+            EntitySelectEvent,
+            EntitySelectSchema
+          >
+        ) => {
+          const event = state.event
+          switch (event.type) {
+            case 'SEARCH':
+              this.cvcOnSearch.next(event.query)
+              break
+          }
+        }
+      )
+
+    // watch state context to trigger select Output events and emit presentation observable events
+    this.state$
+      .pipe(pluck('context'), filter(isNonNulled), untilDestroyed(this))
+      .subscribe((context: EntitySelectContext) => {
+        console.log('entity-select state.context: ', context)
+      })
+
     this.onOpenChange$
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
@@ -211,10 +256,23 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
         this.cvcOnSearch.next(str)
       })
 
-    // emit search events
-    this.onSearch$.pipe(untilDestroyed(this)).subscribe((str) => {
-      if (typeof str === 'string') this.cvcOnSearch.next(str)
-    })
+    // emit search events from Output
+    // this.onSearch$
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe((str: Maybe<string>) => {
+    //     if (typeof str === 'string') {
+    //       this.cvcOnSearch.next(str)
+    //     }
+    //   })
+
+    // STATE OBSERVABLES
+    // send SEARCH events onSearch
+    this.onSearch$
+      .pipe(untilDestroyed(this))
+      .subscribe((str: Maybe<string>) => {
+        if (typeof str === 'string')
+          this.state.send({ type: 'SEARCH', query: str })
+      })
 
     // watch for empty results to send FAIL event if empty array
     this.onResult$.pipe(untilDestroyed(this)).subscribe((results) => {
@@ -236,6 +294,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       if (changes.cvcLoading.currentValue) {
         this.state.send({
           type: 'LOAD',
+          isLoading: changes.cvcLoading.currentValue,
         })
       }
     }
@@ -248,8 +307,5 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     if (changes.cvcParamName) {
       this.onParamName$.next(changes.cvcParamName.currentValue)
     }
-  }
-  testRender(str: string) {
-    console.log(`testRender: ${str}`)
   }
 }
