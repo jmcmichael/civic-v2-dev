@@ -28,6 +28,7 @@ type BaseEvents =
   | { type: 'FAIL' }
   | { type: 'ERROR' }
 
+// extend all base events with message attribute
 type EventExtension = { message?: string }
 type ExtendEvents<E, X> = X & E
 export type EntitySelectEvent = ExtendEvents<BaseEvents, EventExtension>
@@ -135,7 +136,7 @@ export function getEntitySelectMachine(
       initial: 'idle',
       states: {
         idle: {
-          entry: ['emitMessageMode'],
+          entry: [],
           on: {
             OPEN: {
               target: 'open',
@@ -144,10 +145,10 @@ export function getEntitySelectMachine(
         },
         open: {
           initial: 'query',
-          entry: ['emitMessageMode'],
+          entry: [],
           states: {
             query: {
-              entry: ['emitMessageMode', 'assignQuery'],
+              entry: ['assignQuery'],
               on: {
                 LOAD: {
                   target: 'loading',
@@ -177,10 +178,10 @@ export function getEntitySelectMachine(
               entry: ['assignOptions'],
             },
             empty: {
-              entry: ['emitMessageMode'],
+              entry: [],
             },
             error: {
-              entry: ['emitMessageMode'],
+              entry: [],
             },
           },
           on: {

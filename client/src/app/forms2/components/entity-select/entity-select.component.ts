@@ -105,7 +105,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcModelChange?: FormlyAttributeEvent
 
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
-  @Output() readonly cvcOnBlur = new EventEmitter<void>()
   @Output() readonly cvcOnOpenChange = new EventEmitter<boolean>()
 
   // SOURCE STREAMS
@@ -230,6 +229,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       .subscribe((context: EntitySelectContext) => {
         // console.log('entity-select state.context: ', context)
         this.onOption$.next(context.options)
+        this.onLoading$.next(context.isLoading)
       })
 
     this.onOpenChange$
