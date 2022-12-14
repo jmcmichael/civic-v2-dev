@@ -228,7 +228,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.state$
       .pipe(pluck('context'), filter(isNonNulled), untilDestroyed(this))
       .subscribe((context: EntitySelectContext) => {
-        console.log('entity-select state.context: ', context)
+        // console.log('entity-select state.context: ', context)
+        this.onOption$.next(context.options)
       })
 
     this.onOpenChange$
@@ -278,12 +279,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onResult$.pipe(untilDestroyed(this)).subscribe((results) => {
       if (results.length === 0) this.state.send({ type: 'FAIL' })
     })
-
-    // watch incoming select options to send with SUCCESS event
-    this.onOption$.pipe(untilDestroyed(this)).subscribe((options) => {
-      if (options.length > 0)
-        this.state.send({ type: 'SUCCESS', options: options })
-    })
   } // ngAfterViewInit()
 
   // some inputs need to be emitted from observables to allow subscriptions and/or perform some logic
@@ -299,9 +294,20 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       }
     }
     if (changes.cvcOptions) {
-      this.onOption$.next(changes.cvcOptions.currentValue)
+      const options = changes.cvcOptions.currentValue
+      if (options.length > 0) {
+        this.state.send({
+          type: 'SUCCESS',
+          options: options,
+        })
+      }
+      // this.onOption$.next(changes.cvcOptions.currentValue)
     }
     if (changes.cvcResults) {
+      const results = changes.cvcResults.currentValue
+      if (results.length === 0) {
+        this.state.send({ type: 'FAIL' })
+      }
       this.onResult$.next(changes.cvcResults.currentValue)
     }
     if (changes.cvcParamName) {
