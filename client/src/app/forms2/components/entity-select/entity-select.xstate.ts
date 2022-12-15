@@ -12,9 +12,11 @@ import {
 import { CvcEntitySelectMessageMode } from './entity-select.component'
 
 export interface EntitySelectContext {
+  result: any[]
   options: NzSelectOptionInterface[]
   mode: string
   query: string
+  paramName: string
   message: string
   showSpinner: boolean
   isLoading: boolean
@@ -22,13 +24,13 @@ export interface EntitySelectContext {
 type BaseEvents =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
-  | { type: 'SEARCH'; query: string }
+  | { type: 'SEARCH'; query: string; paramName?: string }
   | { type: 'LOAD'; isLoading: boolean }
   | { type: 'SUCCESS'; options: NzSelectOptionInterface[] }
   | { type: 'FAIL' }
   | { type: 'ERROR' }
 
-// extend all base events with message attribute
+// extend all base events with optional message attribute
 type EventExtension = { message?: string }
 type ExtendEvents<E, X> = X & E
 export type EntitySelectEvent = ExtendEvents<BaseEvents, EventExtension>
@@ -72,25 +74,6 @@ export function getEntitySelectMachine(
   onMessageMode: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
 ): StateMachine<EntitySelectContext, EntitySelectSchema, EntitySelectEvent> {
   // actions functions
-  function emitMessageMode(
-    _context: EntitySelectContext,
-    event: EntitySelectEvent
-  ): void {
-    switch (event.type) {
-      case 'LOAD':
-        onMessageMode.next('loading')
-        break
-      case 'FAIL':
-        onMessageMode.next('empty')
-        break
-      case 'OPEN':
-        onMessageMode.next('open')
-        break
-      case 'SEARCH':
-        onMessageMode.next('query')
-    }
-  }
-
   const assignMessage = assign<EntitySelectContext, EntitySelectEvent>({
     message: (_context, event) => {
       if (event.message) return event.message
@@ -148,7 +131,7 @@ export function getEntitySelectMachine(
           entry: [],
           states: {
             query: {
-              entry: ['assignQuery'],
+              entry: ['assignQuery', 'assignMessage'],
               on: {
                 LOAD: {
                   target: 'loading',
@@ -159,6 +142,7 @@ export function getEntitySelectMachine(
               },
             },
             loading: {
+              entry: ['assignMessage'],
               on: {
                 SUCCESS: {
                   target: 'listing',
@@ -178,10 +162,10 @@ export function getEntitySelectMachine(
               entry: ['assignOptions'],
             },
             empty: {
-              entry: [],
+              entry: ['assignMessage'],
             },
             error: {
-              entry: [],
+              entry: ['assignMessage'],
             },
           },
           on: {
@@ -194,9 +178,9 @@ export function getEntitySelectMachine(
     },
     {
       actions: {
-        emitMessageMode: emitMessageMode,
         assignOptions: assignOptions,
         assignQuery: assignQuery,
+        assignMessage: assignMessage,
       },
     }
   )

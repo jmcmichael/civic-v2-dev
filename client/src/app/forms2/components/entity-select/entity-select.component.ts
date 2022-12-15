@@ -98,9 +98,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   // templateref w/ entity's quick-add form component
   @Input() cvcAddEntity: TemplateRef<any> | null = null
 
-  // called on entity creation
-  @Input() cvcOnCreate?: Subject<number>
-
   // model update callback fn - ngx-formly convention, implements props.change feature
   @Input() cvcModelChange?: FormlyAttributeEvent
 
@@ -267,18 +264,12 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     //   })
 
     // STATE OBSERVABLES
-    // send SEARCH events onSearch
     this.onSearch$
       .pipe(untilDestroyed(this))
       .subscribe((str: Maybe<string>) => {
         if (typeof str === 'string')
           this.state.send({ type: 'SEARCH', query: str })
       })
-
-    // watch for empty results to send FAIL event if empty array
-    this.onResult$.pipe(untilDestroyed(this)).subscribe((results) => {
-      if (results.length === 0) this.state.send({ type: 'FAIL' })
-    })
   } // ngAfterViewInit()
 
   // some inputs need to be emitted from observables to allow subscriptions and/or perform some logic

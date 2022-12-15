@@ -13,6 +13,7 @@ export interface Typegen0 {
     delays: never
   }
   eventsCausingActions: {
+    assignMessage: 'ERROR' | 'FAIL' | 'LOAD' | 'OPEN' | 'SEARCH'
     assignOptions: 'SUCCESS'
     assignQuery: 'OPEN' | 'SEARCH'
   }
