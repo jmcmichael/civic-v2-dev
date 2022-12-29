@@ -29,6 +29,7 @@ import { tag } from 'rxjs-spy/operators'
 import { State } from 'xstate'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
 import {
+  EntitySelectMessageOptions,
   EntitySelectContext,
   EntitySelectEvent,
   EntitySelectSchema,
@@ -36,21 +37,6 @@ import {
 } from './entity-select.xstate'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
-
-/* SELECT MESSAGES - displayed at top of options dropdown
- * - loading: while API requests loading, e.g. "Loading Variants..."
- * - empty: if no results returned, e.g. "No BRAF Variants found matching V600000"
- *   NOTE: if cvcCreateEntity provided, its quick-add form will be displayed instead, which will include its own prompt, e.g. "No BRAF Variants found matching V60000, would you like to create it?"
- * */
-type SelectMessageFn = (
-  entityName: string,
-  searchStr: string,
-  paramName?: string
-) => string
-export type CvcEntitySelectMessageOptions = {
-  loading: SelectMessageFn
-  empty: SelectMessageFn
-}
 
 export type CvcEntitySelectMessageMode =
   | 'idle'
@@ -73,7 +59,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     singular: 'Entity',
     plural: 'Entities',
   }
-  @Input() cvcSelectMessages?: CvcEntitySelectMessageOptions
+  @Input() cvcSelectMessages?: EntitySelectMessageOptions
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
@@ -102,7 +88,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcModelChange?: FormlyAttributeEvent
 
   @Output() readonly cvcOnSearch = new EventEmitter<string>()
-  @Output() readonly cvcOnOpenChange = new EventEmitter<boolean>()
 
   // SOURCE STREAMS
   onOpenChange$: Subject<boolean>
@@ -127,28 +112,18 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     State<EntitySelectContext, EntitySelectEvent, EntitySelectSchema>
   >
 
-  // default message functions
-  messageOptions: CvcEntitySelectMessageOptions = {
-    loading: (entityName, searchStr, paramName) => {
-      if (paramName && searchStr.length > 0) {
-        return `Searching ${paramName} ${entityName} matching "${searchStr}""...`
-      } else if (!paramName && searchStr.length > 0) {
-        return `Searching ${entityName} matching "${searchStr}""...`
-      } else if (paramName && searchStr.length === 0) {
-        return `Listing all ${paramName} ${entityName}...`
-      } else {
-        return `Searching ${entityName}...`
-      }
-    },
-    empty: (entityName, searchStr, paramName) => {
-      if (paramName && searchStr.length > 0) {
-        return `No ${paramName} ${entityName} found matching "${searchStr}"`
-      } else if (paramName && searchStr.length === 0) {
-        return `No ${paramName} ${entityName} found`
-      } else {
-        return `No ${entityName} found matching "${searchStr}"`
-      }
-    },
+  messageOptions: EntitySelectMessageOptions = {
+    search: (entityName, query, _paramName) =>
+      `Searching ${entityName} matching "${query}""...`,
+    searchParam: (entityName, query, paramName) =>
+      `Searching ${paramName} ${entityName} matching "${query}""...`,
+    searchParamAll: (entityName, _query, paramName) =>
+      `Listing all ${paramName} ${entityName}...`,
+    empty: (entityName, query) => `No ${entityName} found matching "${query}"`,
+    emptyParam: (entityName, query, paramName) =>
+      `No ${paramName} ${entityName} found matching "${query}"`,
+    emptyParamAll: (entityName, _query, paramName) =>
+      `No ${paramName} ${entityName} found`,
   }
 
   selectMessages: { [key in CvcEntitySelectMessageMode]?: string } = {}
@@ -177,7 +152,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // wrapping state creation in try/catch b/c it can fail silently while initializing
     try {
       this.state = this.stateService.useMachine(
-        getEntitySelectMachine(this.onMessageMode$),
+        getEntitySelectMachine({
+          entityName: this.cvcEntityName,
+          messageOptions: this.messageOptions,
+        }),
         {
           devTools: true,
         }
@@ -189,18 +167,20 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
     // DEBUG
     this.state$.pipe(untilDestroyed(this)).subscribe((state) => {
-      if (this.cvcEntityName.singular === 'Variant')
-        console.log(
-          'state.value:',
-          state.value,
-          '; state.event:',
-          state.event,
-          'state.context:',
-          state.context
-        )
+      if (this.cvcEntityName.singular !== 'Variant') return
+      console.log(state)
+      console.log(state.event)
+      console.log(
+        `******* value: ${state.value ? JSON.stringify(state.value) : 'none'}`
+      )
+      console.log(
+        `******* context.message: ${
+          state.context.message ? state.context.message : 'none'
+        }`
+      )
     })
 
-    // EMIT OUTPUTS FROM STATE EVENTS
+    // EMIT OUTPUT EVENTS FROM STATE EVENTS
     this.state$
       .pipe(untilDestroyed(this))
       .subscribe(
@@ -233,26 +213,25 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
         this.state.send({ type: change === true ? 'OPEN' : 'CLOSE' })
-        this.cvcOnOpenChange.next(change)
       })
 
     // regenerate select messages when search str or param name changes
-    combineLatest([this.onSearch$, this.onParamName$, this.onOpenChange$])
-      .pipe(untilDestroyed(this))
-      .subscribe(([str, param, open]) => {
-        if (str === undefined) return
-        this.selectMessages.loading = this.messageOptions.loading(
-          this.cvcEntityName.plural,
-          str,
-          param
-        )
-        this.selectMessages.empty = this.messageOptions.empty(
-          this.cvcEntityName.plural,
-          str,
-          param
-        )
-        this.cvcOnSearch.next(str)
-      })
+    // combineLatest([this.onSearch$, this.onParamName$, this.onOpenChange$])
+    //   .pipe(untilDestroyed(this))
+    //   .subscribe(([str, param, open]) => {
+    //     if (str === undefined) return
+    //     this.selectMessages.loading = this.messageOptions.loading(
+    //       this.cvcEntityName.plural,
+    //       str,
+    //       param
+    //     )
+    //     this.selectMessages.empty = this.messageOptions.empty(
+    //       this.cvcEntityName.plural,
+    //       str,
+    //       param
+    //     )
+    //     this.cvcOnSearch.next(str)
+    //   })
 
     // emit search events from Output
     // this.onSearch$

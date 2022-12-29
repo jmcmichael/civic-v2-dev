@@ -7,13 +7,14 @@ export interface Typegen0 {
   }
   invokeSrcNameMap: {}
   missingImplementations: {
-    actions: never
+    actions: 'assignEmptyMessage' | 'assignErrorMessage'
     services: never
     guards: never
     delays: never
   }
   eventsCausingActions: {
-    assignMessage: 'ERROR' | 'FAIL' | 'LOAD' | 'OPEN' | 'SEARCH'
+    assignEmptyMessage: 'FAIL'
+    assignErrorMessage: 'ERROR'
     assignOptions: 'SUCCESS'
     assignQuery: 'OPEN' | 'SEARCH'
   }
