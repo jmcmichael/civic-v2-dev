@@ -21,7 +21,7 @@ export function BaseFieldType<
     state?: EntityState
 
     // SOURCE STREAMS
-    // emits all field model changes
+    // emits all field model changes from field.valueChanges
     onModelChange$!: Observable<Maybe<V>>
 
     // emits values for both model changes and non-model value updates
@@ -31,13 +31,9 @@ export function BaseFieldType<
     // STATE OUTPUT STREAM
     stateValueChange$?: BehaviorSubject<Maybe<V>>
 
-    // PRESENTATION STREAMS
-    extraType$: BehaviorSubject<Maybe<'description' | 'prompt'>>
-
     initialLabel?: string
     constructor() {
       super() // call abstract FieldType's constructor
-      this.extraType$ = new BehaviorSubject<Maybe<'description' | 'prompt'>>(undefined)
     }
 
     configureBaseField(): void {
@@ -57,7 +53,9 @@ export function BaseFieldType<
       // update state if field has been prepopulated w/ query param or
       // form component model e.g. revise forms
       if (this.formControl.value) {
-        this.onValueChange$ = new BehaviorSubject<Maybe<V>>(this.formControl.value)
+        this.onValueChange$ = new BehaviorSubject<Maybe<V>>(
+          this.formControl.value
+        )
       } else {
         this.onValueChange$ = new BehaviorSubject<Maybe<V>>(undefined)
       }
