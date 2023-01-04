@@ -90,7 +90,6 @@ export function EntityTagField<
     abstract class EntityTagFieldMixin extends Base {
       // BASE FIELD TYPE SOURCE STREAMS
       // need to declare them to reference them here, then base-field creates these
-      onValueChange$?: Subject<Maybe<number>>
 
       // LOCAL SOURCE STREAMS
       onFocus$!: Subject<void>
@@ -151,14 +150,6 @@ export function EntityTagField<
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onCreate$ = new Subject<TAF>()
         this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
-
-        // check if base field tag properly configured
-        if (!this.onValueChange$) {
-          console.error(
-            `${this.field.id} cannot find onValueChange$ Subject, ensure field calls configureBaseField() before configureDisplayEntityTag() in its AfterViewInit hook.`
-          )
-          return
-        }
 
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(
