@@ -68,14 +68,6 @@ export class CvcGeneSelectField
   extends GeneSelectMixin
   implements AfterViewInit
 {
-  // entity-field.mixin provides the various observables passed to cvc-entity-select:
-  // onFocus$
-  // onBlur$
-  // onSearch$
-  // isLoading$
-  // result$
-  // selectOption$
-
   // FieldTypeConfig defaults
   defaultOptions: Partial<FieldTypeConfig<CvcGeneSelectFieldProps>> = {
     props: {

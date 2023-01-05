@@ -92,7 +92,6 @@ export function EntityTagField<
       // need to declare them to reference them here, then base-field creates these
 
       // LOCAL SOURCE STREAMS
-      onFocus$!: Subject<void>
       onOpenChange$!: Subject<boolean>
       onSearch$!: Subject<string> // emits on typeahead keypress
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
@@ -143,7 +142,6 @@ export function EntityTagField<
         this.cdr = options.changeDetectorRef
 
         this.onSearch$ = new Subject<string>()
-        this.onFocus$ = new Subject<void>()
         this.onOpenChange$ = new Subject<boolean>()
         this.isLoading$ = new Subject<boolean>()
         this.result$ = new BehaviorSubject<TAF[]>([])

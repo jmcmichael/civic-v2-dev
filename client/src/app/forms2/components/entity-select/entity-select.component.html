@@ -27,35 +27,5 @@
 </nz-select>
 
 <ng-template #notFound>
-  <ng-container *ngrxLet="onMessageMode$ as mode">
-    <ng-container [ngSwitch]="mode">
-      <!-- show loading icon for both open and loading states -->
-      <!-- For now, open msg is same as loading until we need to add min search str length and
-           show a 'enter more chars to search' msg. -->
-      <ng-container *ngIf="mode === 'open' || mode === 'loading'">
-        <span
-          nz-icon
-          nzType="loading"
-          class="loading-icon"></span>
-      </ng-container>
-
-      <!-- OPEN MSG - displayed immediately on dropdown reveal -->
-      <ng-container *ngSwitchCase="'open'">
-        {{ selectMessages.loading }}
-      </ng-container>
-
-      <!-- LOADING MSG -->
-      <ng-container *ngSwitchCase="'loading'">
-        {{ selectMessages.loading }}
-      </ng-container>
-
-      <!-- EMPTY RESULTS MSG -->
-      <ng-container *ngSwitchCase="'empty'">
-        {{ selectMessages.empty }}
-      </ng-container>
-      <ng-container *ngSwitchDefault>
-        <p>DEFAULT</p>
-      </ng-container>
-    </ng-container>
-  </ng-container>
+  <span>#notFound</span>
 </ng-template>
