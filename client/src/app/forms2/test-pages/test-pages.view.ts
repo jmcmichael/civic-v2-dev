@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component } from '@angular/core'
+import { Router } from '@angular/router'
 import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigation.component'
+import { Maybe } from '@app/generated/civic.apollo'
 
 @Component({
   selector: 'cvc-test-pages',
@@ -7,9 +9,11 @@ import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigati
   styleUrls: ['./test-pages.view.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TestPagesView implements OnInit {
+export class TestPagesView {
   tabs: RouteableTab[]
-  constructor() {
+  selectedTabIndex: Maybe<number>
+  constructor(private router: Router) {
+    this.selectedTabIndex = this.getActivatedRouteIndex(this.router.url)
     this.tabs = [
       {
         routeName: 'evidence-submit-test',
@@ -54,5 +58,7 @@ export class TestPagesView implements OnInit {
     ]
   }
 
-  ngOnInit(): void {}
+  getActivatedRouteIndex(url: string): Maybe<number> {
+    return this.tabs?.findIndex((path) => url.includes(path.routeName))
+  }
 }

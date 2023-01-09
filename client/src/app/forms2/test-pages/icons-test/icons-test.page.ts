@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 
 @Component({
   selector: 'cvc-nonstate-form',
   templateUrl: './icons-test.page.html',
-  styleUrls: ['./icons-test.page.less']
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconsTestPage implements OnInit {
+  constructor() {}
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }

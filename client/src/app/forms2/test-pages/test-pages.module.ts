@@ -18,6 +18,7 @@ import { HorizontalFormTestModule } from './horizontal-form/horizontal-form.modu
 import { InlineFormTestModule } from './inline-form/inline-form.module'
 import { VerticalFormTestModule } from './vertical-form/vertical-form.module'
 import { IconsTestModule } from './icons-test/icons-test.module'
+import { NzTabsModule } from 'ng-zorro-antd/tabs'
 
 @NgModule({
   declarations: [TestPagesView],
@@ -28,6 +29,7 @@ import { IconsTestModule } from './icons-test/icons-test.module'
     NzGridModule,
     NzIconModule,
     NzTypographyModule,
+    NzTabsModule,
     EvidenceSubmitTestModule,
     EvidenceReviseTestModule,
     AssertionSubmitTestModule,

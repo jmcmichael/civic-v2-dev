@@ -7,18 +7,12 @@ import {
 } from '@angular/core'
 import { FormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { sourceArrayTypeOption } from '@app/forms/config/types/source-array/source-array.type'
-import {
-  evidenceReviseFormInitialModel,
-  EvidenceReviseModel,
-} from '@app/forms2/models/evidence-revise.model'
+import { EvidenceReviseModel } from '@app/forms2/models/evidence-revise.model'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import evidenceToModelFields from '@app/forms2/utilities/evidence-to-model-fields'
 import {
   EvidenceDetailGQL,
   EvidenceItemRevisableFieldsGQL,
-  Maybe,
-  RevisableEvidenceFieldsFragment,
   RevisionsGQL,
   SuggestEvidenceItemRevisionGQL,
 } from '@app/generated/civic.apollo'
@@ -77,7 +71,6 @@ export class CvcEvidenceReviseForm implements AfterViewInit {
       },
     })
   }
-
 
   onSubmit(model?: EvidenceReviseModel) {
     console.log('------ Evidence Revise Form Submitted ------')

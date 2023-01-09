@@ -1,5 +1,4 @@
 <cvc-section-navigation> </cvc-section-navigation>
-
 <nz-page-header class="site-page-header">
   <nz-page-header-title cvcFlaggableOptions>
     Forms2 Test Pages
@@ -7,7 +6,24 @@
   <nz-page-header-content>
     <nz-row>
       <nz-col [nzSpan]="24">
-        <cvc-tab-navigation [tabs]="this.tabs"> </cvc-tab-navigation>
+        <nz-row id="section-tabs">
+          <nz-col nzSpan="24">
+            <nz-tabset
+              nzLinkRouter
+              nzType="card"
+              nzSize="small"
+              [nzSelectedIndex]="selectedTabIndex">
+              <nz-tab *ngFor="let tab of tabs">
+                <a
+                  *nzTabLink
+                  nz-tab-link
+                  [routerLink]="tab.routeName">
+                  {{ tab.tabLabel }}
+                </a>
+              </nz-tab>
+            </nz-tabset>
+          </nz-col>
+        </nz-row>
       </nz-col>
     </nz-row>
     <nz-row>

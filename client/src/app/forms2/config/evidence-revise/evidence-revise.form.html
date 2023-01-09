@@ -1,7 +1,7 @@
 <form
   *ngIf="model; else loadingModel"
   nz-form
-  [nzLayout]="formLayout"
+  nzLayout="vertical"
   [formGroup]="form"
   (ngSubmit)="onSubmit(model)">
   <formly-form
@@ -12,9 +12,7 @@
     (modelChange)="model = $event">
   </formly-form>
 </form>
-<ng-template #loadingModel>
-  Loading Evidence Item...
-</ng-template>
+<ng-template #loadingModel> Loading Evidence Item... </ng-template>
 <!-- <nz-row style="background-color: #eef">
   <nz-col nzSpan="12">
     <h4>evidence-revise.form.html Model</h4>

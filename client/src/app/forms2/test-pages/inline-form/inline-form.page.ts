@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 
 @Component({
   selector: 'cvc-nonstate-form',
   templateUrl: './inline-form.page.html',
-  styleUrls: ['./inline-form.page.less']
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InlineFormPage implements OnInit {
+  constructor() {}
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }

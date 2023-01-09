@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 
 @Component({
   selector: 'cvc-nonstate-form',
   templateUrl: './evidence-submit-test.page.html',
-  styleUrls: ['./evidence-submit-test.page.less']
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EvidenceSubmitTestPage implements OnInit {
+  constructor() {}
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }
