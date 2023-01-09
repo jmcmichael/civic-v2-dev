@@ -11,9 +11,44 @@ export class TestPagesView implements OnInit {
   constructor() {
     this.tabs = [
       {
+        routeName: 'evidence-submit-test',
+        iconName: '',
+        tabLabel: 'Evidence Submit',
+      },
+      {
+        routeName: 'evidence-revise-test',
+        iconName: '',
+        tabLabel: 'Evidence Revise',
+      },
+      {
+        routeName: 'assertion-submit-test',
+        iconName: '',
+        tabLabel: 'Assertion Submit',
+      },
+      {
+        routeName: 'assertion-revise-test',
+        iconName: '',
+        tabLabel: 'Assertion Revise',
+      },
+      {
         routeName: 'nonstate-form',
-        iconName: 'outline',
-        tabLabel: 'Fields',
+        iconName: '',
+        tabLabel: 'Nonstate Form',
+      },
+      {
+        routeName: 'inline-form',
+        iconName: '',
+        tabLabel: 'Inline Form',
+      },
+      {
+        routeName: 'horizontal-form',
+        iconName: '',
+        tabLabel: 'Horizontal Form',
+      },
+      {
+        routeName: 'icons-test',
+        iconName: '',
+        tabLabel: 'Icons',
       },
     ]
   }
