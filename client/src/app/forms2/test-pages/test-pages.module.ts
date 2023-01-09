@@ -10,6 +10,12 @@ import { CvcTabNavigationModule } from '@app/components/shared/tab-navigation/ta
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
+import { EvidenceSubmitTestModule } from './evidence-submit-test/evidence-submit-test.module'
+import { EvidenceReviseTestModule } from './evidence-revise-test/evidence-revise-test.module'
+import { AssertionSubmitTestModule } from './assertion-submit-test/assertion-submit-test.module'
+import { AssertionReviseTestModule } from './assertion-revise-test/assertion-revise-test.module'
+import { HorizontalFormTestModule } from './horizontal-form/horizontal-form.module'
+import { InlineFormTestModule } from './inline-form/inline-form.module'
 
 @NgModule({
   declarations: [TestPagesView],
@@ -20,6 +26,12 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
     NzGridModule,
     NzIconModule,
     NzTypographyModule,
+    EvidenceSubmitTestModule,
+    EvidenceReviseTestModule,
+    AssertionSubmitTestModule,
+    AssertionReviseTestModule,
+    HorizontalFormTestModule,
+    InlineFormTestModule,
     CvcPipesModule,
     CvcTabNavigationModule,
     CvcSectionNavigationModule,

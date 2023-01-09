@@ -31,19 +31,19 @@ export class TestPagesView implements OnInit {
         tabLabel: 'Assertion Revise',
       },
       {
-        routeName: 'nonstate-form',
+        routeName: 'vertical-form',
         iconName: '',
-        tabLabel: 'Nonstate Form',
+        tabLabel: 'Vertical',
       },
       {
         routeName: 'inline-form',
         iconName: '',
-        tabLabel: 'Inline Form',
+        tabLabel: 'Inline',
       },
       {
         routeName: 'horizontal-form',
         iconName: '',
-        tabLabel: 'Horizontal Form',
+        tabLabel: 'Horizontal',
       },
       {
         routeName: 'icons-test',

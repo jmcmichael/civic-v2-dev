@@ -7,7 +7,7 @@ import { EvidenceSubmitTestPage } from './evidence-submit-test/evidence-submit-t
 import { HorizontalFormPage } from './horizontal-form/horizontal-form.page'
 import { IconsTestPage } from './icons-test/icons-test.page'
 import { InlineFormPage } from './inline-form/inline-form.page'
-import { NonstateFormPage } from './nonstate-form/nonstate-form.page'
+import { VerticalFormPage } from './vertical-form/vertical-form.page'
 import { TestPagesView } from './test-pages.view'
 
 const routes: Routes = [
@@ -45,8 +45,8 @@ const routes: Routes = [
         },
       },
       {
-        path: 'nonstate-form',
-        component: NonstateFormPage,
+        path: 'vertical-form',
+        component: VerticalFormPage,
         data: {
           breadcrumb: 'Nonstate',
         },
