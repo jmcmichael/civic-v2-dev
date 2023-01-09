@@ -1,11 +1,6 @@
-<nz-card [nzTitle]="props.title" [nzExtra]="cardExtra">
+<nz-card
+  [nzTitle]="props.title"
+  [nzExtra]="cardExtra">
   <ng-container #fieldComponent></ng-container>
 </nz-card>
-<ng-template #cardExtra>
-  <nz-select [nzOptions]="layoutOptions"
-    nzSize="small"
-    [ngModel]="this.formLayout$ | async"
-    (ngModelChange)="options.formState.formLayout$.next($event)"
-    style="width: 8em"
-  ></nz-select>
-</ng-template>
+<ng-template #cardExtra> </ng-template>

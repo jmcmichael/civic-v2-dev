@@ -24,18 +24,20 @@ import { CvcFormWrappersModule } from './wrappers/form-wrappers.module'
     ReactiveFormsModule,
     FormlyModule,
     FormlyNgZorroAntdModule,
+    NzFormModule,
     CvcFormWrappersModule,
     CvcFormTypesModule,
   ],
   providers: [
-    { // inject deps, instantiate and register expressions
+    {
+      // inject deps, instantiate and register expressions
       provide: FORMLY_CONFIG,
       multi: true,
       useFactory: registerCvcExtensions,
       deps: [ActivatedRoute],
     },
     // TODO: probably will want to move this to app.module when merging forms-refactor branch
-    XstateAngular
+    XstateAngular,
   ],
 })
 export class CvcForms2Module {}

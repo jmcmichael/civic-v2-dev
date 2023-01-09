@@ -16,6 +16,8 @@ import { AssertionSubmitTestModule } from './assertion-submit-test/assertion-sub
 import { AssertionReviseTestModule } from './assertion-revise-test/assertion-revise-test.module'
 import { HorizontalFormTestModule } from './horizontal-form/horizontal-form.module'
 import { InlineFormTestModule } from './inline-form/inline-form.module'
+import { VerticalFormTestModule } from './vertical-form/vertical-form.module'
+import { IconsTestModule } from './icons-test/icons-test.module'
 
 @NgModule({
   declarations: [TestPagesView],
@@ -32,6 +34,8 @@ import { InlineFormTestModule } from './inline-form/inline-form.module'
     AssertionReviseTestModule,
     HorizontalFormTestModule,
     InlineFormTestModule,
+    VerticalFormTestModule,
+    IconsTestModule,
     CvcPipesModule,
     CvcTabNavigationModule,
     CvcSectionNavigationModule,

@@ -1,16 +1,15 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CvcFormCardWrapper } from './form-card.wrapper';
-import { ConfigOption, FormlyModule } from '@ngx-formly/core';
-import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzSelectModule } from 'ng-zorro-antd/select';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NzFormModule } from 'ng-zorro-antd/form';
+import { CommonModule } from '@angular/common'
+import { NgModule } from '@angular/core'
+import { FormsModule } from '@angular/forms'
+import { ConfigOption, FormlyModule } from '@ngx-formly/core'
+import { NzCardModule } from 'ng-zorro-antd/card'
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
+import { NzGridModule } from 'ng-zorro-antd/grid'
+import { CvcFormCardWrapper } from './form-card.wrapper'
 
 const wrapperConfig: ConfigOption = {
   wrappers: [{ name: 'form-card', component: CvcFormCardWrapper }],
-};
+}
 
 @NgModule({
   declarations: [CvcFormCardWrapper],
@@ -20,7 +19,7 @@ const wrapperConfig: ConfigOption = {
     FormlyModule.forChild(wrapperConfig),
     NzGridModule,
     NzCardModule,
-    NzSelectModule,
+    NzCheckboxModule,
   ],
   exports: [CvcFormCardWrapper],
 })

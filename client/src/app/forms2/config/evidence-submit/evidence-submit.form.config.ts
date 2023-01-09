@@ -12,7 +12,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
     wrappers: ['form-layout'],
     props: <CvcFormLayoutWrapperProps>{
       submitLabel: 'Submit Evidence Item',
-      showDevPanel: true,
+      showDevPanel: false,
     },
     fieldGroup: [
       {

@@ -1,9 +1,11 @@
-import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
+import { NgModule } from '@angular/core'
+import { CvcForms2Module } from '@app/forms2/forms2.module'
+import { NzFormModule } from 'ng-zorro-antd/form'
 import { VerticalFormPage } from './vertical-form.page'
 
 @NgModule({
   declarations: [VerticalFormPage],
-  imports: [CommonModule],
+  imports: [CommonModule, CvcForms2Module],
 })
-export class NonstateFormTestModule {}
+export class VerticalFormTestModule {}
