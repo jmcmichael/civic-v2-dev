@@ -65,7 +65,10 @@ export function BaseFieldType<
         this.onValueChange$.next(v)
       })
 
-      if (this.field.options?.formState) {
+      if (
+        this.field.options?.formState &&
+        this.field.options.formState.fields
+      ) {
         this.state = this.field.options.formState
         this.autoConfigureStateValueChanges()
       }
@@ -93,9 +96,10 @@ export function BaseFieldType<
       this.onValueChange$
         .pipe(
           // some nz form components set model value to null when cleared,
-          // but other fields expect undefined for an unset model value
+          // but other fields expect undefined for an unset model value, so
+          // nulls are converted to undefined for consistency
           map((v: Maybe<V>) => (v === null ? undefined : v)),
-          // tag(`${this.field.id} onValueChange$`),
+          tag(`${this.field.id} onValueChange$`),
           untilDestroyed(this)
         )
         .subscribe((v) => {
