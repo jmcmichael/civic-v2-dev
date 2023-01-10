@@ -21,6 +21,7 @@ import {
   combineLatest,
   map,
   Observable,
+  skip,
   startWith,
   Subject,
 } from 'rxjs'
@@ -130,22 +131,24 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.onOpenChange$.pipe(tag('entity-select onOpenChange$')).subscribe()
-    this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
-    this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
-    this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
+    // this.onOpenChange$.pipe(tag('entity-select onOpenChange$')).subscribe()
+    // this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
+    // this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
+    // this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
 
     // produce appropriate dropdown messages by combining relevant observables
+    // prime combineLatest with startWith values
     this.onSearchMessage$ = combineLatest([
       this.onOpenChange$.pipe(startWithDeferred(() => false)),
-      this.cvcOnSearch.pipe(startWithDeferred(() => '')),
+      this.cvcOnSearch.pipe(startWithDeferred(() => undefined)),
       this.onParamName$.pipe(startWithDeferred(() => undefined)),
       this.onOption$.pipe(startWithDeferred(() => undefined)),
     ]).pipe(
+      // skip(1), // skip initial startWith event
       map(
         ([isOpen, searchStr, paramName, options]: [
           boolean,
-          string,
+          Maybe<string>,
           Maybe<string>,
           Maybe<NzSelectOptionInterface[]>
         ]) => {
@@ -160,10 +163,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
             options
           )
           // 1: all emit startWith values
-          // isOpen: false searchStr: "" paramName: undefined options: undefined
+          // isOpen: false searchStr: undefined paramName: undefined options: undefined
           //
           // 2: user clicks on select, isOpen emits true
-          // isOpen: true searchStr: "" paramName: undefined options: undefined
+          // isOpen: true searchStr: undefined paramName: undefined options: undefined
           //
           // 3: nz-select emits '' from cvcOnSearch (which fires off a server query)
           // isOpen: true searchStr: "" paramName: undefined options: undefined
@@ -184,11 +187,80 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           // isOpen: false searchStr: "Bx" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
           // 13: nz-select resets query string to ''
           // isOpen: false searchStr: "" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-          if (!isOpen) {
-            return ''
-          } else if (options === undefined) {
+
+          // UNHANDLED:
+          // isOpen: true searchStr: "" paramName: undefined options: undefined
+          if (paramName === undefined) {
+            // isOpen: false searchStr: undefined paramName: undefined options: undefined
+            if (!isOpen && searchStr === undefined && options === undefined) {
+              return 'INIT'
+            }
+            // isOpen: true searchStr: undefined paramName: undefined options: undefined
+            if (isOpen && searchStr === undefined && options === undefined) {
+              return 'INITIAL SELECT CLICK'
+            }
+            // isOpen: true searchStr: "" paramName: undefined options: undefined
+            if (
+              isOpen &&
+              searchStr !== undefined &&
+              searchStr.length === 0 &&
+              options === undefined
+            ) {
+              return 'INITIAL SELECT STR'
+            }
+            if (
+              isOpen &&
+              searchStr !== undefined &&
+              searchStr.length === 0 &&
+              options !== undefined &&
+              options.length > 0
+            ) {
+              return 'QUERY "" RESULTS RETURNED'
+            }
+            if (
+              isOpen &&
+              searchStr !== undefined &&
+              searchStr.length > 0 &&
+              options !== undefined &&
+              options.length > 0
+            ) {
+              return 'QUERY STR RESULTS RETURNED'
+            }
+            if (
+              isOpen &&
+              searchStr !== undefined &&
+              searchStr.length === 0 &&
+              options !== undefined &&
+              options.length === 0
+            ) {
+              return 'QUERY "", NO RESULTS'
+            }
+            if (
+              isOpen &&
+              searchStr !== undefined &&
+              searchStr.length > 0 &&
+              options !== undefined &&
+              options.length === 0
+            ) {
+              return 'QUERY STR, NO RESULTS'
+            }
+            if (
+              !isOpen &&
+              searchStr !== undefined &&
+              searchStr.length === 0 &&
+              options !== undefined
+            ) {
+              return 'CLOSED AFTER QUERY'
+            }
           }
-          return 'MESSAGE'
+          // isOpen: false searchStr: "" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+          return 'UNHANDLED CONDITION'
+
+          // else if (!isOpen) {
+          //   return 'CLOSED'
+          // }
+
+          // return 'MESSAGE'
           // if options undefined, query has not yet been sent: display
           // if (!isOpen) {return ''}
           // else if (options === undefined && searchStr.length === 0) {
@@ -206,9 +278,11 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       )
     )
 
-    this.onSearchMessage$.pipe(untilDestroyed(this)).subscribe((message) => {
-      this.message = message
-    })
+    this.onSearchMessage$
+      .pipe(tag('entity-select onSearchMessage$'), untilDestroyed(this))
+      .subscribe((message) => {
+        this.message = message
+      })
   } // ngAfterViewInit()
 
   getSearchMessage(searchStr: string, paramName?: string): string {
