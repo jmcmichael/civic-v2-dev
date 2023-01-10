@@ -20,11 +20,10 @@ export type EntitySelectMessageOptions = {
 export interface EntitySelectContext {
   result: any[]
   options: NzSelectOptionInterface[]
-  mode: string
   query: string
   isLoading: boolean
-  paramName: string
-  message: string
+  paramName: string | undefined
+  message: string | undefined
   showSpinner: boolean
   entityName: CvcSelectEntityName
   messageOptions: EntitySelectMessageOptions | undefined
@@ -33,17 +32,16 @@ export interface EntitySelectContext {
 const initialContext: EntitySelectContext = {
   result: [],
   options: [],
-  mode: 'default',
   query: '',
   isLoading: false,
-  paramName: '',
-  message: '',
+  paramName: undefined,
+  message: undefined,
   showSpinner: false,
   entityName: { singular: 'Entity', plural: 'Entities' },
   messageOptions: undefined,
 }
 
-type BaseEvents =
+export type CvcEntitySelectEvents =
   | { type: 'OPEN' }
   | { type: 'CLOSE' }
   | { type: 'SEARCH'; query: string; paramName?: string }
@@ -55,7 +53,10 @@ type BaseEvents =
 // extend all base events with optional message attribute
 type EventExtension = { message?: string; showSpinner?: boolean }
 type ExtendEvents<E, X> = X & E
-export type EntitySelectEvent = ExtendEvents<BaseEvents, EventExtension>
+export type EntitySelectEvent = ExtendEvents<
+  CvcEntitySelectEvents,
+  EventExtension
+>
 
 export interface EntitySelectSchema extends StateSchema {
   context: EntitySelectContext
@@ -163,6 +164,10 @@ export function getEntitySelectMachine(
       if (event.type !== 'SEARCH') return context.query
       return event.query
     },
+    paramName: (context, event) => {
+      if (event.type !== 'SEARCH') return context.paramName
+      return event.paramName
+    },
   })
 
   return createMachine<
@@ -196,8 +201,7 @@ export function getEntitySelectMachine(
           entry: ['assignSearchMessage'],
           states: {
             query: {
-              entry: ['assignQuery'],
-              // entry: ['assignQuery', 'assignSearchMessage'],
+              entry: ['assignQuery', 'assignSearchMessage'],
               on: {
                 LOAD: {
                   target: 'loading',
@@ -208,7 +212,6 @@ export function getEntitySelectMachine(
               },
             },
             loading: {
-              // entry: ['assignSearchMessage'],
               on: {
                 SUCCESS: {
                   target: 'listing',
@@ -235,6 +238,9 @@ export function getEntitySelectMachine(
             },
           },
           on: {
+            SEARCH: {
+              target: 'open.query',
+            },
             CLOSE: {
               target: 'idle',
             },
@@ -247,6 +253,8 @@ export function getEntitySelectMachine(
         assignOptions: assignOptions,
         assignQuery: assignQuery,
         assignSearchMessage: assignSearchMessage,
+        assignEmptyMessage: assignEmptyMessage,
+        assignErrorMessage: assignErrorMessage,
       },
     }
   )

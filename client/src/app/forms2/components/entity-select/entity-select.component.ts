@@ -16,7 +16,13 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, filter, Observable, Subject } from 'rxjs'
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  filter,
+  Observable,
+  Subject,
+} from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { State } from 'xstate'
@@ -85,8 +91,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   // SOURCE STREAMS
   onOpenChange$: Subject<boolean>
   onSearch$: BehaviorSubject<Maybe<string>>
-  onMessageMode$: BehaviorSubject<Maybe<CvcEntitySelectMessageMode>>
   onParamName$: BehaviorSubject<Maybe<string>>
+  onSearchMessage$: Observable<Maybe<string>>
 
   // INTERMEDIATE STREAMS
   onResult$: Subject<any[]>
@@ -133,14 +139,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onOption$ = new Subject<NzSelectOptionInterface[]>()
     this.onParamName$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onResult$ = new Subject<any[]>()
-    this.onMessageMode$ = new BehaviorSubject<
-      Maybe<CvcEntitySelectMessageMode>
-    >(undefined)
-    // this.onMessageMode$.pipe(tag('entity-select onMessageMode$')).subscribe()
+    this.onSearchMessage$ = new Subject<Maybe<string>>()
   }
 
   ngAfterViewInit(): void {
-    // wrapping state creation in try/catch b/c it can fail silently while initializing
     try {
       this.state = this.stateService.useMachine(
         getEntitySelectMachine({
@@ -158,92 +160,53 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
     // DEBUG
     this.state$.pipe(untilDestroyed(this)).subscribe((state) => {
-      if (this.cvcEntityName.singular !== 'Variant') return
-      console.log(state)
+      // if (this.cvcEntityName.singular !== 'Variant') return
+      // console.log(state)
       console.log(state.event)
       console.log(
         `******* value: ${state.value ? JSON.stringify(state.value) : 'none'}`
       )
-      console.log(
-        `******* context.message: ${
-          state.context.message ? state.context.message : 'none'
-        }`
-      )
     })
-
-    // EMIT OUTPUT EVENTS FROM STATE EVENTS
-    this.state$
-      .pipe(untilDestroyed(this))
-      .subscribe(
-        (
-          state: State<
-            EntitySelectContext,
-            EntitySelectEvent,
-            EntitySelectSchema
-          >
-        ) => {
-          const event = state.event
-          switch (event.type) {
-            case 'SEARCH':
-              this.cvcOnSearch.next(event.query)
-              break
-          }
-        }
-      )
-
-    // watch state context to trigger select Output events and emit presentation observable events
-    this.state$
-      .pipe(pluck('context'), filter(isNonNulled), untilDestroyed(this))
-      .subscribe((context: EntitySelectContext) => {
-        // console.log('entity-select state.context: ', context)
-        this.onOption$.next(context.options)
-        this.onLoading$.next(context.isLoading)
-      })
-
+    // SEND STATE EVENTS FROM TEMPLATE NZ-SELECT
     this.onOpenChange$
       .pipe(untilDestroyed(this))
       .subscribe((change: boolean) => {
         this.state.send({ type: change === true ? 'OPEN' : 'CLOSE' })
       })
 
-    // regenerate select messages when search str or param name changes
-    // combineLatest([this.onSearch$, this.onParamName$, this.onOpenChange$])
-    //   .pipe(untilDestroyed(this))
-    //   .subscribe(([str, param, open]) => {
-    //     if (str === undefined) return
-    //     this.selectMessages.loading = this.messageOptions.loading(
-    //       this.cvcEntityName.plural,
-    //       str,
-    //       param
-    //     )
-    //     this.selectMessages.empty = this.messageOptions.empty(
-    //       this.cvcEntityName.plural,
-    //       str,
-    //       param
-    //     )
-    //     this.cvcOnSearch.next(str)
-    //   })
-
-    // emit search events from Output
-    // this.onSearch$
-    //   .pipe(untilDestroyed(this))
-    //   .subscribe((str: Maybe<string>) => {
-    //     if (typeof str === 'string') {
-    //       this.cvcOnSearch.next(str)
-    //     }
-    //   })
-
-    // STATE OBSERVABLES
     this.onSearch$
       .pipe(untilDestroyed(this))
       .subscribe((str: Maybe<string>) => {
-        if (typeof str === 'string')
-          this.state.send({ type: 'SEARCH', query: str })
+        if (typeof str === 'string') {
+          this.state.send({
+            type: 'SEARCH',
+            query: str,
+            paramName: this.onParamName$.value,
+          })
+        }
       })
+
+    // EMIT COMPONENT OUTPUT EVENTS FROM STATE EVENTS
+    this.state$
+      .pipe(pluck('event'), untilDestroyed(this))
+      .subscribe((event: EntitySelectEvent) => {
+        switch (event.type) {
+          case 'SEARCH':
+            this.cvcOnSearch.next(event.query)
+            break
+        }
+      })
+
+    // OBSERVE STATE SEARCH, EMPTY, ERROR MESSAGES
+    this.onSearchMessage$ = this.state$.pipe(
+      pluck('context', 'message'),
+      filter(isNonNulled),
+      distinctUntilChanged()
+    )
   } // ngAfterViewInit()
 
-  // some inputs need to be emitted from observables to allow subscriptions and/or perform some logic
   ngOnChanges(changes: SimpleChanges): void {
+    /* SEND STATE EVENTS FROM @Inputs */
     if (changes.cvcLoading) {
       this.onLoading$.next(changes.cvcLoading.currentValue)
       // only send LOAD events if loading value is true
@@ -262,7 +225,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           options: options,
         })
       }
-      // this.onOption$.next(changes.cvcOptions.currentValue)
     }
     if (changes.cvcResults) {
       const results = changes.cvcResults.currentValue

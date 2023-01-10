@@ -214,6 +214,7 @@ export function EntityTagField<
           )
           .subscribe((results: TAF[]) => {
             this.result$.next(results)
+            this.cdr.detectChanges()
           })
 
         if (!this.optionTemplates) {

@@ -29,24 +29,31 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'New Evidence Item',
         },
         fieldGroup: [
-          // field-grid wrapper places its fields in a css-grid, allowing for a wider variety of row-level layouts. Currently it provides multi-column layout of 2-4 columns
-          {
-            wrappers: ['field-grid'],
-            props: <CvcFieldGridWrapperConfig>{
-              grid: {
-                cols: 2,
-              },
+          <CvcGeneSelectFieldConfig>{
+            key: 'geneId',
+            type: 'gene-select',
+            props: {
+              required: true,
             },
-            fieldGroup: [
-              <CvcGeneSelectFieldConfig>{
-                key: 'geneId',
-                type: 'gene-select',
-                props: {
-                  required: true,
-                },
-              },
-            ],
           },
+          // field-grid wrapper places its fields in a css-grid, allowing for a wider variety of row-level layouts. Currently it provides multi-column layout of 2-4 columns
+          // {
+          //   wrappers: ['field-grid'],
+          //   props: <CvcFieldGridWrapperConfig>{
+          //     grid: {
+          //       cols: 2,
+          //     },
+          //   },
+          //   fieldGroup: [
+          //     <CvcGeneSelectFieldConfig>{
+          //       key: 'geneId',
+          //       type: 'gene-select',
+          //       props: {
+          //         required: true,
+          //       },
+          //     },
+          //   ],
+          // },
         ],
       },
       {
