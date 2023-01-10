@@ -27,13 +27,6 @@ import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { State } from 'xstate'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
-import {
-  EntitySelectContext,
-  EntitySelectEvent,
-  EntitySelectMessageOptions,
-  EntitySelectSchema,
-  getEntitySelectMachine,
-} from './entity-select.xstate'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 
@@ -43,6 +36,21 @@ export type CvcEntitySelectMessageMode =
   | 'loading'
   | 'empty'
   | 'query'
+
+type SelectMessageFn = (
+  entityName: string,
+  searchStr: string,
+  paramName?: string
+) => string
+
+export type EntitySelectMessageOptions = {
+  search: SelectMessageFn
+  searchParam: SelectMessageFn
+  searchParamAll: SelectMessageFn
+  empty: SelectMessageFn
+  emptyParam: SelectMessageFn
+  emptyParamAll: SelectMessageFn
+}
 
 @UntilDestroy({ arrayName: 'stateSubscriptions' })
 @Component({
@@ -101,16 +109,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   onLoading$: BehaviorSubject<boolean>
   onOption$: Subject<NzSelectOptionInterface[]>
 
-  state!: InterpretedService<
-    EntitySelectContext,
-    EntitySelectSchema,
-    EntitySelectEvent
-  >
-
-  state$!: Observable<
-    State<EntitySelectContext, EntitySelectEvent, EntitySelectSchema>
-  >
-
   messageOptions: EntitySelectMessageOptions = {
     search: (entityName, query, _paramName) =>
       `Searching ${entityName} matching "${query}""...`,
@@ -125,14 +123,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       `No ${paramName} ${entityName} found`,
   }
 
-  constructor(
-    private stateService: XstateAngular<
-      EntitySelectContext,
-      EntitySelectSchema,
-      EntitySelectEvent
-    >,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor(private cdr: ChangeDetectorRef) {
     this.onOpenChange$ = new Subject<boolean>()
     this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onLoading$ = new BehaviorSubject<boolean>(false)
@@ -142,96 +133,16 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     this.onSearchMessage$ = new Subject<Maybe<string>>()
   }
 
-  ngAfterViewInit(): void {
-    try {
-      this.state = this.stateService.useMachine(
-        getEntitySelectMachine({
-          entityName: this.cvcEntityName,
-          messageOptions: this.messageOptions,
-        }),
-        {
-          devTools: true,
-        }
-      )
-      this.state$ = this.state.state$
-    } catch (err) {
-      console.error(err)
-    }
-
-    // DEBUG
-    this.state$.pipe(untilDestroyed(this)).subscribe((state) => {
-      // if (this.cvcEntityName.singular !== 'Variant') return
-      // console.log(state)
-      console.log(state.event)
-      console.log(
-        `******* value: ${state.value ? JSON.stringify(state.value) : 'none'}`
-      )
-    })
-    // SEND STATE EVENTS FROM TEMPLATE NZ-SELECT
-    this.onOpenChange$
-      .pipe(untilDestroyed(this))
-      .subscribe((change: boolean) => {
-        this.state.send({ type: change === true ? 'OPEN' : 'CLOSE' })
-      })
-
-    this.onSearch$
-      .pipe(untilDestroyed(this))
-      .subscribe((str: Maybe<string>) => {
-        if (typeof str === 'string') {
-          this.state.send({
-            type: 'SEARCH',
-            query: str,
-            paramName: this.onParamName$.value,
-          })
-        }
-      })
-
-    // EMIT COMPONENT OUTPUT EVENTS FROM STATE EVENTS
-    this.state$
-      .pipe(pluck('event'), untilDestroyed(this))
-      .subscribe((event: EntitySelectEvent) => {
-        switch (event.type) {
-          case 'SEARCH':
-            this.cvcOnSearch.next(event.query)
-            break
-        }
-      })
-
-    // OBSERVE STATE SEARCH, EMPTY, ERROR MESSAGES
-    this.onSearchMessage$ = this.state$.pipe(
-      pluck('context', 'message'),
-      filter(isNonNulled),
-      distinctUntilChanged()
-    )
-  } // ngAfterViewInit()
+  ngAfterViewInit(): void {} // ngAfterViewInit()
 
   ngOnChanges(changes: SimpleChanges): void {
     /* SEND STATE EVENTS FROM @Inputs */
     if (changes.cvcLoading) {
       this.onLoading$.next(changes.cvcLoading.currentValue)
-      // only send LOAD events if loading value is true
-      if (changes.cvcLoading.currentValue) {
-        this.state.send({
-          type: 'LOAD',
-          isLoading: changes.cvcLoading.currentValue,
-        })
-      }
     }
     if (changes.cvcOptions) {
       const options = changes.cvcOptions.currentValue
-      if (options.length > 0) {
-        this.state.send({
-          type: 'SUCCESS',
-          options: options,
-        })
-      }
-    }
-    if (changes.cvcResults) {
-      const results = changes.cvcResults.currentValue
-      if (results.length === 0) {
-        this.state.send({ type: 'FAIL' })
-      }
-      this.onResult$.next(changes.cvcResults.currentValue)
+      this.onOption$.next(options)
     }
     if (changes.cvcParamName) {
       this.onParamName$.next(changes.cvcParamName.currentValue)
