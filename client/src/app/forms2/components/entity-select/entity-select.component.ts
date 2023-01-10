@@ -16,22 +16,15 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import {
-  BehaviorSubject,
-  combineLatest,
-  filter,
-  Observable,
-  Subject,
-} from 'rxjs'
+import { BehaviorSubject, filter, Observable, Subject } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
 import { State } from 'xstate'
 import { InterpretedService, XstateAngular } from 'xstate-angular'
 import {
-  EntitySelectMessageOptions,
   EntitySelectContext,
   EntitySelectEvent,
+  EntitySelectMessageOptions,
   EntitySelectSchema,
   getEntitySelectMachine,
 } from './entity-select.xstate'
@@ -125,8 +118,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     emptyParamAll: (entityName, _query, paramName) =>
       `No ${paramName} ${entityName} found`,
   }
-
-  selectMessages: { [key in CvcEntitySelectMessageMode]?: string } = {}
 
   constructor(
     private stateService: XstateAngular<

@@ -17,6 +17,7 @@ export interface Typegen0 {
     assignErrorMessage: 'ERROR'
     assignOptions: 'SUCCESS'
     assignQuery: 'OPEN' | 'SEARCH'
+    assignSearchMessage: 'OPEN'
   }
   eventsCausingServices: {}
   eventsCausingGuards: {}

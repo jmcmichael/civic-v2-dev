@@ -2,11 +2,6 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { assign, createMachine, StateMachine, StateSchema } from 'xstate'
 import { CvcSelectEntityName } from './entity-select.component'
 
-/* SELECT MESSAGES - displayed at top of options dropdown
- * - loading: while API requests loading, e.g. "Loading Variants..."
- * - empty: if no results returned, e.g. "No BRAF Variants found matching V600000"
- *   NOTE: if cvcCreateEntity provided, its quick-add form will be displayed instead, which will include its own prompt, e.g. "No BRAF Variants found matching V60000, would you like to create it?"
- * */
 type SelectMessageFn = (
   entityName: string,
   searchStr: string,
@@ -22,20 +17,6 @@ export type EntitySelectMessageOptions = {
   emptyParamAll: SelectMessageFn
 }
 
-export const messageOptions: EntitySelectMessageOptions = {
-  search: (entityName, query, _paramName) =>
-    `Searching ${entityName} matching "${query}""...`,
-  searchParam: (entityName, query, paramName) =>
-    `Searching ${paramName} ${entityName} matching "${query}""...`,
-  searchParamAll: (entityName, _query, paramName) =>
-    `Listing all ${paramName} ${entityName}...`,
-  empty: (entityName, query) => `No ${entityName} found matching "${query}"`,
-  emptyParam: (entityName, query, paramName) =>
-    `No ${paramName} ${entityName} found matching "${query}"`,
-  emptyParamAll: (entityName, _query, paramName) =>
-    `No ${paramName} ${entityName} found`,
-}
-
 export interface EntitySelectContext {
   result: any[]
   options: NzSelectOptionInterface[]
@@ -46,7 +27,7 @@ export interface EntitySelectContext {
   message: string
   showSpinner: boolean
   entityName: CvcSelectEntityName
-  messageOptions: EntitySelectMessageOptions
+  messageOptions: EntitySelectMessageOptions | undefined
 }
 
 const initialContext: EntitySelectContext = {
@@ -59,7 +40,7 @@ const initialContext: EntitySelectContext = {
   message: '',
   showSpinner: false,
   entityName: { singular: 'Entity', plural: 'Entities' },
-  messageOptions: messageOptions,
+  messageOptions: undefined,
 }
 
 type BaseEvents =
@@ -123,16 +104,16 @@ export function getEntitySelectMachine(
   const assignSearchMessage = assign<EntitySelectContext, EntitySelectEvent>({
     message: (context, _event) => {
       try {
-        const { entityName, paramName, query } = context
-        // if (!entityName) return ''
+        const { entityName, paramName, query, messageOptions } = context
+        if (!messageOptions) return 'Searching...'
 
         const plName = entityName.plural
         if (paramName && query.length > 0) {
-          return context.messageOptions.searchParam(plName, query, paramName)
+          return messageOptions.searchParam(plName, query, paramName)
         } else if (!paramName && query.length > 0) {
-          return context.messageOptions.searchParamAll(plName, query, paramName)
+          return messageOptions.searchParamAll(plName, query, paramName)
         } else if (paramName && query.length === 0) {
-          return context.messageOptions.searchParamAll(plName, query, paramName)
+          return messageOptions.searchParamAll(plName, query, paramName)
         } else {
           return `Searching ${plName}...`
         }
@@ -149,14 +130,16 @@ export function getEntitySelectMachine(
 
   const assignEmptyMessage = assign<EntitySelectContext, EntitySelectEvent>({
     message: (context, _event) => {
-      const { entityName, paramName, query } = context
+      const { entityName, paramName, query, messageOptions } = context
+      if (!messageOptions) return 'Query returned no results'
+
       const plName = entityName.plural
       if (paramName && query.length > 0) {
-        return context.messageOptions.emptyParam(plName, query)
+        return messageOptions.emptyParam(plName, query)
       } else if (paramName && query.length === 0) {
-        return context.messageOptions.emptyParamAll(plName, query)
+        return messageOptions.emptyParamAll(plName, query)
       } else {
-        return context.messageOptions.empty(plName, query)
+        return messageOptions.empty(plName, query)
       }
     },
   })
@@ -164,7 +147,7 @@ export function getEntitySelectMachine(
   const assignErrorMessage = assign<EntitySelectContext, EntitySelectEvent>({
     message: (_context, event) => {
       if (event.message) return event.message
-      else return ''
+      else return 'An error occurred.'
     },
   })
 
@@ -193,10 +176,11 @@ export function getEntitySelectMachine(
       predictableActionArguments: true,
       tsTypes: {} as import('./entity-select.xstate.typegen').Typegen0,
       id: 'entity-select',
-      // context: {
-      //   entityName: options.entityName,
-      //   messageOptions: options.messageOptions,
-      // },
+      context: {
+        ...initialContext,
+        entityName: config.entityName,
+        messageOptions: config.messageOptions,
+      },
       initial: 'idle',
       states: {
         idle: {
@@ -209,7 +193,7 @@ export function getEntitySelectMachine(
         },
         open: {
           initial: 'query',
-          // entry: ['assignSearchMessage'],
+          entry: ['assignSearchMessage'],
           states: {
             query: {
               entry: ['assignQuery'],
