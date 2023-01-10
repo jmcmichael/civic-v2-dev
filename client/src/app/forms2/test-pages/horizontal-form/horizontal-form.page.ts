@@ -1,12 +1,42 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import { FormGroup } from '@angular/forms'
+import { NoStateFormOptions } from '@app/forms2/states/entity.state'
+import { CvcFormCardWrapperProps } from '@app/forms2/wrappers/form-card/form-card.wrapper'
+import { FormlyFieldConfig } from '@ngx-formly/core'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
+import {
+  noStateFormsFieldConfig,
+  noStateFormsModel,
+} from '../no-state-forms.config'
 
 @Component({
-  selector: 'cvc-nonstate-form',
+  selector: 'cvc-horizontal-form',
   templateUrl: './horizontal-form.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HorizontalFormPage implements OnInit {
-  constructor() {}
+  model: any
+  options: NoStateFormOptions
+  form: FormGroup = new FormGroup({})
+  fields: FormlyFieldConfig[]
+  formLayout: NzFormLayoutType
+
+  constructor() {
+    this.model = noStateFormsModel
+    this.formLayout = 'horizontal'
+    this.options = { formState: { formLayout: this.formLayout } }
+
+    this.fields = [
+      {
+        key: 'fields',
+        wrappers: ['form-card'],
+        props: <CvcFormCardWrapperProps>{
+          title: 'Horizontal Field Layout, No State',
+        },
+        fieldGroup: noStateFormsFieldConfig,
+      },
+    ]
+  }
 
   ngOnInit(): void {}
 }

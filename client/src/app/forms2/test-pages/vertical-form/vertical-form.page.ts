@@ -1,8 +1,13 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { FormGroup } from '@angular/forms'
+import { NoStateFormOptions } from '@app/forms2/states/entity.state'
 import { CvcFormCardWrapperProps } from '@app/forms2/wrappers/form-card/form-card.wrapper'
-import { FormlyFieldConfig } from '@ngx-formly/core'
-import { noStateFormsFieldConfig } from '../no-state-forms.config'
+import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
+import { NzFormLayoutType } from 'ng-zorro-antd/form'
+import {
+  noStateFormsFieldConfig,
+  noStateFormsModel,
+} from '../no-state-forms.config'
 
 @Component({
   selector: 'cvc-vertical-form',
@@ -13,11 +18,13 @@ export class VerticalFormPage implements OnInit {
   model: any
   form: FormGroup = new FormGroup({})
   fields: FormlyFieldConfig[]
+  options: NoStateFormOptions
+  formLayout: NzFormLayoutType
 
   constructor() {
-    this.model = {
-      geneId: undefined,
-    }
+    this.model = noStateFormsModel
+    this.formLayout = 'vertical'
+    this.options = { formState: { formLayout: this.formLayout } }
 
     this.fields = [
       {

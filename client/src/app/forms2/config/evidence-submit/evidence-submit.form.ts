@@ -7,8 +7,6 @@ import {
 import { EntityState } from '@app/forms2/states/entity.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
-import { NzFormLayoutType } from 'ng-zorro-antd/form'
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 import { evidenceSubmitFields } from './evidence-submit.form.config'
 
 @Component({
@@ -23,17 +21,12 @@ export class CvcEvidenceSubmitForm implements OnDestroy {
   options: FormlyFormOptions
   state: EntityState = new EvidenceState()
 
-  formLayout$: BehaviorSubject<NzFormLayoutType>
-
   constructor() {
     this.model = evidenceSubmitFormInitialModel
     this.fields = evidenceSubmitFields
     this.options = {
       formState: this.state,
     }
-    this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('vertical')
-
-    this.options.formState.formLayout$ = this.formLayout$
   }
 
   onSubmit(model: EvidenceSubmitModel) {

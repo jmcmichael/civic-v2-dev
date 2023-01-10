@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import { RouteableTab } from '@app/components/shared/tab-navigation/tab-navigation.component'
 import { Maybe } from '@app/generated/civic.apollo'

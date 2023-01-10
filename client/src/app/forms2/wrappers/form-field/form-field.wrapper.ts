@@ -1,11 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
-import { UntilDestroy } from '@ngneat/until-destroy'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { IndexableObject } from 'ng-zorro-antd/core/types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzAlign, NzJustify } from 'ng-zorro-antd/grid'
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject'
 
 export type CvcFormFieldExtraType = 'description' | 'prompt'
 
@@ -30,7 +27,6 @@ export interface CvcFormFieldWrapperLayout {
   }
 }
 
-@UntilDestroy()
 @Component({
   selector: 'cvc-form-field-wrapper',
   templateUrl: './form-field.wrapper.html',
@@ -41,7 +37,7 @@ export class CvcFormFieldWrapper
   extends FieldWrapper<FormlyFieldConfig>
   implements OnInit
 {
-  formLayout$!: BehaviorSubject<NzFormLayoutType>
+  formLayout: NzFormLayoutType = 'vertical'
   wrapper!: CvcFormFieldWrapperLayout
 
   get errorState() {
@@ -78,11 +74,8 @@ export class CvcFormFieldWrapper
       console.error(err)
     }
 
-    if (this.options.formState.formLayout$) {
-      this.formLayout$ = this.options.formState.formLayout$
-    } else {
-      // emit default value
-      this.formLayout$ = new BehaviorSubject<NzFormLayoutType>('vertical')
+    if (this.options.formState.formLayout) {
+      this.formLayout = this.options.formState.formLayout
     }
   }
 }

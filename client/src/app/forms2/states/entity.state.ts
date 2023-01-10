@@ -1,15 +1,15 @@
 import {
-    formatEvidenceEnum,
-    InputEnum
+  formatEvidenceEnum,
+  InputEnum,
 } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import {
-    AssertionClinicalSignificance,
-    AssertionDirection,
-    AssertionType,
-    DrugInteraction,
-    EvidenceClinicalSignificance,
-    EvidenceDirection,
-    EvidenceType
+  AssertionClinicalSignificance,
+  AssertionDirection,
+  AssertionType,
+  DrugInteraction,
+  EvidenceClinicalSignificance,
+  EvidenceDirection,
+  EvidenceType,
 } from '@app/generated/civic.apollo'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
@@ -48,8 +48,11 @@ export enum SelectType {
 
 export type EntityFieldSubjectMap = { [key: string]: BehaviorSubject<any> }
 
+// 'state' for non-entity forms that just stores layout for form-field.wrapper's template logic
+export type NoStateFormOptions = { formState: { formLayout: NzFormLayoutType } }
+
 export interface IEntityState {
-  formLayout$?: BehaviorSubject<NzFormLayoutType>
+  formLayout: NzFormLayoutType
   validStates: Map<EntityType, ValidEntity>
   getTypeOptions: () => EntityType[]
   getSignificanceOptions: (et: EntityType) => EntityClinicalSignificance[]
@@ -78,6 +81,7 @@ export interface IEntityState {
 }
 
 class EntityState implements IEntityState {
+  formLayout: NzFormLayoutType = 'vertical'
   fields: EntityFieldSubjectMap
   enums: EntityFieldSubjectMap
   options: EntityFieldSubjectMap
