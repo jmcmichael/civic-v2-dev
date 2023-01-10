@@ -18,15 +18,15 @@ import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import {
   BehaviorSubject,
-  distinctUntilChanged,
-  filter,
+  combineLatest,
+  map,
   Observable,
+  startWith,
   Subject,
 } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import { pluck } from 'rxjs-etc/operators'
-import { State } from 'xstate'
-import { InterpretedService, XstateAngular } from 'xstate-angular'
+import { mergeArray } from 'rxjs-etc'
+import { startWithDeferred } from 'rxjs-etc/dist/esm/operators'
+import { tag } from 'rxjs-spy/operators'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 
@@ -45,6 +45,7 @@ type SelectMessageFn = (
 
 export type EntitySelectMessageOptions = {
   search: SelectMessageFn
+  searchAll: SelectMessageFn
   searchParam: SelectMessageFn
   searchParamAll: SelectMessageFn
   empty: SelectMessageFn
@@ -70,7 +71,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
-  @Input() cvcOptions?: NzSelectOptionInterface[]
+  @Input() cvcOptions: NzSelectOptionInterface[] | undefined = undefined
   @Input() cvcResults?: any[]
   @Input() cvcShowError: boolean = false
   @Input() cvcDisabled?: boolean = false
@@ -86,7 +87,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   @Input() cvcDropdownExtra?: TemplateRef<any> | null = null
 
   // name of entity specified by optional param value, for constructing messages
-  @Input() cvcParamName?: string
+  @Input() cvcParamName?: string | undefined
 
   // templateref w/ entity's quick-add form component
   @Input() cvcAddEntity: TemplateRef<any> | null = null
@@ -98,20 +99,17 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   // SOURCE STREAMS
   onOpenChange$: Subject<boolean>
-  onSearch$: BehaviorSubject<Maybe<string>>
-  onParamName$: BehaviorSubject<Maybe<string>>
   onSearchMessage$: Observable<Maybe<string>>
+  onParamName$: Subject<Maybe<string>>
+  onOption$: Subject<Maybe<NzSelectOptionInterface[]>>
 
-  // INTERMEDIATE STREAMS
-  onResult$: Subject<any[]>
-
-  // PRESENTATION STREAMS
-  onLoading$: BehaviorSubject<boolean>
-  onOption$: Subject<NzSelectOptionInterface[]>
+  message: Maybe<string>
 
   messageOptions: EntitySelectMessageOptions = {
     search: (entityName, query, _paramName) =>
       `Searching ${entityName} matching "${query}""...`,
+    searchAll: (entityName, _query, _paramName) =>
+      `Listing all ${entityName}...`,
     searchParam: (entityName, query, paramName) =>
       `Searching ${paramName} ${entityName} matching "${query}""...`,
     searchParamAll: (entityName, _query, paramName) =>
@@ -125,27 +123,125 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   constructor(private cdr: ChangeDetectorRef) {
     this.onOpenChange$ = new Subject<boolean>()
-    this.onSearch$ = new BehaviorSubject<Maybe<string>>(undefined)
-    this.onLoading$ = new BehaviorSubject<boolean>(false)
-    this.onOption$ = new Subject<NzSelectOptionInterface[]>()
-    this.onParamName$ = new BehaviorSubject<Maybe<string>>(undefined)
-    this.onResult$ = new Subject<any[]>()
     this.onSearchMessage$ = new Subject<Maybe<string>>()
+    this.onParamName$ = new Subject<Maybe<string>>()
+    this.onOption$ = new Subject<Maybe<NzSelectOptionInterface[]>>()
+    this.message = 'LOADING'
   }
 
-  ngAfterViewInit(): void {} // ngAfterViewInit()
+  ngAfterViewInit(): void {
+    this.onOpenChange$.pipe(tag('entity-select onOpenChange$')).subscribe()
+    this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
+    this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
+    this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
+
+    // produce appropriate dropdown messages by combining relevant observables
+    this.onSearchMessage$ = combineLatest([
+      this.onOpenChange$.pipe(startWithDeferred(() => false)),
+      this.cvcOnSearch.pipe(startWithDeferred(() => '')),
+      this.onParamName$.pipe(startWithDeferred(() => undefined)),
+      this.onOption$.pipe(startWithDeferred(() => undefined)),
+    ]).pipe(
+      map(
+        ([isOpen, searchStr, paramName, options]: [
+          boolean,
+          string,
+          Maybe<string>,
+          Maybe<NzSelectOptionInterface[]>
+        ]) => {
+          console.log(
+            'isOpen:',
+            isOpen,
+            'searchStr:',
+            JSON.stringify(searchStr),
+            'paramName:',
+            paramName,
+            'options:',
+            options
+          )
+          // 1: all emit startWith values
+          // isOpen: false searchStr: "" paramName: undefined options: undefined
+          //
+          // 2: user clicks on select, isOpen emits true
+          // isOpen: true searchStr: "" paramName: undefined options: undefined
+          //
+          // 3: nz-select emits '' from cvcOnSearch (which fires off a server query)
+          // isOpen: true searchStr: "" paramName: undefined options: undefined
+          //
+          // 4: onOption$ emits options array from '' query
+          // isOpen: true searchStr: "" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+          //
+          // 5: user enters 'B', cvcOnSearch emits 'B' which fires off a query
+          // isOpen: true searchStr: "B" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+          //
+          // 6: onOption$ emits query results
+          // isOpen: true searchStr: "B" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+          // ...
+          // 9: user enters string w/ no results
+          // isOpen: true searchStr: "Bxx" paramName: undefined options: []
+          // ...
+          // 12: user backtracks, to 'Bx', query returns, user selects item, nz-select closes
+          // isOpen: false searchStr: "Bx" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+          // 13: nz-select resets query string to ''
+          // isOpen: false searchStr: "" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+          if (!isOpen) {
+            return ''
+          } else if (options === undefined) {
+          }
+          return 'MESSAGE'
+          // if options undefined, query has not yet been sent: display
+          // if (!isOpen) {return ''}
+          // else if (options === undefined && searchStr.length === 0) {
+          //   return this.messageOptions.searchAll(
+          //     this.cvcEntityName.plural,
+          //     searchStr,
+          //     paramName
+          //   )
+          // } else if (options.length > 0) {
+          //   return this.getSearchMessage(searchStr, paramName)
+          // } else if (options.length === 0 && searchStr.length > 0) {
+          //   return this.getEmptyMessage(searchStr, paramName)
+          // }
+        }
+      )
+    )
+
+    this.onSearchMessage$.pipe(untilDestroyed(this)).subscribe((message) => {
+      this.message = message
+    })
+  } // ngAfterViewInit()
+
+  getSearchMessage(searchStr: string, paramName?: string): string {
+    const plName = this.cvcEntityName.plural
+    if (paramName && searchStr.length > 0) {
+      return this.messageOptions.searchParam(plName, searchStr, paramName)
+    } else if (!paramName && searchStr.length > 0) {
+      return this.messageOptions.search(plName, searchStr, paramName)
+    } else if (paramName && searchStr.length === 0) {
+      return this.messageOptions.searchParamAll(plName, searchStr, paramName)
+    } else {
+      return `Searching ${plName}...`
+    }
+  }
+
+  getEmptyMessage(searchStr: string, paramName?: string): string {
+    const plName = this.cvcEntityName.plural
+    if (paramName && searchStr.length > 0) {
+      return this.messageOptions.emptyParam(plName, searchStr, paramName)
+    } else if (paramName && searchStr.length === 0) {
+      return this.messageOptions.emptyParamAll(plName, searchStr, paramName)
+    } else {
+      return this.messageOptions.empty(plName, searchStr)
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
-    /* SEND STATE EVENTS FROM @Inputs */
-    if (changes.cvcLoading) {
-      this.onLoading$.next(changes.cvcLoading.currentValue)
+    if (changes.cvcParamName) {
+      this.onParamName$.next(changes.cvcParamName.currentValue)
     }
     if (changes.cvcOptions) {
       const options = changes.cvcOptions.currentValue
       this.onOption$.next(options)
-    }
-    if (changes.cvcParamName) {
-      this.onParamName$.next(changes.cvcParamName.currentValue)
     }
   }
 }

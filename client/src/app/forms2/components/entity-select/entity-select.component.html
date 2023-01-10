@@ -16,7 +16,7 @@
     [nzSuffixIcon]="'search'"
     [nzShowArrow]="cvcShowArrow || true"
     [nzAutoClearSearchValue]="cvcAutoClearSearchValue"
-    [nzOptions]="(onOption$ | ngrxPush) || []"
+    [nzOptions]="cvcOptions || []"
     [nzDropdownRender]="cvcDropdownExtra || null"
     [nzNotFoundContent]="searchMessages"
     (nzOpenChange)="onOpenChange$.next($event)"
@@ -26,7 +26,5 @@
     ">
   </nz-select>
   <ng-template #searchMessages>
-    <ng-container *ngrxLet="onSearchMessage$ as message">
-      {{ message }}
-    </ng-container>
+    {{ message }}
   </ng-template>

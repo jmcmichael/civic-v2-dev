@@ -99,7 +99,7 @@ export function BaseFieldType<
           // but other fields expect undefined for an unset model value, so
           // nulls are converted to undefined for consistency
           map((v: Maybe<V>) => (v === null ? undefined : v)),
-          tag(`${this.field.id} onValueChange$`),
+          // tag(`${this.field.id} onValueChange$`),
           untilDestroyed(this)
         )
         .subscribe((v) => {

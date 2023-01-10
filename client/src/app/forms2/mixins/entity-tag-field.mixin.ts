@@ -103,7 +103,7 @@ export function EntityTagField<
       // PRESENTATION STREAMS
       result$!: BehaviorSubject<TAF[]> // typeahead query results
       isLoading$!: Subject<boolean> // typeahead query loading bool
-      selectOption$!: BehaviorSubject<NzSelectOptionInterface[]>
+      selectOption$!: Subject<Maybe<NzSelectOptionInterface[]>>
 
       // CONFIG OPTIONS
 
@@ -147,7 +147,7 @@ export function EntityTagField<
         this.result$ = new BehaviorSubject<TAF[]>([])
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onCreate$ = new Subject<TAF>()
-        this.selectOption$ = new BehaviorSubject<NzSelectOptionInterface[]>([])
+        this.selectOption$ = new Subject<Maybe<NzSelectOptionInterface[]>>()
 
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(

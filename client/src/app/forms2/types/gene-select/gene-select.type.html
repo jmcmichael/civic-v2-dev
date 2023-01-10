@@ -6,7 +6,7 @@
   [cvcFormlyAttributes]="field"
   [cvcEntityName]="props.entityName"
   [cvcResults]="result$ | ngrxPush"
-  [cvcOptions]="(selectOption$ | ngrxPush)!"
+  [cvcOptions]="selectOption$ | ngrxPush"
   [cvcShowError]="showError"
   [cvcLoading]="isLoading$ | ngrxPush"
   (cvcOnSearch)="onSearch$.next($event)"
