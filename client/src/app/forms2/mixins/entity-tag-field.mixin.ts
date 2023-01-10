@@ -149,6 +149,19 @@ export function EntityTagField<
         this.onCreate$ = new Subject<TAF>()
         this.selectOption$ = new Subject<Maybe<NzSelectOptionInterface[]>>()
 
+        // this.onOpenChange$
+        //   .pipe(
+        //     tag('entity-tag-field.mixin onOpenChange$'),
+        //     untilDestroyed(this)
+        //   )
+        //   .subscribe((isOpen: boolean) => {
+        //     if (!isOpen) {
+        //       // force selectOptions reset
+        //       // this.selectOption$.next(undefined)
+        //       this.result$.next([])
+        //     }
+        //   })
+
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(
           // wait 1/3sec after typing activity stops to query server,

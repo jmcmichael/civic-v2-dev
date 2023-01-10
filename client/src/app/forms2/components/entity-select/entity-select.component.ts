@@ -96,10 +96,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   // model update callback fn - ngx-formly convention, implements props.change feature
   @Input() cvcModelChange?: FormlyAttributeEvent
 
-  @Output() readonly cvcOnSearch = new EventEmitter<string>()
+  @Output() cvcOnSearch = new EventEmitter<string>()
+  @Output() cvcOnOpenChange = new EventEmitter<boolean>()
 
   // SOURCE STREAMS
-  onOpenChange$: Subject<boolean>
   onSearchMessage$: Observable<Maybe<string>>
   onParamName$: Subject<Maybe<string>>
   onOption$: Subject<Maybe<NzSelectOptionInterface[]>>
@@ -123,7 +123,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   }
 
   constructor(private cdr: ChangeDetectorRef) {
-    this.onOpenChange$ = new Subject<boolean>()
     this.onSearchMessage$ = new Subject<Maybe<string>>()
     this.onParamName$ = new Subject<Maybe<string>>()
     this.onOption$ = new Subject<Maybe<NzSelectOptionInterface[]>>()
@@ -131,7 +130,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.onOpenChange$.pipe(tag('entity-select onOpenChange$')).subscribe()
+    // this.cvcOnOpenChange.pipe(tag('entity-select onOpenChange$')).subscribe()
     // this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
     // this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
     // this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
@@ -139,7 +138,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // produce appropriate dropdown messages by combining relevant observables
     // prime combineLatest with startWith values
     this.onSearchMessage$ = combineLatest([
-      this.onOpenChange$.pipe(startWithDeferred(() => false)),
+      this.cvcOnOpenChange.pipe(startWithDeferred(() => false)),
       this.cvcOnSearch.pipe(startWithDeferred(() => undefined)),
       this.onParamName$.pipe(startWithDeferred(() => undefined)),
       this.onOption$.pipe(startWithDeferred(() => undefined)),
