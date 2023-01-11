@@ -18,18 +18,13 @@ import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import {
   asyncScheduler,
-  BehaviorSubject,
   combineLatest,
   map,
   Observable,
-  skip,
   startWith,
   Subject,
   throttleTime,
 } from 'rxjs'
-import { mergeArray } from 'rxjs-etc'
-import { startWithDeferred } from 'rxjs-etc/dist/esm/operators'
-import { tag } from 'rxjs-spy/operators'
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 
@@ -137,18 +132,18 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.cvcOnOpenChange.pipe(tag('entity-select onOpenChange$')).subscribe()
-    this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
-    this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
-    this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
+    // this.cvcOnOpenChange.pipe(tag('entity-select onOpenChange$')).subscribe()
+    // this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
+    // this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
+    // this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
 
     // produce appropriate dropdown messages by combining relevant observables.
     // prime combineLatest with startWith values
     this.onSearchMessage$ = combineLatest([
-      this.cvcOnOpenChange.pipe(startWithDeferred(() => false)),
-      this.cvcOnSearch.pipe(startWithDeferred(() => undefined)),
-      this.onParamName$.pipe(startWithDeferred(() => undefined)),
-      this.onOption$.pipe(startWithDeferred(() => undefined)),
+      this.cvcOnOpenChange.pipe(startWith(false)),
+      this.cvcOnSearch.pipe(startWith(undefined)),
+      this.onParamName$.pipe(startWith(undefined)),
+      this.onOption$.pipe(startWith(undefined)),
     ]).pipe(
       map(
         ([isOpen, searchStr, paramName, options]: [
@@ -157,16 +152,16 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           Maybe<string>,
           Maybe<NzSelectOptionInterface[]>
         ]) => {
-          console.log(
-            'isOpen:',
-            isOpen,
-            'searchStr:',
-            JSON.stringify(searchStr),
-            'paramName:',
-            paramName,
-            'options:',
-            options
-          )
+          // console.log(
+          //   'isOpen:',
+          //   isOpen,
+          //   'searchStr:',
+          //   JSON.stringify(searchStr),
+          //   'paramName:',
+          //   paramName,
+          //   'options:',
+          //   options
+          // )
           if (paramName === undefined) {
             if (!isOpen && searchStr === undefined && options === undefined) {
               return 'INIT'
@@ -233,7 +228,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     )
 
     this.onSearchMessage$
-      .pipe(tag('entity-select onSearchMessage$'), untilDestroyed(this))
+      .pipe(
+        // tag('entity-select onSearchMessage$'),
+        untilDestroyed(this)
+      )
       .subscribe((message) => {
         this.message = message
       })

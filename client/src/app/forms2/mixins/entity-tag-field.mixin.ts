@@ -12,7 +12,6 @@ import { Query, QueryRef } from 'apollo-angular'
 import { EmptyObject } from 'apollo-angular/types'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import {
-  asyncScheduler,
   BehaviorSubject,
   defer,
   distinctUntilChanged,
@@ -24,12 +23,10 @@ import {
   of,
   Subject,
   switchMap,
-  throttleTime,
   withLatestFrom,
 } from 'rxjs'
-import { combineLatestArray, isNonNulled } from 'rxjs-etc'
+import { combineLatestArray } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
-import { tag } from 'rxjs-spy/operators'
 import { MixinConstructor } from 'ts-mixin-extended'
 
 export type GetTypeaheadVarsFn<TAV extends EmptyObject, TAP> = (
@@ -94,6 +91,7 @@ export function EntityTagField<
       // LOCAL SOURCE STREAMS
       onOpenChange$!: Subject<boolean>
       onSearch$!: Subject<string> // emits on typeahead keypress
+      onHighlightString$!: Subject<string> // emits search string after optionTemplates.changes
       onTagClose$!: Subject<MouseEvent> // emits on entity tag closed btn click
       onCreate$!: Subject<TAF> // emits entity on create
 
@@ -102,7 +100,7 @@ export function EntityTagField<
 
       // PRESENTATION STREAMS
       result$!: BehaviorSubject<TAF[]> // typeahead query results
-      isLoading$!: Subject<boolean> // typeahead query loading bool
+      isLoading$!: Observable<boolean> // typeahead query loading bool
       selectOption$!: Subject<Maybe<NzSelectOptionInterface[]>>
 
       // CONFIG OPTIONS
@@ -120,7 +118,7 @@ export function EntityTagField<
       getTagQueryResults!: GetTagQueryResultsFn<TQ, TAF>
       getSelectedItemOption!: GetSelectedItemFn<TAF>
       getSelectOptions!: GetSelectOptionsFn<TAF>
-      cdr!: ChangeDetectorRef
+      cdr!: ChangeDetectorRef // NOTE: would be great to remove this by eliminating subscriptions
 
       // LOCAL REFS
       queryRef?: QueryRef<TAQ, TAV>
@@ -129,6 +127,7 @@ export function EntityTagField<
       configureEntityTagField(
         options: EntityTagFieldOptions<TAQ, TAV, TAP, TAF, TQ, TV>
       ): void {
+        // attach parent field's option fns to local fns
         this.typeaheadQuery = options.typeaheadQuery
         this.tagQuery = options.tagQuery
         this.getTypeaheadVars = options.getTypeaheadVarsFn
@@ -141,9 +140,11 @@ export function EntityTagField<
         this.typeaheadParamName$ = options.typeaheadParamName$
         this.cdr = options.changeDetectorRef
 
+        // since mixins can't(?) have constructors, instantiate stuff here
         this.onSearch$ = new Subject<string>()
+        this.onHighlightString$ = new Subject<string>()
         this.onOpenChange$ = new Subject<boolean>()
-        this.isLoading$ = new Subject<boolean>()
+        this.isLoading$ = new Observable<boolean>()
         this.result$ = new BehaviorSubject<TAF[]>([])
         this.onTagClose$ = new Subject<MouseEvent>()
         this.onCreate$ = new Subject<TAF>()
@@ -163,37 +164,29 @@ export function EntityTagField<
 
             // helper functions for iif operator:
             const watchQuery = (query: TAV) => {
+              // calls watch() to create queryReft,
               // returns observable from initial watch() query
               this.queryRef = this.typeaheadQuery.watch(query)
               // emit loading events from isLoading$
-              this.queryRef.valueChanges
-                .pipe(
-                  // tag(`${this.field.id} queryRef.valueChanges`),
-                  pluck('loading'),
-                  distinctUntilChanged(),
-                  untilDestroyed(this)
-                )
-                .subscribe((l) => this.isLoading$.next(l))
+              this.isLoading$ = this.queryRef.valueChanges.pipe(
+                pluck('loading'),
+                distinctUntilChanged()
+              )
 
               return this.queryRef.valueChanges
             }
             const fetchQuery = (query: TAV) => {
-              // returns observable from refetch() promise
-              if (this.queryRef) {
-                return from(this.queryRef.refetch(query))
-              } else {
-                console.warn(
-                  `entity-tag-field.mixin's fetchQuery could not find queryRef, this should not happen!`
-                )
-                return watchQuery(query)
-              }
+              // returns observable from the queryRef created with
+              // watchQuery(). Since refetch() returns a promise, we convert it
+              // to an observable with the from() operator
+              return from(this.queryRef!.refetch(query))
             }
 
-            // this iif operator prevents double-calling the API:
-            // if queryRef doesn't exist, create it with watchQuery observable
-            // if it does, refetch with fetchQuery observable.
-            // using defer() ensures functions are not called until
-            // values are emitted. otherwise they'll be called on subscribe.
+            // This iif operator prevents double-calling the API:
+            // If queryRef doesn't exist, create it with watchQuery observable.
+            // If it does, refetch with fetchQuery observable.
+            // Using defer() ensures functions are not called until
+            // values are emitted - otherwise they'll be called on subscribe.
             return iif(
               () => this.queryRef === undefined, // predicate
               defer(() => watchQuery(query)), // true
@@ -232,22 +225,28 @@ export function EntityTagField<
           // subscribe to optionTemplates ViewChildren changes,
           // which are re-rendered whenever result$ emits. For each
           // option template instance, getSelectOptions() generates a NzSelectOption that
-          // attaches the pre-generated row template to a result value.
+          // attaches the pre-generated option template to a result value.
           this.optionTemplates.changes
             .pipe(
               // tag(`${this.field.id} optionTemplates.changes`),
-              withLatestFrom(this.result$),
+              withLatestFrom(this.result$, this.onSearch$),
               untilDestroyed(this)
             )
             .subscribe(
-              ([tplRefs, results]: [QueryList<TemplateRef<any>>, TAF[]]) => {
+              ([tplRefs, results, searchStr]: [
+                QueryList<TemplateRef<any>>,
+                TAF[],
+                string
+              ]) => {
                 const options = this.getSelectOptions(results, tplRefs)
                 this.selectOption$.next(options)
+                this.onHighlightString$.next(searchStr)
                 this.cdr.detectChanges()
               }
             )
         }
-
+        // when a new entity is created, execute tag query to cache its
+        // LinkableTag object for rendering by the nz-select
         this.onCreate$.pipe(untilDestroyed(this)).subscribe((entity: TAF) => {
           this.tagQuery
             .fetch(this.getTagQueryVars(entity.id), {
@@ -260,10 +259,13 @@ export function EntityTagField<
             .subscribe((result) => {
               const item = this.getTagQueryResults(result)
               if (!item) {
+                // if no item, create a baseline select option to display a generic tag
                 this.selectOption$.next([
                   { label: entity.name, value: entity.id },
                 ])
               } else {
+                // if there is an item, emit from result$, which will trigger
+                // generation of its option in parent field's template
                 this.result$.next([item])
               }
             })
@@ -273,7 +275,7 @@ export function EntityTagField<
           this.resetField()
         })
 
-        // if a prepopulated form value exists, set by the observe-query-param extension,
+        // if a prepopulated form value exists,
         // use tagQuery to create select option(s) for it so that nz-select's tags render
         if (this.formControl.value) {
           const value = this.formControl.value
