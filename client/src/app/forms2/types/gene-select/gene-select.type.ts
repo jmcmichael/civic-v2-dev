@@ -9,8 +9,10 @@ import {
   ViewChildren,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
-import { EntitySelectMessageOptions } from '@app/forms2/components/entity-select/entity-select.xstate'
+import {
+  CvcEntitySelectMessageOptions,
+  CvcSelectEntityName,
+} from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
 import { CvcFormFieldExtraType } from '@app/forms2/wrappers/form-field/form-field.wrapper'
@@ -32,7 +34,7 @@ import mixin from 'ts-mixin-extended'
 export interface CvcGeneSelectFieldProps extends FormlyFieldProps {
   placeholder?: string
   isMultiSelect: boolean
-  selectMessages?: EntitySelectMessageOptions
+  selectMessages?: CvcEntitySelectMessageOptions
   entityName: CvcSelectEntityName
   helpText?: string
   extraType?: CvcFormFieldExtraType

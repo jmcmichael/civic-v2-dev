@@ -28,21 +28,38 @@ import {
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 
-type SelectMessageFn = (
+type CvcEntitySelectMessageFn = (
   entityName: string,
   searchStr: Maybe<string>,
   paramName?: string
 ) => string
 
-export type EntitySelectMessageOptions = {
-  search: SelectMessageFn
-  searchAll: SelectMessageFn
-  searchParam: SelectMessageFn
-  searchParamAll: SelectMessageFn
-  empty: SelectMessageFn
-  emptyAll: SelectMessageFn
-  emptyParam: SelectMessageFn
-  emptyParamAll: SelectMessageFn
+export type CvcEntitySelectMessageOptions = {
+  search: CvcEntitySelectMessageFn
+  searchAll: CvcEntitySelectMessageFn
+  searchParam: CvcEntitySelectMessageFn
+  searchParamAll: CvcEntitySelectMessageFn
+  empty: CvcEntitySelectMessageFn
+  emptyAll: CvcEntitySelectMessageFn
+  emptyParam: CvcEntitySelectMessageFn
+  emptyParamAll: CvcEntitySelectMessageFn
+}
+
+export const cvcDefaultSelectMessageOptions: CvcEntitySelectMessageOptions = {
+  search: (entityName, query, _paramName) =>
+    `Searching ${entityName} matching "${query}""...`,
+  searchAll: (entityName, _query, _paramName) => `Listing all ${entityName}...`,
+  searchParam: (entityName, query, paramName) =>
+    `Searching ${paramName} ${entityName} matching "${query}""...`,
+  searchParamAll: (entityName, _query, paramName) =>
+    `Listing all ${paramName} ${entityName}...`,
+  empty: (entityName, query, _paramName) =>
+    `No ${entityName} found matching "${query}"`,
+  emptyAll: (entityName, _query, _paramName) => `No ${entityName} found.`,
+  emptyParam: (entityName, query, paramName) =>
+    `No ${paramName} ${entityName} found matching "${query}"`,
+  emptyParamAll: (entityName, _query, paramName) =>
+    `No ${paramName} ${entityName} found`,
 }
 
 @UntilDestroy({ arrayName: 'stateSubscriptions' })
@@ -59,7 +76,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     singular: 'Entity',
     plural: 'Entities',
   }
-  @Input() cvcSelectMessages?: EntitySelectMessageOptions
+  @Input() cvcSelectMessages?: CvcEntitySelectMessageOptions
   @Input() cvcSelectMode: 'multiple' | 'tags' | 'default' = 'default'
   @Input() cvcPlaceholder?: string
   @Input() cvcLoading?: boolean = false
@@ -102,7 +119,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
 
   message: Maybe<string>
 
-  messageOptions: EntitySelectMessageOptions = {
+  messageOptions: CvcEntitySelectMessageOptions = {
     search: (entityName, query, _paramName) =>
       `Searching ${entityName} matching "${query}""...`,
     searchAll: (entityName, _query, _paramName) =>
@@ -132,6 +149,14 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
     // this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
 
+    // merge any custom message options from cvcSelectMessages
+    if (this.cvcSelectMessages) {
+      this.messageOptions = {
+        ...this.messageOptions,
+        ...this.cvcSelectMessages,
+      }
+    }
+
     // produce appropriate dropdown messages by combining relevant observables.
     // prime combineLatest with startWith values
     this.onSearchMessage$ = combineLatest([
@@ -147,89 +172,125 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           Maybe<string>,
           Maybe<NzSelectOptionInterface[]>
         ]) => {
-          // console.log(
-          //   'isOpen:',
-          //   isOpen,
-          //   'searchStr:',
-          //   JSON.stringify(searchStr),
-          //   'paramName:',
-          //   paramName,
-          //   'options:',
-          //   options
-          // )
           const plName = this.cvcEntityName.plural
-          if (paramName === undefined) {
-            if (!isOpen && searchStr === undefined && options === undefined) {
-              // INIT - this msg won't be displayed, but its presence
-              // sometimes prevents an empty dropdown from displaying briefly
+          if (!isOpen && searchStr === undefined && options === undefined) {
+            // INIT - this msg won't be displayed, but its presence
+            // sometimes prevents an empty dropdown from displaying briefly
+            if (paramName === undefined) {
               return this.messageOptions.searchAll(plName, searchStr, paramName)
+            } else {
+              return this.messageOptions.searchParamAll(
+                plName,
+                searchStr,
+                paramName
+              )
             }
-            if (isOpen && searchStr === undefined && options === undefined) {
-              // INITIAL CLICK - triggered by onCloseChange event. query hasn't been sent
-              // but to prevent an empty dropbox, the default searchAll msg is displayed
+          }
+          if (isOpen && searchStr === undefined && options === undefined) {
+            // INITIAL CLICK - triggered by onCloseChange event. query hasn't been sent
+            // but to prevent an empty dropbox, the default searchAll msg is displayed
+            if (paramName === undefined) {
               return this.messageOptions.searchAll(plName, searchStr, paramName)
+            } else {
+              return this.messageOptions.searchParamAll(
+                plName,
+                searchStr,
+                paramName
+              )
             }
-            if (
-              isOpen &&
-              searchStr !== undefined &&
-              searchStr.length === 0 &&
-              options === undefined
-            ) {
-              // INITIAL '' QUERY - nz-select emits an empty string after select opens.
-              // as with the previous condition, no query has been sent but a
-              // blank dropdown doesn't look good so we show the default searchAll msg
+          }
+          if (
+            isOpen &&
+            searchStr !== undefined &&
+            searchStr.length === 0 &&
+            options === undefined
+          ) {
+            // INITIAL '' QUERY - nz-select emits an empty string after select opens.
+            // as with the previous condition, no query has been sent but a
+            // blank dropdown doesn't look good so we show the default searchAll msg
+            if (paramName === undefined) {
               return this.messageOptions.searchAll(plName, searchStr, paramName)
+            } else {
+              return this.messageOptions.searchParamAll(
+                plName,
+                searchStr,
+                paramName
+              )
             }
-            if (
-              isOpen &&
-              searchStr !== undefined &&
-              searchStr.length === 0 &&
-              options !== undefined &&
-              options.length > 0
-            ) {
-              // INITIAL '' QUERY RESULTS - initial empty string query results have returned. this
-              // msg will not be displayed, since the select options replace it
-              return 'INITIAL QUERY RESULTS'
+          }
+          if (
+            isOpen &&
+            searchStr !== undefined &&
+            searchStr.length === 0 &&
+            options !== undefined &&
+            options.length > 0
+          ) {
+            // INITIAL '' QUERY RESULTS - initial empty string query results have returned. this
+            // msg will not be displayed, since the select options replace it
+            return 'INITIAL QUERY RESULTS'
+          }
+          if (
+            isOpen &&
+            searchStr !== undefined &&
+            searchStr.length > 0 &&
+            options !== undefined &&
+            options.length > 0
+          ) {
+            // QUERY STR RESULTS - user has entered at least one character, and its query results
+            // have returned. this msg is also not displayed, replaced by select options
+            return 'QUERY STR RESULTS RETURNED'
+          }
+          if (
+            isOpen &&
+            searchStr !== undefined &&
+            searchStr.length === 0 &&
+            options !== undefined &&
+            options.length === 0
+          ) {
+            // INITIAL QUERY, NO RESULTS - empty string query has returned with no results
+            if (paramName === undefined) {
+              return this.messageOptions.emptyAll(plName, searchStr, paramName)
+            } else {
+              return this.messageOptions.emptyParamAll(
+                plName,
+                searchStr,
+                paramName
+              )
             }
-            if (
-              isOpen &&
-              searchStr !== undefined &&
-              searchStr.length > 0 &&
-              options !== undefined &&
-              options.length > 0
-            ) {
-              // QUERY STR RESULTS - user has entered at least one character, and its query results
-              // have returned. this msg is also not displayed, replaced by select options
-              return 'QUERY STR RESULTS RETURNED'
+          }
+          if (
+            isOpen &&
+            searchStr !== undefined &&
+            searchStr.length > 0 &&
+            options !== undefined &&
+            options.length === 0
+          ) {
+            // STR QUERY, NO RESULTS - string query has returned with no results
+            if (paramName === undefined) {
+              return this.messageOptions.empty(plName, searchStr, paramName)
+            } else {
+              return this.messageOptions.emptyParam(
+                plName,
+                searchStr,
+                paramName
+              )
             }
-            if (
-              isOpen &&
-              searchStr !== undefined &&
-              searchStr.length === 0 &&
-              options !== undefined &&
-              options.length === 0
-            ) {
-              // INITIAL QUERY, NO RESULTS - empty string query has returned with no results
-              return this.messageOptions.emptyAll(plName, searchStr)
-            }
-            if (
-              isOpen &&
-              searchStr !== undefined &&
-              searchStr.length > 0 &&
-              options !== undefined &&
-              options.length === 0
-            ) {
-              // STR QUERY, NO RESULTS - string query has returned with no results
-              return this.messageOptions.empty(plName, searchStr)
-            }
-            if (
-              !isOpen &&
-              searchStr !== undefined &&
-              searchStr.length === 0 &&
-              options !== undefined
-            ) {
-              // SELECT CLOSED - msg not displayed, returning default msg
+          }
+          if (
+            !isOpen &&
+            searchStr !== undefined &&
+            searchStr.length === 0 &&
+            options !== undefined
+          ) {
+            // SELECT CLOSED - msg not displayed, returning default msg
+            if (paramName === undefined) {
               return this.messageOptions.searchAll(plName, searchStr, paramName)
+            } else {
+              return this.messageOptions.searchParamAll(
+                plName,
+                searchStr,
+                paramName
+              )
             }
           }
           return 'UNHANDLED SELECT MSG CONDITION!'
