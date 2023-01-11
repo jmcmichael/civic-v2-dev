@@ -28,16 +28,9 @@ import {
 
 export type CvcSelectEntityName = { singular: string; plural: string }
 
-export type CvcEntitySelectMessageMode =
-  | 'idle'
-  | 'open'
-  | 'loading'
-  | 'empty'
-  | 'query'
-
 type SelectMessageFn = (
   entityName: string,
-  searchStr: string,
+  searchStr: Maybe<string>,
   paramName?: string
 ) => string
 
@@ -47,6 +40,7 @@ export type EntitySelectMessageOptions = {
   searchParam: SelectMessageFn
   searchParamAll: SelectMessageFn
   empty: SelectMessageFn
+  emptyAll: SelectMessageFn
   emptyParam: SelectMessageFn
   emptyParamAll: SelectMessageFn
 }
@@ -118,6 +112,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     searchParamAll: (entityName, _query, paramName) =>
       `Listing all ${paramName} ${entityName}...`,
     empty: (entityName, query) => `No ${entityName} found matching "${query}"`,
+    emptyAll: (entityName, query) => `No ${entityName} found.`,
     emptyParam: (entityName, query, paramName) =>
       `No ${paramName} ${entityName} found matching "${query}"`,
     emptyParamAll: (entityName, _query, paramName) =>
@@ -162,12 +157,17 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
           //   'options:',
           //   options
           // )
+          const plName = this.cvcEntityName.plural
           if (paramName === undefined) {
             if (!isOpen && searchStr === undefined && options === undefined) {
-              return 'INIT'
+              // INIT - this msg won't be displayed, but its presence
+              // sometimes prevents an empty dropdown from displaying briefly
+              return this.messageOptions.searchAll(plName, searchStr, paramName)
             }
             if (isOpen && searchStr === undefined && options === undefined) {
-              return 'INITIAL SELECT CLICK'
+              // INITIAL CLICK - triggered by onCloseChange event. query hasn't been sent
+              // but to prevent an empty dropbox, the default searchAll msg is displayed
+              return this.messageOptions.searchAll(plName, searchStr, paramName)
             }
             if (
               isOpen &&
@@ -175,7 +175,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               searchStr.length === 0 &&
               options === undefined
             ) {
-              return 'INITIAL SELECT STR'
+              // INITIAL '' QUERY - nz-select emits an empty string after select opens.
+              // as with the previous condition, no query has been sent but a
+              // blank dropdown doesn't look good so we show the default searchAll msg
+              return this.messageOptions.searchAll(plName, searchStr, paramName)
             }
             if (
               isOpen &&
@@ -184,7 +187,9 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               options !== undefined &&
               options.length > 0
             ) {
-              return 'QUERY "" RESULTS RETURNED'
+              // INITIAL '' QUERY RESULTS - initial empty string query results have returned. this
+              // msg will not be displayed, since the select options replace it
+              return 'INITIAL QUERY RESULTS'
             }
             if (
               isOpen &&
@@ -193,6 +198,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               options !== undefined &&
               options.length > 0
             ) {
+              // QUERY STR RESULTS - user has entered at least one character, and its query results
+              // have returned. this msg is also not displayed, replaced by select options
               return 'QUERY STR RESULTS RETURNED'
             }
             if (
@@ -202,7 +209,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               options !== undefined &&
               options.length === 0
             ) {
-              return 'QUERY "", NO RESULTS'
+              // INITIAL QUERY, NO RESULTS - empty string query has returned with no results
+              return this.messageOptions.emptyAll(plName, searchStr)
             }
             if (
               isOpen &&
@@ -211,7 +219,8 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               options !== undefined &&
               options.length === 0
             ) {
-              return 'QUERY STR, NO RESULTS'
+              // STR QUERY, NO RESULTS - string query has returned with no results
+              return this.messageOptions.empty(plName, searchStr)
             }
             if (
               !isOpen &&
@@ -219,14 +228,18 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               searchStr.length === 0 &&
               options !== undefined
             ) {
-              return 'CLOSED AFTER QUERY'
+              // SELECT CLOSED - msg not displayed, returning default msg
+              return this.messageOptions.searchAll(plName, searchStr, paramName)
             }
           }
-          return 'DEFAULT MSG'
+          return 'UNHANDLED SELECT MSG CONDITION!'
         }
       )
     )
 
+    // NOTE: would be ideal if select msgs could be set w/o this subscribe, however I could
+    // not get it working with nz-select's nzNotFound templateRef Input. Might be able to do
+    // it using @ViewChild, as with the select option templates.
     this.onSearchMessage$
       .pipe(
         // tag('entity-select onSearchMessage$'),
