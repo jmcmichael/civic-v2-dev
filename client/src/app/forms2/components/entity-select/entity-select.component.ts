@@ -135,7 +135,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
     // this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
     // this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
 
-    // produce appropriate dropdown messages by combining relevant observables
+    // produce appropriate dropdown messages by combining relevant observables.
     // prime combineLatest with startWith values
     this.onSearchMessage$ = combineLatest([
       this.cvcOnOpenChange.pipe(startWithDeferred(() => false)),
@@ -143,7 +143,6 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
       this.onParamName$.pipe(startWithDeferred(() => undefined)),
       this.onOption$.pipe(startWithDeferred(() => undefined)),
     ]).pipe(
-      // skip(1), // skip initial startWith event
       map(
         ([isOpen, searchStr, paramName, options]: [
           boolean,
@@ -161,44 +160,13 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
             'options:',
             options
           )
-          // 1: all emit startWith values
-          // isOpen: false searchStr: undefined paramName: undefined options: undefined
-          //
-          // 2: user clicks on select, isOpen emits true
-          // isOpen: true searchStr: undefined paramName: undefined options: undefined
-          //
-          // 3: nz-select emits '' from cvcOnSearch (which fires off a server query)
-          // isOpen: true searchStr: "" paramName: undefined options: undefined
-          //
-          // 4: onOption$ emits options array from '' query
-          // isOpen: true searchStr: "" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-          //
-          // 5: user enters 'B', cvcOnSearch emits 'B' which fires off a query
-          // isOpen: true searchStr: "B" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-          //
-          // 6: onOption$ emits query results
-          // isOpen: true searchStr: "B" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-          // ...
-          // 9: user enters string w/ no results
-          // isOpen: true searchStr: "Bxx" paramName: undefined options: []
-          // ...
-          // 12: user backtracks, to 'Bx', query returns, user selects item, nz-select closes
-          // isOpen: false searchStr: "Bx" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-          // 13: nz-select resets query string to ''
-          // isOpen: false searchStr: "" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
-
-          // UNHANDLED:
-          // isOpen: true searchStr: "" paramName: undefined options: undefined
           if (paramName === undefined) {
-            // isOpen: false searchStr: undefined paramName: undefined options: undefined
             if (!isOpen && searchStr === undefined && options === undefined) {
               return 'INIT'
             }
-            // isOpen: true searchStr: undefined paramName: undefined options: undefined
             if (isOpen && searchStr === undefined && options === undefined) {
               return 'INITIAL SELECT CLICK'
             }
-            // isOpen: true searchStr: "" paramName: undefined options: undefined
             if (
               isOpen &&
               searchStr !== undefined &&
@@ -252,27 +220,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               return 'CLOSED AFTER QUERY'
             }
           }
-          // isOpen: false searchStr: "" paramName: undefined options: (10) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
           return 'UNHANDLED CONDITION'
-
-          // else if (!isOpen) {
-          //   return 'CLOSED'
-          // }
-
-          // return 'MESSAGE'
-          // if options undefined, query has not yet been sent: display
-          // if (!isOpen) {return ''}
-          // else if (options === undefined && searchStr.length === 0) {
-          //   return this.messageOptions.searchAll(
-          //     this.cvcEntityName.plural,
-          //     searchStr,
-          //     paramName
-          //   )
-          // } else if (options.length > 0) {
-          //   return this.getSearchMessage(searchStr, paramName)
-          // } else if (options.length === 0 && searchStr.length > 0) {
-          //   return this.getEmptyMessage(searchStr, paramName)
-          // }
         }
       )
     )
