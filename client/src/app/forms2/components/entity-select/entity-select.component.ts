@@ -130,10 +130,10 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.cvcOnOpenChange.pipe(tag('entity-select onOpenChange$')).subscribe()
-    // this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
-    // this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
-    // this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
+    this.cvcOnOpenChange.pipe(tag('entity-select onOpenChange$')).subscribe()
+    this.cvcOnSearch.pipe(tag('entity-select cvcOnSearch$')).subscribe()
+    this.onParamName$.pipe(tag('entity-select onParamName$')).subscribe()
+    this.onOption$.pipe(tag('entity-select onOption$')).subscribe()
 
     // produce appropriate dropdown messages by combining relevant observables.
     // prime combineLatest with startWith values
@@ -220,7 +220,7 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
               return 'CLOSED AFTER QUERY'
             }
           }
-          return 'UNHANDLED CONDITION'
+          return 'DEFAULT MSG'
         }
       )
     )
