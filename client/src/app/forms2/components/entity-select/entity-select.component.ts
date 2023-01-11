@@ -17,6 +17,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyAttributeEvent } from '@ngx-formly/core/lib/models'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import {
+  asyncScheduler,
   BehaviorSubject,
   combineLatest,
   map,
@@ -24,6 +25,7 @@ import {
   skip,
   startWith,
   Subject,
+  throttleTime,
 } from 'rxjs'
 import { mergeArray } from 'rxjs-etc'
 import { startWithDeferred } from 'rxjs-etc/dist/esm/operators'
@@ -96,8 +98,13 @@ export class CvcEntitySelectComponent implements OnChanges, AfterViewInit {
   // model update callback fn - ngx-formly convention, implements props.change feature
   @Input() cvcModelChange?: FormlyAttributeEvent
 
-  @Output() cvcOnSearch = new EventEmitter<string>()
   @Output() cvcOnOpenChange = new EventEmitter<boolean>()
+
+  // throttle search string output: wait 1/3sec after typing activity ends,
+  // quash leading event, emit trailing event so we only get 1 search string
+  @Output() cvcOnSearch = new EventEmitter<string>().pipe(
+    throttleTime(300, asyncScheduler, { leading: false, trailing: true })
+  ) as EventEmitter<string>
 
   // SOURCE STREAMS
   onSearchMessage$: Observable<Maybe<string>>

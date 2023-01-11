@@ -149,25 +149,9 @@ export function EntityTagField<
         this.onCreate$ = new Subject<TAF>()
         this.selectOption$ = new Subject<Maybe<NzSelectOptionInterface[]>>()
 
-        // this.onOpenChange$
-        //   .pipe(
-        //     tag('entity-tag-field.mixin onOpenChange$'),
-        //     untilDestroyed(this)
-        //   )
-        //   .subscribe((isOpen: boolean) => {
-        //     if (!isOpen) {
-        //       // force selectOptions reset
-        //       // this.selectOption$.next(undefined)
-        //       this.result$.next([])
-        //     }
-        //   })
-
         // set up typeahead watch & fetch calls
         this.response$ = this.onSearch$.pipe(
-          // wait 1/3sec after typing activity stops to query server,
-          // quash leading event, emit trailing event so we only get 1 search string
-          throttleTime(300, asyncScheduler, { leading: false, trailing: true }),
-          // return optional typeaheadParam observable, or undefined observable
+          // get typeahead param value, or undefined if it doesn't exist
           withLatestFrom(
             this.typeaheadParam$ !== undefined
               ? this.typeaheadParam$
