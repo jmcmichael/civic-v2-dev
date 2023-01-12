@@ -1,5 +1,5 @@
 import { Component } from '@angular/core'
-import { EntityState } from '@app/forms2/states/entity.state'
+import { BaseState } from '@app/forms2/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
@@ -18,7 +18,7 @@ export function BaseFieldType<
   @UntilDestroy()
   @Component({ template: '' })
   class BaseFieldType extends FieldType<FC> {
-    state?: EntityState
+    state?: BaseState
 
     // SOURCE STREAMS
     // emits all field model changes from field.valueChanges

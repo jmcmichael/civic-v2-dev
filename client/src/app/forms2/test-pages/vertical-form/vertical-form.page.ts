@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
 import { FormGroup } from '@angular/forms'
-import { NoStateFormOptions } from '@app/forms2/states/entity.state'
+import { NoStateFormOptions } from '@app/forms2/states/base.state'
 import { CvcFormCardWrapperProps } from '@app/forms2/wrappers/form-card/form-card.wrapper'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'

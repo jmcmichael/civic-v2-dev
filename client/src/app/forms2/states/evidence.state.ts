@@ -11,7 +11,7 @@ import { untilDestroyed } from '@ngneat/until-destroy'
 import { BehaviorSubject } from 'rxjs'
 import { CvcInputEnum } from '../forms2.types'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
-import { EntityName, EntityState } from './entity.state'
+import { EntityName, BaseState } from './base.state'
 
 export type EvidenceFields = {
   geneId$: BehaviorSubject<Maybe<number>>
@@ -46,7 +46,7 @@ export type EvidenceRequires = {
   allowsFdaApproval$: BehaviorSubject<boolean>
 }
 
-class EvidenceState extends EntityState {
+class EvidenceState extends BaseState {
   fields: EvidenceFields
   enums: EvidenceEnums
   requires: EvidenceRequires

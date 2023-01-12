@@ -13,7 +13,7 @@ import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-e
 import { CvcSelectEntityName } from '@app/forms2/components/entity-select/entity-select.component'
 import { BaseFieldType } from '@app/forms2/mixins/base/base-field'
 import { EntityTagField } from '@app/forms2/mixins/entity-tag-field.mixin'
-import { EntityType } from '@app/forms2/states/entity.state'
+import { EntityType } from '@app/forms2/states/base.state'
 import {
     PhenotypeSelectTagGQL,
     PhenotypeSelectTagQuery,

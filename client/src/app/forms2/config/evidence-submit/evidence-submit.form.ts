@@ -4,7 +4,7 @@ import {
   evidenceSubmitFormInitialModel,
   EvidenceSubmitModel,
 } from '@app/forms2/models/evidence-submit.model'
-import { EntityState } from '@app/forms2/states/entity.state'
+import { BaseState } from '@app/forms2/states/base.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
 import { evidenceSubmitFields } from './evidence-submit.form.config'
@@ -19,7 +19,7 @@ export class CvcEvidenceSubmitForm implements OnDestroy {
   form: FormGroup = new FormGroup({})
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
-  state: EntityState = new EvidenceState()
+  state: BaseState = new EvidenceState()
 
   constructor() {
     this.model = evidenceSubmitFormInitialModel

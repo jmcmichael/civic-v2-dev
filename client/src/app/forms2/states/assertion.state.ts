@@ -8,9 +8,9 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject } from 'rxjs'
 import { CvcInputEnum } from '../forms2.types'
 import { assertionSubmitFieldsDefaults } from '../models/assertion-submit.model'
-import { EntityName, EntityState } from './entity.state'
+import { EntityName, BaseState } from './base.state'
 
-class AssertionState extends EntityState {
+class AssertionState extends BaseState {
   constructor() {
     super(EntityName.ASSERTION)
     const def = assertionSubmitFieldsDefaults

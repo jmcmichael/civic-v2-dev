@@ -10,9 +10,9 @@ import { CvcAttributeTagModule } from '@app/forms2/components/attribute-tag/attr
 import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
 import {
   EntityClinicalSignificance,
-  EntityState,
+  BaseState,
   EntityType,
-} from '@app/forms2/states/entity.state'
+} from '@app/forms2/states/base.state'
 import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
 import { Maybe } from '@app/generated/civic.apollo'
 import { ReactiveComponentModule } from '@ngrx/component'
@@ -64,7 +64,7 @@ export function significanceOptionValidatorFn(
   ffc: FormlyFieldConfig,
   opt: any
 ): ValidationErrors | null {
-  const st: EntityState = ffc.options?.formState
+  const st: BaseState = ffc.options?.formState
   const cs: EntityClinicalSignificance = c.value
   if (!cs || !st) {
     return null
@@ -83,7 +83,7 @@ export function significanceOptionValidatorMessageFn(
   et: EntityType,
   ffc: FormlyFieldConfig
 ): string {
-  const st: EntityState = ffc.options!.formState!
+  const st: BaseState = ffc.options!.formState!
   return `'${formatEvidenceEnum(
     ffc.formControl?.value
   )}' is not a valid Clinical Significance for ${formatEvidenceEnum(

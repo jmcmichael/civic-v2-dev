@@ -80,7 +80,7 @@ export interface IEntityState {
   allowsFdaApproval$: Subject<boolean>
 }
 
-class EntityState implements IEntityState {
+class BaseState implements IEntityState {
   formLayout: NzFormLayoutType = 'vertical'
   fields: EntityFieldSubjectMap
   enums: EntityFieldSubjectMap
@@ -194,9 +194,8 @@ class EntityState implements IEntityState {
   }
 
   onDestroy() {
-    // this function needs to be present for concrete states' untilDestroyed(this, 'onDestroy')
-    // must be called by component instantiating the state
+    // this function needs to be present for child states' subscriptions
   }
 }
 
-export { EntityState }
+export { BaseState }
