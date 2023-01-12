@@ -51,7 +51,7 @@ export interface CvcVariantSelectFieldProps extends FormlyFieldProps {
 
 export interface CvcVariantSelectFieldConfig
   extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
-  type: 'variant-select' | 'variant-select-array' | Type<CvcVariantSelectField>
+  type: 'variant-select' | 'variant-multi-select' | Type<CvcVariantSelectField>
 }
 
 const VariantSelectMixin = mixin(

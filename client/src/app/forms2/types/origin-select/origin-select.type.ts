@@ -47,7 +47,7 @@ export type CvcOriginSelectFieldOptions = Partial<
   FieldTypeConfig<CvcOriginSelectFieldProps>
 >
 
-interface CvcOriginSelectFieldProps extends FormlyFieldProps {
+export interface CvcOriginSelectFieldProps extends FormlyFieldProps {
   label: string
   isMultiSelect: boolean
   description?: string
@@ -88,7 +88,7 @@ export class CvcOriginSelectField
   defaultOptions: CvcOriginSelectFieldOptions = {
     props: {
       label: 'Variant Origin',
-      required: true,
+      required: false,
       isMultiSelect: false,
       placeholder: 'Select Variant Origin',
       tooltip: `Identifies whether the variant is inherited (germline mutation) or acquired (somatic mutation) in the context of the study`,

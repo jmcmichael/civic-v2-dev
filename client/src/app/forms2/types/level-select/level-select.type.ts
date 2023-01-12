@@ -42,7 +42,7 @@ export type CvcLevelSelectFieldOptions = Partial<
   FieldTypeConfig<CvcLevelSelectFieldProps>
 >
 
-interface CvcLevelSelectFieldProps extends FormlyFieldProps {
+export interface CvcLevelSelectFieldProps extends FormlyFieldProps {
   label: string
   placeholder: string
   isMultiSelect: boolean
@@ -86,7 +86,7 @@ export class CvcLevelSelectField
   defaultOptions: CvcLevelSelectFieldOptions = {
     props: {
       label: 'Evidence Level',
-      required: true,
+      required: false,
       isMultiSelect: false,
       placeholder: 'Select Evidence Level',
     },

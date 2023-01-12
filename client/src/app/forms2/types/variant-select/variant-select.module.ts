@@ -6,7 +6,7 @@ import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/enti
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
 import { ReactiveComponentModule } from '@ngrx/component'
-import { ConfigOption, FormlyModule } from '@ngx-formly/core'
+import { ConfigOption, FieldTypeConfig, FormlyModule } from '@ngx-formly/core'
 import { FormlyNzFormFieldModule } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
@@ -22,7 +22,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.form'
 import {
   CvcVariantSelectField,
-  CvcVariantSelectFieldOptions,
+  CvcVariantSelectFieldProps,
 } from './variant-select.type'
 
 const typeConfig: ConfigOption = {
@@ -37,8 +37,9 @@ const typeConfig: ConfigOption = {
       name: 'variant-multi-select',
       wrappers: ['form-field'],
       component: CvcVariantSelectField,
-      defaultOptions: <CvcVariantSelectFieldOptions>{
+      defaultOptions: <Partial<FieldTypeConfig<CvcVariantSelectFieldProps>>>{
         props: {
+          label: 'Variants',
           isMultiSelect: true,
         },
       },

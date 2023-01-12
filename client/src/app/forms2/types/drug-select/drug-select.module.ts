@@ -41,6 +41,7 @@ const typeConfig: ConfigOption = {
       component: CvcDrugSelectField,
       defaultOptions: <CvcDrugSelectFieldOptions>{
         props: {
+          label: 'Drugs',
           isMultiSelect: true,
         },
       },

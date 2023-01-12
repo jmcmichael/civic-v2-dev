@@ -34,9 +34,6 @@ import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
 import { BehaviorSubject, Subject, withLatestFrom } from 'rxjs'
 import mixin from 'ts-mixin-extended'
 
-export type CvcSourceSelectFieldOptions = Partial<
-  FieldTypeConfig<CvcSourceSelectFieldProps>
->
 export interface CvcSourceSelectFieldProps extends FormlyFieldProps {
   entityName: CvcSelectEntityName
   isMultiSelect: boolean
@@ -52,19 +49,20 @@ export interface CvcSourceSelectFieldProps extends FormlyFieldProps {
   description?: string
 }
 
+export interface CvcSourceSelectFieldConfig
+  extends FormlyFieldConfig<CvcSourceSelectFieldProps> {
+  type: 'source-select' | 'source-multi-select' | Type<CvcSourceSelectField>
+}
+
+export type CvcSourceSelectFieldOptions = Partial<
+  FieldTypeConfig<CvcSourceSelectFieldProps>
+>
+
 export function getPlaceholder(
   strings: TemplateStringsArray,
   sourceType: SourceSource
 ) {
   return `${strings[0]}${sourceType}${strings[1]}`
-}
-
-// NOTE: any multi-select field must have the string 'multi' in its type name,
-// as UI logic in base-field.component depends on its presence to differentiate
-// field types in some expressions
-export interface CvcSourceSelectFieldConfig
-  extends FormlyFieldConfig<CvcSourceSelectFieldProps> {
-  type: 'source-select' | 'source-multi-select' | Type<CvcSourceSelectField>
 }
 
 const SourceSelectMixin = mixin(

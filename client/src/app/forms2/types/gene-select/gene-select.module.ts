@@ -27,12 +27,12 @@ const typeConfig: ConfigOption = {
       component: CvcGeneSelectField,
     },
     {
-      // for use in repeat-field types, label hidden
       name: 'gene-multi-select',
       wrappers: ['form-field'],
       component: CvcGeneSelectField,
       defaultOptions: <Partial<FieldTypeConfig<CvcGeneSelectFieldProps>>>{
         props: {
+          label: 'Genes',
           isMultiSelect: true,
         },
       },

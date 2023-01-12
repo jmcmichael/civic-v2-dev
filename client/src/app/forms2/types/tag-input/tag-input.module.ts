@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import {
-  CvcBaseInputField,
-  CvcBaseInputFieldProps,
-} from './tag-input.type'
+import { CvcBaseInputField, CvcBaseInputFieldProps } from './tag-input.type'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { ReactiveComponentModule } from '@ngrx/component'
@@ -21,13 +18,12 @@ const typeConfig: ConfigOption = {
     },
     {
       // for use in repeat-field types
-      name: 'tag-input-item',
+      name: 'tag-multi-input',
       wrappers: ['form-field'],
       component: CvcBaseInputField,
       defaultOptions: {
         props: <CvcBaseInputFieldProps>{
           isRepeatItem: true,
-          hideLabel: true,
         },
       },
     },

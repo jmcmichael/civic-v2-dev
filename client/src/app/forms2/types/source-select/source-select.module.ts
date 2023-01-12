@@ -6,7 +6,7 @@ import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/enti
 import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
 import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
 import { ReactiveComponentModule } from '@ngrx/component'
-import { ConfigOption, FormlyModule } from '@ngx-formly/core'
+import { ConfigOption, FieldTypeConfig, FormlyModule } from '@ngx-formly/core'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -24,8 +24,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import {
-    CvcSourceSelectField,
-    CvcSourceSelectFieldOptions
+  CvcSourceSelectField,
+  CvcSourceSelectFieldProps,
 } from './source-select.type'
 
 const typeConfig: ConfigOption = {
@@ -40,8 +40,9 @@ const typeConfig: ConfigOption = {
       name: 'source-multi-select',
       wrappers: ['form-field'],
       component: CvcSourceSelectField,
-      defaultOptions: <CvcSourceSelectFieldOptions>{
+      defaultOptions: <Partial<FieldTypeConfig<CvcSourceSelectFieldProps>>>{
         props: {
+          label: 'Sources',
           isMultiSelect: true,
         },
       },
@@ -50,7 +51,7 @@ const typeConfig: ConfigOption = {
 }
 
 @NgModule({
-  declarations: [CvcSourceSelectField, ],
+  declarations: [CvcSourceSelectField],
   imports: [
     CommonModule,
     FormsModule,

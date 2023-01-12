@@ -1,18 +1,18 @@
 <cvc-entity-select
-  [cvcSelectMode]="props.isMultiSelect ? 'multiple' : 'default'"
+  [cvcAddEntity]="addDrug"
   [cvcCustomTemplate]="selectedTemplate"
+  [cvcDisabled]="onRequiresDrug$ && !(onRequiresDrug$ | ngrxPush)"
+  [cvcEntityName]="props.entityName"
   [cvcFormControl]="formControl"
   [cvcFormlyAttributes]="field"
-  [cvcEntityName]="props.entityName"
+  [cvcLoading]="isLoading$ | ngrxPush"
+  [cvcModelChange]="props.change"
+  [cvcOptions]="selectOption$ | ngrxPush"
   [cvcPlaceholder]="placeholder$ | ngrxPush"
   [cvcResults]="result$ | ngrxPush"
-  [cvcOptions]="selectOption$ | ngrxPush"
+  [cvcSelectMode]="props.isMultiSelect ? 'multiple' : 'default'"
   [cvcShowError]="showError"
-  [cvcDisabled]="onRequiresDrug$ && !(onRequiresDrug$ | ngrxPush)"
-  [cvcLoading]="isLoading$ | ngrxPush"
-  [cvcAddEntity]="addDrug"
-  (cvcOnSearch)="onSearch$.next($event)"
-  [cvcModelChange]="props.change">
+  (cvcOnSearch)="onSearch$.next($event)">
 </cvc-entity-select>
 
 <!-- select option templates -->

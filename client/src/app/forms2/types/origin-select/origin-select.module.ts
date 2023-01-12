@@ -5,8 +5,11 @@ import { CvcAttributeTagModule } from '@app/forms2/components/attribute-tag/attr
 import { CvcEnumSelectModule } from '@app/forms2/components/enum-select/enum-select.module'
 import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
 import { ReactiveComponentModule } from '@ngrx/component'
-import { ConfigOption, FormlyModule } from '@ngx-formly/core'
-import { CvcOriginSelectField } from './origin-select.type'
+import { ConfigOption, FieldTypeConfig, FormlyModule } from '@ngx-formly/core'
+import {
+  CvcOriginSelectField,
+  CvcOriginSelectFieldProps,
+} from './origin-select.type'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -14,6 +17,17 @@ const typeConfig: ConfigOption = {
       name: 'origin-select',
       wrappers: ['form-field'],
       component: CvcOriginSelectField,
+    },
+    {
+      name: 'origin-multi-select',
+      wrappers: ['form-field'],
+      component: CvcOriginSelectField,
+      defaultOptions: <Partial<FieldTypeConfig<CvcOriginSelectFieldProps>>>{
+        props: {
+          label: 'Variant Origins',
+          isMultiSelect: true,
+        },
+      },
     },
   ],
 }
