@@ -1,14 +1,15 @@
 import {
-    DrugInteraction,
-    EvidenceClinicalSignificance,
-    EvidenceDirection,
-    EvidenceLevel,
-    EvidenceType,
-    Maybe,
-    VariantOrigin
+  DrugInteraction,
+  EvidenceClinicalSignificance,
+  EvidenceDirection,
+  EvidenceLevel,
+  EvidenceType,
+  Maybe,
+  VariantOrigin,
 } from '@app/generated/civic.apollo'
 import { untilDestroyed } from '@ngneat/until-destroy'
 import { BehaviorSubject } from 'rxjs'
+import { tag } from 'rxjs-spy/operators'
 import { CvcInputEnum } from '../forms2.types'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
 import { EntityName, BaseState } from './base.state'
@@ -69,7 +70,9 @@ class EvidenceState extends BaseState {
       clinicalSignificance$: new BehaviorSubject<
         Maybe<EvidenceClinicalSignificance>
       >(def.clinicalSignificance),
-      variantOrigin$: new BehaviorSubject<Maybe<VariantOrigin>>(def.variantOrigin),
+      variantOrigin$: new BehaviorSubject<Maybe<VariantOrigin>>(
+        def.variantOrigin
+      ),
       diseaseId$: new BehaviorSubject<Maybe<number>>(def.diseaseId),
       drugIds$: new BehaviorSubject<Maybe<number[]>>(def.drugIds),
       drugInteractionType$: new BehaviorSubject<Maybe<DrugInteraction>>(
@@ -77,7 +80,7 @@ class EvidenceState extends BaseState {
       ),
       rating$: new BehaviorSubject<Maybe<number>>(def.rating),
       phenotypeIds$: new BehaviorSubject<Maybe<number[]>>(def.phenotypeIds),
-      sourceId$: new BehaviorSubject<Maybe<number>>(def.sourceId)
+      sourceId$: new BehaviorSubject<Maybe<number>>(def.sourceId),
     }
 
     this.enums = {
@@ -100,7 +103,10 @@ class EvidenceState extends BaseState {
     }
 
     this.fields.evidenceType$
-      .pipe(untilDestroyed(this, 'onDestroy'))
+      .pipe(
+        // tag('evidence.state evidentType$'),
+        untilDestroyed(this, 'onDestroy')
+      )
       .subscribe((et: Maybe<EvidenceType>) => {
         if (!et) {
           // set all 'requires' fields to false, non-type enums to []
@@ -247,7 +253,6 @@ class EvidenceState extends BaseState {
       allowsFdaApproval: false,
     })
   }
-
 }
 
 export { EvidenceState }

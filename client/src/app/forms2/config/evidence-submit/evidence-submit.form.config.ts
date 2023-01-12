@@ -10,7 +10,6 @@ import { CvcPhenotypeSelectFieldOptions } from '@app/forms2/types/phenotype-sele
 import { CvcRatingFieldOptions } from '@app/forms2/types/rating/rating.type'
 import { CvcSignificanceSelectFieldOptions } from '@app/forms2/types/significance-select/significance-select.type'
 import { CvcSourceSelectFieldOptions } from '@app/forms2/types/source-select/source-select.type'
-import { CvcBaseInputFieldOptions } from '@app/forms2/types/tag-input/tag-input.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'

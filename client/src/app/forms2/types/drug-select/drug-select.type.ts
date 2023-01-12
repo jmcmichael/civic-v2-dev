@@ -32,7 +32,13 @@ import {
   FormlyFieldProps,
 } from '@ngx-formly/core'
 import { NzSelectOptionInterface } from 'ng-zorro-antd/select'
-import { BehaviorSubject, combineLatest, Subject } from 'rxjs'
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  Subject,
+  withLatestFrom,
+} from 'rxjs'
 import { tag } from 'rxjs-spy/operators'
 import mixin from 'ts-mixin-extended'
 
@@ -181,13 +187,13 @@ export class CvcDrugSelectField
     this.placeholder$.next(this.props.placeholder)
     if (!this.onRequiresDrug$ || !this.onEntityType$) return
     // update field placeholders & required status on state input events
-    combineLatest([this.onRequiresDrug$, this.onEntityType$])
-      // .pipe(
-      //   tag(
-      //     `${this.field.id} combineLatest([this.onRequiresDrug$, this.onEntityType$])`
-      //   ),
-      //   untilDestroyed(this)
-      // )
+    this.onRequiresDrug$
+      .pipe(
+        distinctUntilChanged(),
+        withLatestFrom(this.onEntityType$),
+        tag('drug-select onRequiresDrug$'),
+        untilDestroyed(this)
+      )
       .subscribe(([requiresDrug, entityType]: [boolean, Maybe<EntityType>]) => {
         // drugs are not associated with this entity type
         if (!requiresDrug && entityType) {
@@ -200,7 +206,7 @@ export class CvcDrugSelectField
           this.props.extraType = 'prompt'
         }
         // if type required, toggle field required property off and show a 'Select Type..' prompt
-        if (this.props.requireType && !entityType) {
+        else if (this.props.requireType && !entityType) {
           this.props.required = false
           this.props.disabled = true
           // no drug required, entity type not specified
@@ -211,14 +217,14 @@ export class CvcDrugSelectField
           this.props.extraType = 'prompt'
         }
         // state indicates drug is required, set required, unset disabled, and show the placeholder (state will only return true from requiresDrug$ if entityType provided)
-        if (requiresDrug) {
+        else if (requiresDrug) {
           this.props.required = true
           this.props.disabled = false
           this.props.description = undefined
           this.props.extraType = undefined
         }
         // field currently has a value, but state indicates no drug is required, or no type is provided && type is required, so reset field
-        if (
+        else if (
           (!requiresDrug && this.formControl.value) ||
           (this.props.requireType && !entityType && this.formControl.value)
         ) {

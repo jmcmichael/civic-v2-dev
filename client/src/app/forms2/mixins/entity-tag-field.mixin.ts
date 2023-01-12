@@ -326,11 +326,7 @@ export function EntityTagField<
       }
 
       resetField() {
-        if (this.props.isMultiSelect) {
-          this.formControl.setValue([])
-        } else {
-          this.formControl.setValue(undefined)
-        }
+        this.formControl.setValue(undefined)
         // clear out results (which will trigger a re-render of optionTemplates)
         if (this.result$) this.result$.next([])
         // emit initial search so that options provided to user after clearing a tag

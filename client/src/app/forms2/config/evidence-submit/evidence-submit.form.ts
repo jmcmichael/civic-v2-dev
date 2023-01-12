@@ -4,29 +4,28 @@ import {
   evidenceSubmitFormInitialModel,
   EvidenceSubmitModel,
 } from '@app/forms2/models/evidence-submit.model'
-import { BaseState } from '@app/forms2/states/base.state'
 import { EvidenceState } from '@app/forms2/states/evidence.state'
+import { UntilDestroy } from '@ngneat/until-destroy'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
 import { evidenceSubmitFields } from './evidence-submit.form.config'
 
+@UntilDestroy()
 @Component({
   selector: 'cvc-evidence-submit-form',
   templateUrl: './evidence-submit.form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcEvidenceSubmitForm implements OnDestroy {
-  model: EvidenceSubmitModel = evidenceSubmitFormInitialModel
-  form: FormGroup = new FormGroup({})
+  model: EvidenceSubmitModel
+  form: FormGroup
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
-  state: BaseState = new EvidenceState()
 
   constructor() {
+    this.form = new FormGroup({})
     this.model = evidenceSubmitFormInitialModel
     this.fields = evidenceSubmitFields
-    this.options = {
-      formState: this.state,
-    }
+    this.options = { formState: new EvidenceState() }
   }
 
   onSubmit(model: EvidenceSubmitModel) {
@@ -35,6 +34,6 @@ export class CvcEvidenceSubmitForm implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.state.onDestroy()
+    this.options.formState.onDestroy()
   }
 }

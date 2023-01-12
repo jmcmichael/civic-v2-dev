@@ -9369,6 +9369,11 @@ object-keys@^1.1.1:
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
   integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
 
+object-observer@^5.1.6:
+  version "5.1.6"
+  resolved "https://registry.yarnpkg.com/object-observer/-/object-observer-5.1.6.tgz#b5d1612e8ccc541bfbc44182b91e33f8912e4602"
+  integrity sha512-3Lcp1Q9BW0ELoObPTCx6qOJlqpHo1d1TZHugoY50RjQRMLBOcGa9Dwy7FQtMYALmb/zo3GjEWjV09FJ4Ss/lQg==
+
 object.assign@^4.1.0, object.assign@^4.1.2, object.assign@^4.1.4:
   version "4.1.4"
   resolved "https://registry.yarnpkg.com/object.assign/-/object.assign-4.1.4.tgz#9673c7c7c351ab8c4d0b516f4343ebf4dfb7799f"

@@ -194,7 +194,8 @@ class BaseState implements IEntityState {
   }
 
   onDestroy() {
-    // this function needs to be present for child states' subscriptions
+    // this function needs to be present for auto-unsubscribing child states' subscriptions
+    // with untilDestroyed() operator
   }
 }
 
