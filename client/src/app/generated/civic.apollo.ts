@@ -6190,6 +6190,23 @@ export type GeneSelectTagQuery = { __typename: 'Query', gene?: { __typename: 'Ge
 
 export type GeneSelectTypeaheadFieldsFragment = { __typename: 'Gene', id: number, entrezId: number, name: string, geneAliases: Array<string>, link: string };
 
+export type MolecularProfileSelectTypeaheadQueryVariables = Exact<{
+  name: Scalars['String'];
+  geneId?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type MolecularProfileSelectTypeaheadQuery = { __typename: 'Query', molecularProfiles: { __typename: 'MolecularProfileConnection', nodes: Array<{ __typename: 'MolecularProfile', id: number, name: string, link: string }> } };
+
+export type MolecularProfileSelectTagQueryVariables = Exact<{
+  molecularProfileId: Scalars['Int'];
+}>;
+
+
+export type MolecularProfileSelectTagQuery = { __typename: 'Query', molecularProfile?: { __typename: 'MolecularProfile', id: number, name: string, link: string } | undefined };
+
+export type MolecularProfileSelectTypeaheadFieldsFragment = { __typename: 'MolecularProfile', id: number, name: string, link: string };
+
 export type PhenotypeSelectTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
 }>;
@@ -7989,6 +8006,13 @@ export const GeneSelectTypeaheadFieldsFragmentDoc = gql`
   entrezId
   name
   geneAliases
+  link
+}
+    `;
+export const MolecularProfileSelectTypeaheadFieldsFragmentDoc = gql`
+    fragment MolecularProfileSelectTypeaheadFields on MolecularProfile {
+  id
+  name
   link
 }
     `;
@@ -11881,6 +11905,44 @@ export const GeneSelectTagDocument = gql`
   })
   export class GeneSelectTagGQL extends Apollo.Query<GeneSelectTagQuery, GeneSelectTagQueryVariables> {
     document = GeneSelectTagDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const MolecularProfileSelectTypeaheadDocument = gql`
+    query MolecularProfileSelectTypeahead($name: String!, $geneId: Int) {
+  molecularProfiles(name: $name, geneId: $geneId, first: 25) {
+    nodes {
+      ...MolecularProfileSelectTypeaheadFields
+    }
+  }
+}
+    ${MolecularProfileSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class MolecularProfileSelectTypeaheadGQL extends Apollo.Query<MolecularProfileSelectTypeaheadQuery, MolecularProfileSelectTypeaheadQueryVariables> {
+    document = MolecularProfileSelectTypeaheadDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }
+export const MolecularProfileSelectTagDocument = gql`
+    query MolecularProfileSelectTag($molecularProfileId: Int!) {
+  molecularProfile(id: $molecularProfileId) {
+    ...MolecularProfileSelectTypeaheadFields
+  }
+}
+    ${MolecularProfileSelectTypeaheadFieldsFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class MolecularProfileSelectTagGQL extends Apollo.Query<MolecularProfileSelectTagQuery, MolecularProfileSelectTagQueryVariables> {
+    document = MolecularProfileSelectTagDocument;
     
     constructor(apollo: Apollo.Apollo) {
       super(apollo);
