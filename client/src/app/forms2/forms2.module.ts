@@ -5,7 +5,6 @@ import { FormlyModule, FORMLY_CONFIG } from '@ngx-formly/core'
 import { FormlyNgZorroAntdModule } from '@ngx-formly/ng-zorro-antd'
 import { NzFormModule } from 'ng-zorro-antd/form'
 import { NgxJsonViewerModule } from 'ngx-json-viewer'
-import { XstateAngular } from 'xstate-angular'
 import { registerCvcExtensions } from './extensions/form-extensions.config'
 import { CvcFormTypesModule } from './types/form-types.module'
 import { CvcFormWrappersModule } from './wrappers/form-wrappers.module'
@@ -36,8 +35,6 @@ import { CvcFormWrappersModule } from './wrappers/form-wrappers.module'
       useFactory: registerCvcExtensions,
       deps: [ActivatedRoute],
     },
-    // TODO: probably will want to move this to app.module when merging forms-refactor branch
-    XstateAngular,
   ],
 })
 export class CvcForms2Module {}
