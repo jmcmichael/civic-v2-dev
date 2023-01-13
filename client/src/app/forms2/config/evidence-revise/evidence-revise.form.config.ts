@@ -1,6 +1,8 @@
 import { evidenceReviseFormInitialModel } from '@app/forms2/models/evidence-revise.model'
+import { CvcDiseaseSelectFieldOptions } from '@app/forms2/types/disease-select/disease-select.type'
 import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-select.type'
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
+import { CvcMolecularProfileSelectFieldConfig } from '@app/forms2/types/molecular-profile-select/molecular-profile-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms2/types/type-select/type-select.type'
 import { CvcVariantSelectFieldOptions } from '@app/forms2/types/variant-select/variant-select.type'
 import assignFieldConfigDefaultValues from '@app/forms2/utilities/assign-field-default-values'
@@ -29,19 +31,16 @@ const formFieldConfig: FormlyFieldConfig[] = [
           title: 'Revise Evidence Item',
         },
         fieldGroup: [
-          <CvcGeneSelectFieldConfig>{
-            key: 'geneId',
-            type: 'gene-select',
-            props: {
-              required: true,
-            },
+          <CvcDiseaseSelectFieldOptions>{
+            key: 'diseaseId',
+            type: 'disease-select',
+            props: {},
           },
-          <CvcVariantSelectFieldOptions>{
-            key: 'variantId',
-            type: 'variant-select',
+          <CvcMolecularProfileSelectFieldConfig>{
+            key: 'molecularProfileId',
+            type: 'molecular-profile-select',
             props: {
               required: true,
-              // requireGene: false
             },
           },
           <CvcEntityTypeSelectFieldConfig>{
@@ -56,6 +55,21 @@ const formFieldConfig: FormlyFieldConfig[] = [
             type: 'drug-multi-select',
             props: {
               required: true,
+            },
+          },
+          <CvcGeneSelectFieldConfig>{
+            key: 'geneId',
+            type: 'gene-select',
+            props: {
+              required: true,
+            },
+          },
+          <CvcVariantSelectFieldOptions>{
+            key: 'variantId',
+            type: 'variant-select',
+            props: {
+              required: true,
+              // requireGene: false
             },
           },
           // <CvcRepeatFieldConfig>{

@@ -5,6 +5,7 @@ import { CvcDrugSelectFieldOptions } from '@app/forms2/types/drug-select/drug-se
 import { CvcGeneSelectFieldConfig } from '@app/forms2/types/gene-select/gene-select.type'
 import { CvcInteractionSelectFieldOptions } from '@app/forms2/types/interaction-select/interaction-select.type'
 import { CvcLevelSelectFieldOptions } from '@app/forms2/types/level-select/level-select.type'
+import { CvcMolecularProfileSelectFieldConfig } from '@app/forms2/types/molecular-profile-select/molecular-profile-select.type'
 import { CvcOriginSelectFieldOptions } from '@app/forms2/types/origin-select/origin-select.type'
 import { CvcPhenotypeSelectFieldOptions } from '@app/forms2/types/phenotype-select/phenotype-select.type'
 import { CvcRatingFieldOptions } from '@app/forms2/types/rating/rating.type'
@@ -42,6 +43,31 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           // field-grid wrapper places its fields in a css-grid, allowing for a wider variety of row-level layouts. Currently it provides multi-column layout of 2-4 columns
+          // {
+          //   wrappers: ['field-grid'],
+          //   props: <CvcFieldGridWrapperConfig>{
+          //     grid: {
+          //       cols: 2,
+          //     },
+          //   },
+          //   fieldGroup: [
+          //     <CvcGeneSelectFieldConfig>{
+          //       key: 'geneId',
+          //       type: 'gene-select',
+          //       props: {
+          //         required: true,
+          //       },
+          //     },
+          //     <CvcVariantSelectFieldOptions>{
+          //       key: 'variantId',
+          //       type: 'variant-select',
+          //       props: {
+          //         required: true,
+          //         // requireGene: false
+          //       },
+          //     },
+          //   ],
+          // },
           {
             wrappers: ['field-grid'],
             props: <CvcFieldGridWrapperConfig>{
@@ -50,19 +76,11 @@ const formFieldConfig: FormlyFieldConfig[] = [
               },
             },
             fieldGroup: [
-              <CvcGeneSelectFieldConfig>{
-                key: 'geneId',
-                type: 'gene-select',
+              <CvcMolecularProfileSelectFieldConfig>{
+                key: 'molecularProfileId',
+                type: 'molecular-profile-select',
                 props: {
                   required: true,
-                },
-              },
-              <CvcVariantSelectFieldOptions>{
-                key: 'variantId',
-                type: 'variant-select',
-                props: {
-                  required: true,
-                  // requireGene: false
                 },
               },
             ],

@@ -6196,16 +6196,16 @@ export type MolecularProfileSelectTypeaheadQueryVariables = Exact<{
 }>;
 
 
-export type MolecularProfileSelectTypeaheadQuery = { __typename: 'Query', molecularProfiles: { __typename: 'MolecularProfileConnection', nodes: Array<{ __typename: 'MolecularProfile', id: number, name: string, link: string }> } };
+export type MolecularProfileSelectTypeaheadQuery = { __typename: 'Query', molecularProfiles: { __typename: 'MolecularProfileConnection', nodes: Array<{ __typename: 'MolecularProfile', id: number, name: string, link: string, molecularProfileAliases: Array<string> }> } };
 
 export type MolecularProfileSelectTagQueryVariables = Exact<{
   molecularProfileId: Scalars['Int'];
 }>;
 
 
-export type MolecularProfileSelectTagQuery = { __typename: 'Query', molecularProfile?: { __typename: 'MolecularProfile', id: number, name: string, link: string } | undefined };
+export type MolecularProfileSelectTagQuery = { __typename: 'Query', molecularProfile?: { __typename: 'MolecularProfile', id: number, name: string, link: string, molecularProfileAliases: Array<string> } | undefined };
 
-export type MolecularProfileSelectTypeaheadFieldsFragment = { __typename: 'MolecularProfile', id: number, name: string, link: string };
+export type MolecularProfileSelectTypeaheadFieldsFragment = { __typename: 'MolecularProfile', id: number, name: string, link: string, molecularProfileAliases: Array<string> };
 
 export type PhenotypeSelectTypeaheadQueryVariables = Exact<{
   name: Scalars['String'];
@@ -8014,6 +8014,7 @@ export const MolecularProfileSelectTypeaheadFieldsFragmentDoc = gql`
   id
   name
   link
+  molecularProfileAliases
 }
     `;
 export const PhenotypeSelectTypeaheadFieldsFragmentDoc = gql`

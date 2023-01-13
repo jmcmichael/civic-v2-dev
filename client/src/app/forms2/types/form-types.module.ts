@@ -17,6 +17,7 @@ import { CvcSourceSelectModule } from './source-select/source-select.module'
 import { CvcTextareaFieldModule } from './textarea/textarea.module'
 import { CvcEntityTypeSelectModule } from './type-select/type-select.module'
 import { CvcVariantSelectModule } from './variant-select/variant-select.module'
+import { CvcMolecularProfileSelectModule } from './molecular-profile-select/molecular-profile-select.module'
 
 @NgModule({
   imports: [
@@ -38,6 +39,7 @@ import { CvcVariantSelectModule } from './variant-select/variant-select.module'
     CvcTextareaFieldModule,
     CvcBaseInputFieldModule,
     CvcPhenotypeSelectModule,
+    CvcMolecularProfileSelectModule,
   ],
 })
 export class CvcFormTypesModule {}

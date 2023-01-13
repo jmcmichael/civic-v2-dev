@@ -16,4 +16,5 @@ fragment MolecularProfileSelectTypeaheadFields on MolecularProfile {
   id
   name
   link
+  molecularProfileAliases
 }

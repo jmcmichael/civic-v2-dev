@@ -1,7 +1,27 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { CvcMolecularProfileSelectField } from './molecular-profile-select.type'
-import { ConfigOption, FieldTypeConfig } from '@ngx-formly/core'
+import {
+  CvcMolecularProfileSelectField,
+  CvcMolecularProfileSelectFieldProps,
+} from './molecular-profile-select.type'
+import { ConfigOption, FieldTypeConfig, FormlyModule } from '@ngx-formly/core'
+import { CvcEntityTagModule } from '@app/forms2/components/entity-tag/entity-tag.module'
+import { CvcPipesModule } from '@app/core/pipes/pipes.module'
+import { CvcEntitySelectModule } from '@app/forms2/components/entity-select/entity-select.module'
+import { CvcFormFieldWrapperModule } from '@app/forms2/wrappers/form-field/form-field.module'
+import { NzTypographyModule } from 'ng-zorro-antd/typography'
+import { NzAutocompleteModule } from 'ng-zorro-antd/auto-complete'
+import { NzFormModule } from 'ng-zorro-antd/form'
+import { NzSpaceModule } from 'ng-zorro-antd/space'
+import { NzGridModule } from 'ng-zorro-antd/grid'
+import { NzInputModule } from 'ng-zorro-antd/input'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzModalModule } from 'ng-zorro-antd/modal'
+import { NzSelectModule } from 'ng-zorro-antd/select'
+import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzAlertModule } from 'ng-zorro-antd/alert'
+import { ReactiveComponentModule } from '@ngrx/component'
+import { ReactiveFormsModule } from '@angular/forms'
 
 const typeConfig: ConfigOption = {
   types: [
@@ -15,7 +35,7 @@ const typeConfig: ConfigOption = {
       wrappers: ['form-field'],
       component: CvcMolecularProfileSelectField,
       defaultOptions: <
-        Partial<FieldTypeConfig<CvcMolecularProfileSelectField>>
+        Partial<FieldTypeConfig<CvcMolecularProfileSelectFieldProps>>
       >{
         props: {
           label: 'Molecular Profiles',
@@ -28,6 +48,27 @@ const typeConfig: ConfigOption = {
 
 @NgModule({
   declarations: [CvcMolecularProfileSelectField],
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ReactiveComponentModule,
+    FormlyModule.forChild(typeConfig),
+    NzAlertModule,
+    NzButtonModule,
+    NzSelectModule,
+    NzModalModule,
+    NzIconModule,
+    NzInputModule,
+    NzGridModule,
+    NzSpaceModule,
+    NzFormModule,
+    NzAutocompleteModule,
+    NzTypographyModule,
+
+    CvcFormFieldWrapperModule,
+    CvcEntitySelectModule,
+    CvcPipesModule,
+    CvcEntityTagModule,
+  ],
 })
-export class MolecularProfileSelectModule {}
+export class CvcMolecularProfileSelectModule {}
