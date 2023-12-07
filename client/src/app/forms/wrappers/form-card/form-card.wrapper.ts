@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
-import { IndexableObject } from 'ng-zorro-antd/core/types'
 
 type FormCardOptions = {
   title?: string
