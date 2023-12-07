@@ -18,7 +18,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
   {
     wrappers: ['form-layout'],
     props: <CvcFormLayoutWrapperProps>{
-      showDevPanel: false,
+      showDevPanel: true,
     },
     fieldGroup: [
       {
@@ -38,6 +38,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             wrappers: ['form-row'],
             props: <CvcFormRowWrapperProps>{
               formRowOptions: {
+                // molecular profile full-width at all breakpoints
                 span: 24,
               },
             },
@@ -56,6 +57,10 @@ const formFieldConfig: FormlyFieldConfig[] = [
             wrappers: ['form-row'],
             props: <CvcFormRowWrapperProps>{
               formRowOptions: {
+                // fields full width at sm, md breakpoints
+                // two across at lg
+                // three across at xl
+                // four across at xxl
                 responsive: { xs: 24, lg: 12, xl: 8, xxl: 6 },
               },
             },
@@ -84,17 +89,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'diseaseId',
                 type: 'disease-select',
-                props: {},
               },
               <CvcTherapySelectFieldOptions>{
                 key: 'therapyIds',
                 type: 'therapy-multi-select',
-                props: {},
               },
               <CvcInteractionSelectFieldOptions>{
                 key: 'therapyInteractionType',
                 type: 'interaction-select',
-                props: {},
               },
               <CvcOriginSelectFieldOptions>{
                 key: 'variantOrigin',
@@ -106,48 +108,34 @@ const formFieldConfig: FormlyFieldConfig[] = [
               <CvcPhenotypeSelectFieldOptions>{
                 key: 'phenotypeIds',
                 type: 'phenotype-multi-select',
-                props: {},
               },
               {
                 key: 'ampLevel',
                 type: 'amp-category-select',
-                props: {
-                  colSpan: 8,
-                },
               },
               {
                 key: 'acmgCodeIds',
                 type: 'acmg-code-multi-select',
-                props: {
-                  colSpan: 8,
-                },
               },
               {
                 key: 'clingenCodeIds',
                 type: 'clingen-code-multi-select',
-                props: {
-                  colSpan: 8,
-                },
               },
               <CvcNccnGuidelineSelectFieldOptions>{
                 key: 'nccnGuidelineId',
                 type: 'nccn-guideline-select',
-                props: {},
               },
               <CvcNccnGuidelineVersionFieldOptions>{
                 key: 'nccnGuidelineVersion',
                 type: 'nccn-guideline-version-input',
-                props: {},
               },
               <CvcFdaRegulatoryApprovalCheckboxFieldOptions>{
                 key: 'fdaRegulatoryApproval',
                 type: 'fda-regulatory-approval-checkbox',
-                props: {},
               },
               <CvcFdaCompanionTestCheckboxFieldOptions>{
                 key: 'fdaCompanionTest',
                 type: 'fda-companion-test-checkbox',
-                props: {},
               },
             ],
           },
@@ -156,13 +144,18 @@ const formFieldConfig: FormlyFieldConfig[] = [
             props: <CvcFormRowWrapperProps>{
               formRowOptions: {
                 responsiveIndexed: [
+                  // evidence-multi-select full width at all breakpoints
                   {
                     xs: 24,
                   },
+                  // summary full width up to lg breakpoint,
+                  // 1/3 width at lg and above
                   {
                     md: 24,
                     lg: 8,
                   },
+                  // description full width up to lg breakpoint,
+                  // 2/3 width at lg and above
                   {
                     md: 24,
                     lg: 16,
@@ -211,6 +204,8 @@ const formFieldConfig: FormlyFieldConfig[] = [
         wrappers: ['form-row'],
         props: <CvcFormRowWrapperProps>{
           formRowOptions: {
+            // comment full width at all breakpoint
+            // cancel, submit buttons 1/2 width at all breakpoints
             spanIndexed: [24, 12, 12],
           },
         },
