@@ -3,4 +3,5 @@
 # and: https://www.apollographql.com/docs/react/local-state/managing-state-with-field-policies/
 extend type AdvancedSearchResult {
   formQuery: JSON @client
+  normalizedFormQuery: JSON @client
 }

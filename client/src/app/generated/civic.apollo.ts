@@ -256,6 +256,7 @@ export type AddTherapyPayload = {
 export type AdvancedSearchResult = {
   __typename: 'AdvancedSearchResult';
   formQuery?: Maybe<Scalars['JSON']['output']>;
+  normalizedFormQuery?: Maybe<Scalars['JSON']['output']>;
   originalQuery: Scalars['JSON']['output'];
   permalinkId?: Maybe<Scalars['String']['output']>;
   resultIds: Array<Scalars['Int']['output']>;
@@ -10002,7 +10003,7 @@ export type GetOriginalQueryQueryVariables = Exact<{
 }>;
 
 
-export type GetOriginalQueryQuery = { __typename: 'Query', searchByPermalink: { __typename: 'AdvancedSearchResult', searchEndpoint: string, originalQuery: any, permalinkId?: string | undefined, formQuery?: any | undefined } };
+export type GetOriginalQueryQuery = { __typename: 'Query', searchByPermalink: { __typename: 'AdvancedSearchResult', searchEndpoint: string, originalQuery: any, permalinkId?: string | undefined, formQuery?: any | undefined, normalizedFormQuery?: any | undefined } };
 
 export type SearchEvidenceItemsQueryVariables = Exact<{
   query: EvidenceItemSearchFilter;
@@ -17946,6 +17947,7 @@ export const GetOriginalQueryDocument = gql`
     originalQuery
     permalinkId
     formQuery @client
+    normalizedFormQuery @client
   }
 }
     `;

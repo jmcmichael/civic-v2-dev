@@ -17,7 +17,10 @@ import {
   GetOriginalQueryGQL,
 } from '@app/generated/civic.apollo'
 import {
+  AdvancedSearchEndpoint,
+  AnyNormalizedQueryBuilderFormModel,
   QueryBuilderFormModel,
+  QueryBuilderFormModelFor,
   QueryBuilderSearchEndpoint,
 } from '@app/forms/config/query-builder/query-builder.types'
 import { UntilDestroy } from '@ngneat/until-destroy'
@@ -36,6 +39,15 @@ const defaultQueryBuilderFormModel: QueryBuilderFormModel = {
   createPermalink: true,
 }
 
+const defaultNormalizedQueryBuilderFormModel: AnyNormalizedQueryBuilderFormModel =
+  {
+    query: {
+      booleanOperator: BooleanOperator.Or,
+      subFilters: [],
+    },
+    createPermalink: true,
+  }
+
 @UntilDestroy()
 @Component({
   selector: 'cvc-query-builder-form',
@@ -43,13 +55,16 @@ const defaultQueryBuilderFormModel: QueryBuilderFormModel = {
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CvcQueryBuilderForm {
+export class CvcQueryBuilderForm<E extends AdvancedSearchEndpoint> {
   searchEndpoint = model.required<QueryBuilderSearchEndpoint>()
   permalinkId = model<string>()
   resultIds = output<number[]>()
 
   formModel: WritableSignal<QueryBuilderFormModel> = signal(
     defaultQueryBuilderFormModel
+  )
+  normalizedFormModel: WritableSignal<QueryBuilderFormModelFor<E>> = signal(
+    defaultNormalizedQueryBuilderFormModel as QueryBuilderFormModelFor<E>
   )
 
   form: UntypedFormGroup = new UntypedFormGroup({})
@@ -66,7 +81,7 @@ export class CvcQueryBuilderForm {
   private permalinkId$ = toObservable(this.permalinkId)
   private permalinkQuery = toSignal(
     this.permalinkId$.pipe(
-      filter(isNonNulled), // Only fetch if permalinkId is not null/undefined
+      filter(isNonNulled), // Only fetch if permalinkId is defined
       switchMap((id) =>
         this.getOriginalQueryGQL.fetch({ permalinkId: id }).pipe(
           pluck('data', 'searchByPermalink'),
@@ -82,20 +97,22 @@ export class CvcQueryBuilderForm {
 
   private permalinkSearchEndpoint?: string
   constructor() {
-    // when search endpoint changes, always switch fields first
-    // then reset the model to the default, but do NOT overwrite
-    // a model that was just loaded from a permalink
+    /*
+     * Reset form model when the search endpoint changes, while preserving
+     * the form model if it was loaded from a permalink.
+     */
     effect(() => {
       const endpoint = this.searchEndpoint()
-      // update root builder card field config
+      // update base form field config first, then the model
       this.fields = getQueryFieldConfig('query', endpoint, {
         title: this.searchEndpointToCardTitle(endpoint),
       })
-      // only reset model if this change did not originate from a permalink
+      // only reset model if new endpoint does not equal possible permalink endpoint
       if (endpoint !== this.permalinkSearchEndpoint) {
         this.formModel.update(() =>
           structuredClone(defaultQueryBuilderFormModel)
         )
+        // unset permalink query flag
         this.permalinkSearchEndpoint = undefined
       }
     })
@@ -104,12 +121,17 @@ export class CvcQueryBuilderForm {
     effect(() => {
       const query = this.permalinkQuery()
       if (query) {
-        const { searchEndpoint, formQuery, permalinkId } = query
-        this.permalinkSearchEndpoint = searchEndpoint // Set the flag so the searchEndpoint effect won't overwrite the model
+        const { searchEndpoint, formQuery, permalinkId, normalizedFormQuery } =
+          query
+        // Set permalink flag so the subsequent searchEndpoint.update() call
+        // won't cause searchEndpoint's effect to overwrite the formModel
+        this.permalinkSearchEndpoint = searchEndpoint
+        // update searchEndpoint, permalinkId models
         this.searchEndpoint.update(
           () => searchEndpoint as QueryBuilderSearchEndpoint
-        ) // Update parent (triggers fields update)
-        this.permalinkId.update(() => permalinkId) // Update parent
+        )
+        this.permalinkId.update(() => permalinkId)
+        // update formModel model with original query model from permalink response
         if (formQuery) {
           this.formModel.update((value) => {
             return {
@@ -121,6 +143,21 @@ export class CvcQueryBuilderForm {
           })
         } else {
           console.error('searchByPermalink results did not include a formModel')
+        }
+        if (normalizedFormQuery) {
+          this.normalizedFormModel.set(normalizedFormQuery)
+          this.normalizedFormModel.update((value) => {
+            return {
+              ...value,
+              query: structuredClone(
+                normalizedFormQuery
+              ) as AnyNormalizedQueryBuilderFormModel['query'],
+            }
+          })
+        } else {
+          console.error(
+            'searchByPermalink results did not include a normalizedFormModel'
+          )
         }
       }
     })
