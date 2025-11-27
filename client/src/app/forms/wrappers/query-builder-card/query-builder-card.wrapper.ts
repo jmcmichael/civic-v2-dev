@@ -14,15 +14,15 @@ import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 
 type QueryBuilderCardOptions = {
   title?: string
-  size?: 'default' | 'small'
+  isRootQuery?: boolean
 }
 
 export interface CvcQueryBuilderCardWrapperProps extends FormlyFieldProps {
-  formCardOptions?: QueryBuilderCardOptions
+  queryBuilderCardOptions?: QueryBuilderCardOptions
 }
 
 const defaultWrapperOptions: QueryBuilderCardOptions = {
-  size: 'default',
+  isRootQuery: true,
 }
 
 @Component({
@@ -59,10 +59,10 @@ export class CvcQueryBuilderCardWrapper
     }
   }
   ngOnInit(): void {
-    if (this.props.formCardOptions) {
+    if (this.props.queryBuilderCardOptions) {
       this.wrapperOptions = {
         ...this.wrapperOptions,
-        ...this.props.formCardOptions,
+        ...this.props.queryBuilderCardOptions,
       }
     }
   }

@@ -1,12 +1,9 @@
-import { QueryBuilderSearchEndpoint } from '@app/forms/config/query-builder/query-builder.types'
+import { FormCardOptions } from '@forms/wrappers/form-card/form-card.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { BooleanOperator } from '@app/generated/civic.apollo'
-import { getSelectOptions } from '@app/forms/config/query-builder/field-config/functions/get-select-options'
-import { getFieldOptions } from '@app/forms/config/query-builder/field-config/functions/get-field-options'
-import { getSearchQuery } from '@app/forms/config/query-builder/field-config/functions/get-search-query'
-import { FormCardOptions } from '@app/forms/wrappers/form-card/form-card.wrapper'
-
-export type QueryBuilderWrapper = 'query-builder-card' | 'query-subfilter-card'
+import { getSearchQuery } from './get-search-query'
+import { getSelectOptions } from './get-select-options'
+import { getFieldOptions } from './get-field-options'
+import { QueryBuilderSearchEndpoint } from '../../query-builder.types'
 
 export function getQueryFieldConfig(
   key: 'query' | string = 'query',
@@ -19,7 +16,7 @@ export function getQueryFieldConfig(
         key: `${key}`,
         wrappers: [`query-builder-card`],
         props: {
-          formCardOptions: cardOptions,
+          queryBuilderCardOptions: cardOptions,
           formSearchQuery: getSearchQuery(endpoint),
         },
         fieldGroup: [

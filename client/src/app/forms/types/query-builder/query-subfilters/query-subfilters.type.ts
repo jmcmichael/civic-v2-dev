@@ -1,6 +1,17 @@
 import { AfterViewInit, Component } from '@angular/core'
-import { FieldArrayType } from '@ngx-formly/core'
+import {
+  FieldArrayType,
+  FieldArrayTypeConfig,
+  FormlyFieldProps,
+} from '@ngx-formly/core'
 
+export type CvcQuerySubfiltersFieldOptions = Partial<
+  FieldArrayTypeConfig<CvcQuerySubfiltersFieldProps>
+>
+
+export interface CvcQuerySubfiltersFieldProps extends FormlyFieldProps {
+  isRootQuery: boolean
+}
 @Component({
   selector: 'query-subfilters',
   templateUrl: './query-subfilters.type.html',

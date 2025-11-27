@@ -34,6 +34,7 @@ export class CvcQueryFilterField
 {
   // This signal just holds the <select> options
   filterSelectOptions: WritableSignal<QueryFilterSelectOption[]> = signal([])
+  isRootFilter = true
 
   constructor() {
     super()
@@ -48,6 +49,13 @@ export class CvcQueryFilterField
 
   ngOnInit(): void {
     this.props.selectedKey = null
+    // if query-subfilters parent key is 'query',
+    // this is a root filter, otherwise it's a subfilter
+    // with a key like 'disease', 'assertion' etc.
+    if (this.field.parent?.parent?.key) {
+      const queryKey = this.field.parent.parent.key
+      this.isRootFilter = queryKey === 'query' ? true : false
+    }
   }
   ngAfterViewInit(): void {
     if (this.props.options) {

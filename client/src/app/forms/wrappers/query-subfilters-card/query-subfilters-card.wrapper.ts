@@ -3,16 +3,15 @@ import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 
 type QuerySubfiltersCardOptions = {
-  title?: string
-  size?: 'default' | 'small'
+  isRootQuery?: boolean
 }
 
 export interface CvcQuerySubfiltersCardWrapperProps extends FormlyFieldProps {
-  formCardOptions?: QuerySubfiltersCardOptions
+  querySubfiltersCardOptions?: QuerySubfiltersCardOptions
 }
 
 const defaultWrapperOptions: QuerySubfiltersCardOptions = {
-  size: 'default',
+  isRootQuery: false,
 }
 
 @Component({
@@ -42,10 +41,10 @@ export class CvcQuerySubfiltersCardWrapper
     return this.field.fieldGroup?.find((f) => f.key === 'subFilters')
   }
   ngOnInit(): void {
-    if (this.props.formCardOptions) {
+    if (this.props.querySubfiltersCardOptions) {
       this.wrapperOptions = {
         ...this.wrapperOptions,
-        ...this.props.formCardOptions,
+        ...this.props.querySubfiltersCardOptions,
       }
     }
   }
