@@ -19,7 +19,6 @@ import {
 import {
   AdvancedSearchEndpoint,
   AnyNormalizedQueryBuilderFormModel,
-  QueryBuilderFormModel,
   QueryBuilderFormModelFor,
   QueryBuilderSearchEndpoint,
 } from '@app/forms/config/query-builder/query-builder.types'
@@ -31,22 +30,21 @@ import { filter, switchMap } from 'rxjs/operators'
 import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { getQueryFieldConfig } from '@app/forms/config/query-builder/field-config/functions/get-query-field-config'
 
-const defaultQueryBuilderFormModel: QueryBuilderFormModel = {
+// const defaultQueryBuilderFormModel: QueryBuilderFormModel = {
+//   query: {
+//     booleanOperator: BooleanOperator.Or,
+//     subFilters: [],
+//   },
+//   createPermalink: true,
+// }
+
+const defaultQueryBuilderFormModel: AnyNormalizedQueryBuilderFormModel = {
   query: {
     booleanOperator: BooleanOperator.Or,
     subFilters: [],
   },
   createPermalink: true,
 }
-
-const defaultNormalizedQueryBuilderFormModel: AnyNormalizedQueryBuilderFormModel =
-  {
-    query: {
-      booleanOperator: BooleanOperator.Or,
-      subFilters: [],
-    },
-    createPermalink: true,
-  }
 
 @UntilDestroy()
 @Component({
@@ -60,11 +58,11 @@ export class CvcQueryBuilderForm<E extends AdvancedSearchEndpoint> {
   permalinkId = model<string>()
   resultIds = output<number[]>()
 
-  formModel: WritableSignal<QueryBuilderFormModel> = signal(
-    defaultQueryBuilderFormModel
-  )
-  normalizedFormModel: WritableSignal<QueryBuilderFormModelFor<E>> = signal(
-    defaultNormalizedQueryBuilderFormModel as QueryBuilderFormModelFor<E>
+  // formModel: WritableSignal<QueryBuilderFormModel> = signal(
+  //   defaultQueryBuilderFormModel
+  // )
+  formModel: WritableSignal<QueryBuilderFormModelFor<E>> = signal(
+    defaultQueryBuilderFormModel as QueryBuilderFormModelFor<E>
   )
 
   form: UntypedFormGroup = new UntypedFormGroup({})
@@ -132,21 +130,21 @@ export class CvcQueryBuilderForm<E extends AdvancedSearchEndpoint> {
         )
         this.permalinkId.update(() => permalinkId)
         // update formModel model with original query model from permalink response
-        if (formQuery) {
-          this.formModel.update((value) => {
-            return {
-              ...value,
-              query: structuredClone(
-                formQuery
-              ) as QueryBuilderFormModel['query'],
-            }
-          })
-        } else {
-          console.error('searchByPermalink results did not include a formModel')
-        }
+        // if (formQuery) {
+        //   this.formModel.update((value) => {
+        //     return {
+        //       ...value,
+        //       query: structuredClone(
+        //         formQuery
+        //       ) as QueryBuilderFormModel['query'],
+        //     }
+        //   })
+        // } else {
+        //   console.error('searchByPermalink results did not include a formModel')
+        // }
         if (normalizedFormQuery) {
-          this.normalizedFormModel.set(normalizedFormQuery)
-          this.normalizedFormModel.update((value) => {
+          // this.formModel.set(normalizedFormQuery)
+          this.formModel.update((value) => {
             return {
               ...value,
               query: structuredClone(
