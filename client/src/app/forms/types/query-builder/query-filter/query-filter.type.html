@@ -1,23 +1,60 @@
-<nz-row [nzGutter]="8">
-  <nz-col
-    nzFlex="150px"
-    styles="padding-top: 4px">
-    <nz-select
-      [ngModel]="props.selectedKey"
-      (ngModelChange)="onKeyChange($event)"
-      [nzOptionHeightPx]="28"
-      nzPlaceHolder="Select Filter">
-      @for (option of filterSelectOptions(); track option.value) {
-        <nz-option
-          [nzLabel]="option.label"
-          [nzValue]="option.value">
-        </nz-option>
-      }
-    </nz-select>
-  </nz-col>
-  <nz-col nzFlex="auto">
-    @for (childField of field.fieldGroup; track childField.key) {
-      <formly-field [field]="childField"></formly-field>
-    }
-  </nz-col>
-</nz-row>
+@let selectField = field.fieldGroup?.[0];
+@let inputField = field.fieldGroup?.[1];
+@if (selectField && inputField) {
+  <nz-row [nzGutter]="8">
+    <nz-col
+      nzFlex="150px"
+      style="padding-top: 4px">
+      <formly-field [field]="selectField"></formly-field>
+    </nz-col>
+
+    <nz-col nzFlex="auto">
+      <span>inputField.key: {{ inputField.fieldGroup | json }}</span>
+      <!--      <formly-field [field]="inputField"></formly-field>-->
+    </nz-col>
+  </nz-row>
+  <!--  <nz-row>-->
+  <!--    <nz-col nzSpan="8">-->
+  <!--      <div style="max-height: 250px; overflow: scroll">-->
+  <!--        <b>selectField</b> (field.fieldGroup[0]):<br />-->
+  <!--        <pre style="font-size: 70%">{{ selectField | json }}</pre>-->
+  <!--      </div>-->
+  <!--    </nz-col>-->
+  <!--    <nz-col nzSpan="8">-->
+  <!--      <div style="max-height: 250px; overflow: scroll">-->
+  <!--        <b>inputField</b> (field.fieldGroup[1]):<br />-->
+  <!--        <pre style="font-size: 70%">{{ inputField | json }}</pre>-->
+  <!--      </div>-->
+  <!--    </nz-col>-->
+  <!--    <nz-col nzSpan="8">-->
+  <!--      <div style="max-height: 250px; overflow: scroll">-->
+  <!--        <b>field.model</b> <br />-->
+  <!--        <pre style="font-size: 70%">{{ field.model | json }}</pre>-->
+  <!--      </div>-->
+  <!--    </nz-col>-->
+  <!--  </nz-row>-->
+  <!--  <nz-row>-->
+  <!--    <nz-col nzSpan="8">-->
+  <!--      <div style="max-height: 250px; overflow: scroll">-->
+  <!--        <b>selectField</b> (field.fieldGroup[0]):<br />-->
+  <!--        <pre style="font-size: 70%">{{ selectField | json }}</pre>-->
+  <!--      </div>-->
+  <!--    </nz-col>-->
+  <!--    <nz-col nzSpan="8">-->
+  <!--      <div style="max-height: 250px; overflow: scroll">-->
+  <!--        <b>inputField</b> (field.fieldGroup[1]):<br />-->
+  <!--        <pre style="font-size: 70%">{{ inputField | json }}</pre>-->
+  <!--      </div>-->
+  <!--    </nz-col>-->
+  <!--    <nz-col nzSpan="8">-->
+  <!--      <div style="max-height: 250px; overflow: scroll">-->
+  <!--        <b>field.model</b> <br />-->
+  <!--        <pre style="font-size: 70%">{{ field.model | json }}</pre>-->
+  <!--      </div>-->
+  <!--    </nz-col>-->
+  <!--  </nz-row>-->
+} @else {
+  <span style="color: red">
+    query-filter.type: No select and input fields found
+  </span>
+}

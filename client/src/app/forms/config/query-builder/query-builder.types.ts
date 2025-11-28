@@ -1,3 +1,4 @@
+// query-builder.types.ts
 import {
   AssertionSearchFilter,
   BooleanOperator,
@@ -13,49 +14,17 @@ import {
   VariantSearchFilter,
   VariantTypeSearchFilter,
 } from '@app/generated/civic.apollo'
+import { FormlyFieldConfig } from '@ngx-formly/core'
 
-export type AdvancedSearchRecursiveFilterKey =
-  | 'assertion'
-  | 'disease'
-  | 'evidenceItem'
-  | 'feature'
-  | 'molecularProfile'
-  | 'phenotype'
-  | 'source'
-  | 'therapy'
-  | 'user'
-  | 'variant'
-  | 'variantType'
-
-export type QueryBuilderFormModel = {
-  query: AdvancedSearchFilter
-  createPermalink: boolean
-}
-
-export type QueryBuilderSearchEndpoint =
-  | 'searchAssertions'
-  | 'searchDiseases'
-  | 'searchEvidenceItems'
-  | 'searchFeatures'
-  | 'searchMolecularProfiles'
-  | 'searchPhenotypes'
-  | 'searchSources'
-  | 'searchTherapies'
-  | 'searchUsers'
-  | 'searchVariants'
-  | 'searchVariantTypes'
-
-/*
- * REFACTORED TYPES
+/**
+ * Advanced search endpoints-to-filter type map
  */
-
-// advanced search endpoints to filter type map
 type EndpointToFilter = {
   searchAssertions: AssertionSearchFilter
   searchDiseases: DiseaseSearchFilter
   searchEvidenceItems: EvidenceItemSearchFilter
   searchFeatures: FeatureSearchFilter
-  searchMolecularProfile: MolecularProfileSearchFilter
+  searchMolecularProfiles: MolecularProfileSearchFilter
   searchPhenotypes: PhenotypeSearchFilter
   searchSources: SourceSearchFilter
   searchTherapies: TherapySearchFilter
@@ -63,32 +32,67 @@ type EndpointToFilter = {
   searchVariants: VariantSearchFilter
   searchVariantTypes: VariantTypeSearchFilter
 }
+
 type UnwrapInputMaybe<T> = T extends InputMaybe<infer U> ? U : T
 
-// formQuery keys whose type looks like a SearchInput
-// (has operator + value): static attributes of the entity
-type FilterFieldKey<TFilter> = Exclude<
+/**
+ * Differentiators for the two types of subFilter payload:
+ *  - SearchInputLike  → leaf filter (operator + value)
+ *  - SearchFilterLike → nested filter (booleanOperator + subFilters)
+ */
+type SearchInputLike = { operator: any; value: any }
+type SearchFilterLike = { booleanOperator?: any; subFilters?: any }
+
+/**
+ * Keys whose type looks like a SearchInput (has operator + value):
+ * static attributes of the entity.
+ */
+type LeafFilterFieldKey<TFilter> = Exclude<
   {
-    [K in keyof TFilter]: UnwrapInputMaybe<TFilter[K]> extends {
-      operator: any
-      value: any
-    }
+    [K in keyof TFilter]: UnwrapInputMaybe<TFilter[K]> extends SearchInputLike
       ? K
       : never
   }[keyof TFilter],
   'booleanOperator' | 'subFilters'
 >
-// formQuery keys whose type looks like a SearchFilter
-// (has booleanOperator + subFilters): recursive
-// subFilters for attributes of related entities
+
+/**
+ * Keys whose type looks like a SearchFilter (has booleanOperator + subFilters):
+ * recursive subFilters for attributes of related entities.
+ */
 type NestedFilterFieldKey<TFilter> = {
   [K in keyof TFilter]: UnwrapInputMaybe<TFilter[K]> extends SearchFilterLike
     ? K
     : never
 }[keyof TFilter]
 
-// normalized, formly-friendly subFilter, with subfilter key
-// stored as fieldKey value
+/**
+ * Leaf + nested filter keys (used for NormalizedSubFilter.fieldKey).
+ */
+type AnyFilterFieldKey<TFilter> =
+  | LeafFilterFieldKey<TFilter>
+  | NestedFilterFieldKey<TFilter>
+
+/**
+ * Recursive “input” type:
+ *  - if T is a SearchInputLike, keep it as-is
+ *  - if T is a SearchFilterLike, wrap it in a normalized filter
+ */
+export type NormalizedFilterInput<T> =
+  // leaf search input (e.g. IntSearchInput, StringSearchInput, etc)
+  T extends SearchInputLike
+    ? T
+    : // nested filter (e.g. DiseaseSearchFilter)
+      T extends SearchFilterLike
+      ? NormalizedAdvancedSearchFilter<T>
+      : // anything else, fall back (shouldn't usually happen)
+        T
+
+/**
+ * Normalized, Formly-friendly subFilter:
+ *  - `fieldKey` holds which field from the filter we’re targeting
+ *  - `input` holds either a SearchInput or a nested normalized filter
+ */
 export interface NormalizedSubFilter<
   TFilter,
   K extends AnyFilterFieldKey<TFilter> = AnyFilterFieldKey<TFilter>,
@@ -96,8 +100,7 @@ export interface NormalizedSubFilter<
   // useful for trackBy / stable identity in formly
   id: string
 
-  // which field from the filter this row represents
-  // (e.g. 'evidenceRating' or 'disease')
+  // which field from the filter this row represents (e.g. 'evidenceRating' or 'disease')
   fieldKey: K
 
   // either:
@@ -105,24 +108,36 @@ export interface NormalizedSubFilter<
   // - a recursively-normalized nested filter (booleanOperator + subFilters)
   input: NormalizedFilterInput<UnwrapInputMaybe<TFilter[K]>> | null
 }
-// normalized subFilter object
+
+/**
+ * Normalized “filter” object:
+ *  - this is the shape used for both root query.query and nested filters
+ */
 export type NormalizedAdvancedSearchFilter<TFilter> = {
   booleanOperator: BooleanOperator
   subFilters: NormalizedSubFilter<TFilter>[]
 }
 
-// normalized form model
+/**
+ * Normalized form model for a given filter type.
+ */
 export type NormalizedQueryBuilderFormModel<TFilter> = {
   query: NormalizedAdvancedSearchFilter<TFilter>
   createPermalink: boolean
 }
 
-// normalized form query
+/**
+ * Normalized form query as exposed by the Apollo field policy:
+ *  - booleanOperator can be null for robustness against missing data.
+ */
 export type NormalizedFormQuery<TFilter> = {
   booleanOperator: BooleanOperator | null
   subFilters: NormalizedSubFilter<TFilter>[]
 }
 
+/**
+ * Endpoint / filter lookups
+ */
 export type AdvancedSearchEndpoint = keyof EndpointToFilter
 export type AdvancedSearchFilter = EndpointToFilter[AdvancedSearchEndpoint]
 
@@ -135,33 +150,43 @@ export type QueryBuilderFormModelFor<E extends AdvancedSearchEndpoint> =
  */
 
 // `any`-based aliases - QueryBuilderFormModelFor<E> not
-// easily available in field policy functions (?)
+// easily available in field policy functions
 export type AnyNormalizedSubFilter = NormalizedSubFilter<any>
 export type AnyNormalizedFormQuery = NormalizedFormQuery<any>
 export type AnyNormalizedQueryBuilderFormModel =
   NormalizedQueryBuilderFormModel<any>
-// union of all possible query types
+
+// union of all possible query types, for use in apollo field policy functions
 export type AdvancedSearchNormalizedFormQuery =
   NormalizedFormQuery<AdvancedSearchFilter>
 
-// differentiators for the two types of subFilter
-type SearchInputLike = { operator: any; value: any }
-type SearchFilterLike = { booleanOperator?: any; subFilters?: any }
+/*
+ * FORMLY FIELD CONFIG HELPERS
+ *
+ * These help ensure per-endpoint field configs are either:
+ *  - leaf search inputs, or
+ *  - recursive descriptors, but not both.
+ */
 
-export type NormalizedFilterInput<T> =
-  // leaf search input (e.g. IntSearchInput, StringSearchInput, etc)
-  T extends SearchInputLike
-    ? T
-    : // nested filter (e.g. DiseaseSearchFilter)
-      T extends SearchFilterLike
-      ? NormalizedAdvancedSearchFilter<T>
-      : // anything else, fall back (shouldn't usually happen)
-        T
+type LeafFieldConfig = FormlyFieldConfig & {
+  key: string
+  props: { label: string }
+  fieldGroup: FormlyFieldConfig[]
+}
 
-// leaf-only keys (current behavior)
-type LeafFilterFieldKey<TFilter> = FilterFieldKey<TFilter>
+type RecursiveFieldConfig = FormlyFieldConfig & {
+  key: string
+  props: {
+    label: string
+    isRecursive: true
+    filterEndpoint: AdvancedSearchEndpoint
+  }
+  fieldGroup?: never
+}
 
-// leaf + nested filter keys (useful for fieldKey on subFilters)
-type AnyFilterFieldKey<TFilter> =
-  | LeafFilterFieldKey<TFilter>
-  | NestedFilterFieldKey<TFilter>
+/**
+ * Per-field descriptor used by getFieldOptions(endpoint).
+ *  - leaf: has a `fieldGroup` describing a SearchInput
+ *  - recursive: has `isRecursive + filterEndpoint`, no fieldGroup
+ */
+export type QueryFieldDescriptor = LeafFieldConfig | RecursiveFieldConfig

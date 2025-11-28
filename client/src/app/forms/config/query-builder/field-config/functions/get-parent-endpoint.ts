@@ -1,5 +1,5 @@
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { QueryBuilderSearchEndpoint } from '@app/forms/config/query-builder/query-builder.types'
+import { AdvancedSearchEndpoint } from '@app/forms/config/query-builder/query-builder.types'
 
 /**
  * Traverses up the field tree to find the parent endpoint.
@@ -12,14 +12,14 @@ import { QueryBuilderSearchEndpoint } from '@app/forms/config/query-builder/quer
  */
 export function getParentEndpoint(
   field: FormlyFieldConfig
-): QueryBuilderSearchEndpoint | undefined {
+): AdvancedSearchEndpoint | undefined {
   // Check if this field or its ancestors have a parentEndpoint prop
   let currentField: FormlyFieldConfig | undefined = field
 
   while (currentField) {
     // Check if the current field has parentEndpoint in props
     if (currentField.props?.['parentEndpoint']) {
-      return currentField.props['parentEndpoint'] as QueryBuilderSearchEndpoint
+      return currentField.props['parentEndpoint'] as AdvancedSearchEndpoint
     }
 
     // Move up to parent
@@ -28,7 +28,7 @@ export function getParentEndpoint(
 
   // If not found in props, check formState (root level)
   if (field.options?.formState?.searchEndpoint) {
-    return field.options.formState.searchEndpoint as QueryBuilderSearchEndpoint
+    return field.options.formState.searchEndpoint as AdvancedSearchEndpoint
   }
 
   console.warn('Could not find parent endpoint for field:', field.key)

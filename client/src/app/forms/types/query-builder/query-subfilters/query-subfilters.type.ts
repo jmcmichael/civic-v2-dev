@@ -33,7 +33,7 @@ export class CvcQuerySubfiltersField
   }
 
   ngAfterViewInit(): void {
-    console.log(`query-subfilters OnInit: ${this.field.id}`)
+    console.log(`* query-subfilters ${this.field.key} OnInit: ${this.field.id}`)
     // if (this.field.fieldGroup?.length === 0) {
     //   console.log(`--- no model rows, adding undefined filter`)
     //   this.addRow()

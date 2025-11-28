@@ -20,7 +20,6 @@ import {
   AdvancedSearchEndpoint,
   AnyNormalizedQueryBuilderFormModel,
   QueryBuilderFormModelFor,
-  QueryBuilderSearchEndpoint,
 } from '@app/forms/config/query-builder/query-builder.types'
 import { UntilDestroy } from '@ngneat/until-destroy'
 import { catchError, EMPTY } from 'rxjs'
@@ -29,14 +28,6 @@ import { isNonNulled } from 'rxjs-etc/dist/esm/util'
 import { filter, switchMap } from 'rxjs/operators'
 import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { getQueryFieldConfig } from '@app/forms/config/query-builder/field-config/functions/get-query-field-config'
-
-// const defaultQueryBuilderFormModel: QueryBuilderFormModel = {
-//   query: {
-//     booleanOperator: BooleanOperator.Or,
-//     subFilters: [],
-//   },
-//   createPermalink: true,
-// }
 
 const defaultQueryBuilderFormModel: AnyNormalizedQueryBuilderFormModel = {
   query: {
@@ -54,13 +45,10 @@ const defaultQueryBuilderFormModel: AnyNormalizedQueryBuilderFormModel = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CvcQueryBuilderForm<E extends AdvancedSearchEndpoint> {
-  searchEndpoint = model.required<QueryBuilderSearchEndpoint>()
+  searchEndpoint = model.required<AdvancedSearchEndpoint>()
   permalinkId = model<string>()
   resultIds = output<number[]>()
 
-  // formModel: WritableSignal<QueryBuilderFormModel> = signal(
-  //   defaultQueryBuilderFormModel
-  // )
   formModel: WritableSignal<QueryBuilderFormModelFor<E>> = signal(
     defaultQueryBuilderFormModel as QueryBuilderFormModelFor<E>
   )
@@ -102,7 +90,7 @@ export class CvcQueryBuilderForm<E extends AdvancedSearchEndpoint> {
     effect(() => {
       const endpoint = this.searchEndpoint()
       // update base form field config first, then the model
-      this.fields = getQueryFieldConfig('query', endpoint, {
+      this.fields = getQueryFieldConfig(endpoint, {
         title: this.searchEndpointToCardTitle(endpoint),
       })
       // only reset model if new endpoint does not equal possible permalink endpoint
@@ -121,29 +109,15 @@ export class CvcQueryBuilderForm<E extends AdvancedSearchEndpoint> {
       if (query) {
         const { searchEndpoint, formQuery, permalinkId, normalizedFormQuery } =
           query
-        // Set permalink flag so the subsequent searchEndpoint.update() call
-        // won't cause searchEndpoint's effect to overwrite the formModel
+        // Set permalink flag so the searchEndpoint.update() below won't
+        // cause searchEndpoint's effect to overwrite the formModel
         this.permalinkSearchEndpoint = searchEndpoint
         // update searchEndpoint, permalinkId models
         this.searchEndpoint.update(
-          () => searchEndpoint as QueryBuilderSearchEndpoint
+          () => searchEndpoint as AdvancedSearchEndpoint
         )
         this.permalinkId.update(() => permalinkId)
-        // update formModel model with original query model from permalink response
-        // if (formQuery) {
-        //   this.formModel.update((value) => {
-        //     return {
-        //       ...value,
-        //       query: structuredClone(
-        //         formQuery
-        //       ) as QueryBuilderFormModel['query'],
-        //     }
-        //   })
-        // } else {
-        //   console.error('searchByPermalink results did not include a formModel')
-        // }
         if (normalizedFormQuery) {
-          // this.formModel.set(normalizedFormQuery)
           this.formModel.update((value) => {
             return {
               ...value,
@@ -161,9 +135,7 @@ export class CvcQueryBuilderForm<E extends AdvancedSearchEndpoint> {
     })
   }
 
-  private searchEndpointToCardTitle(
-    endpoint: QueryBuilderSearchEndpoint
-  ): string {
+  private searchEndpointToCardTitle(endpoint: AdvancedSearchEndpoint): string {
     // Capitalize initial character
     const capitalized = endpoint.charAt(0).toUpperCase() + endpoint.slice(1)
     // Split on capital letters and join with space

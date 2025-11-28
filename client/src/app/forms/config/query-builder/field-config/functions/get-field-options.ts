@@ -1,4 +1,4 @@
-import { QueryBuilderSearchEndpoint } from '@app/forms/config/query-builder/query-builder.types'
+import { AdvancedSearchEndpoint } from '@app/forms/config/query-builder/query-builder.types'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { searchDiseasesFieldOptions } from '@app/forms/config/query-builder/field-config/search-diseases.config'
 import { searchFeaturesFieldOptions } from '@app/forms/config/query-builder/field-config/search-features.config'
@@ -13,7 +13,7 @@ import { searchVariantTypesFieldOptions } from '@app/forms/config/query-builder/
 import { searchVariantsFieldOptions } from '@app/forms/config/query-builder/field-config/search-variants.config'
 
 export function getFieldOptions(
-  endpoint: QueryBuilderSearchEndpoint
+  endpoint: AdvancedSearchEndpoint
 ): FormlyFieldConfig[] {
   const FILTER_OPTIONS: Record<string, FormlyFieldConfig[]> = {
     searchDiseases: searchDiseasesFieldOptions,
@@ -30,10 +30,9 @@ export function getFieldOptions(
   }
   const options = FILTER_OPTIONS[endpoint]
   if (!options) {
-    console.warn(
+    console.error(
       `Unknown searchEndpoint provided to getFieldOptions: "${endpoint}".`
     )
-    return []
   }
-  return options
+  return options ?? []
 }

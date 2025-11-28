@@ -1,3 +1,4 @@
+// search-evidence-items.config.ts
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { INPUT_FIELD_CONFIG } from '@app/forms/config/query-builder/field-config/input-config/search-input.config'
 import {
@@ -5,9 +6,20 @@ import {
   withRecursive,
   withStatic,
 } from '@app/forms/config/query-builder/field-config/functions/field-config-helpers'
-import { getSelectOptions } from '@app/forms/config/query-builder/field-config/functions/get-select-options'
-import { getFieldOptions } from '@app/forms/config/query-builder/field-config/functions/get-field-options'
+// (no longer need getSelectOptions / getFieldOptions here)
 
+/**
+ * Field descriptors for the searchEvidenceItems endpoint.
+ *
+ * Leaf fields:
+ *  - key + props.label
+ *  - fieldGroup describing the SearchInput (from INPUT_FIELD_CONFIG)
+ *
+ * Recursive fields:
+ *  - key + props.label
+ *  - props.isRecursive = true
+ *  - props.filterEndpoint = child endpoint to use for nested filters
+ */
 export const searchEvidenceItemsFieldOptions: FormlyFieldConfig[] = sortByKey([
   ...withStatic([
     {
@@ -51,53 +63,18 @@ export const searchEvidenceItemsFieldOptions: FormlyFieldConfig[] = sortByKey([
       fieldGroup: INPUT_FIELD_CONFIG['IntSearchInput'],
     },
   ]),
-  // recursive field stubs, will be replace by full
-  // query at runtime in query-filter.ts OnInit
+
+  // recursive field descriptor for nested DiseaseSearchFilter
   ...withRecursive([
     {
       key: 'disease',
-      wrappers: ['query-subfilters-card'],
       props: {
         label: 'Disease',
-        // formSearchQuery: getSearchQuery(endpoint),
+        isRecursive: true,
+        filterEndpoint: 'searchDiseases',
       },
-      fieldGroup: [
-        {
-          key: 'booleanOperator',
-          type: 'base-radio',
-          wrappers: [],
-          props: {
-            required: true,
-            size: 'small',
-            type: 'button',
-            options: getSelectOptions('BooleanOperator'),
-          },
-        },
-        {
-          key: 'subFilters',
-          type: 'query-subfilters',
-          wrappers: [],
-          props: {
-            filterEndpoint: 'searchDiseases',
-          },
-          fieldArray: (field) => ({
-            type: 'query-filter',
-            resetOnHide: true,
-            props: {
-              selectedKey: undefined,
-              options: getFieldOptions('searchDiseases').map((opt) => ({
-                label: opt.props?.label,
-                value: opt.key,
-              })),
-            },
-            fieldGroup: getFieldOptions(field.props!.filterEndpoint),
-          }),
-        },
-        {
-          key: 'createPermalink',
-          wrappers: [],
-        },
-      ],
+      // NOTE: no fieldGroup here; query-filter builds the nested
+      // { booleanOperator, subFilters } body based on filterEndpoint.
     },
   ]),
 ])

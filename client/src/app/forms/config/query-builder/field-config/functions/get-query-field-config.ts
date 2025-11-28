@@ -1,110 +1,74 @@
+// get-query-field-config.ts
 import { FormCardOptions } from '@forms/wrappers/form-card/form-card.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { getSearchQuery } from './get-search-query'
 import { getSelectOptions } from './get-select-options'
 import { getFieldOptions } from './get-field-options'
-import { QueryBuilderSearchEndpoint } from '../../query-builder.types'
+import { AdvancedSearchEndpoint } from '../../query-builder.types'
 
+/**
+ * Builds the root query builder form config for a given advanced search endpoint.
+ *
+ * Normalized model shape:
+ *
+ * {
+ *   query: {
+ *     booleanOperator: BooleanOperator
+ *     subFilters: NormalizedSubFilter<FilterType>[]
+ *   },
+ *   createPermalink: boolean
+ * }
+ */
 export function getQueryFieldConfig(
-  key: 'query' | string = 'query',
-  endpoint: QueryBuilderSearchEndpoint,
+  endpoint: AdvancedSearchEndpoint,
   cardOptions?: FormCardOptions
 ): FormlyFieldConfig[] {
-  if (key === 'query') {
-    return [
-      {
-        key: `${key}`,
-        wrappers: [`query-builder-card`],
-        props: {
-          queryBuilderCardOptions: cardOptions,
-          formSearchQuery: getSearchQuery(endpoint),
-        },
-        fieldGroup: [
-          {
-            key: 'booleanOperator',
-            type: 'base-radio',
-            wrappers: [],
-            props: {
-              required: true,
-              type: 'button',
-              options: getSelectOptions('BooleanOperator'),
-            },
-          },
-          {
-            key: 'subFilters',
-            type: 'query-subfilters',
-            wrappers: [],
-            fieldArray: {
-              type: 'query-filter',
-              resetOnHide: true,
-              props: {
-                selectedKey: undefined,
-                size: 'default',
-                options: getFieldOptions(endpoint).map((opt) => ({
-                  label: opt.props?.label,
-                  value: opt.key,
-                })),
-              },
-              fieldGroup: getFieldOptions(endpoint),
-            },
-          },
-          // NOTE: createPermalink has no field type bc its value
-          // is managed by a reactive checkbox control & effect()
-          // in query-builder-card.wrapper
-          {
-            key: 'createPermalink',
-            wrappers: [],
-          },
-        ],
+  const fieldOptions = getFieldOptions(endpoint)
+
+  return [
+    // root `query` object
+    {
+      key: 'query',
+      wrappers: ['query-builder-card'],
+      props: {
+        queryBuilderCardOptions: cardOptions,
+        formSearchQuery: getSearchQuery(endpoint),
       },
-    ]
-  } else {
-    return [
-      {
-        key: `${key}`,
-        wrappers: ['query-subfilters-card'],
-        props: {
-          formCardOptions: cardOptions,
-          // formSearchQuery: getSearchQuery(endpoint),
+      fieldGroup: [
+        {
+          key: 'booleanOperator',
+          type: 'base-radio',
+          props: {
+            required: true,
+            type: 'button',
+            size: 'default',
+            options: getSelectOptions('BooleanOperator'),
+          },
         },
-        fieldGroup: [
-          {
-            key: 'booleanOperator',
-            type: 'base-radio',
-            wrappers: [],
+        {
+          key: 'subFilters',
+          type: 'query-subfilters',
+          fieldArray: {
+            type: 'query-filter',
+            resetOnHide: true,
             props: {
-              required: true,
-              size: 'small',
-              type: 'button',
-              options: getSelectOptions('BooleanOperator'),
+              // per-endpoint field descriptors (leaf + recursive)
+              fieldOptions,
+              // root depth; nested query-filter instances will increment this
+              depth: 0,
+              size: 'default',
             },
           },
-          {
-            key: 'subFilters',
-            type: 'query-subfilters',
-            wrappers: [],
-            props: {
-              filterEndpoint: endpoint,
-            },
-            fieldArray: (field) => ({
-              type: 'query-filter',
-              resetOnHide: true,
-              props: {
-                selectedKey: undefined,
-                options: getFieldOptions(endpoint).map((opt) => ({
-                  label: opt.props?.label,
-                  value: opt.key,
-                })),
-              },
-              fieldGroup: getFieldOptions(field.props!.filterEndpoint),
-            }),
-          },
-          {
-            key: 'createPermalink',
-            wrappers: [],
-          },
-        ],
-      },
-    ]
-  }
+        },
+      ],
+    },
+
+    // NOTE: createPermalink lives alongside `query` in the normalized form model.
+    // It has no dedicated field type because the query-builder-card wrapper
+    // manages its UI via a reactive checkbox + effect().
+    {
+      key: 'createPermalink',
+      wrappers: [],
+    },
+  ]
 }

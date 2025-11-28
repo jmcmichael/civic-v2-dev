@@ -8,7 +8,7 @@ export const withStatic = (items: FormlyFieldConfig[]): FormlyFieldConfig[] =>
     wrappers: ['form-row'],
     props: {
       ...i.props,
-      filterType: 'static',
+      isRecursive: false,
       formRowOptions: <FormRowOptions>{ spanIndexed: [8, 16] },
     },
     expressions: {
@@ -24,7 +24,7 @@ export const withRecursive = (
   items.map((i) => ({
     ...i,
     type: 'formly-group',
-    props: { ...i.props, filterType: 'recursive' },
+    props: { ...i.props, isRecursive: true },
     expressions: {
       hide: (field: FormlyFieldConfig) => {
         return field.key !== field.parent?.props?.selectedKey

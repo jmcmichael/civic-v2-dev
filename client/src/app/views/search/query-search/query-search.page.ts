@@ -18,7 +18,7 @@ import {
   getTabIndexFromSearchEndpoint,
   queryBuilderTabs,
 } from '@app/views/search/query-search/query-search.functions'
-import { QueryBuilderSearchEndpoint } from '@app/forms/config/query-builder/query-builder.types'
+import { AdvancedSearchEndpoint } from '@app/forms/config/query-builder/query-builder.types'
 
 @Component({
   selector: 'cvc-query-search-page',
@@ -34,7 +34,7 @@ import { QueryBuilderSearchEndpoint } from '@app/forms/config/query-builder/quer
   ],
 })
 export class QuerySearchPage {
-  searchEndpoint = model.required<QueryBuilderSearchEndpoint>()
+  searchEndpoint = model.required<AdvancedSearchEndpoint>()
   permalinkId = model<Maybe<string>>()
 
   // update tab index when searchEndpoint changes
