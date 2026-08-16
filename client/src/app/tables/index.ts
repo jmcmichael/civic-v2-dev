@@ -1,4 +1,4 @@
-export { CvcTableScrollDirective, nextFetch } from './table-scroll.directive'
+export { CvcTableScrollObserverDirective, nextFetch } from './table-scroll.directive'
 export type { CvcScrollEvent, CvcScrollFetch } from './table-scroll.directive'
 export { connectionNodes, displayedCount } from './connection.types'
 export type { CvcConnection, CvcEdge, CvcPageInfo } from './connection.types'
