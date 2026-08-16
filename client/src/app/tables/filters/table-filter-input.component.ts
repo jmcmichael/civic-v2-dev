@@ -29,13 +29,17 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
         [nzStep]="1"
         style="width: 100%" />
     } @else {
-      <!-- nzSize belongs on the nz-input directive; NzInputWrapperComponent has
-           no such input, so setting it on the wrapper (as the originals did)
-           silently does nothing -->
+      <!-- No nzSize here, deliberately.
+
+           The managers wrote nzSize="small" on <nz-input-wrapper>, which has no
+           such input, so it did nothing and the filter boxes rendered at the
+           default 28px. Moving it onto the nz-input directive — which does have
+           the input, and does propagate the size to its wrapper — is what makes
+           it take effect, dropping the box to 22px and the filter row from 35px
+           to 29px. Matching the existing tables means leaving it off. -->
       <nz-input-wrapper>
         <input
           nz-input
-          nzSize="small"
           [placeholder]="placeholder() ?? ''"
           [ngModel]="value()"
           (ngModelChange)="value.set($event)" />

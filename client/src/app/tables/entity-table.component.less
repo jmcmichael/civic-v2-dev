@@ -26,6 +26,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
 }
 
 .cvc-entity-table {
@@ -33,6 +34,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
 
   // nz-card renders the body as a plain block; the table has to be able to
   // shrink inside it for the percentage height to resolve
@@ -78,10 +80,24 @@
       display: flex;
       flex-direction: column;
       flex: 1 1 auto;
+      // both axes: `min-height: 0` lets the chain shrink vertically, and
+      // `min-width: 0` stops a table wider than its container from pushing the
+      // whole flex item past the container's edge instead of scrolling inside
+      // it. A flex item defaults to `min-width: auto`, i.e. "never smaller than
+      // my content", which is not what a horizontally scrolling table wants.
       min-height: 0;
+      min-width: 0;
     }
 
-    // the header is auto-height above it; the viewport takes what is left
+    // The two header rows keep their natural height. As an ordinary flex item
+    // this is `flex: 0 1 auto` — shrinkable — so it loses its fight with the
+    // viewport for vertical space and, being `overflow: hidden`, silently clips
+    // the filter row rather than overflowing visibly.
+    .ant-table-header {
+      flex: none;
+    }
+
+    // the header is fixed above it; the viewport takes what is left
     cdk-virtual-scroll-viewport {
       flex: 1 1 auto;
       min-height: 0;

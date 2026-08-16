@@ -4,14 +4,21 @@
 // what allows the shrink — without it a flex item refuses to go below its
 // content height, which is the overlarge-table symptom the old per-table
 // height directives existed to fight.
+// `min-width: 0` is as load-bearing here as `min-height: 0`. This is a flex
+// item of `.manager-drawer`, and a flex item defaults to `min-width: auto` —
+// "never narrower than my content". The table's content is wider than the
+// drawer, so without it the manager grows past the drawer's right edge instead
+// of letting the table scroll horizontally inside it.
 :host {
   display: flex;
   flex-direction: column;
-  min-height: 0;
   flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
 }
 
 cvc-entity-table {
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
 }
