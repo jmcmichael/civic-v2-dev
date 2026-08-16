@@ -37,6 +37,8 @@ export interface EntityTableConfig<
   TNode,
   TSortColumn extends string,
 > {
+  /** shown in the card header; omit for an untitled table */
+  title?: string
   /** the generated *GQL service; TData and TVars are inferred from it */
   query: TQuery
   /** picks the connection out of the query result */
@@ -59,8 +61,22 @@ export interface EntityTableConfig<
   scope?: Partial<QueryVars<TQuery>>
 }
 
+/**
+ * A column as it appears once `entityTableConfig` has erased the query types.
+ *
+ * `CvcColumn`'s own defaults are not this: `TVars` defaults to `unknown`, which
+ * is what a column looks like before a config binds it to a query. Anything
+ * reading columns *off a spec* wants this shape.
+ */
+export type CvcSpecColumn<TNode> = CvcColumn<
+  TNode,
+  Record<string, unknown>,
+  string
+>
+
 /** An EntityTableConfig with its query type parameters erased. */
 export interface EntityTableSpec<TNode> {
+  title?: string
   query: CvcTableQuery<unknown, Record<string, unknown>>
   connection: (data: unknown) => Maybe<CvcConnection<TNode>>
   columns: CvcColumn<TNode, Record<string, unknown>, string>[]

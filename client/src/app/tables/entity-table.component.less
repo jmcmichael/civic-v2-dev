@@ -1,0 +1,65 @@
+// Sizing is CSS, not JavaScript.
+//
+// `nzScroll.y` is not a measurement API — ng-zorro writes it straight onto the
+// virtual-scroll viewport's `style.height`, so it accepts any CSS length,
+// including `100%`. The three directives that used to compute that number
+// (`cvcAutoHeightCard`, `cvcAutoHeightTable`, and a one-shot
+// `checkViewportSize()`) were racing on independent schedules to derive
+// something CSS can state directly; `cvcAutoHeightTable` had no ResizeObserver
+// at all, so when it lost that race the wrong height stuck until a window
+// resize. The min-heights sprinkled on some browse tables exist to make the
+// losing case survivable.
+//
+// `min-height: 0` is the load-bearing declaration. A flex item will not shrink
+// below its content height without it, which is exactly the overlarge-table
+// symptom that stack was fighting.
+:host {
+  display: block;
+  min-height: 0;
+}
+
+.cvc-entity-table {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  // nz-card renders the body as a plain block; the table has to be able to
+  // shrink inside it for the percentage height to resolve
+  ::ng-deep .ant-card-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+}
+
+.cvc-entity-table__body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.col-header-label {
+  white-space: nowrap;
+}
+
+// the filter row is a second <tr> inside <thead>; its cells carry controls
+// rather than labels, so they lose the header padding
+.filter-row {
+  .attribute-filter {
+    padding: 2px 4px;
+  }
+}
+
+.text-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prefs-popover {
+  max-width: 240px;
+
+  ::ng-deep .ant-checkbox-group-item {
+    display: block;
+    margin-right: 0;
+  }
+}
