@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import { Apollo } from 'apollo-angular'
 import { describe, expect, it, vi } from 'vitest'
-import { readCachedEntity, readCachedEntityName } from './cached-entity'
+import {
+  readCachedEntity,
+  readCachedEntityName,
+  writeCachedEntity,
+} from './cached-entity'
 import { LinkableDiseaseFragmentDoc } from './linkable.fragments.gql.generated'
 
 const DISEASE = {
@@ -64,5 +68,43 @@ describe('readCachedEntityName', () => {
 
   it('returns undefined when the entity is absent', () => {
     expect(readCachedEntityName(seededApollo(), 'Disease', 999)).toBeUndefined()
+  })
+})
+
+describe('writeCachedEntity', () => {
+  const OTHER = {
+    __typename: 'Disease' as const,
+    id: 42,
+    name: 'Glioblastoma',
+    link: '/diseases/42',
+    deprecated: false,
+  }
+
+  it('makes a subsequent read complete', () => {
+    const apollo = seededApollo()
+    expect(readCachedEntity(apollo, 'Disease', 42)).toBeUndefined()
+
+    writeCachedEntity(apollo, 'Disease', OTHER)
+
+    expect(readCachedEntity(apollo, 'Disease', 42)).toMatchObject({
+      id: 42,
+      name: 'Glioblastoma',
+    })
+  })
+
+  // a browse row's projection must not clobber what a real query cached
+  it('leaves an entity that is already cached alone', () => {
+    const apollo = seededApollo()
+
+    writeCachedEntity(apollo, 'Disease', { ...DISEASE, name: 'Not Melanoma' })
+
+    expect(readCachedEntityName(apollo, 'Disease', 7)).toBe('Melanoma')
+  })
+
+  it('is a no-op for a typename with no tag spec', () => {
+    const apollo = seededApollo()
+    expect(() =>
+      writeCachedEntity(apollo, 'NotAnEntity', { ...OTHER })
+    ).not.toThrow()
   })
 })

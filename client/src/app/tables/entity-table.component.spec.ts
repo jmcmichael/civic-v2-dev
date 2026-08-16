@@ -1,5 +1,15 @@
 import { Component, signal } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
+import {
+  CloseCircleFill,
+  FilterFill,
+  QuestionCircleOutline,
+  RetweetOutline,
+  SearchOutline,
+  SettingOutline,
+  SyncOutline,
+} from '@ant-design/icons-angular/icons'
+import { NzIconModule } from 'ng-zorro-antd/icon'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   MockGraphqlOperation,
@@ -27,7 +37,9 @@ interface Row {
 
 const row = (id: number, name: string): Row => ({ id, name })
 
-function buildSpec(): EntityTableSpec<Row> {
+function buildSpec(
+  options: { defaultSortOnName?: boolean } = {}
+): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
   return entityTableConfig({
     query: gql,
@@ -58,8 +70,11 @@ function buildSpec(): EntityTableSpec<Row> {
         key: 'name',
         label: 'Name',
         width: '200px',
-        cell: { kind: 'text', text: (r) => r.name },
-        sort: { column: 'name' },
+        cell: { kind: 'text', text: (r) => r.name, highlight: true },
+        sort: {
+          column: 'name',
+          default: options.defaultSortOnName ? 'ascend' : undefined,
+        },
         filter: { kind: 'text', var: 'description' },
       },
       {
@@ -68,6 +83,7 @@ function buildSpec(): EntityTableSpec<Row> {
         tooltip: 'Evidence Rating',
         width: '60px',
         cell: { kind: 'text', text: (r) => r.name },
+        sort: { column: 'evidenceRating' },
         filter: {
           kind: 'text',
           var: 'id',
@@ -101,10 +117,38 @@ describe('cvc-entity-table', () => {
   let table: CvcEntityTableComponent<Row>
   let recorded: MockGraphqlOperation[]
 
+  /**
+   * Flushes the query debounce and re-renders. `fixture.whenStable()` never
+   * resolves in this TestBed — a zone macrotask stays pending — so waits are
+   * manual, as in `testing/enum-field.harness.ts`. The default clears
+   * QUERY_DEBOUNCE_MS.
+   */
+  const settle = async (ms = 400) => {
+    fixture.detectChanges()
+    await new Promise((r) => setTimeout(r, ms))
+    fixture.detectChanges()
+  }
+
   beforeEach(async () => {
     recorded = []
     await TestBed.configureTestingModule({
-      imports: [HostComponent],
+      // Every ant icon the toolbar and filter row can render. Ant's icon
+      // service throws on an unregistered name, and it throws *outside* the
+      // test's own call stack — so a missing icon leaves every assertion
+      // passing while the runner still exits non-zero. Registering them is
+      // what keeps a green report honest.
+      imports: [
+        HostComponent,
+        NzIconModule.forRoot([
+          CloseCircleFill,
+          FilterFill,
+          QuestionCircleOutline,
+          RetweetOutline,
+          SearchOutline,
+          SettingOutline,
+          SyncOutline,
+        ]),
+      ],
       providers: [provideMockApollo(() => ({}), recorded)],
     }).compileComponents()
 
@@ -118,6 +162,26 @@ describe('cvc-entity-table', () => {
   it('sends the configured page size and scope', () => {
     expect(table.queryVars()['first']).toBe(25)
     expect(table.queryVars()['assertionId']).toBe(7)
+  })
+
+  /**
+   * Asserts what reaches the link, not what `queryVars` computes — the two came
+   * apart once and nothing noticed.
+   *
+   * `Query.watch` takes an options object; passing variables positionally
+   * type-checks against a hand-written structural interface, sends no variables
+   * at all, and leaves every `queryVars` assertion above still passing. The
+   * table then silently used the server's default page size. Recording the
+   * operation is the only assertion that can tell the difference.
+   */
+  it('puts those variables on the wire, not just in queryVars', async () => {
+    await settle()
+
+    const initial = recorded.filter(
+      (op) => op.operationName === 'EvidenceManager'
+    )
+    expect(initial.length).toBeGreaterThan(0)
+    expect(initial[0].variables).toMatchObject({ first: 25, assertionId: 7 })
   })
 
   it('routes a filter to the variable its column names, not to its key', () => {
@@ -158,6 +222,53 @@ describe('cvc-entity-table', () => {
     table.onSortChange(table.columns()[1], null)
 
     expect(table.queryVars()['sortBy']).toBeUndefined()
+  })
+
+  // the managers seeded each sort stream with the column's default, so it was
+  // part of the very first query; reading only the user's sort would show an
+  // ascending sorter on a column the server never sorted by
+  it('sends a column default sort before the user touches anything', () => {
+    fixture.componentInstance.spec.set(buildSpec({ defaultSortOnName: true }))
+    fixture.detectChanges()
+
+    expect(table.queryVars()['sortBy']).toEqual({
+      column: 'name',
+      direction: 'ASC',
+    })
+    expect(table.sortOrderFor(table.columns()[1])).toBe('ascend')
+  })
+
+  it('lets a cleared sort stay cleared rather than reverting to the default', () => {
+    fixture.componentInstance.spec.set(buildSpec({ defaultSortOnName: true }))
+    fixture.detectChanges()
+
+    table.onSortChange(table.columns()[1], null)
+
+    expect(table.queryVars()['sortBy']).toBeUndefined()
+    expect(table.sortOrderFor(table.columns()[1])).toBeNull()
+  })
+
+  it('restores the default sort on reset, as the managers did', () => {
+    fixture.componentInstance.spec.set(buildSpec({ defaultSortOnName: true }))
+    fixture.detectChanges()
+    table.onSortChange(table.columns()[1], 'descend')
+
+    table.onResetFilters()
+
+    expect(table.queryVars()['sortBy']).toEqual({
+      column: 'name',
+      direction: 'ASC',
+    })
+  })
+
+  it('shows no sort on other columns once one is sorted', () => {
+    fixture.componentInstance.spec.set(buildSpec({ defaultSortOnName: true }))
+    fixture.detectChanges()
+
+    table.onSortChange(table.columns()[2], 'descend')
+
+    expect(table.sortOrderFor(table.columns()[1])).toBeNull()
+    expect(table.sortOrderFor(table.columns()[2])).toBe('descend')
   })
 
   // the reset button read as inert in both managers: it cleared the query but
@@ -205,5 +316,66 @@ describe('cvc-entity-table', () => {
   it('reads counts out of the connection, preferring the filtered count', () => {
     expect(table.displayedTotal()).toBe(42)
     expect(table.rows()).toHaveLength(2)
+  })
+
+  describe('text cell highlighting', () => {
+    const nameColumn = () => table.columns()[1]
+
+    it('is one plain segment while no filter is set', () => {
+      expect(table.textSegments(nameColumn(), row(1, 'Melanoma'))).toEqual([
+        { text: 'Melanoma', highlight: false },
+      ])
+    })
+
+    it('splits the value around the active filter, case-insensitively', () => {
+      table.onFilterChange(nameColumn(), 'lano')
+
+      expect(table.textSegments(nameColumn(), row(1, 'Melanoma'))).toEqual([
+        { text: 'Me', highlight: false },
+        { text: 'lano', highlight: true },
+        { text: 'ma', highlight: false },
+      ])
+    })
+
+    // the highlightTypeahead pipe this replaces did `new RegExp(searchTerm)`,
+    // so an unbalanced bracket from a filter box threw
+    it('survives filter text that would not compile as a regex', () => {
+      table.onFilterChange(nameColumn(), '(unclosed[')
+
+      expect(() =>
+        table.textSegments(nameColumn(), row(1, 'Melanoma'))
+      ).not.toThrow()
+    })
+
+    it('joins a list into one string so a match can span the separator', () => {
+      const listColumn = {
+        ...nameColumn(),
+        cell: {
+          kind: 'text' as const,
+          text: () => ['V600E', 'V600K'],
+        },
+      }
+
+      expect(table.textSegments(listColumn, row(1, 'x'))).toEqual([
+        { text: 'V600E, V600K', highlight: false },
+      ])
+    })
+
+    // empty segments are the cue to render cvc-empty-value instead
+    it('yields nothing for an absent value but keeps a zero', () => {
+      const empty = {
+        ...nameColumn(),
+        cell: { kind: 'text' as const, text: () => undefined },
+      }
+      const zero = {
+        ...nameColumn(),
+        cell: { kind: 'text' as const, text: () => 0 },
+      }
+
+      expect(table.textSegments(empty, row(1, 'x'))).toEqual([])
+      expect(table.textSegments(zero, row(1, 'x'))).toEqual([
+        { text: '0', highlight: false },
+      ])
+    })
   })
 })

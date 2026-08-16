@@ -1,28 +1,17 @@
-@import 'themes/overrides/card-table.overrides.less';
-
-tr.data-row td:first-of-type {
-  padding-left: 6px;
-  cvc-entity-tag {
-    margin-left: 6px;
-  }
-}
-// FIXME: overflow also needs to include a overflow count and popover with omitted items,
-// this is just a temporary visual fix to prevent content overlapping the adjacent cell
-td.default-col-type {
-  overflow: hidden;
-  text-overflow: ellipsis;
+// The facade is a flex item so the table can fill the drawer: the manager
+// drawer sets a definite height, this passes it through, and the table's own
+// flex chain turns it into a resolvable `nzScroll.y: 100%`. `min-height: 0` is
+// what allows the shrink — without it a flex item refuses to go below its
+// content height, which is the overlarge-table symptom the old per-table
+// height directives existed to fight.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
-.ant-table-filter-dropdown {
-  padding: 8px;
-}
-.prefs-popover {
-  ::ng-deep nz-checkbox-group:first-of-type {
-    label {
-      display: block;
-      span {
-        display: inline-block;
-      }
-    }
-  }
+cvc-entity-table {
+  flex: 1 1 auto;
+  min-height: 0;
 }

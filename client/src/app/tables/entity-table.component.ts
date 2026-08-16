@@ -27,6 +27,8 @@ import {
   CvcCollectionTagComponent,
   CvcTagComponent,
   CvcTagListComponent,
+  LabelSegment,
+  labelSegments,
   readCachedEntityName,
 } from '@app/tags'
 import { Apollo, QueryRef } from 'apollo-angular'
@@ -205,16 +207,37 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   private readonly filterValues = signal<ReadonlyMap<string, unknown>>(
     new Map()
   )
+
+  /**
+   * The user's sort, or `undefined` for "they have not expressed one".
+   *
+   * Three states, not two. `undefined` means untouched, so a column's
+   * configured `sort.default` applies; `{ key, order: null }` means the user
+   * cycled a sorter back off, which is a different thing and must not spring
+   * back to the default. The managers got the distinction for free from a
+   * BehaviorSubject seeded with the default — a signal has to state it.
+   */
   private readonly sortState = signal<Maybe<CvcSortState>>(undefined)
+
+  /** the configured default sort, if a column declares one */
+  private readonly defaultSort = computed<Maybe<CvcSortState>>(() => {
+    const column = this.spec().columns.find((c) => c.sort?.default)
+    if (!column?.sort?.default) return undefined
+    return { key: column.key, order: column.sort.default }
+  })
+
+  /** what the table is actually sorted by right now */
+  private readonly effectiveSort = computed<Maybe<CvcSortState>>(
+    () => this.sortState() ?? this.defaultSort()
+  )
 
   filterValue(key: string): unknown {
     return this.filterValues().get(key) ?? null
   }
 
   sortOrderFor(column: CvcSpecColumn<TRow>): NzTableSortOrder {
-    const state = this.sortState()
-    if (state?.key === column.key) return state.order
-    return column.sort?.default ?? null
+    const sort = this.effectiveSort()
+    return sort?.key === column.key ? sort.order : null
   }
 
   // ------------------------------------------------------------ query state
@@ -226,7 +249,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       first: spec.pageSize,
     }
 
-    const sort = this.sortState()
+    const sort = this.effectiveSort()
     if (sort?.order) {
       const column = spec.columns.find((c) => c.key === sort.key)
       if (column?.sort) {
@@ -308,6 +331,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       const settings = this.settings()
       if (settings) untracked(() => this.applySettings(settings))
     })
+
+    // let the config project denormalised rows back into the cache before the
+    // tags that read from it paint
+    effect(() => {
+      const rows = this.rows()
+      if (rows.length) untracked(() => this.spec().seedCache?.(rows))
+    })
   }
 
   // --------------------------------------------------------- query pipeline
@@ -317,7 +347,11 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     this.fetchingMore.set(false)
 
     if (!this.queryRef) {
-      this.queryRef = this.spec().query.watch(vars) as QueryRef<
+      // `{ variables }`, not positional — see CvcTableQuery. The three
+      // apollo-angular entry points this class uses do not agree with one
+      // another, and getting this one wrong costs no compile error and no test
+      // failure, only a query with no variables.
+      this.queryRef = this.spec().query.watch({ variables: vars }) as QueryRef<
         unknown,
         Record<string, unknown>
       >
@@ -367,6 +401,36 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
+   * A text cell's value, split into segments so the active filter's match can
+   * be emphasised. Empty when there is nothing to show, which is the signal to
+   * render `cvc-empty-value` instead.
+   *
+   * `labelSegments` is the same helper `cvc-tag` highlights with: plain
+   * case-insensitive string matching. The `highlightTypeahead` pipe it replaces
+   * built a `RegExp` out of raw filter input — so an unbalanced bracket typed
+   * into a filter box threw — and returned its result through
+   * `bypassSecurityTrustHtml`, which
+   * rendered server-supplied names as unescaped markup.
+   */
+  textSegments(column: CvcSpecColumn<TRow>, row: TRow): LabelSegment[] {
+    const cell = column.cell
+    if (cell.kind !== 'text') return []
+
+    const value = cell.text(row)
+    // codegen types a nullable field `T | undefined`, but the server sends
+    // literal null, so both reach an accessor that just forwards a row field
+    if (value === null || value === undefined) return []
+    // a list joins into one string, so a match spanning the separator still
+    // highlights; 0 is a value, not an absence
+    const text = Array.isArray(value) ? value.join(', ') : String(value)
+    if (text === '') return []
+
+    if (!cell.highlight) return [{ text, highlight: false }]
+    const filter = this.filterValues().get(column.key)
+    return labelSegments(text, typeof filter === 'string' ? filter : undefined)
+  }
+
+  /**
    * Virtual scroll needs a stable identity per row. The managers tracked by
    * index, which recycles a row's DOM into a different record when a refetch
    * reorders the list — visible as a tag briefly showing the wrong entity.
@@ -383,8 +447,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     })
   }
 
+  /**
+   * Records a sorter click, including one that turns a sorter off — hence
+   * always a state, never `undefined`. Clearing a sort and never having sorted
+   * are different, and only `onResetFilters` produces the latter.
+   */
   onSortChange(column: CvcSpecColumn<TRow>, order: NzTableSortOrder): void {
-    this.sortState.set(order ? { key: column.key, order } : undefined)
+    this.sortState.set({ key: column.key, order })
   }
 
   /**
@@ -395,6 +464,10 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * mutated `col.filter.options[0].value` that nothing re-emitted — the reset
    * button read as inert. Column visibility is deliberately untouched, matching
    * the original.
+   *
+   * Sort returns to `undefined`, i.e. to the configured default rather than to
+   * no sort at all — which is what the managers' reset did, by pushing
+   * `c.sort.default ?? null` into every sort stream.
    */
   onResetFilters(): void {
     this.filterValues.set(new Map())

@@ -194,10 +194,16 @@
                 }
 
                 @case ('text') {
-                  @let text = cell.text(row);
-                  @if (text !== null && text !== undefined && text !== '') {
+                  <!-- empty segments mean there was nothing to show; the
+                       accessor's own emptiness rules live in textSegments -->
+                  @let segments = textSegments(col, row);
+                  @if (segments.length) {
                     <span class="text-cell">
-                      {{ (text | isArray) ? $any(text).join(', ') : text }}
+                      @for (segment of segments; track $index) {
+                        <span [class.typeahead-match]="segment.highlight">{{
+                          segment.text
+                        }}</span>
+                      }
                     </span>
                   } @else {
                     <cvc-empty-value

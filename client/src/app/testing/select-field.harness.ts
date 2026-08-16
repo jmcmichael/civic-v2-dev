@@ -8,12 +8,21 @@ import { CvcSelectFieldsRegistryModule } from '@app/forms/select/select-fields.r
 import { CvcOrgSubmitButtonTypeModule } from '@app/forms/types/org-submit-button/org-submit-button.type.module'
 import { CvcFormWrappersModule } from '@app/forms/wrappers/form-wrappers.module'
 import { civicIcons } from '@app/icons-provider.module'
-import { CaretRightOutline } from '@ant-design/icons-angular/icons'
+import {
+  CaretRightOutline,
+  QuestionCircleFill,
+} from '@ant-design/icons-angular/icons'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { describe, expect, it } from 'vitest'
-import { MockGraphqlOperation, provideMockApollo } from './apollo-test.providers'
-import { FormlyTestHostComponent, createFieldTestHost } from './formly-test.host'
+import {
+  MockGraphqlOperation,
+  provideMockApollo,
+} from './apollo-test.providers'
+import {
+  FormlyTestHostComponent,
+  createFieldTestHost,
+} from './formly-test.host'
 
 /** Everything a spec needs to drive one mounted entity-select field. */
 export interface SelectFieldHarness {
@@ -74,7 +83,12 @@ export async function createSelectFieldHarness(
     model: config.model ?? {},
     formState: config.formState,
     // civicIcons covers the civic-* set; ant's own icons are registered
-    // individually, since IconsProviderModule ships only four of them.
+    // individually, since IconsProviderModule ships only four of them. An
+    // unregistered icon throws *outside* the test's call stack, so it leaves
+    // every assertion green while the runner still exits non-zero — which is
+    // how question-circle-fill (the MP expression editor's help buttons) went
+    // unnoticed. Add to this list rather than to a single spec.
+    //
     // org-submit-button is registered because several quick-add forms embed
     // one, and a field renders its quick-add as soon as a search misses.
     // The wrappers come along because nested forms — the MP finder, the
@@ -83,7 +97,11 @@ export async function createSelectFieldHarness(
       CvcSelectFieldsRegistryModule,
       CvcOrgSubmitButtonTypeModule,
       CvcFormWrappersModule,
-      NzIconModule.forRoot([...civicIcons, CaretRightOutline]),
+      NzIconModule.forRoot([
+        ...civicIcons,
+        CaretRightOutline,
+        QuestionCircleFill,
+      ]),
     ],
     providers: [
       provideMockApollo(config.respond, operations),
@@ -128,13 +146,11 @@ export async function createSelectFieldHarness(
     optionItems: () =>
       Array.from(overlay.querySelectorAll('nz-option-item')) as HTMLElement[],
     selectedItem: () =>
-      entitySelect().querySelector(
-        '.ant-select-selection-item'
-      ) as HTMLElement,
+      entitySelect().querySelector('.ant-select-selection-item') as HTMLElement,
     callsTo: (operationName) =>
       operations.filter((o) => o.operationName === operationName),
     control: () => fixture.componentInstance.form.get(config.key)!,
-    field: <T,>(fieldType: Type<T>) =>
+    field: <T>(fieldType: Type<T>) =>
       fixture.debugElement.query(By.directive(fieldType as Type<any>))
         .componentInstance as T,
     quickAdd(fieldType, value) {

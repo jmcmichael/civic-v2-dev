@@ -116,6 +116,14 @@ export class CvcTableScrollObserverDirective {
 
     scrolled
       .pipe(
+        // An unmeasured viewport reports zero distance to the bottom, so it
+        // reads as "already scrolled to the end" and would ask for a page
+        // before the user has done anything. A table mounting inside a drawer
+        // does spend a frame at zero height, and the resize that fixes it emits
+        // a scroll event — so this is reachable, even though the doubled first
+        // page that prompted the guard turned out to have a different cause
+        // (variables never reaching `watch`).
+        filter(() => viewport.getViewportSize() > 0),
         map(() => viewport.measureScrollOffset('bottom')),
         filter((offset) => offset < this.targetHeight()),
         throttleTime(LOAD_THROTTLE_MS),

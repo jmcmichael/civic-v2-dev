@@ -35,7 +35,7 @@ query VariantManager(
     edges {
       cursor
       node {
-        ...BrowseVariantsFields
+        ...VariantManagerFields
       }
     }
     totalCount
@@ -43,24 +43,39 @@ query VariantManager(
     pageCount
   }
 }
+
+# Spread the Linkable* fragments wherever the schema gives us a real nested
+# entity, so those rows land in the cache in exactly the shape CvcTag reads —
+# the same reason feature-select.query.gql does it.
+#
+# BrowseVariant flattens the variant and its feature into scalar columns, so
+# there is nothing to spread for those two. The manager projects them back out
+# into Variant:<id> and Feature:<id> with writeCachedEntity; the fields below
+# are chosen to satisfy LinkableVariant and LinkableFeature exactly.
+# `category` is the seed's featureType: VariantCategories and
+# FeatureInstanceTypes have identical members, and a variant's category is its
+# feature's type.
+#
+# This replaces a spread of ...BrowseVariantsFields, the *browse table's*
+# fragment, which additionally pulled evidenceItemCount and a nested
+# variantTypes list that no cell in this table renders.
 fragment VariantManagerFields on BrowseVariant {
   id
   name
   link
+  deprecated
+  flagged
+  category
   featureId
   featureName
   featureLink
+  featureDeprecated
+  featureFlagged
   diseases {
-    id
-    name
-    link
-    deprecated
+    ...LinkableDisease
   }
   therapies {
-    id
-    name
-    link
-    deprecated
+    ...LinkableTherapy
   }
   aliases {
     name
