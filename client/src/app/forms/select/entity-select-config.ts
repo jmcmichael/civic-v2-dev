@@ -47,9 +47,18 @@ export interface EntitySelectConfig<
   TParam = void,
 > {
   entityName: CvcSelectEntityName
-  /** static typename, or a resolver for polymorphic results (Variant, Feature) */
+  /**
+   * Static typename, or a resolver for polymorphic results (Variant,
+   * Feature). A resolver runs per *typeahead* result; for a prepopulated id
+   * the concrete typename usually arrives via the tag query instead.
+   */
   typename: TaggableTypename | ((result: TResult) => TaggableTypename)
   typeahead: TTypeahead
+  /**
+   * Builds the typeahead's variables. `search` is `''` when the dropdown
+   * opens with no input — the field lists what the server offers for an
+   * empty query — so do not assume a non-empty string.
+   */
   typeaheadVars: (search: string, param: TParam) => QueryVars<TTypeahead>
   typeaheadResults: (data: Maybe<QueryData<TTypeahead>>) => TResult[]
   /**
@@ -66,7 +75,11 @@ export interface EntitySelectConfig<
   minSearchStrLength?: number
 }
 
-/** An EntitySelectConfig with its query type parameters erased. */
+/**
+ * An EntitySelectConfig with its query type parameters erased. Member docs
+ * live on `EntitySelectConfig`; produce one only via `entitySelectConfig`,
+ * whose literal type-check a hand-built spec would bypass.
+ */
 export interface EntitySelectSpec<
   TResult extends CvcEntitySelectResult,
   TParam = void,
@@ -86,9 +99,11 @@ export interface EntitySelectSpec<
 
 /**
  * Type-checks a config literal — inferring every query type from the GQL
- * services passed in, where the old mixin made each field spell out eleven
- * explicit type arguments — then erases them so field classes carry only
- * their result type.
+ * services passed in, so a field spells out no explicit type arguments — then
+ * erases them so field classes carry only their result type.
+ *
+ * @param config the field's select config; see `EntitySelectConfig`
+ * @returns the same object, with query type parameters erased
  */
 export function entitySelectConfig<
   TResult extends CvcEntitySelectResult,

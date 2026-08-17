@@ -9,9 +9,9 @@ import {
   LinkableVariantFragmentDoc,
 } from './linkable.fragments.gql.generated'
 
-// Spike B (plan Phase 0): verify Apollo.watchFragment resolves interface
-// fragments for concrete typenames via possibleTypes, reacts to later cache
-// writes, and reports cache misses as incomplete results.
+// Verifies Apollo.watchFragment resolves interface fragments for concrete
+// typenames via possibleTypes, reacts to later cache writes, and reports
+// cache misses as incomplete results — the contract CvcTag renders on.
 describe('watchFragment over Linkable* fragments', () => {
   function setup(seed?: Parameters<typeof provideSeededApollo>[0]) {
     TestBed.configureTestingModule({ providers: [provideSeededApollo(seed)] })
@@ -62,7 +62,10 @@ describe('watchFragment over Linkable* fragments', () => {
       })
     )
     expect(result.complete).toBe(true)
-    expect(result.data).toMatchObject({ __typename: 'GeneVariant', name: 'V600E' })
+    expect(result.data).toMatchObject({
+      __typename: 'GeneVariant',
+      name: 'V600E',
+    })
   })
 
   it('reports a cache miss as incomplete rather than erroring', async () => {
@@ -76,8 +79,8 @@ describe('watchFragment over Linkable* fragments', () => {
     expect(result.complete).toBe(false)
   })
 
-  // Regression target for the old one-shot readFragment + setTimeout(1000)
-  // kludge in source-quick-add: later cache writes must reach subscribers.
+  // Regression target: later cache writes must reach subscribers — a
+  // one-shot read here once forced source-quick-add to poll on a setTimeout.
   it('re-emits when the entity is written to the cache after subscription', async () => {
     const apollo = setup()
     const emissions = apollo.watchFragment({

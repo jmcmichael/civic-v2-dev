@@ -82,9 +82,8 @@ class AssertionState extends BaseState {
       comment: signal<Maybe<string>>(undefined),
     }
 
-    // Everything below is derived from the chosen assertion type. It used to be a
-    // subscription pushing into seven subjects; as `computed` there is no push,
-    // no ordering, and no way for two writers to disagree.
+    // Everything below derives from the chosen assertion type via `computed`:
+    // no push, no ordering, and no way for two writers to disagree.
     const entityType = this.fields.assertionType
     const forType = <T>(f: (at: AssertionType) => T, fallback: T): Signal<T> =>
       computed(() => {
@@ -102,7 +101,10 @@ class AssertionState extends BaseState {
     this.requires = {
       requiresDisease: forType((at) => this.requiresDisease(at), false),
       requiresTherapy: forType((at) => this.requiresTherapy(at), false),
-      requiresClingenCodes: forType((at) => this.requiresClingenCodes(at), false),
+      requiresClingenCodes: forType(
+        (at) => this.requiresClingenCodes(at),
+        false
+      ),
       requiresAcmgCodes: forType((at) => this.requiresAcmgCodes(at), false),
       requiresAmpLevel: forType((at) => this.requiresAmpLevel(at), false),
       allowsFdaApproval: forType((at) => this.allowsFdaApproval(at), false),

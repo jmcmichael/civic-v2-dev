@@ -15,10 +15,7 @@ import { EntityTagRef, TaggableTypename } from '@app/tags'
 import { FieldTypeConfig } from '@ngx-formly/core'
 import { Observable, debounceTime, forkJoin, map, of } from 'rxjs'
 import { CvcFieldBase } from './field.base'
-import {
-  CvcEntitySelectResult,
-  EntitySelectSpec,
-} from './entity-select-config'
+import { CvcEntitySelectResult, EntitySelectSpec } from './entity-select-config'
 import {
   CVC_DEFAULT_SELECT_MESSAGES,
   CvcSelectMessages,
@@ -42,6 +39,13 @@ const SEARCH_DEBOUNCE_MS = 300
  * options cannot be projected through a wrapper component (see
  * projected-options.spec.ts). Nothing here calls detectChanges: results,
  * loading and messages are signals, and tag content comes from the cache.
+ *
+ * @template TResult the typeahead result fragment type (not the tag type) —
+ *   what `select.typeaheadResults` yields and the dropdown renders
+ * @template TParam the extra typeahead query parameter's type, e.g.
+ *   feature-select's featureType; `void` (the default) when there is none
+ * @template P the field's props interface, extending
+ *   `CvcEntitySelectFieldProps`
  */
 @Directive()
 export abstract class CvcEntitySelectFieldBase<
@@ -70,7 +74,7 @@ export abstract class CvcEntitySelectFieldBase<
   /**
    * Drives nz-select's nzOpen. Stays undefined until something needs to force
    * the dropdown open or closed (quick-add), leaving nz-select to manage its
-   * own open state the rest of the time — old code was sensitive to this.
+   * own open state the rest of the time.
    */
   readonly open = signal<Maybe<boolean>>(undefined)
 
@@ -87,7 +91,9 @@ export abstract class CvcEntitySelectFieldBase<
     // a new search cancels the in-flight one; no queryRef/refetch bookkeeping
     stream: ({ params }) =>
       this.select.typeahead
-        .fetch({ variables: this.select.typeaheadVars(params.search, params.param) })
+        .fetch({
+          variables: this.select.typeaheadVars(params.search, params.param),
+        })
         .pipe(map((r) => this.select.typeaheadResults(r.data))),
     defaultValue: [] as TResult[],
   })
@@ -122,16 +128,14 @@ export abstract class CvcEntitySelectFieldBase<
   /**
    * Concrete typenames seen for ids, accumulated from typeahead and tag-query
    * results. Polymorphic fields (variant, feature) need it to build a tag ref
-   * for an id whose entity is no longer in the current result list — the old
-   * code smuggled the typename through nz-select's nzTitle attribute.
+   * for an id whose entity is no longer in the current result list.
    */
   private readonly typenames = signal<ReadonlyMap<number, TaggableTypename>>(
     new Map()
   )
 
   /** the field template's quick-add form, when it declares one */
-  private readonly addFormTemplate =
-    viewChild<TemplateRef<unknown>>('addForm')
+  private readonly addFormTemplate = viewChild<TemplateRef<unknown>>('addForm')
 
   protected readonly notFound = computed<CvcSelectNotFoundDisplay>(() => {
     const searchStr = this.searchTerm() ?? ''
@@ -181,8 +185,7 @@ export abstract class CvcEntitySelectFieldBase<
   protected refFor(result: TResult): EntityTagRef {
     const typename = this.select.typename
     return {
-      __typename:
-        typeof typename === 'string' ? typename : typename(result),
+      __typename: typeof typename === 'string' ? typename : typename(result),
       id: result.id,
     }
   }
@@ -207,6 +210,10 @@ export abstract class CvcEntitySelectFieldBase<
    * NOT named onPopulate — formly invokes prePopulate/onPopulate/postPopulate
    * on the field-type instance itself, passing the FormlyFieldConfig, so those
    * three names are reserved on any FieldType subclass.
+   *
+   * @param value the created entity's id, or ids when the builder returns
+   *   several; on a multi-select they append to the current selection, on a
+   *   single select the first id replaces it
    */
   protected onEntityCreated(value: number | number[]): void {
     this.fetchTagRecords(value).subscribe((results) => {
@@ -214,7 +221,6 @@ export abstract class CvcEntitySelectFieldBase<
       const created = results.map((r) => r.id)
       if (this.props.isMultiSelect) {
         // append: a quick-add adds to the selection rather than replacing it
-        // (the old mixin overwrote every prior choice)
         const current = this.selectedIds()
         this.formControl.setValue([
           ...current,
@@ -251,9 +257,7 @@ export abstract class CvcEntitySelectFieldBase<
    * while the operations in it are uniformly cheap — which these are, being one
    * entity and a handful of scalars each.
    */
-  protected fetchTagRecords(
-    value: number | number[]
-  ): Observable<TResult[]> {
+  protected fetchTagRecords(value: number | number[]): Observable<TResult[]> {
     const ids = Array.isArray(value) ? value : [value]
     if (ids.length === 0) return of([])
     return forkJoin(

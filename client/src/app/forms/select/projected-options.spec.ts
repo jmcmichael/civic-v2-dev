@@ -6,7 +6,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { NzSelectComponent, NzSelectModule } from 'ng-zorro-antd/select'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-// Spike A (plan Phase 0, highest-risk assumption), RESOLVED 2026-08-14:
+// Characterisation of the constraint that shapes every select template:
 //
 // nz-select's @ContentChildren(NzOptionComponent) binds at TEMPLATE
 // DECLARATION, not DOM projection — <nz-option> elements re-projected through
@@ -14,11 +14,11 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 // dropdown renders the empty state). The select chrome therefore CANNOT be a
 // wrapping component; it must be an attribute directive applied to nz-select
 // in the field template, with <nz-option> declared directly inside
-// <nz-select> in that same template (the plan's designed fallback).
+// <nz-select> in that same template.
 //
-// The tests below characterize the DIRECT declaration shape every migrated
-// field will use: dynamic @for over a signal, nzCustomContent option bodies
-// with closure context, nzServerSearch, and nzCustomTemplate selected items.
+// The tests below characterize the DIRECT declaration shape every field
+// uses: dynamic @for over a signal, nzCustomContent option bodies with
+// closure context, nzServerSearch, and nzCustomTemplate selected items.
 
 @Component({
   standalone: true,
@@ -39,7 +39,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
         </nz-option>
       }
     </nz-select>
-    <ng-template #selectedTpl let-selected>
+    <ng-template
+      #selectedTpl
+      let-selected>
       <span class="sel-custom">SEL:{{ selected.nzValue }}</span>
     </ng-template>
   `,
@@ -67,13 +69,15 @@ class WrapperComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <test-select-wrapper>
-      <nz-option [nzValue]="1" nzLabel="Alpha" />
+      <nz-option
+        [nzValue]="1"
+        nzLabel="Alpha" />
     </test-select-wrapper>
   `,
 })
 class ReprojectionHostComponent {}
 
-describe('nz-select with dynamic template-declared nz-options (Spike A)', () => {
+describe('nz-select with dynamic template-declared nz-options', () => {
   let fixture: ComponentFixture<TestHostComponent>
   let host: TestHostComponent
   let overlay: HTMLElement

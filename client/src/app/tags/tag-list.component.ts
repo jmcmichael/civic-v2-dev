@@ -3,13 +3,9 @@ import { CvcTagComponent } from './entity-tag.component'
 import { EntityTagRef } from './entity-tag-specs'
 
 /**
- * Renders a row of entity tags that wraps cleanly.
- *
- * The component it replaces took a `TemplateRef` and a config object, and every
- * call site passed the same template: one that rendered an entity tag. That
- * indirection existed because the old tag needed a whole `LinkableEntity` and
- * each caller had to supply it. CvcTag renders from a `{ __typename, id }` ref
- * alone, so the tags can just be rendered here.
+ * Renders a row of entity tags that wraps cleanly. Takes bare
+ * `EntityTagRef`s — no TemplateRef, no config object — since CvcTag renders
+ * from a `{ __typename, id }` ref alone.
  */
 @Component({
   selector: 'cvc-tag-list',
