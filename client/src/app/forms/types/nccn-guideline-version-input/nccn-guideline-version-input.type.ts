@@ -1,11 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Type,
-  effect,
-} from '@angular/core'
+import { ChangeDetectionStrategy, Component, Type, effect } from '@angular/core'
 import { AbstractControl, ReactiveFormsModule } from '@angular/forms'
 import { CvcFieldBase } from '@app/forms/select'
+import { fieldOf } from '@app/forms/states/base.state'
 import { CvcFormFieldExtraType } from '@app/forms/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import {
@@ -24,8 +20,7 @@ export interface CvcNccnGuidelineFieldProps extends FormlyFieldProps {
   extraType?: CvcFormFieldExtraType
 }
 
-export interface CvcNccnGuidelineVersionFieldConfig
-  extends FormlyFieldConfig<CvcNccnGuidelineFieldProps> {
+export interface CvcNccnGuidelineVersionFieldConfig extends FormlyFieldConfig<CvcNccnGuidelineFieldProps> {
   type: 'nccn-guideline-version-input' | Type<CvcNccnGuidelineVersionField>
 }
 
@@ -76,7 +71,7 @@ export class CvcNccnGuidelineVersionField extends CvcFieldBase<
 
   /** see the FDA checkboxes: no barrier needed, effects flush late */
   private connectGuideline(): void {
-    const guideline = this.state?.fields.nccnGuidelineId
+    const guideline = fieldOf<number>(this.state, 'nccnGuidelineId')
     if (!guideline) return
     effect(
       () => {

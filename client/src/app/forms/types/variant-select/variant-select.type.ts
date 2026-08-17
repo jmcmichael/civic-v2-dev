@@ -22,6 +22,7 @@ import {
   FeatureSelectTagGQL,
   FeatureSelectTypeaheadFieldsFragment,
 } from '@app/forms/types/feature-select/feature-select.query.gql.generated'
+import { fieldOf } from '@app/forms/states/base.state'
 import { FeatureInstanceTypes, Maybe } from '@app/generated/civic.apollo.types'
 import { CvcTagComponent, TaggableTypename } from '@app/tags'
 import {
@@ -312,7 +313,7 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
    * `connectClearOnChange`).
    */
   private connectFeature(): void {
-    const featureId = this.state?.fields.featureId
+    const featureId = fieldOf<number>(this.state, 'featureId')
     if (!featureId) {
       console.error(
         `${this.field.id} requireFeature is set, but no featureId found on state.`

@@ -1,4 +1,7 @@
-import { EvidenceDirection, EvidenceType } from '@app/generated/civic.apollo.types'
+import {
+  EvidenceDirection,
+  EvidenceType,
+} from '@app/generated/civic.apollo.types'
 import {
   createEnumFieldHarness,
   describeEnumSelectContract,
@@ -15,18 +18,21 @@ const DIRECTIONS = [
 const formState = (
   formMode: 'add' | 'revise' = 'add',
   entityType?: EvidenceType
-) => ({
-  entityName: 'Evidence',
-  formMode,
-  fields: {
-    evidenceType: signal<EvidenceType | undefined>(entityType),
-    evidenceDirection: signal<EvidenceDirection | undefined>(
-      undefined
-    ),
-  },
-  enums: { direction: signal(DIRECTIONS) },
-  requires: {},
-})
+) => {
+  // typeField aliases the same signal a real state exposes there
+  const evidenceType = signal<EvidenceType | undefined>(entityType)
+  return {
+    entityName: 'Evidence',
+    formMode,
+    typeField: evidenceType,
+    fields: {
+      evidenceType,
+      evidenceDirection: signal<EvidenceDirection | undefined>(undefined),
+    },
+    enums: { direction: signal(DIRECTIONS) },
+    requires: {},
+  }
+}
 
 const setup = (
   state: ReturnType<typeof formState>,
@@ -64,7 +70,9 @@ describe('CvcDirectionSelectField', () => {
     const h = await setup(formState('revise', EvidenceType.Diagnostic))
     await h.settle()
     expect(h.props().label).toBe('Evidence Direction')
-    expect(h.props().tooltip).toContain('Evidence statement supports or refutes')
+    expect(h.props().tooltip).toContain(
+      'Evidence statement supports or refutes'
+    )
     h.destroy()
   })
 

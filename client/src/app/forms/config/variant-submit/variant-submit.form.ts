@@ -25,6 +25,9 @@ type VariantSubmitModel = {
 
 type VariantSubmitState = {
   formLayout: NzFormLayoutType
+  // deliberately the erased map — a submit-helper state offers only field
+  // slots for its fields to publish into; the entity-state surface does not
+  // apply
   fields: EntityFieldSignalMap
 }
 

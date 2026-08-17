@@ -104,13 +104,9 @@ export class CvcAmpCategorySelectField extends CvcEnumSelectFieldBase<
     super.ngOnInit()
     this.setOptions(OPTION_ORDER)
 
-    const requires = this.state?.requires.requiresAmpLevel
-    if (!requires) {
-      if (this.state) {
-        console.warn(
-          `${this.field.id} field's form provides a state, but could not find requiresAmpLevel to attach.`
-        )
-      }
+    const isRequired = this.state?.requires?.requiresAmpLevel
+    if (!isRequired) {
+      // no entity state → the field simply isn't gated in this form
       this.connectValueDescription()
       return
     }
@@ -118,8 +114,7 @@ export class CvcAmpCategorySelectField extends CvcEnumSelectFieldBase<
     // one effect owns description, extraType, required and disabled together;
     // the old field split them across two subscriptions that overwrote each
     // other's description depending on which emitted last
-    const isRequired = requires
-    effect(() => this.applyGate(isRequired() ?? false, this.selected()), {
+    effect(() => this.applyGate(isRequired(), this.selected()), {
       injector: this.injector,
     })
   }

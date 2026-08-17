@@ -68,30 +68,21 @@ export abstract class CvcEnumSelectFieldBase<
   }
 
   /**
-   * Follows the form's `<entityName>Type` and returns it. A type change
-   * invalidates whatever is selected, so this also clears the control;
-   * describing the field is left to the caller, so that each field has exactly
-   * one writer of `props`.
+   * Follows the form's `typeField` and returns it. A type change invalidates
+   * whatever is selected, so this also clears the control; describing the
+   * field is left to the caller, so that each field has exactly one writer
+   * of `props`. Mounted without an entity state (a finder form, a bare test
+   * host), this is a dead signal and the field simply isn't type-gated.
    *
    * **The first run never clears.** Arriving at an initial value is not a
    * change — on a revise or clone form that value is the prepopulated one, and
    * clearing it would wipe what the form had just loaded. There is a test
    * that fails if the guard is removed.
    */
-  protected connectEntityTypeGate<T = EntityType>(): Signal<Maybe<T>> {
-    const state = this.state
-    if (!state) return signal<Maybe<T>>(undefined).asReadonly()
-
-    const stateKey = `${state.entityName.toLowerCase()}Type`
-    const entityType = state.fields[stateKey] as Maybe<Signal<Maybe<T>>>
-    if (!entityType) {
-      console.error(
-        `${this.field.id} could not find form state's ${stateKey} to gate its options.`
-      )
-      return signal<Maybe<T>>(undefined).asReadonly()
-    }
-
-    return this.connectClearOnChange(entityType)
+  protected connectEntityTypeGate(): Signal<Maybe<EntityType>> {
+    const typeField = this.state?.typeField
+    if (!typeField) return signal<Maybe<EntityType>>(undefined).asReadonly()
+    return this.connectClearOnChange(typeField)
   }
 
   /**

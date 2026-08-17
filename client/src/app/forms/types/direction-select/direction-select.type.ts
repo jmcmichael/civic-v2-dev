@@ -12,7 +12,11 @@ import {
   CvcEnumSelectFieldBase,
   CvcEnumSelectFieldProps,
 } from '@app/forms/select'
-import { EntityDirection, EntityType } from '@app/forms/states/base.state'
+import {
+  EntityDirection,
+  EntityName,
+  EntityType,
+} from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import {
   FieldTypeConfig,
@@ -153,9 +157,9 @@ export class CvcDirectionSelectField extends CvcEnumSelectFieldBase<
   override ngOnInit(): void {
     super.ngOnInit()
     const state = this.state
-    if (!state) {
+    if (!state?.enums) {
       console.error(
-        `${this.field.id} requires a form state to populate its options, none was found.`
+        `${this.field.id} requires an entity form state to populate its options, none was found.`
       )
       this.placeholder.set('ERROR: Form state not found')
       return
@@ -164,37 +168,34 @@ export class CvcDirectionSelectField extends CvcEnumSelectFieldBase<
     this.props.label = this.props.labelFn(state.entityName)
     this.props.tooltip = `An indicator of whether the ${state.entityName} statement supports or refutes the clinical significance of an event.`
     this.placeholder.set(this.props.placeholderFn(state.entityName))
-
-    if (!state.enums.direction) {
-      console.error(
-        `${this.field.id} could not find form state's direction$ to populate select.`
-      )
-    } else {
-      this.connectStateEnum(state.enums.direction)
-    }
+    this.connectStateEnum(state.enums.direction)
 
     const entityType = this.connectEntityTypeGate()
-    effect(() => this.describe(entityType(), this.selected()), {
-      injector: this.injector,
-    })
+    effect(
+      () => this.describe(state.entityName, entityType(), this.selected()),
+      { injector: this.injector }
+    )
   }
 
-  private describe(entityType?: EntityType, direction?: EntityDirection): void {
-    const state = this.state!
+  private describe(
+    entityName: EntityName,
+    entityType?: EntityType,
+    direction?: EntityDirection
+  ): void {
     if (!entityType) {
       this.applyProps({
         disabled: true,
-        description: this.props.requireTypePromptFn(state.entityName),
+        description: this.props.requireTypePromptFn(entityName),
         extraType: 'prompt',
       })
       return
     }
 
     this.placeholder.set(
-      this.props.placeholderFn(state.entityName, formatEvidenceEnum(entityType))
+      this.props.placeholderFn(entityName, formatEvidenceEnum(entityType))
     )
     const text: Maybe<string> = direction
-      ? optionText[state.entityName]?.[entityType]?.[direction]
+      ? optionText[entityName]?.[entityType]?.[direction]
       : undefined
     this.applyProps({
       disabled: false,

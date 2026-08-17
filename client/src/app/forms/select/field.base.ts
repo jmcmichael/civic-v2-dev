@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { BaseState } from '@app/forms/states/base.state'
+import { EntityFormState } from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
 
@@ -44,7 +44,7 @@ export abstract class CvcFieldBase<
   readonly value: Signal<Maybe<V>> = this.currentValue.asReadonly()
 
   /** the form state this field belongs to, when its form provides one */
-  protected state?: BaseState
+  protected state?: EntityFormState
 
   ngOnInit(): void {
     const initial = this.formControl.value as Maybe<V>
@@ -70,7 +70,9 @@ export abstract class CvcFieldBase<
   protected connectStateField(): void {
     const formState = this.field.options?.formState
     if (!formState?.fields) return
-    this.state = formState as BaseState
+    // the one typed-cast point: formly types formState `any`, so this is
+    // where the form's word is taken that it installed an EntityFormState
+    this.state = formState as EntityFormState
 
     const key = String(this.field.key)
     const stateField = this.state.fields[key]

@@ -8,7 +8,6 @@ import {
   EvidenceType,
 } from '@app/generated/civic.apollo.types'
 import { Signal, WritableSignal, computed, signal } from '@angular/core'
-import { CvcInputEnum } from '@app/forms/forms.types'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { $enum } from 'ts-enum-util'
@@ -44,27 +43,66 @@ export enum SelectType {
 }
 
 /**
- * Where each field publishes its current value, keyed by the field's formly
- * `key`. Writable because the fields own them.
+ * The erased, by-key view of a state's field signals, for code that can only
+ * know a key at runtime (`connectStateField`, `fieldOf`). Values are
+ * `unknown` and a lookup may miss — both facts stated by the type instead of
+ * hidden behind `any`. Code that knows its form statically reads a concrete
+ * state's typed `fields` (`EvidenceFields`, `AssertionFields`) instead.
  */
-export type EntityFieldSignalMap = { [key: string]: WritableSignal<any> }
+export type EntityFieldSignalMap = {
+  [key: string]: WritableSignal<unknown> | undefined
+}
 
 /**
- * Everything derived from those values — which enum options apply, which fields
- * the chosen entity type requires. Read-only because nothing pushes into them;
- * they are `computed` from `fields`.
+ * What a form's state offers the fields mounted inside it — the type behind
+ * `CvcFieldBase.state`. A discriminated pair: entity states (`BaseState`)
+ * carry the whole derived surface, the lightweight finder/submit states
+ * carry only field slots. One presence check (`state.requires`,
+ * `state.enums` or `state.typeField`) therefore narrows to the full entity
+ * surface — `entityName` and the rest come guaranteed with it.
  */
-export type EntityDerivedSignalMap = { [key: string]: Signal<any> }
+export type EntityFormState =
+  | {
+      /** field slots only: the finder/submit helper states */
+      fields: EntityFieldSignalMap
+      entityName?: undefined
+      typeField?: undefined
+      enums?: undefined
+      requires?: undefined
+    }
+  | {
+      /** the full surface every entity state (`BaseState`) guarantees */
+      fields: EntityFieldSignalMap
+      entityName: EntityName
+      typeField: WritableSignal<Maybe<EntityType>>
+      enums: EntityEnums
+      requires: EntityRequires
+    }
+
+/**
+ * A typed read of a field slot a state may or may not provide — for fields
+ * that need a *specific* sibling's signal (variant-select needs `featureId`)
+ * but mount under states that can lack it. The type argument is the caller's
+ * claim about the slot's value type, checked nowhere — claim only what the
+ * owning states declare. A missing slot returns `undefined` for the caller
+ * to report or tolerate.
+ */
+export function fieldOf<T>(
+  state: Maybe<EntityFormState>,
+  key: string
+): WritableSignal<Maybe<T>> | undefined {
+  return state?.fields[key] as WritableSignal<Maybe<T>> | undefined
+}
 
 // 'state' for non-entity forms that just stores layout for form-field.wrapper's template logic
 export type NoStateFormOptions = { formState: { formLayout: NzFormLayoutType } }
 
 /** The four enum-option signals, derived from the chosen entity type. */
 export type EntityEnums = {
-  entityType: Signal<CvcInputEnum[]>
-  significance: Signal<CvcInputEnum[]>
-  direction: Signal<CvcInputEnum[]>
-  interaction: Signal<CvcInputEnum[]>
+  entityType: Signal<EntityType[]>
+  significance: Signal<EntitySignificance[]>
+  direction: Signal<EntityDirection[]>
+  interaction: Signal<TherapyInteraction[]>
 }
 
 /**
@@ -91,21 +129,23 @@ export type EntityRequires = {
  * published. A field created later still reads the truth whenever it reads.
  * (`base.state.spec.ts` pins these semantics.)
  */
-class BaseState {
+abstract class BaseState {
   formLayout: NzFormLayoutType = 'vertical'
   formMode: CvcFormMode = 'add'
-  fields: EntityFieldSignalMap
-  enums: EntityDerivedSignalMap
-  requires: EntityDerivedSignalMap
+  abstract readonly fields: EntityFieldSignalMap
+  abstract readonly enums: EntityEnums
+  abstract readonly requires: EntityRequires
+  /**
+   * The form's chosen entity type — `fields.evidenceType` /
+   * `fields.assertionType` under one shared name, so cross-field machinery
+   * (the type gates) reaches it without constructing a stringly key.
+   */
+  abstract readonly typeField: WritableSignal<Maybe<EntityType>>
   validStates = new Map<EntityType, ValidEntity>()
   entityName: EntityName
   pluralNames: Map<EntityName, string>
 
-  constructor(en: EntityName) {
-    this.fields = {}
-    this.enums = {}
-    this.requires = {}
-
+  protected constructor(en: EntityName) {
     this.entityName = en
     this.pluralNames = new Map<EntityName, string>()
 

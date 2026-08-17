@@ -8,14 +8,14 @@ import {
   TherapyInteraction,
   AmpLevel,
 } from '@app/generated/civic.apollo.types'
-import { Signal, WritableSignal, computed, signal } from '@angular/core'
-import { CvcInputEnum } from '../forms.types'
+import { WritableSignal, signal } from '@angular/core'
 import { assertionSubmitFieldsDefaults } from '../models/assertion-submit.model'
 import {
   BaseState,
   EntityEnums,
   EntityName,
   EntityRequires,
+  EntityType,
 } from './base.state'
 
 /** Keyed by each field's formly `key`; the field owns its entry. */
@@ -46,9 +46,10 @@ export type AssertionFields = {
 }
 
 class AssertionState extends BaseState {
-  fields: AssertionFields
-  enums: EntityEnums
-  requires: EntityRequires
+  readonly fields: AssertionFields
+  readonly enums: EntityEnums
+  readonly requires: EntityRequires
+  readonly typeField: WritableSignal<Maybe<EntityType>>
 
   constructor() {
     super(EntityName.ASSERTION)
@@ -82,6 +83,8 @@ class AssertionState extends BaseState {
       description: signal<Maybe<string>>(undefined),
       comment: signal<Maybe<string>>(undefined),
     }
+
+    this.typeField = this.fields.assertionType
 
     // Everything below derives from the chosen assertion type via `computed`
     // (see BaseState.forType): no push, no ordering, and no way for two

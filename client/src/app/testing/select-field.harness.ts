@@ -528,24 +528,16 @@ export function describeTypeGateContract<
       h.destroy()
     })
 
-    it('reports a requires map that lacks its key and stays ungated', async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      try {
-        const { formState } = statePublicationProbe(config.key, {
-          requires: {},
-        })
-        const h = await mount(formState)
-        expect(
-          warn.mock.calls.some((args) =>
-            String(args[0]).includes(config.requiresKey)
-          )
-        ).toBe(true)
-        expect(props(h).disabled).not.toBe(true)
-        expect(isDisabled(h)).toBe(false)
-        h.destroy()
-      } finally {
-        warn.mockRestore()
-      }
+    it('stays ungated when a hand-built state lacks its requires key', async () => {
+      // unrepresentable in typed app code (EntityRequires is total), but the
+      // formly `any` boundary can still deliver it — the gate must not crash
+      const { formState } = statePublicationProbe(config.key, {
+        requires: {},
+      })
+      const h = await mount(formState)
+      expect(props(h).disabled).not.toBe(true)
+      expect(isDisabled(h)).toBe(false)
+      h.destroy()
     })
 
     it('is not gated by a form that provides no requires map', async () => {
