@@ -22,7 +22,7 @@ import { civicIcons } from '@app/icons-provider.module'
 import { readCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, type TestContext } from 'vitest'
 import {
   MockGraphqlOperation,
   provideMockApollo,
@@ -199,6 +199,11 @@ export async function createEntityTableHarness<TRow extends { id: number }>(
  * through one manager's real config. Call inside a `describe` for that table;
  * add config-specific `it`s alongside it.
  *
+ * A behaviour this config cannot exercise — no text filter, no tooltip,
+ * nothing highlighted — calls `ctx.skip` rather than returning early, so the
+ * runner reports it as skipped. A silent pass for a behaviour nothing drove is
+ * how a config change deletes coverage without anyone seeing it.
+ *
  * Rows are deliberately never asserted on. The body is a `cdk-virtual-scroll`
  * viewport, which measures against real layout and renders nothing in jsdom —
  * the same reason `table-scroll.directive.spec.ts` tests its pure `nextFetch`
@@ -312,10 +317,10 @@ export function describeEntityTableContract<TRow extends { id: number }>(
       }
     }, 20_000)
 
-    it('omits a cleared filter rather than sending null', async () => {
+    it('omits a cleared filter rather than sending null', async (ctx: TestContext) => {
       const h = await setup()
       const column = usableTextColumn(h)
-      if (!column) return
+      if (!column) ctx.skip('no text filter survives its own transform')
       const typed = filterInput(column, config.filterInputs, filterValue)
 
       h.table.onFilterChange(column, typed)
@@ -334,10 +339,10 @@ export function describeEntityTableContract<TRow extends { id: number }>(
      * regression this guards, which once left the reset button reading as
      * inert.
      */
-    it('reset clears the query and the filter inputs together', async () => {
+    it('reset clears the query and the filter inputs together', async (ctx: TestContext) => {
       const h = await setup()
       const column = usableTextColumn(h)
-      if (!column) return
+      if (!column) ctx.skip('no text filter survives its own transform')
       const typed = filterInput(column, config.filterInputs, filterValue)
 
       h.table.onFilterChange(column, typed)
@@ -408,7 +413,7 @@ export function describeEntityTableContract<TRow extends { id: number }>(
       expect(h.table.isSelected(first)).toBe(false)
     })
 
-    it('hides a column through the preferences panel, but never a pinned one', async () => {
+    it('hides a column through the preferences panel, but never a pinned one', async (ctx: TestContext) => {
       const h = await setup()
       await h.settle()
 
@@ -416,7 +421,7 @@ export function describeEntityTableContract<TRow extends { id: number }>(
         .columns()
         .find((c) => !c.omitFromPrefs && !c.hidden)
       const omitted = h.table.columns().filter((c) => c.omitFromPrefs)
-      if (!hideable) return
+      if (!hideable) ctx.skip('every column is pinned out of the prefs panel')
 
       h.table.onPrefsChange(
         h.table
@@ -430,12 +435,13 @@ export function describeEntityTableContract<TRow extends { id: number }>(
       for (const column of omitted) expect(visible).toContain(column.key)
     })
 
-    it('labels preference entries with the tooltip when a column has one', async () => {
+    it('labels preference entries with the tooltip when a column has one', async (ctx: TestContext) => {
       const h = await setup()
       const tooltipped = h.table
         .columns()
         .find((c) => c.tooltip && !c.omitFromPrefs)
-      if (!tooltipped) return
+      if (!tooltipped)
+        ctx.skip('no column in the prefs panel declares a tooltip')
 
       const entry = h.table
         .columnPrefs()
@@ -460,12 +466,17 @@ export function describeEntityTableContract<TRow extends { id: number }>(
         ).toBeTruthy()
       }
 
-      // a column without a seed must not need one: its entities arrive as real
-      // nested objects and normalise on their own
-      const unseeded = h.table
+      // a seeding column missing from `seeded` would leave the loop above
+      // asserting nothing at all
+      const seeding = h.table
         .columns()
-        .filter((c) => c.cell.kind === 'entity-tag' && !(c.cell as any).seed)
-      expect(unseeded.every((c) => !!c.cell)).toBe(true)
+        .filter((c) => c.cell.kind === 'entity-tag' && !!c.cell.seed)
+      if (seeding.length > 0) {
+        expect(
+          config.seeded ?? [],
+          `${seeding.map((c) => c.key).join(', ')} declare 'seed'; name what they write in 'seeded'`
+        ).not.toHaveLength(0)
+      }
     })
 
     /**
@@ -473,12 +484,12 @@ export function describeEntityTableContract<TRow extends { id: number }>(
      * it replaces built a RegExp from raw filter input, so an unbalanced
      * bracket threw, and returned it through `bypassSecurityTrustHtml`.
      */
-    it('emphasises the active filter inside a highlighting text column', async () => {
+    it('emphasises the active filter inside a highlighting text column', async (ctx: TestContext) => {
       const h = await setup()
       const column = h.table
         .columns()
-        .find((c) => c.cell.kind === 'text' && (c.cell as any).highlight)
-      if (!column) return
+        .find((c) => c.cell.kind === 'text' && c.cell.highlight)
+      if (!column) ctx.skip('no text column asks for highlighting')
 
       const plain = h.table.textSegments(column, config.rows[0])
       expect(plain.every((s) => !s.highlight)).toBe(true)
