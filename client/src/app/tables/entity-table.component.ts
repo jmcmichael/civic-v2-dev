@@ -20,7 +20,7 @@ import {
 } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
 import { CombinedGraphQLErrors, type ErrorLike } from '@apollo/client'
-import { Maybe, PageInfo } from '@app/generated/civic.apollo.types'
+import { Maybe, SortDirection } from '@app/generated/civic.apollo.types'
 import { CvcAttributeTagModule } from '@app/forms/components/attribute-tag/attribute-tag.module'
 import { CvcEmptyValueModule } from '@app/forms/components/empty-value/empty-value.module'
 import {
@@ -30,6 +30,7 @@ import {
   LabelSegment,
   labelSegments,
   readCachedEntityName,
+  writeCachedEntity,
 } from '@app/tags'
 import { Apollo, QueryRef } from 'apollo-angular'
 import type { GraphQLFormattedError } from 'graphql'
@@ -48,9 +49,18 @@ import { debounceTime } from 'rxjs/operators'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { CvcCellContext, CvcCellDirective } from './cell.directive'
-import { connectionNodes, displayedCount } from './connection.types'
+import {
+  CvcPageInfo,
+  connectionNodes,
+  displayedCount,
+} from './connection.types'
 import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
-import { CvcSortState, CvcTableSettings } from './entity-table.types'
+import {
+  CvcEntityTagCell,
+  CvcSortState,
+  CvcTableSettings,
+  DEFAULT_EMPTY_VALUE,
+} from './entity-table.types'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
 import {
@@ -184,6 +194,9 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * importing it here would be flagged as an unused directive.
    */
   readonly cellTemplates = contentChildren(CvcCellDirective)
+
+  /** what an empty cell renders as unless its column overrides it */
+  protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
   // ---------------------------------------------------------------- columns
 
@@ -340,9 +353,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     if (sort?.order) {
       const column = spec.columns.find((c) => c.key === sort.key)
       if (column?.sort) {
-        vars['sortBy'] = {
+        // SortDirection is generated from the schema; the string literals it
+        // replaces were the same values, but nothing tied them to the enum the
+        // server actually declares
+        vars[spec.sortVar] = {
           column: column.sort.column,
-          direction: sort.order === 'ascend' ? 'ASC' : 'DESC',
+          direction:
+            sort.order === 'ascend' ? SortDirection.Asc : SortDirection.Desc,
         }
       }
     }
@@ -380,8 +397,10 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     this.spec().connection(this.result()?.data)
   )
   readonly rows = computed(() => connectionNodes(this.connection()))
-  readonly pageInfo = computed<Maybe<PageInfo>>(
-    () => this.connection()?.pageInfo as Maybe<PageInfo>
+  // no cast: CvcPageInfo is the generated PageInfo minus __typename, which is
+  // what the scroll observer takes
+  readonly pageInfo = computed<Maybe<CvcPageInfo>>(
+    () => this.connection()?.pageInfo
   )
   readonly displayedTotal = computed(() => displayedCount(this.connection()))
 
@@ -419,11 +438,11 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       if (settings) untracked(() => this.applySettings(settings))
     })
 
-    // let the config project denormalised rows back into the cache before the
-    // tags that read from it paint
+    // project denormalised rows back into the cache before the tags that read
+    // from it paint
     effect(() => {
       const rows = this.rows()
-      if (rows.length) untracked(() => this.spec().seedCache?.(rows))
+      if (rows.length) untracked(() => this.seedRows(rows))
     })
   }
 
@@ -480,6 +499,37 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
   onScrollPhase(phase: CvcScrollEvent): void {
     this.scrollPhase.set(phase)
+  }
+
+  /**
+   * Writes each entity-tag column's entities into the cache, for the columns
+   * that declare how.
+   *
+   * A `Browse*` row flattens its entities into scalar columns, so it normalises
+   * under its own typename and the tags — which render from the cache alone —
+   * find nothing and fall back to `#<id>`. The projection lives on the column
+   * because it describes the same entity the column's `ref` addresses; the
+   * table only walks and writes.
+   *
+   * `writeCachedEntity` leaves an already-cached entity alone, so a real
+   * query's copy always wins over a browse row's projection of it.
+   */
+  private seedRows(rows: ReadonlyArray<TRow>): void {
+    const seeds = this.spec()
+      .columns.map((column) => column.cell)
+      .filter((cell) => cell.kind === 'entity-tag' && !!cell.seed)
+      .map((cell) => (cell as CvcEntityTagCell<TRow>).seed!)
+    if (seeds.length === 0) return
+
+    for (const row of rows) {
+      for (const seed of seeds) {
+        const entities = seed(row)
+        if (!entities) continue
+        for (const entity of Array.isArray(entities) ? entities : [entities]) {
+          writeCachedEntity(this.apollo, entity.__typename, entity)
+        }
+      }
+    }
   }
 
   /** the `cvcCell` override for a column, if the host supplied one */

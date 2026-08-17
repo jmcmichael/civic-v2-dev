@@ -148,7 +148,7 @@
                     } @else {
                       <cvc-empty-value
                         [cvcEmptyCategory]="
-                          col.emptyValue ?? 'not-applicable'
+                          col.emptyValue ?? defaultEmptyValue
                         " />
                     }
                   } @else if (refs) {
@@ -161,7 +161,9 @@
                       [truncate]="cell.truncateLabel" />
                   } @else {
                     <cvc-empty-value
-                      [cvcEmptyCategory]="col.emptyValue ?? 'not-applicable'" />
+                      [cvcEmptyCategory]="
+                        col.emptyValue ?? defaultEmptyValue
+                      " />
                   }
                 }
 
@@ -180,7 +182,7 @@
                       " />
                   } @else {
                     <cvc-empty-value
-                      [cvcEmptyCategory]="col.emptyValue ?? 'unspecified'"
+                      [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue"
                       cvcDisplayMode="small" />
                   }
                 }
@@ -195,7 +197,9 @@
                     </nz-tag>
                   } @else {
                     <cvc-empty-value
-                      [cvcEmptyCategory]="col.emptyValue ?? 'unspecified'" />
+                      [cvcEmptyCategory]="
+                        col.emptyValue ?? defaultEmptyValue
+                      " />
                   }
                 }
 
@@ -213,7 +217,9 @@
                     </span>
                   } @else {
                     <cvc-empty-value
-                      [cvcEmptyCategory]="col.emptyValue ?? 'unspecified'" />
+                      [cvcEmptyCategory]="
+                        col.emptyValue ?? defaultEmptyValue
+                      " />
                   }
                 }
 

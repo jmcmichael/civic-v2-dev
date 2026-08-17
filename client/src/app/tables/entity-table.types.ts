@@ -1,12 +1,14 @@
+import { EnumOutputStyle } from '@app/core/pipes/evidence-enum-display-type'
 import { CvcEmptyValueCategory } from '@app/forms/components/empty-value/empty-value.component'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import {
   CvcTagLabelMax,
   EntityTagRef,
+  LinkableEntity,
   PopoverPlacement,
   TaggableTypename,
 } from '@app/tags'
-import { NzTableFilterList, NzTableSortOrder } from 'ng-zorro-antd/table'
+import { NzTableSortOrder } from 'ng-zorro-antd/table'
 
 /**
  * The column model.
@@ -42,7 +44,19 @@ export interface CvcColumn<
   tooltip?: string
   /** keep the column out of the visible-columns panel, e.g. the select column */
   omitFromPrefs?: boolean
-  /** rendered when the cell accessor yields nothing */
+  /**
+   * Rendered when the cell accessor yields nothing. Defaults to
+   * `DEFAULT_EMPTY_VALUE` for every cell kind.
+   *
+   * The template used to default per kind — 'not-applicable' for entity tags,
+   * 'unspecified' elsewhere — so a column's empty rendering could not be read
+   * off its config. One default, overridden per column where the distinction is
+   * real (an evidence item with no therapy interaction is not-applicable; one
+   * with no description is unspecified).
+   *
+   * The set of categories is itself unsettled — see
+   * agent-artifacts/entity-mgr-table-refactor/empty-value-audit.md.
+   */
   emptyValue?: CvcEmptyValueCategory
   cell: CvcCellSpec<TRow>
   sort?: CvcColumnSort<TSortColumn>
@@ -88,6 +102,27 @@ export interface CvcEntityTagCell<TRow> {
   kind: 'entity-tag'
   /** a single ref, a list, or nothing */
   ref: (row: TRow) => Maybe<EntityTagRef> | ReadonlyArray<EntityTagRef>
+  /**
+   * Projects this column's entity back out of a denormalised row, so the tag
+   * can resolve it.
+   *
+   * `cvc-tag` renders from the Apollo cache alone, keyed `__typename:id`. A
+   * `Browse*` row flattens its entities into scalar columns — `BrowseVariant`
+   * carries `featureId`/`featureName`/`featureLink` rather than a `feature`
+   * object — so it normalises to `BrowseVariant:<id>` and no `Feature:<id>`
+   * entry is ever written. The tag then renders `#<id>` even though the name is
+   * right there in the response.
+   *
+   * Declared beside `ref` because the two describe the same entity: `ref` says
+   * how to address it, this says how to reconstitute it. The table writes them
+   * with `writeCachedEntity`, which satisfies the right fragment and refuses to
+   * overwrite an entity a real query already cached. Omit it when the column's
+   * entities arrive as real nested objects — those normalise on their own.
+   *
+   * The returned object must satisfy the typename's `Linkable*` fragment
+   * completely; `watchFragment` treats one missing field as incomplete.
+   */
+  seed?: (row: TRow) => Maybe<LinkableEntity> | ReadonlyArray<LinkableEntity>
   /** tags shown before the rest collapse into a collection tag */
   maxTags?: number
   truncateLabel?: CvcTagLabelMax
@@ -106,8 +141,12 @@ export interface CvcEnumTagCell<TRow> {
    * table cannot know which pipe an enum wants.
    */
   tooltip?: (row: TRow) => Maybe<string>
-  /** false renders just the icon, for narrow columns */
-  showLabel?: boolean
+  /**
+   * false renders just the icon, for narrow columns; an `EnumOutputStyle`
+   * picks how the label is abbreviated — the evidence rating column uses
+   * 'short-string' to fit "5 stars" into 45px.
+   */
+  showLabel?: boolean | EnumOutputStyle
   /** override when the tag cannot infer an icon from the value */
   showIcon?: string | boolean
 }
@@ -181,9 +220,27 @@ export interface CvcNumericFilter<TVars> extends CvcFilterBase<TVars> {
   transform?: (value: Maybe<number>) => unknown
 }
 
-export interface CvcEnumFilter<TVars> extends CvcFilterBase<TVars> {
+/**
+ * One choice in an enum column's filter menu.
+ *
+ * `TValue` carries the generated enum through, so `enumFilterOptions(
+ * EvidenceType)` yields options whose values are `EvidenceType` members rather
+ * than bare strings — the filter cannot offer a value the schema does not have.
+ * Replaces ng-zorro's `NzTableFilterList`, which typed `value` as `any` and put
+ * a vendor shape in the config surface; the component maps to it at the
+ * boundary instead.
+ */
+export interface CvcEnumOption<TValue = string> {
+  label: string
+  value: TValue
+}
+
+export interface CvcEnumFilter<
+  TVars,
+  TValue = string,
+> extends CvcFilterBase<TVars> {
   kind: 'enum'
-  options: NzTableFilterList
+  options: ReadonlyArray<CvcEnumOption<TValue>>
 }
 
 /** a column's current filter value, keyed by column */
@@ -206,6 +263,15 @@ export interface CvcColumnPref {
   key: string
   visible: boolean
 }
+
+/**
+ * What a column renders when its accessor yields nothing, absent an override.
+ *
+ * One value for every cell kind. The template used to pick per kind, which made
+ * a column's empty rendering unreadable from its config and forced the variant
+ * manager to override it on all five columns.
+ */
+export const DEFAULT_EMPTY_VALUE: CvcEmptyValueCategory = 'unspecified'
 
 /** what a host passes to drive filters and visibility from outside the table */
 export interface CvcTableSettings {

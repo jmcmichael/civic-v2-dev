@@ -4,7 +4,7 @@ import {
   VariantsSortColumns,
 } from '@app/generated/civic.apollo.types'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
-import { readCachedEntity } from '@app/tags'
+import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { variantManagerConfig } from './variant-manager.config'
@@ -68,7 +68,7 @@ describe('variantManagerConfig', () => {
       ],
     })
     apollo = TestBed.inject(Apollo)
-    spec = variantManagerConfig(TestBed.inject(VariantManagerGQL), apollo)
+    spec = variantManagerConfig(TestBed.inject(VariantManagerGQL))
   })
 
   const column = (key: string) => {
@@ -142,22 +142,37 @@ describe('variantManagerConfig', () => {
     })
   })
 
-  describe('seedCache', () => {
-    it('makes the variant and feature tags resolvable', () => {
-      expect(readCachedEntity(apollo, 'Variant', 12)).toBeUndefined()
-      expect(readCachedEntity(apollo, 'Feature', 5)).toBeUndefined()
+  describe('cache seeds', () => {
+    // the table walks each entity-tag column's `seed` and writes the result;
+    // these assert the projections themselves, which is where the field lists
+    // have to match the Linkable* fragments exactly
+    const seedOf = (key: string) => (column(key).cell as any).seed
 
-      spec.seedCache!([ROW])
+    it('projects a variant that satisfies LinkableVariant', () => {
+      expect(readCachedEntity(apollo, 'Variant', 12)).toBeUndefined()
+
+      writeCachedEntity(apollo, 'Variant', seedOf('variant')(ROW))
 
       expect(readCachedEntity(apollo, 'Variant', 12)).toMatchObject({
         name: 'V600E',
         link: '/variants/12',
       })
+    })
+
+    it('projects a feature that satisfies LinkableFeature', () => {
+      writeCachedEntity(apollo, 'Feature', seedOf('feature')(ROW))
+
       expect(readCachedEntity(apollo, 'Feature', 5)).toMatchObject({
         name: 'BRAF',
         link: '/features/5',
         flagged: true,
       })
+    })
+
+    // these arrive as real nested entities and normalise on their own
+    it('leaves the nested-entity columns unseeded', () => {
+      expect(seedOf('diseases')).toBeUndefined()
+      expect(seedOf('therapies')).toBeUndefined()
     })
 
     /**
@@ -168,7 +183,7 @@ describe('variantManagerConfig', () => {
      * If either enum gains a member the other lacks, this is where it shows.
      */
     it('derives the feature type from the variant category', () => {
-      spec.seedCache!([ROW])
+      writeCachedEntity(apollo, 'Feature', seedOf('feature')(ROW))
 
       expect(readCachedEntity(apollo, 'Feature', 5)).toMatchObject({
         featureType: VariantCategories.Gene,
