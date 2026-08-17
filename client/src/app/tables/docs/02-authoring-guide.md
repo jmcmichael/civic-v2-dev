@@ -4,7 +4,12 @@ Recipes for the common tasks, using the two shipped tables as worked
 examples: `forms/types/evidence-select/evidence-manager/` (rich cell mix,
 filter transform) and `forms/types/variant-select/variant-manager/`
 (denormalised `Browse*` rows, cache seeding). Read
-`01-architecture.md` first if the terms here are unfamiliar.
+`01-architecture.md` first if the terms here are unfamiliar — in particular
+[The layers](01-architecture.md#the-layers) for where a change belongs,
+[The type layer](01-architecture.md#the-type-layer) for what the generics check
+and why they erase, and
+[What you see, and what draws it](01-architecture.md#what-you-see-and-what-draws-it)
+for the region-by-region map of the rendered table.
 
 The general shape of every task: **edit the config, let the compiler tell you
 what else must change, then run the config spec.** Column behaviour is data;

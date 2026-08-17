@@ -154,7 +154,8 @@ dedup being too weak.
 We do not use ng-zorro's `nzLeft="true"` auto-measurement — its per-row
 coordination never reached these cells (everything resolved to `left: 0` and
 stacked). Offsets are **computed** from declared px widths in
-`stickyOffsets`, and the edge-shadow classes are applied manually. So:
+`resolveStickyOffsets` (`sticky-offsets.ts`), and the edge-shadow classes are
+applied manually. So:
 
 - pinned columns need px widths (anything else parses to 0 and shifts every
   offset after it);
@@ -204,9 +205,8 @@ after it.
 
 ## 15. Odds and ends
 
-- **`EntityTableConfig.seedCache` is vestigial** — declared, erased by the
-  spec, consumed by nothing. Column-level `cell.seed` is the real mechanism.
-  Either use that or delete the field; don't wire new code to it.
+- **Cache seeding is per column,** via `cell.seed` on an `entity-tag` column.
+  There is no config-level seeding hook.
 - **`Maybe<T>` is `T | undefined`,** but the server sends literal `null` —
   accessors that just forward a row field must survive both (the `text`
   path already checks both; copy it).
