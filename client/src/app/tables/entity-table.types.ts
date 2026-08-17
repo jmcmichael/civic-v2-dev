@@ -17,6 +17,12 @@ import { NzTableSortOrder } from 'ng-zorro-antd/table'
  * serve every column and the union is narrowed once, at the point it actually
  * varies.
  *
+ * Layout members are typed facades over nz-table's per-cell directive inputs
+ * (`key` → `nzColumnKey`, `width` → `nzWidth`, `align` → `nzAlign`, `fixed` →
+ * `nzLeft`/`nzRight`, sort → `nzSortOrder`/`nzSortFn`); the component applies
+ * them in its single `<th>`/`<td>`. See docs/01-architecture.md for the full
+ * mapping table.
+ *
  * @template TRow row/node type the table renders; must satisfy the host
  *   component's `{ id: number }` constraint
  * @template TVars the query's generated variables type; checked by
@@ -29,13 +35,25 @@ export interface CvcColumn<
   TVars = unknown,
   TSortColumn extends string = string,
 > {
-  /** stable identity: addresses the column in prefs, filters and data-column */
+  /**
+   * Stable identity: addresses the column in prefs, filters, `data-column`
+   * test hooks, and ng-zorro's `nzColumnKey`.
+   */
   key: string
   label: string
-  /** passed to th[nzWidth]; use px, e.g. '215px' */
+  /**
+   * Passed to `th[nzWidth]`; use px, e.g. '215px' — sticky offsets for
+   * pinned columns are computed arithmetically from these.
+   */
   width: string
+  /** `th`/`td` `nzAlign`; same union as ng-zorro's */
   align?: 'left' | 'center' | 'right'
-  /** pins the column while the table scrolls horizontally */
+  /**
+   * Pins the column while the table scrolls horizontally. Rendered as a
+   * computed CSS length on `nzLeft`/`nzRight` (`NzCellFixedDirective`) —
+   * deliberately never the boolean auto-measure mode; see
+   * `CvcEntityTableComponent.stickyOffsets`.
+   */
   fixed?: 'left' | 'right'
   /** initial visibility; the preferences panel toggles it thereafter */
   hidden?: boolean
@@ -165,14 +183,26 @@ export interface CvcCustomCell {
  *
  * `column` is a member of the query's generated `*SortColumns` enum, carried
  * as a type parameter so a wrong member is a compile error (the zorro table's
- * own `nzColumnKey` path erases this type entirely).
+ * own `nzColumnKey` path erases this type entirely). Sort *order* speaks
+ * ng-zorro's vocabulary — `NzTableSortOrder` is `'ascend' | 'descend' | null`
+ * — and is translated to the generated `SortDirection` only at the query
+ * boundary.
  */
 export interface CvcColumnSort<TSortColumn extends string> {
   column: TSortColumn
+  /** initial sort, as `th[nzSortOrder]` */
   default?: NzTableSortOrder
+  /** render the column without a sorter (`nzShowSort` false) */
   disabled?: boolean
 }
 
+/**
+ * A column's filter control, rendered in a second `thead` row (ant's
+ * filter-row idiom). Text/numeric kinds render `nz-input`/`nz-input-number`
+ * boxes; the enum kind renders ng-zorro's `nz-filter-trigger` funnel with a
+ * dropdown menu — deliberately not `th[nzFilters]`, whose option values are
+ * untyped (see `CvcEnumOption`).
+ */
 export type CvcColumnFilter<TVars> =
   | CvcTextFilter<TVars>
   | CvcNumericFilter<TVars>
@@ -235,7 +265,7 @@ export interface CvcEnumFilter<
 /** a column's current filter value, keyed by column */
 export type CvcFilterState = Readonly<Record<string, unknown>>
 
-/** the active sort, or none */
+/** the active sort, or none; `order` is ng-zorro's three-valued sort union */
 export interface CvcSortState {
   key: string
   order: NzTableSortOrder

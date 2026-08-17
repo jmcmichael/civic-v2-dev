@@ -275,7 +275,12 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     return this.stickyOffsets().get(column.key)?.firstRight ?? false
   }
 
-  /** `tooltip || label`, matching what the preferences panel has always shown */
+  /**
+   * `tooltip || label`, matching what the preferences panel has always shown.
+   * The shape is ng-zorro 22's `NzCheckboxOption` (`{ label, value }`) for
+   * `nz-checkbox-group [nzOptions]`; checked values ride `ngModel`
+   * separately under the v22 API split.
+   */
   readonly columnPrefs = computed(() =>
     this.columns()
       .filter((column) => !column.omitFromPrefs)

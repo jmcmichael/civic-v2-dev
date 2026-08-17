@@ -10,6 +10,9 @@
  * `enumFilterOptions`, the column/cell/filter types, and `CvcCellDirective`
  * for one-off cell templates. The scroll directive, filter widgets and
  * connection helpers are internals of the component, exported for tests.
+ *
+ * Developer docs live in ./docs: 01-architecture.md (incl. the column-model
+ * → ng-zorro mapping), 02-authoring-guide.md, 03-troubleshooting.md.
  */
 export { CvcEntityTableComponent } from './entity-table.component'
 export type { CvcTableRequestError } from './entity-table.component'
