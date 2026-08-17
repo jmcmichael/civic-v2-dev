@@ -1,10 +1,4 @@
-// Deep import: the forms/select barrel does not re-export QueryData/QueryVars,
-// and duplicating them here would let the two copies drift.
-import {
-  AnyQuery,
-  QueryData,
-  QueryVars,
-} from '@app/forms/select/entity-select-config'
+import { AnyQuery, QueryData, QueryVars } from '@app/core/utilities/query-types'
 import { isDevMode } from '@angular/core'
 import { OperationVariables } from '@apollo/client'
 import { Maybe } from '@app/generated/civic.apollo.types'

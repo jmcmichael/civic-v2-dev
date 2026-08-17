@@ -11,7 +11,6 @@ import {
   signal,
   untracked,
 } from '@angular/core'
-import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
 import { Maybe, SortDirection } from '@app/generated/civic.apollo.types'
 import { CvcAttributeTagModule } from '@app/forms/components/attribute-tag/attribute-tag.module'
@@ -40,8 +39,8 @@ import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
+import { debouncedSignal } from '@app/core/utilities/debounced-signal'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import {
   CvcPageInfo,
@@ -330,19 +329,18 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   readonly scrollRequest = signal<Maybe<{ index: number }>>(undefined)
 
   constructor() {
-    // one debounced driver for the whole query: a reset that touches every
-    // column collapses into a single request
-    const debouncedVars = toSignal(
-      toObservable(this.queryVars).pipe(
-        debounceTime(QUERY_DEBOUNCE_MS),
-        // `queryVars` is a computed that builds a fresh object every time, so
-        // any signal it reads re-emits it even when the variables are
-        // identical. A host pushing `settings` does exactly that on mount —
-        // writing nulls into the filter map changes the map without changing
-        // the query — and the table answered with a second, identical request.
-        // Variables are JSON by definition, so stringify is a sound identity.
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
-      )
+    // One debounced driver for the whole query: a reset that touches every
+    // column collapses into a single request. The JSON identity matters:
+    // `queryVars` is a computed that builds a fresh object every time, so
+    // any signal it reads re-emits it even when the variables are identical.
+    // A host pushing `settings` does exactly that on mount — writing nulls
+    // into the filter map changes the map without changing the query — and
+    // the table answered with a second, identical request. Variables are
+    // JSON by definition, so stringify is a sound identity.
+    const debouncedVars = debouncedSignal(
+      this.queryVars,
+      QUERY_DEBOUNCE_MS,
+      (a, b) => JSON.stringify(a) === JSON.stringify(b)
     )
 
     effect(() => {
