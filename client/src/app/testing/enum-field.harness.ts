@@ -13,7 +13,11 @@ import {
   MockGraphqlOperation,
   provideMockApollo,
 } from './apollo-test.providers'
-import { FieldHarnessCore, fieldHarnessCore } from './field-harness-core'
+import {
+  FieldHarnessCore,
+  fieldHarnessCore,
+  statePublicationProbe,
+} from './field-harness-core'
 import { createFieldTestHost } from './formly-test.host'
 
 /** Everything a spec needs to drive one mounted enum-select field. */
@@ -170,14 +174,11 @@ export function describeEnumSelectContract<TField>(
     })
 
     it('publishes its value into the form state under its own key', async () => {
-      const stateField = signal<string | undefined>(undefined)
-      const base = config.formState?.() ?? {}
-      const h = await setup({
-        formState: {
-          ...base,
-          fields: { ...(base.fields ?? {}), [config.key]: stateField },
-        },
-      })
+      const { formState, stateField } = statePublicationProbe<string>(
+        config.key,
+        config.formState?.() ?? {}
+      )
+      const h = await setup({ formState })
       h.openDropdown()
       await h.settle()
       h.optionItems()[0].click()

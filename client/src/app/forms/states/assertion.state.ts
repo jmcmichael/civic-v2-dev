@@ -40,6 +40,7 @@ export type AssertionFields = {
   acmgCodeIds: WritableSignal<Maybe<number[]>>
   clingenCodeIds: WritableSignal<Maybe<number[]>>
   nccnGuidelineVersion: WritableSignal<Maybe<string>>
+  summary: WritableSignal<Maybe<string>>
   description: WritableSignal<Maybe<string>>
   comment: WritableSignal<Maybe<string>>
 }
@@ -74,6 +75,10 @@ class AssertionState extends BaseState {
       acmgCodeIds: signal(def.acmgCodeIds),
       clingenCodeIds: signal(def.clingenCodeIds),
       nccnGuidelineVersion: signal(def.nccnGuidelineVersion),
+      // summary had no slot for years and connectStateField warned on every
+      // assertion-form load; the field's key is 'summary' in both the submit
+      // and revise configs
+      summary: signal<Maybe<string>>(undefined),
       description: signal<Maybe<string>>(undefined),
       comment: signal<Maybe<string>>(undefined),
     }

@@ -16,7 +16,11 @@ import {
   MockGraphqlOperation,
   provideMockApollo,
 } from './apollo-test.providers'
-import { FieldHarnessCore, fieldHarnessCore } from './field-harness-core'
+import {
+  FieldHarnessCore,
+  fieldHarnessCore,
+  statePublicationProbe,
+} from './field-harness-core'
 import { createFieldTestHost } from './formly-test.host'
 
 /** Everything a spec needs to drive one mounted entity-select field. */
@@ -317,15 +321,11 @@ export function describeEntitySelectContract<TField>(
     })
 
     it('publishes its value into the form state under its own key', async () => {
-      const stateField = signal<number | undefined>(undefined)
-      // merged, not replaced: a field may need other state to be usable
-      const base = config.formState?.() ?? {}
-      const h = await setup({
-        formState: {
-          ...base,
-          fields: { ...(base.fields ?? {}), [config.key]: stateField },
-        },
-      })
+      const { formState, stateField } = statePublicationProbe<number>(
+        config.key,
+        config.formState?.() ?? {}
+      )
+      const h = await setup({ formState })
       await showOptions(h)
       h.optionItems()[1].click()
       await h.settle()

@@ -120,6 +120,33 @@ export abstract class CvcFieldBase<
   }
 
   /**
+   * Shows the configured `props.description` only while the field is empty —
+   * once a value is selected, the help text has done its job. Call from the
+   * constructor: the effect's first run lands after the initial change
+   * detection, by which point formly has merged the configured description
+   * into props, so capturing it on that first run is sound even when the
+   * model arrived prepopulated.
+   */
+  protected connectEmptyDescription(): void {
+    let initial: Maybe<string>
+    let captured = false
+    effect(
+      () => {
+        if (!captured) {
+          initial = this.props.description
+          captured = true
+        }
+        const description = this.value() ? undefined : initial
+        if (this.props.description === description) return
+        // cast: props patches against a generic FC only resolve in concrete
+        // subclasses; `description` exists on every FormlyFieldProps
+        this.applyProps({ description } as Partial<FC['props']>)
+      },
+      { injector: this.injector }
+    )
+  }
+
+  /**
    * Follows a state signal and clears the control whenever its value CHANGES.
    *
    * **The first run never clears.** Arriving at an initial value is not a
