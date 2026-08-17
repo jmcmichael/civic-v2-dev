@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { provideRouter } from '@angular/router'
 import {
+  AlignLeftOutline,
   CloseCircleFill,
   FilterFill,
   QuestionCircleOutline,
@@ -17,6 +18,7 @@ import {
   CvcSpecColumn,
   EntityTableSpec,
 } from '@app/tables'
+import { civicIcons } from '@app/icons-provider.module'
 import { readCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -27,14 +29,16 @@ import {
 } from './apollo-test.providers'
 
 /**
- * Every ant icon the table's toolbar and filter row can render.
+ * Every icon the table's toolbar, filter row and cells can render: the ant
+ * toolbar/filter icons plus the civic-* icons enum-tag cells resolve.
  *
  * Ant's icon service throws on an unregistered name, and it throws *outside*
  * the test's own call stack — so a missing icon leaves every assertion passing
- * while the runner still exits non-zero. Registered here so no caller has to
- * rediscover that.
+ * while the runner reports a flood of unhandled errors. Registered here so no
+ * caller has to rediscover that.
  */
 export const TABLE_ICONS = [
+  AlignLeftOutline,
   CloseCircleFill,
   FilterFill,
   QuestionCircleOutline,
@@ -42,6 +46,7 @@ export const TABLE_ICONS = [
   SearchOutline,
   SettingOutline,
   SyncOutline,
+  ...civicIcons,
 ]
 
 @Component({
@@ -324,9 +329,10 @@ export function describeEntityTableContract<TRow extends { id: number }>(
     })
 
     /**
-     * The behaviour the evidence golden pinned with `test.fail()`: reset used to
-     * clear the query but not `col.filter.options[0].value`, so the table and
-     * its own filter boxes disagreed.
+     * Reset must clear the query and the filter inputs together. The two
+     * disagree whenever a filter's value has more than one home — the
+     * regression this guards, which once left the reset button reading as
+     * inert.
      */
     it('reset clears the query and the filter inputs together', async () => {
       const h = await setup()
