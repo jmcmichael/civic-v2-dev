@@ -4,11 +4,9 @@ import {
   Type,
   Signal,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core'
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ReactiveFormsModule } from '@angular/forms'
 import {
   CvcEntitySelectDirective,
@@ -136,8 +134,12 @@ export class CvcEvidenceSelectField extends CvcEntitySelectFieldBase<
   /** the manager is a drawer below the select, toggled by its own button */
   protected readonly showManager = signal(false)
 
-  /** column filters and preferences derived from the sibling fields' state */
-  protected readonly tableSettings =
+  /**
+   * Column filters and preferences derived from the sibling fields' state.
+   * Reassigned to a `computed` by `connectTableSettings` — a reference, not a
+   * copy through an effect.
+   */
+  protected tableSettings: Signal<Maybe<EvidenceManagerSettings>> =
     signal<Maybe<EvidenceManagerSettings>>(undefined)
 
   protected readonly selected = computed(() => this.selectedIds())
@@ -206,7 +208,7 @@ export class CvcEvidenceSelectField extends CvcEntitySelectFieldBase<
 
     if (filterSources.length === 0 || prefSources.length === 0) return
 
-    const settings = computed<EvidenceManagerSettings>(() => ({
+    this.tableSettings = computed<EvidenceManagerSettings>(() => ({
       filters: filterSources.map(([column, value]) => ({
         key: column,
         value: value() ?? null,
@@ -216,9 +218,5 @@ export class CvcEvidenceSelectField extends CvcEntitySelectFieldBase<
         checked: required(),
       })),
     }))
-
-    effect(() => this.tableSettings.set(settings()), {
-      injector: this.injector,
-    })
   }
 }
