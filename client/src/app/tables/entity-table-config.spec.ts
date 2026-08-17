@@ -129,6 +129,34 @@ describe('entityTableConfig', () => {
   })
 
   /**
+   * Keys address columns in preferences, filters and the data-testid
+   * contract, and @for tracks by them — a duplicate is a silent aliasing
+   * bug, which is why the factory refuses it outright in dev mode.
+   */
+  it('throws in dev mode on duplicate column keys', () => {
+    expect(() =>
+      entityTableConfig({
+        query: gql,
+        connection: (data) => data?.evidenceItems,
+        columns: [
+          {
+            key: 'id',
+            label: 'One',
+            width: '40px',
+            cell: { kind: 'text', text: (row) => row.id },
+          },
+          {
+            key: 'id',
+            label: 'Two',
+            width: '40px',
+            cell: { kind: 'text', text: (row) => row.id },
+          },
+        ],
+      })
+    ).toThrowError(/duplicate column key\(s\) id/)
+  })
+
+  /**
    * The old string-keyed template lookup rendered a silently blank cell when
    * nothing matched; content now travels in the config, so the equivalent
    * mistake — a custom cell with nothing to draw — fails loudly instead.

@@ -192,9 +192,15 @@ export function entityTableConfig<
 function assertUniqueKeys(columns: ReadonlyArray<{ key: string }>): void {
   if (!isDevMode()) return
   const seen = new Set<string>()
+  // Set.add returns the Set (always truthy), so the check must be has-then-add
+  // — a `!seen.add(key)` variant here compiled fine and never fired
   const duplicates = columns
     .map((column) => column.key)
-    .filter((key) => !seen.add(key))
+    .filter((key) => {
+      if (seen.has(key)) return true
+      seen.add(key)
+      return false
+    })
   if (duplicates.length > 0) {
     throw new Error(
       `entityTableConfig: duplicate column key(s) ${duplicates.join(', ')}. ` +
