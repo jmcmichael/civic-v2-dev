@@ -15,7 +15,7 @@
  * → ng-zorro mapping), 02-authoring-guide.md, 03-troubleshooting.md.
  */
 export { CvcEntityTableComponent } from './entity-table.component'
-export type { CvcTableRequestError } from './entity-table.component'
+export type { CvcTableRequestError } from './entity-table-query'
 export { CvcCellDirective } from './cell.directive'
 export type { CvcCellContext } from './cell.directive'
 export { CvcTableFilterInputComponent } from './filters/table-filter-input.component'

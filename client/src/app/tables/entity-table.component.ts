@@ -13,13 +13,8 @@ import {
   TemplateRef,
   untracked,
 } from '@angular/core'
-import {
-  takeUntilDestroyed,
-  toObservable,
-  toSignal,
-} from '@angular/core/rxjs-interop'
+import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
-import { CombinedGraphQLErrors, type ErrorLike } from '@apollo/client'
 import { Maybe, SortDirection } from '@app/generated/civic.apollo.types'
 import { CvcAttributeTagModule } from '@app/forms/components/attribute-tag/attribute-tag.module'
 import { CvcEmptyValueModule } from '@app/forms/components/empty-value/empty-value.module'
@@ -32,8 +27,7 @@ import {
   readCachedEntityName,
   writeCachedEntity,
 } from '@app/tags'
-import { Apollo, QueryRef } from 'apollo-angular'
-import type { GraphQLFormattedError } from 'graphql'
+import { Apollo } from 'apollo-angular'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzCardModule } from 'ng-zorro-antd/card'
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
@@ -55,6 +49,7 @@ import {
   displayedCount,
 } from './connection.types'
 import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
+import { CvcEntityTableQuery } from './entity-table-query'
 import {
   CvcEntityTagCell,
   CvcSortState,
@@ -63,6 +58,7 @@ import {
 } from './entity-table.types'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
+import { resolveStickyOffsets } from './sticky-offsets'
 import {
   CvcScrollEvent,
   CvcScrollFetch,
@@ -77,46 +73,15 @@ import {
  */
 const QUERY_DEBOUNCE_MS = 300
 
-/** what a request error looks like once split out of Apollo's ErrorLike */
-export interface CvcTableRequestError {
-  network?: ErrorLike
-  query?: ReadonlyArray<GraphQLFormattedError>
-}
-
-/** a pinned column's resolved position, and whether it carries the edge shadow */
-interface CvcStickyOffset {
-  left?: string
-  right?: string
-  lastLeft: boolean
-  firstRight: boolean
-}
-
-/**
- * A column's declared width in pixels. Widths are `nzWidth` strings, documented
- * as px on `CvcColumn`; anything else yields 0 rather than NaN, which would
- * poison every offset after it.
- */
-function pxWidth(width: string): number {
-  const parsed = Number.parseFloat(width)
-  return Number.isFinite(parsed) ? parsed : 0
-}
-
 /**
  * One configurable, virtual-scrolled entity table, driven entirely by an
  * `EntityTableSpec` (see `entityTableConfig`).
  *
- * ## The query pipeline, and what must not change about it
- *
- * One `QueryRef`, created lazily on the first variables emission and never
- * re-created. Refetch and fetchMore go through the same guarded path so they
- * cannot race: a refetch replaces the variable set, a fetchMore appends a
- * page, and Apollo's `relayStylePagination` policy — not this component —
- * accumulates the rows.
- *
- * Errors are re-derived by hand because `valueChanges` does not surface
- * errors raised by imperative `refetch`/`fetchMore` calls
- * (apollographql/apollo-client#6857), so each promise's result is inspected
- * too.
+ * The component owns columns, filters, sort, selection and scroll state, and
+ * turns them into one debounced variables signal. Everything downstream of
+ * those variables — the QueryRef, the response and its errors — belongs to
+ * `CvcEntityTableQuery`; pinned-column positions are computed by
+ * `resolveStickyOffsets`.
  *
  * Filter values live in one signal map that both the query variables and the
  * filter inputs read, so reset clears a single source and the two cannot
@@ -207,54 +172,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   )
 
   /**
-   * Where each pinned column sits, as a CSS length, plus which one carries the
-   * edge shadow.
-   *
-   * ng-zorro can derive this itself — `nzLeft="true"` makes `NzTrDirective`
-   * measure the preceding columns and push an offset back into each cell — but
-   * that coordination does not reach these cells: every pinned column resolved
-   * to `left: 0` and stacked on top of the next, so the select column sat over
-   * the first data column. `ant-table-cell-fix-left-last` never appeared
-   * either, and that class is pure list logic with no measurement in it, which
-   * is what rules out a width problem. `NzCellFixedDirective.ngOnChanges` also
-   * resets that flag on every input change, so the result depends on an
-   * ordering we do not control.
-   *
-   * Every width is a declared px value in the column config, so the offsets are
-   * simple arithmetic. Computing them here is exact, needs no measurement pass,
-   * and cannot be undone by a later change-detection cycle. `nzLeft` accepts a
-   * CSS length as well as a boolean; a string turns ng-zorro's own auto-offset
-   * off (`isAutoLeft` is only true for `''` or `true`), which is what we want.
+   * Where each pinned column sits, and which one carries the edge shadow.
+   * Computed rather than delegated to ng-zorro's auto-offset mode, for the
+   * reasons documented on `resolveStickyOffsets`.
    */
-  private readonly stickyOffsets = computed(() => {
-    const columns = this.visibleColumns()
-    const offsets = new Map<string, CvcStickyOffset>()
-
-    let left = 0
-    const pinnedLeft = columns.filter((c) => c.fixed === 'left')
-    for (const column of pinnedLeft) {
-      offsets.set(column.key, {
-        left: `${left}px`,
-        lastLeft: column === pinnedLeft[pinnedLeft.length - 1],
-        firstRight: false,
-      })
-      left += pxWidth(column.width)
-    }
-
-    let right = 0
-    const pinnedRight = columns.filter((c) => c.fixed === 'right')
-    // right-pinned columns accumulate from the right-hand edge inward
-    for (const column of [...pinnedRight].reverse()) {
-      offsets.set(column.key, {
-        right: `${right}px`,
-        lastLeft: false,
-        firstRight: column === pinnedRight[0],
-      })
-      right += pxWidth(column.width)
-    }
-
-    return offsets
-  })
+  private readonly stickyOffsets = computed(() =>
+    resolveStickyOffsets(this.visibleColumns())
+  )
 
   /** `nzLeft` for a column: a CSS length when pinned left, else false */
   stickyLeft(column: CvcSpecColumn<TRow>): string | false {
@@ -373,20 +297,23 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     return vars
   })
 
-  private queryRef?: QueryRef<unknown, Record<string, unknown>>
-  private requestedCursor?: string
+  /**
+   * The QueryRef and everything derived from a response. Constructed here, and
+   * not injected, because it needs the spec — a component input — and because a
+   * landed refetch has to move this component's scroll position.
+   */
+  private readonly query = new CvcEntityTableQuery({
+    query: () => this.spec().query,
+    destroyRef: this.destroyRef,
+    onRefetch: () => this.scrollToIndex.set(0),
+  })
 
-  private readonly result =
-    signal<Maybe<{ data: unknown; loading: boolean }>>(undefined)
-  private readonly fetchingMore = signal(false)
-  readonly requestError = signal<Maybe<CvcTableRequestError>>(undefined)
-
-  /** true until the first response, so the first paint is not a blank table */
-  readonly loading = computed(() => this.result()?.loading ?? true)
-  readonly isFetchingMore = computed(() => this.fetchingMore())
+  readonly loading = this.query.loading
+  readonly isFetchingMore = this.query.isFetchingMore
+  readonly requestError = this.query.requestError
 
   readonly connection = computed(() =>
-    this.spec().connection(this.result()?.data)
+    this.spec().connection(this.query.data())
   )
   readonly rows = computed(() => connectionNodes(this.connection()))
   // no cast: CvcPageInfo is the generated PageInfo minus __typename, which is
@@ -431,7 +358,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     effect(() => {
       const vars = debouncedVars()
       if (!vars) return
-      untracked(() => this.runQuery(vars))
+      untracked(() => this.query.run(vars))
     })
 
     effect(() => {
@@ -449,61 +376,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
   // --------------------------------------------------------- query pipeline
 
-  private runQuery(vars: Record<string, unknown>): void {
-    this.requestError.set(undefined)
-    this.fetchingMore.set(false)
-
-    if (!this.queryRef) {
-      // `{ variables }`, not positional — see CvcTableQuery. The three
-      // apollo-angular entry points this class uses disagree (`watch` and
-      // `fetchMore` take options objects, `refetch` takes variables), and a
-      // positional call here would run yet silently send no variables. Two
-      // guards hold it: CvcTableQuery types `watch` as options-only, and the
-      // "puts those variables on the wire" spec fails if variables ever stop
-      // reaching the link.
-      this.queryRef = this.spec().query.watch({ variables: vars }) as QueryRef<
-        unknown,
-        Record<string, unknown>
-      >
-      this.queryRef.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (value) => {
-            this.result.set(value)
-            if (value.error) this.requestError.set(splitError(value.error))
-          },
-          error: (error: ErrorLike) => this.requestError.set(splitError(error)),
-        })
-      return
-    }
-
-    // a new variable set invalidates any cursor already asked for
-    this.requestedCursor = undefined
-    this.queryRef
-      .refetch(vars)
-      .then((value) => {
-        if (value.error) this.requestError.set(splitError(value.error))
-        this.scrollToIndex.set(0)
-      })
-      .catch((error: ErrorLike) => this.requestError.set(splitError(error)))
-  }
-
   /**
-   * Handles a scroll-observer page request. The in-flight cursor guard lives
-   * here rather than in the directive because a refetch (`runQuery`) is what
-   * makes a cursor stale, and only this class sees one happen.
+   * Handles a scroll-observer page request. The directive reports that the
+   * viewport wants another page; the store decides whether that cursor is
+   * still worth asking for.
    */
   onFetchRequest(fetch: CvcScrollFetch): void {
-    if (!this.queryRef || fetch.after === this.requestedCursor) return
-    this.requestedCursor = fetch.after
-    this.fetchingMore.set(true)
-    this.queryRef
-      .fetchMore({ variables: { ...this.queryVars(), ...fetch } })
-      .then((value) => {
-        if (value.error) this.requestError.set(splitError(value.error))
-      })
-      .catch((error: ErrorLike) => this.requestError.set(splitError(error)))
-      .finally(() => this.fetchingMore.set(false))
+    this.query.fetchMore(fetch, this.queryVars())
   }
 
   onScrollPhase(phase: CvcScrollEvent): void {
@@ -686,16 +565,5 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
         return next
       })
     }
-  }
-}
-
-/**
- * Splits Apollo 4's single `ErrorLike` into the GraphQL errors and the transport
- * error, so the toolbar can label them differently.
- */
-function splitError(error: ErrorLike): CvcTableRequestError {
-  return {
-    query: CombinedGraphQLErrors.is(error) ? error.errors : undefined,
-    network: CombinedGraphQLErrors.is(error) ? undefined : error,
   }
 }
