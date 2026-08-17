@@ -38,7 +38,7 @@ interface Row {
 const row = (id: number, name: string): Row => ({ id, name })
 
 function buildSpec(
-  options: { defaultSortOnName?: boolean } = {}
+  options: { defaultSortOnName?: boolean; pinned?: boolean } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
   return entityTableConfig({
@@ -63,6 +63,7 @@ function buildSpec(
         key: 'selected',
         label: '',
         width: '40px',
+        fixed: options.pinned ? ('left' as const) : undefined,
         omitFromPrefs: true,
         cell: { kind: 'select' },
       },
@@ -70,6 +71,7 @@ function buildSpec(
         key: 'name',
         label: 'Name',
         width: '200px',
+        fixed: options.pinned ? ('left' as const) : undefined,
         cell: { kind: 'text', text: (r) => r.name, highlight: true },
         sort: {
           column: 'name',
@@ -82,6 +84,7 @@ function buildSpec(
         label: 'Rating',
         tooltip: 'Evidence Rating',
         width: '60px',
+        fixed: options.pinned ? ('right' as const) : undefined,
         cell: { kind: 'text', text: (r) => r.name },
         sort: { column: 'evidenceRating' },
         filter: {
@@ -316,6 +319,53 @@ describe('cvc-entity-table', () => {
   it('reads counts out of the connection, preferring the filtered count', () => {
     expect(table.displayedTotal()).toBe(42)
     expect(table.rows()).toHaveLength(2)
+  })
+
+  /**
+   * ng-zorro can derive these itself from `nzLeft="true"`, but its per-row
+   * coordination never reached these cells: every pinned column resolved to
+   * `left: 0` and stacked on the next, so the select column covered the first
+   * data column. The offsets are arithmetic over widths the config already
+   * declares, so the table computes them rather than depending on a
+   * measurement pass it does not control.
+   */
+  describe('pinned column offsets', () => {
+    beforeEach(() => {
+      fixture.componentInstance.spec.set(buildSpec({ pinned: true }))
+      fixture.detectChanges()
+    })
+
+    it('stacks left-pinned columns by the widths before them', () => {
+      expect(table.stickyLeft(table.columns()[0])).toBe('0px')
+      expect(table.stickyLeft(table.columns()[1])).toBe('40px')
+    })
+
+    it('accumulates right-pinned columns inward from the edge', () => {
+      expect(table.stickyRight(table.columns()[2])).toBe('0px')
+    })
+
+    it('reports false for a column that is not pinned', () => {
+      fixture.componentInstance.spec.set(buildSpec())
+      fixture.detectChanges()
+
+      expect(table.stickyLeft(table.columns()[1])).toBe(false)
+      expect(table.stickyRight(table.columns()[2])).toBe(false)
+    })
+
+    // the shadow marking the boundary between pinned and scrolling columns
+    it('marks the innermost pinned column on each side', () => {
+      expect(table.isLastLeft(table.columns()[0])).toBe(false)
+      expect(table.isLastLeft(table.columns()[1])).toBe(true)
+      expect(table.isFirstRight(table.columns()[2])).toBe(true)
+    })
+
+    // hiding a pinned column has to shift everything after it
+    it('recomputes when a preceding column is hidden', () => {
+      table.onPrefsChange(['rating'])
+
+      expect(table.stickyLeft(table.columns()[0])).toBe('0px')
+      expect(table.isLastLeft(table.columns()[0])).toBe(true)
+    })
   })
 
   describe('text cell highlighting', () => {

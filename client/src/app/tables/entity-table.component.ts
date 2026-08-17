@@ -75,6 +75,24 @@ export interface CvcTableRequestError {
   query?: ReadonlyArray<GraphQLFormattedError>
 }
 
+/** a pinned column's resolved position, and whether it carries the edge shadow */
+interface CvcStickyOffset {
+  left?: string
+  right?: string
+  lastLeft: boolean
+  firstRight: boolean
+}
+
+/**
+ * A column's declared width in pixels. Widths are `nzWidth` strings, documented
+ * as px on `CvcColumn`; anything else yields 0 rather than NaN, which would
+ * poison every offset after it.
+ */
+function pxWidth(width: string): number {
+  const parsed = Number.parseFloat(width)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
 /**
  * One configurable, virtual-scrolled entity table.
  *
@@ -185,6 +203,75 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   readonly visibleColumns = computed(() =>
     this.columns().filter((column) => !column.hidden)
   )
+
+  /**
+   * Where each pinned column sits, as a CSS length, plus which one carries the
+   * edge shadow.
+   *
+   * ng-zorro can derive this itself — `nzLeft="true"` makes `NzTrDirective`
+   * measure the preceding columns and push an offset back into each cell — but
+   * that coordination does not reach these cells: every pinned column resolved
+   * to `left: 0` and stacked on top of the next, so the select column sat over
+   * the first data column. `ant-table-cell-fix-left-last` never appeared
+   * either, and that class is pure list logic with no measurement in it, which
+   * is what rules out a width problem. `NzCellFixedDirective.ngOnChanges` also
+   * resets that flag on every input change, so the result depends on an
+   * ordering we do not control.
+   *
+   * Every width is a declared px value in the column config, so the offsets are
+   * simple arithmetic. Computing them here is exact, needs no measurement pass,
+   * and cannot be undone by a later change-detection cycle. `nzLeft` accepts a
+   * CSS length as well as a boolean; a string turns ng-zorro's own auto-offset
+   * off (`isAutoLeft` is only true for `''` or `true`), which is what we want.
+   */
+  private readonly stickyOffsets = computed(() => {
+    const columns = this.visibleColumns()
+    const offsets = new Map<string, CvcStickyOffset>()
+
+    let left = 0
+    const pinnedLeft = columns.filter((c) => c.fixed === 'left')
+    for (const column of pinnedLeft) {
+      offsets.set(column.key, {
+        left: `${left}px`,
+        lastLeft: column === pinnedLeft[pinnedLeft.length - 1],
+        firstRight: false,
+      })
+      left += pxWidth(column.width)
+    }
+
+    let right = 0
+    const pinnedRight = columns.filter((c) => c.fixed === 'right')
+    // right-pinned columns accumulate from the right-hand edge inward
+    for (const column of [...pinnedRight].reverse()) {
+      offsets.set(column.key, {
+        right: `${right}px`,
+        lastLeft: false,
+        firstRight: column === pinnedRight[0],
+      })
+      right += pxWidth(column.width)
+    }
+
+    return offsets
+  })
+
+  /** `nzLeft` for a column: a CSS length when pinned left, else false */
+  stickyLeft(column: CvcSpecColumn<TRow>): string | false {
+    return this.stickyOffsets().get(column.key)?.left ?? false
+  }
+
+  /** `nzRight` for a column: a CSS length when pinned right, else false */
+  stickyRight(column: CvcSpecColumn<TRow>): string | false {
+    return this.stickyOffsets().get(column.key)?.right ?? false
+  }
+
+  /** the pinned column that carries the shadow separating it from the scroll */
+  isLastLeft(column: CvcSpecColumn<TRow>): boolean {
+    return this.stickyOffsets().get(column.key)?.lastLeft ?? false
+  }
+
+  isFirstRight(column: CvcSpecColumn<TRow>): boolean {
+    return this.stickyOffsets().get(column.key)?.firstRight ?? false
+  }
 
   /** `tooltip || label`, matching what the preferences panel has always shown */
   readonly columnPrefs = computed(() =>

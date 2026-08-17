@@ -31,8 +31,10 @@
             [nzColumnKey]="col.key"
             [nzWidth]="col.width"
             [nzAlign]="col.align ?? 'left'"
-            [nzLeft]="col.fixed === 'left'"
-            [nzRight]="col.fixed === 'right'"
+            [nzLeft]="stickyLeft(col)"
+            [nzRight]="stickyRight(col)"
+            [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
+            [class.ant-table-cell-fix-right-first]="isFirstRight(col)"
             [nzShowSort]="!!col.sort && !col.sort.disabled"
             [nzSortFn]="!!col.sort && !col.sort.disabled"
             [nzSortOrder]="sortOrderFor(col)"
@@ -56,8 +58,10 @@
             [nzColumnKey]="col.key"
             [nzWidth]="col.width"
             [nzAlign]="col.align ?? 'left'"
-            [nzLeft]="col.fixed === 'left'"
-            [nzRight]="col.fixed === 'right'"
+            [nzLeft]="stickyLeft(col)"
+            [nzRight]="stickyRight(col)"
+            [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
+            [class.ant-table-cell-fix-right-first]="isFirstRight(col)"
             class="attribute-filter">
             @if (col.filter; as filter) {
               @switch (filter.kind) {
@@ -108,8 +112,10 @@
               data-testid="cell"
               [attr.data-column]="col.key"
               [nzAlign]="col.align ?? 'left'"
-              [nzLeft]="col.fixed === 'left'"
-              [nzRight]="col.fixed === 'right'">
+              [nzLeft]="stickyLeft(col)"
+              [nzRight]="stickyRight(col)"
+              [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
+              [class.ant-table-cell-fix-right-first]="isFirstRight(col)">
               <!-- bound to a local so the discriminant narrows reliably -->
               @let cell = col.cell;
               @switch (cell.kind) {
