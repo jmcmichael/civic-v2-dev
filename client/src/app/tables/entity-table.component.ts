@@ -45,7 +45,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { debounceTime } from 'rxjs/operators'
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { CvcCellContext, CvcCellDirective } from './cell.directive'
@@ -424,7 +424,16 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     // one debounced driver for the whole query: a reset that touches every
     // column collapses into a single request
     const debouncedVars = toSignal(
-      toObservable(this.queryVars).pipe(debounceTime(QUERY_DEBOUNCE_MS))
+      toObservable(this.queryVars).pipe(
+        debounceTime(QUERY_DEBOUNCE_MS),
+        // `queryVars` is a computed that builds a fresh object every time, so
+        // any signal it reads re-emits it even when the variables are
+        // identical. A host pushing `settings` does exactly that on mount —
+        // writing nulls into the filter map changes the map without changing
+        // the query — and the table answered with a second, identical request.
+        // Variables are JSON by definition, so stringify is a sound identity.
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b))
+      )
     )
 
     effect(() => {

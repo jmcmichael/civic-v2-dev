@@ -2,6 +2,52 @@ import { relayStylePagination } from '@apollo/client/utilities'
 import { StrictTypedTypePolicies } from '@app/generated/civic.apollo-helpers'
 import { CvcAdvancedSearchResultPolicy } from '@app/graphql/policies/advanced-search-result.policy'
 
+/** the only arguments that move through a result set rather than defining it */
+const PAGINATION_ARGS = new Set(['first', 'last', 'before', 'after'])
+
+/**
+ * Relay pagination keyed on every argument that shapes the result set.
+ *
+ * The rule is simple enough to derive rather than enumerate: a cursor moves
+ * through a list, so it must not partition the cache; everything else — every
+ * filter, every sort — selects a *different* list and must. The hand-written
+ * `keyArgs` arrays below state that rule one field at a time, and they have
+ * drifted badly: audited against the generated `Query*Args` types, 25 of 26
+ * lists are incomplete (95 arguments missing, `sortBy` on fourteen fields) and
+ * 18 name arguments that no longer exist at all — `geneSymbol`, `entrezSymbol`
+ * and `geneName` predate the rename to `feature*`, and `revisionsetId` is a
+ * casing typo. A list cannot fail loudly: an omitted argument silently shares
+ * one cache entry between result sets that differ, and a misspelled one keys on
+ * nothing.
+ *
+ * Under-keying does not break pagination within a single table — `fetchMore`
+ * carries the current filters and sort along with the cursor, and
+ * `relayStylePagination` only appends when `after` is present, so page two
+ * continues the same sorted set. What it breaks is two consumers of one field
+ * holding different result sets: whichever refetches last overwrites the other,
+ * and revisiting a table paints the previous consumer's rows until its own
+ * query lands.
+ *
+ * Applied per field as each table is refactored onto `cvc-entity-table`, so the
+ * change always arrives with something that exercises it, rather than as one
+ * sweeping edit nobody can review.
+ */
+// the return type is derived rather than restated: relayStylePagination
+// returns a FieldPolicy over a relay connection, not over an array
+function paginatedByAllArgs(): ReturnType<typeof relayStylePagination> {
+  return relayStylePagination((args) => {
+    if (!args) return false
+    // null and undefined are dropped so an explicitly-null argument and an
+    // omitted one share a key, as they share a result set
+    const keys = Object.keys(args).filter(
+      (name) => !PAGINATION_ARGS.has(name) && args[name] != null
+    )
+    // sorted so the key does not depend on the order a document happens to
+    // declare its arguments in
+    return keys.length > 0 ? keys.sort() : false
+  })
+}
+
 export const CvcTypePolicies: StrictTypedTypePolicies = {
   Gene: {
     fields: {
@@ -28,15 +74,8 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'featureAlias',
         'diseaseName',
       ]),
-      browseVariants: relayStylePagination([
-        'variantName',
-        'entrezSymbol',
-        'diseaseName',
-        'therapyName',
-        'variantTypeId',
-        'variantGroupId',
-        'variantCategory',
-      ]),
+      // the variant manager's field; see paginatedByAllArgs above
+      browseVariants: paginatedByAllArgs(),
       browseMolecularProfiles: relayStylePagination([
         'variantName',
         'entrezSymbol',
@@ -95,31 +134,8 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'evidenceStatusFilter',
       ]),
       comments: relayStylePagination(['originatingUserId', 'subject']),
-      evidenceItems: relayStylePagination([
-        'diseaseName',
-        'therapyName',
-        'id',
-        'description',
-        'evidenceLevel',
-        'evidenceDirection',
-        'significance',
-        'evidenceType',
-        'evidenceRating',
-        'variantOrigin',
-        'variantId',
-        'molecularProfileId',
-        'assertionId',
-        'organizationId',
-        'userId',
-        'phenotypeId',
-        'diseaseId',
-        'therapyId',
-        'sourceId',
-        'geneSymbol',
-        'variantName',
-        'status',
-        'clinicalTrialId',
-      ]),
+      // the evidence manager's field; see paginatedByAllArgs above
+      evidenceItems: paginatedByAllArgs(),
       assertions: relayStylePagination([
         'diseaseName',
         'therapyName',

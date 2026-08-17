@@ -187,6 +187,24 @@ describe('cvc-entity-table', () => {
     expect(initial[0].variables).toMatchObject({ first: 25, assertionId: 7 })
   })
 
+  /**
+   * `queryVars` is a computed that builds a fresh object each time, so any
+   * signal it reads re-emits it even when the variables are identical. A host
+   * pushing `settings` does exactly that on mount — writing nulls into the
+   * filter map changes the map without changing the query — and the evidence
+   * manager answered by issuing its opening query twice.
+   */
+  it('does not re-query when the variables come out identical', async () => {
+    await settle()
+    const opening = recorded.length
+
+    // same value the filter already holds: the map is rewritten, the query is not
+    table.onFilterChange(table.columns()[1], null)
+    await settle()
+
+    expect(recorded.length).toBe(opening)
+  })
+
   it('routes a filter to the variable its column names, not to its key', () => {
     table.onFilterChange(table.columns()[1], 'kinase')
 
