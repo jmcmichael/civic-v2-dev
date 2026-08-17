@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import {
+  FeatureInstanceTypes,
   VariantCategories,
   VariantsSortColumns,
 } from '@app/generated/civic.apollo.types'
@@ -208,9 +209,8 @@ describe('variantManagerConfig', () => {
     /**
      * `LinkableFeature` selects `featureType`, which no consumer reads but
      * which `watchFragment` still requires for `complete`. `BrowseVariant` has
-     * no such column, so the seed derives it from `category` —
-     * `VariantCategories` and `FeatureInstanceTypes` have identical members.
-     * If either enum gains a member the other lacks, this is where it shows.
+     * no such column, so the seed derives it from `category`. The enum-identity
+     * test below is the drift guard; this one covers the wiring.
      */
     it('derives the feature type from the variant category', () => {
       writeCachedEntity(apollo, 'Feature', seedOf('feature')(ROW))
@@ -218,6 +218,24 @@ describe('variantManagerConfig', () => {
       expect(readCachedEntity(apollo, 'Feature', 5)).toMatchObject({
         featureType: VariantCategories.Gene,
       })
+    })
+
+    /**
+     * The category-for-featureType substitution is sound only while the two
+     * enums coincide. They are parallel enums over the server's two STI
+     * hierarchies — `VariantCategories` maps GENE -> Variants::GeneVariant
+     * where `FeatureInstanceTypes` maps GENE -> Features::Gene — and the
+     * models guarantee the runtime correspondence (a variant subclass
+     * validates its feature's instance type). But nothing relates the two
+     * TypeScript enums, and the Apollo cache does not validate enum values on
+     * write: if the schema grew a category without a matching feature type,
+     * the seed would silently cache an off-enum `featureType`. This is the
+     * guard against that drift.
+     */
+    it('relies on VariantCategories and FeatureInstanceTypes staying identical', () => {
+      expect(Object.values(VariantCategories)).toEqual(
+        Object.values(FeatureInstanceTypes)
+      )
     })
   })
 })
