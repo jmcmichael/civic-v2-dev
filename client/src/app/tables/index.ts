@@ -18,6 +18,7 @@ export {
   entityTableConfig,
 } from './entity-table-config'
 export type {
+  CvcSpecColumn,
   CvcTableQuery,
   EntityTableConfig,
   EntityTableSpec,

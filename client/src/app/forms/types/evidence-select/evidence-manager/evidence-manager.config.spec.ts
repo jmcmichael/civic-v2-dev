@@ -10,6 +10,7 @@ import {
   VariantOrigin,
 } from '@app/generated/civic.apollo.types'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
+import { describeEntityTableContract } from '@app/testing/entity-table.harness'
 import { OperationDefinitionNode, visit } from 'graphql'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { evidenceManagerConfig } from './evidence-manager.config'
@@ -95,7 +96,36 @@ function usedVariables(): Set<string> {
   return used
 }
 
+const SECOND_ROW: EvidenceManagerFieldsFragment = {
+  ...ROW,
+  id: 999,
+  name: 'EID999',
+  link: '/evidence/999',
+  evidenceRating: 2,
+}
+
 describe('evidenceManagerConfig', () => {
+  describeEntityTableContract({
+    spec: () => evidenceManagerConfig(TestBed.inject(EvidenceManagerGQL)),
+    operationName: 'EvidenceManager',
+    rows: [ROW, SECOND_ROW],
+    connection: (rows, pageInfo) => ({
+      evidenceItems: {
+        __typename: 'EvidenceItemConnection',
+        edges: rows.map((node) => ({ cursor: `c${node.id}`, node })),
+        pageInfo,
+        totalCount: 11190,
+        pageCount: 224,
+      },
+    }),
+    // the EID filter normalises before the query sees it; the generic sample
+    // would transform to null and make that column's assertion vacuous
+    filterInputs: { id: 'EID123' },
+    // nothing: evidenceItems returns real EvidenceItems and the query spreads
+    // the Linkable* fragments, so every entity normalises on its own
+    seeded: [],
+  })
+
   let spec: ReturnType<typeof evidenceManagerConfig>
 
   beforeEach(() => {

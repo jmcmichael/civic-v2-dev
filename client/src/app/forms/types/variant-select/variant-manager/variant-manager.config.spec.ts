@@ -6,6 +6,7 @@ import {
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
+import { describeEntityTableContract } from '@app/testing/entity-table.harness'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { variantManagerConfig } from './variant-manager.config'
 import {
@@ -55,7 +56,36 @@ const ROW: VariantManagerFieldsFragment = {
   aliases: [{ __typename: 'VariantAlias', name: 'RS113488022' }],
 }
 
+const SECOND_ROW: VariantManagerFieldsFragment = {
+  ...ROW,
+  id: 34,
+  name: 'V600K',
+  link: '/variants/34',
+  aliases: [{ __typename: 'VariantAlias', name: 'RS121913227' }],
+}
+
 describe('variantManagerConfig', () => {
+  describeEntityTableContract({
+    spec: () => variantManagerConfig(TestBed.inject(VariantManagerGQL)),
+    operationName: 'VariantManager',
+    rows: [ROW, SECOND_ROW],
+    connection: (rows, pageInfo) => ({
+      browseVariants: {
+        __typename: 'BrowseVariantConnection',
+        edges: rows.map((node) => ({ cursor: `c${node.id}`, node })),
+        pageInfo,
+        totalCount: 4881,
+        filteredCount: 4881,
+        pageCount: 98,
+      },
+    }),
+    // both are projected out of the flattened row; nothing else here needs it
+    seeded: [
+      ['Variant', 12],
+      ['Feature', 5],
+    ],
+  })
+
   let apollo: Apollo
   let spec: ReturnType<typeof variantManagerConfig>
 
