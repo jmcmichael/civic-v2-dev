@@ -15,11 +15,11 @@ import {
 } from './variant-manager.query.gql.generated'
 
 /**
- * The config carries what three lookup tables used to: which query variable a
- * filter sets, which enum member a sort maps to, and how a cell reads its row.
- * Most of that is now checked by the compiler; these cover the parts that are
- * not — the accessors, and the two invariants a wrong config would satisfy
- * structurally while still being wrong.
+ * The config declares which query variable a filter sets, which enum member a
+ * sort maps to, and how a cell reads its row. Most of that is checked by the
+ * compiler; these cover the parts that are not — the accessors, and the
+ * invariants a wrong config would satisfy structurally while still being
+ * wrong.
  */
 
 const ROW: VariantManagerFieldsFragment = {

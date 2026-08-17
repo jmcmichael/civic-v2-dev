@@ -1,20 +1,16 @@
 import { Page, expect, test } from '@playwright/test'
 
 /**
- * Golden specs: characterise the evidence manager as it behaves TODAY, before
- * the entity-table extraction replaces its template wholesale. The same file
- * must keep passing afterwards, which is what makes it a regression guard
- * rather than a description.
- *
- * They address the table through the `data-testid` contract rather than its DOM
- * shape, because the shape is precisely what changes. Do not reintroduce
+ * Golden specs for the evidence manager: end-to-end behaviour against a real
+ * browser and dev server, addressed through the `data-testid` contract rather
+ * than DOM shape — the shape is what refactors change, so do not reintroduce
  * structural selectors here.
  *
  * Unauthenticated on purpose: /assertions/add renders its form without a
  * session, so this runs on a fresh checkout. (Its sibling /variant-groups/add
- * does NOT — it gates in the component body with "You must be logged in to view
- * this page", which is why the variant manager's goldens are a separate,
- * storageState-bearing file.)
+ * does NOT — it gates in the component body with "You must be logged in to
+ * view this page" — so variant-manager goldens would need a storageState
+ * captured via `yarn e2e:auth`; none exist yet.)
  */
 
 const FILTERED_COUNT = /of ([\d,]+) displayed/
@@ -64,9 +60,9 @@ test('a text column filter narrows the result set', async ({ page }) => {
 })
 
 /**
- * Never exercised before this file existed — the phase-4 audit could not
- * confirm that clicking a sorter actually reorders rows, only that the control
- * responded.
+ * Asserts rows actually reorder, not merely that the sorter control responds
+ * — the two have come apart before (a sorter that sent an unmapped column
+ * failed the query while the control still toggled).
  */
 test('sorting reorders rows', async ({ page }) => {
   await openManager(page)
@@ -83,9 +79,9 @@ test('sorting reorders rows', async ({ page }) => {
 })
 
 /**
- * Also never exercised: whether infinite scroll actually pages past the first
- * response. `edgeCount` is the "N" of "N of M displayed", so it rises only if
- * fetchMore merged new edges into the connection.
+ * Asserts infinite scroll actually pages past the first response. The "N" of
+ * "N of M displayed" rises only if fetchMore merged new edges into the
+ * connection.
  */
 test('scrolling to the bottom fetches more rows', async ({ page }) => {
   await openManager(page)
@@ -96,10 +92,11 @@ test('scrolling to the bottom fetches more rows', async ({ page }) => {
   }
   const before = await loaded()
 
-  // Scroll in steps, not one jump to the end. The scroll directive derives
-  // "near the bottom" from pairwise() over successive measureScrollOffset
-  // readings, so it needs two distinct decreasing offsets to fire at all — a
-  // single assignment to scrollHeight produces one event and is ignored.
+  // Scroll in steps with pauses: each page must arrive and extend
+  // scrollHeight before the next step can reach the new bottom, and stepping
+  // also exercises the throttled scroll-phase pipeline the way a user does.
+  // (Bottom detection itself fires on the current offset, so even a single
+  // jump would trigger the first fetch.)
   const viewport = page.locator('cdk-virtual-scroll-viewport').first()
   for (let i = 0; i < 12; i++) {
     await viewport.evaluate((el, step) => {
@@ -129,15 +126,10 @@ test('hiding a column via the preferences panel removes its header', async ({
 })
 
 /**
- * Was `test.fail()`: reset pushed null into every column's filter.changes but
- * never cleared `col.filter.options[0].value`, the backing store for the input
- * itself, so the table and its own filter boxes disagreed and the (unlabelled)
- * reset button read as inert.
- *
- * In the entity table a filter's value has one home, so reset clears one thing
- * and both follow. The annotation is deleted rather than the assertion
- * loosened — that flip is the evidence the extraction changed behaviour for the
- * better.
+ * Guards the reset button's full contract: a reset must clear the query AND
+ * the filter inputs. The two can disagree whenever a filter's value has more
+ * than one home — a config object the inputs read and a subject the query
+ * reads — which made this exact button read as inert once.
  */
 test('reset clears both the query and the filter inputs', async ({ page }) => {
   await openManager(page)

@@ -70,12 +70,10 @@ import {
 } from './table-scroll.directive'
 
 /**
- * Quiet period before a filter or sort change becomes a query.
- *
- * The managers used 50 ms, which is under a fast typist's inter-key interval and
- * so issued roughly one query per keystroke. This matches the select typeahead's
- * 300 ms. It also has to be long enough to collapse a filter reset, which emits
- * one change per column.
+ * Quiet period before a filter or sort change becomes a query. Matches the
+ * select typeahead's 300 ms — anything under a fast typist's inter-key
+ * interval issues roughly one query per keystroke — and it must be long
+ * enough to collapse a filter reset, which emits one change per column.
  */
 const QUERY_DEBOUNCE_MS = 300
 
@@ -104,37 +102,28 @@ function pxWidth(width: string): number {
 }
 
 /**
- * One configurable, virtual-scrolled entity table.
- *
- * Replaces the two copies of ~2,150 lines that were `variant-manager` and
- * `evidence-manager`. Those differed by a row-shaping block, a
- * markForCheck/detectChanges, and their type names; everything hard — the query
- * pipeline, error re-derivation, column preferences, filter injection — was
- * duplicated verbatim, and so were its defects.
+ * One configurable, virtual-scrolled entity table, driven entirely by an
+ * `EntityTableSpec` (see `entityTableConfig`).
  *
  * ## The query pipeline, and what must not change about it
  *
  * One `QueryRef`, created lazily on the first variables emission and never
  * re-created. Refetch and fetchMore go through the same guarded path so they
- * cannot race: a refetch replaces the variable set, a fetchMore appends a page,
- * and Apollo's `relayStylePagination` policy — not this component — accumulates
- * the rows.
+ * cannot race: a refetch replaces the variable set, a fetchMore appends a
+ * page, and Apollo's `relayStylePagination` policy — not this component —
+ * accumulates the rows.
  *
- * Errors are re-derived by hand because `valueChanges` does not surface errors
- * raised by imperative `refetch`/`fetchMore` calls
- * (apollographql/apollo-client#6857), so each promise's result is inspected too.
+ * Errors are re-derived by hand because `valueChanges` does not surface
+ * errors raised by imperative `refetch`/`fetchMore` calls
+ * (apollographql/apollo-client#6857), so each promise's result is inspected
+ * too.
  *
- * ## Deliberate departures from the originals
+ * Filter values live in one signal map that both the query variables and the
+ * filter inputs read, so reset clears a single source and the two cannot
+ * disagree.
  *
- * - `first` is sent. The managers omitted it and silently took the server's
- *   default page size.
- * - `loading` starts true, so the first paint is a spinner rather than an empty
- *   table.
- * - Selection is a `Set` derived from the ids, so toggling a checkbox no longer
- *   rebuilds every row object.
- * - Reset clears one signal per filter, which is what makes the query and the
- *   filter inputs agree — they could not in the originals, where a filter's
- *   value lived in a mutated config object that nothing re-emitted.
+ * @template TRow the row/node type. `id: number` is required because
+ *   selection (`selectedIds`, `isSelected`) and row tracking key on it.
  */
 @Component({
   selector: 'cvc-entity-table',
@@ -314,8 +303,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * Three states, not two. `undefined` means untouched, so a column's
    * configured `sort.default` applies; `{ key, order: null }` means the user
    * cycled a sorter back off, which is a different thing and must not spring
-   * back to the default. The managers got the distinction for free from a
-   * BehaviorSubject seeded with the default — a signal has to state it.
+   * back to the default.
    */
   private readonly sortState = signal<Maybe<CvcSortState>>(undefined)
 
@@ -353,9 +341,8 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     if (sort?.order) {
       const column = spec.columns.find((c) => c.key === sort.key)
       if (column?.sort) {
-        // SortDirection is generated from the schema; the string literals it
-        // replaces were the same values, but nothing tied them to the enum the
-        // server actually declares
+        // SortDirection is generated from the schema, so the direction values
+        // stay tied to the enum the server declares
         vars[spec.sortVar] = {
           column: column.sort.column,
           direction:
@@ -463,9 +450,12 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
     if (!this.queryRef) {
       // `{ variables }`, not positional — see CvcTableQuery. The three
-      // apollo-angular entry points this class uses do not agree with one
-      // another, and getting this one wrong costs no compile error and no test
-      // failure, only a query with no variables.
+      // apollo-angular entry points this class uses disagree (`watch` and
+      // `fetchMore` take options objects, `refetch` takes variables), and a
+      // positional call here would run yet silently send no variables. Two
+      // guards hold it: CvcTableQuery types `watch` as options-only, and the
+      // "puts those variables on the wire" spec fails if variables ever stop
+      // reaching the link.
       this.queryRef = this.spec().query.watch({ variables: vars }) as QueryRef<
         unknown,
         Record<string, unknown>
@@ -493,6 +483,11 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       .catch((error: ErrorLike) => this.requestError.set(splitError(error)))
   }
 
+  /**
+   * Handles a scroll-observer page request. The in-flight cursor guard lives
+   * here rather than in the directive because a refetch (`runQuery`) is what
+   * makes a cursor stale, and only this class sees one happen.
+   */
   onFetchRequest(fetch: CvcScrollFetch): void {
     if (!this.queryRef || fetch.after === this.requestedCursor) return
     this.requestedCursor = fetch.after
@@ -552,11 +547,10 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * render `cvc-empty-value` instead.
    *
    * `labelSegments` is the same helper `cvc-tag` highlights with: plain
-   * case-insensitive string matching. The `highlightTypeahead` pipe it replaces
-   * built a `RegExp` out of raw filter input — so an unbalanced bracket typed
-   * into a filter box threw — and returned its result through
-   * `bypassSecurityTrustHtml`, which
-   * rendered server-supplied names as unescaped markup.
+   * case-insensitive string matching — deliberately not a `RegExp` built from
+   * raw filter input (an unbalanced bracket would throw), and never through
+   * `bypassSecurityTrustHtml` (server-supplied names must not render as
+   * markup).
    */
   textSegments(column: CvcSpecColumn<TRow>, row: TRow): LabelSegment[] {
     const cell = column.cell
@@ -577,9 +571,9 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
-   * Virtual scroll needs a stable identity per row. The managers tracked by
-   * index, which recycles a row's DOM into a different record when a refetch
-   * reorders the list — visible as a tag briefly showing the wrong entity.
+   * Virtual scroll needs a stable identity per row: tracking by index
+   * recycles a row's DOM into a different record when a refetch reorders the
+   * list — visible as a tag briefly showing the wrong entity.
    */
   readonly trackById = (_index: number, row: TRow): number => row.id
 
@@ -605,15 +599,10 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /**
    * Clears every filter and returns sort to its configured default.
    *
-   * One assignment, because a filter's value has one home. In the managers the
-   * query cleared but the input boxes did not, since their value lived in a
-   * mutated `col.filter.options[0].value` that nothing re-emitted — the reset
-   * button read as inert. Column visibility is deliberately untouched, matching
-   * the original.
-   *
-   * Sort returns to `undefined`, i.e. to the configured default rather than to
-   * no sort at all — which is what the managers' reset did, by pushing
-   * `c.sort.default ?? null` into every sort stream.
+   * One assignment, because a filter's value has one home — which is what
+   * keeps the query and the filter inputs in agreement. Column visibility is
+   * deliberately untouched, and sort returns to `undefined`: the configured
+   * default, not "no sort at all".
    */
   onResetFilters(): void {
     this.filterValues.set(new Map())

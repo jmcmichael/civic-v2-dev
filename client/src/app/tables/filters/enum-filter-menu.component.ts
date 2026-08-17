@@ -12,11 +12,11 @@ import { CvcEnumOption } from '../entity-table.types'
 
 /**
  * The dropdown behind an enum column's funnel icon: one tag per value, plus a
- * reset. One copy, replacing the byte-identical pair under the two managers.
+ * reset.
  *
  * `cvc-attribute-tag` is imported from `@app/forms/components/attribute-tag`,
- * **not** `@app/components/shared/attribute-tag` — two different components share
- * that selector, and this is the one the managers render.
+ * **not** `@app/components/shared/attribute-tag` — two different components
+ * share that selector, and this is the forms-side one.
  */
 @Component({
   selector: 'cvc-enum-filter-menu',
@@ -35,10 +35,9 @@ import { CvcEnumOption } from '../entity-table.types'
           <!-- $any because cvc-attribute-tag types cvcAttrValue as
                CvcInputEnum, a union of generated string enums, while the
                evidence rating column filters on the numbers 1-5 and renders
-               them through the same tag. NzTableFilterList, which this
-               replaces, typed its value loosely enough to hide the mismatch.
-               Widening that input to cover the numeric case belongs to the
-               attribute-tag component, not here. -->
+               them through the same tag. Widening that input to cover the
+               numeric case belongs to the attribute-tag component, not
+               here. -->
           <cvc-attribute-tag
             [cvcFullWidth]="true"
             cvcContext="menu-item"

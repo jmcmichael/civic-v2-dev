@@ -1,3 +1,16 @@
+/**
+ * The configurable entity table.
+ *
+ * A host builds an `EntityTableSpec` with `entityTableConfig()` — which
+ * type-checks columns, filters and sorts against the query's generated types —
+ * and renders `<cvc-entity-table [spec]="...">`. See
+ * `forms/types/evidence-select/evidence-manager` for a complete example.
+ *
+ * Consumer surface: `CvcEntityTableComponent`, `entityTableConfig`,
+ * `enumFilterOptions`, the column/cell/filter types, and `CvcCellDirective`
+ * for one-off cell templates. The scroll directive, filter widgets and
+ * connection helpers are internals of the component, exported for tests.
+ */
 export { CvcEntityTableComponent } from './entity-table.component'
 export type { CvcTableRequestError } from './entity-table.component'
 export { CvcCellDirective } from './cell.directive'

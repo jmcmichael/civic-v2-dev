@@ -30,13 +30,12 @@ export type EvidenceManagerSettings = {
 }
 
 /**
- * The evidence selection table, as a facade over `cvc-entity-table`.
- *
- * What remains of a 1,000-line component and a 647-line template: the
+ * The evidence selection table, as a facade over `cvc-entity-table`: the
  * field-facing inputs, the table config, and the settings translation below.
  *
- * The I/O is unchanged — `evidence-select.type.html` binds `[cvcSelectedIds]`,
- * `(cvcSelectedIdsChange)` and `[cvcTableSettings]` and needs no edit.
+ * `evidence-select.type.html` binds `[cvcSelectedIds]`,
+ * `(cvcSelectedIdsChange)` and `[cvcTableSettings]`; that contract is pinned
+ * by the field's specs and must not change shape here.
  */
 @Component({
   selector: 'cvc-evidence-manager',
@@ -63,12 +62,10 @@ export class CvcEvidenceManagerComponent {
   /**
    * Whether a required sibling field also shows its column.
    *
-   * Off by default, and deliberately so. The field has always computed a
-   * `preferences` payload from `REQUIRED_FIELD_TO_COL`, and the manager has
-   * always dropped it on the floor — `onSetTablePref$.next(...)` was commented
-   * out in both managers. The feature was asked for, then rejected; this makes
-   * it a switch rather than a commented-out line, so re-enabling it is a config
-   * change and the path stays covered by tests.
+   * Off by default, deliberately: the field computes a `preferences` payload
+   * from `REQUIRED_FIELD_TO_COL`, but auto-showing those columns is a
+   * rejected feature. It is a switch rather than dead code so the path stays
+   * covered by tests and re-enabling it is a config change.
    */
   readonly cvcApplyColumnPreferences = input(false)
 

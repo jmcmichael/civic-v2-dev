@@ -19,11 +19,11 @@ export interface CvcCellContext<TRow> {
  * </cvc-entity-table>
  * ```
  *
- * For genuine one-offs. The built-in `cell.kind`s cover almost every column
- * across both managers, and a column that opts out of them opts out of the
- * shared layout and filter wiring too — so reach for a cell kind first.
+ * For genuine one-offs. The built-in `cell.kind`s cover almost every column,
+ * and a column that opts out of them opts out of the shared layout and filter
+ * wiring too — so reach for a cell kind first.
  *
- * ## The two type mechanics, since this is the codebase's first typed template
+ * ## The two type mechanics
  *
  * `ngTemplateContextGuard` is what makes `let-row` a `TRow` instead of `any`.
  * Angular only consults it under `strictTemplates`, and only on a structural
