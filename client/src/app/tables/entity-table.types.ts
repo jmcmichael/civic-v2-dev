@@ -1,4 +1,3 @@
-import { EnumOutputStyle } from '@app/core/pipes/evidence-enum-display-type'
 import { CvcEmptyValueCategory } from '@app/forms/components/empty-value/empty-value.component'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import {
@@ -130,10 +129,25 @@ export interface CvcEntityTagCell<TRow> {
   popoverPlacement?: PopoverPlacement
 }
 
-/** `cvc-attribute-tag` for a generated enum value */
+/**
+ * `cvc-attribute-tag` for a generated enum value.
+ *
+ * There is deliberately no `showLabel` or `showIcon`, for the same reason
+ * `CvcEntityTagCell` has no `showStatus`: both managers' configs declared them
+ * and neither template ever bound them. `cvcContext="compact"` — which every
+ * one of these cells uses — sets `cvcShowLabel = false` in the tag's own
+ * ngOnChanges regardless, so binding them would not have worked either.
+ */
 export interface CvcEnumTagCell<TRow> {
   kind: 'enum-tag'
-  value: (row: TRow) => Maybe<string>
+  /**
+   * The raw value, not a rendering of it. `string | number` because evidence
+   * ratings are numbers, and the tag's icon resolver switches on the type: a
+   * number picks `civic-rating4`, while the string '4' is read as a
+   * single-character evidence level and resolves to `civic-level4`, which does
+   * not exist — the cell then renders nothing at all.
+   */
+  value: (row: TRow) => Maybe<string | number>
   /**
    * Tooltip text for the tag. An accessor rather than a flag because the
    * expansion is entity-specific — the evidence manager pipes its enums through
@@ -141,14 +155,6 @@ export interface CvcEnumTagCell<TRow> {
    * table cannot know which pipe an enum wants.
    */
   tooltip?: (row: TRow) => Maybe<string>
-  /**
-   * false renders just the icon, for narrow columns; an `EnumOutputStyle`
-   * picks how the label is abbreviated — the evidence rating column uses
-   * 'short-string' to fit "5 stars" into 45px.
-   */
-  showLabel?: boolean | EnumOutputStyle
-  /** override when the tag cannot infer an icon from the value */
-  showIcon?: string | boolean
 }
 
 /** long text shown as a tag, with the full string in a tooltip */
@@ -226,18 +232,20 @@ export interface CvcNumericFilter<TVars> extends CvcFilterBase<TVars> {
  * `TValue` carries the generated enum through, so `enumFilterOptions(
  * EvidenceType)` yields options whose values are `EvidenceType` members rather
  * than bare strings — the filter cannot offer a value the schema does not have.
+ * It defaults to `string | number` because not every enum column filters on a
+ * schema enum: evidence ratings are the numbers 1-5.
  * Replaces ng-zorro's `NzTableFilterList`, which typed `value` as `any` and put
  * a vendor shape in the config surface; the component maps to it at the
  * boundary instead.
  */
-export interface CvcEnumOption<TValue = string> {
+export interface CvcEnumOption<TValue = string | number> {
   label: string
   value: TValue
 }
 
 export interface CvcEnumFilter<
   TVars,
-  TValue = string,
+  TValue = string | number,
 > extends CvcFilterBase<TVars> {
   kind: 'enum'
   options: ReadonlyArray<CvcEnumOption<TValue>>

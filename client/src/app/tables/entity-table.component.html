@@ -174,7 +174,6 @@
                       [cvcFullWidth]="true"
                       cvcContext="compact"
                       [cvcAttrValue]="$any(value)"
-                      [cvcShowLabel]="cell.showLabel ?? true"
                       [cvcTooltip]="
                         isScrolling()
                           ? undefined
@@ -190,10 +189,17 @@
                 @case ('text-tag') {
                   @let text = cell.text(row);
                   @if (text) {
+                    <!-- the icon is the whole cell: these columns are 40px and
+                         the text is a full evidence description, so it lives in
+                         the tooltip -->
                     <nz-tag
                       nz-tooltip
-                      [nzTooltipTitle]="isScrolling() ? null : text">
-                      {{ text }}
+                      [nzTooltipTitle]="isScrolling() ? null : text"
+                      class="text-tag-cell">
+                      <span
+                        nz-icon
+                        nzType="align-left"
+                        nzTheme="outline"></span>
                     </nz-tag>
                   } @else {
                     <cvc-empty-value

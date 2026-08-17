@@ -77,9 +77,7 @@ test('sorting reorders rows', async ({ page }) => {
 
   // the Evidence column defaults to ascending; one click flips it. ng-zorro
   // makes the whole th clickable rather than rendering a button role.
-  await page
-    .locator('[data-testid="column-header"][data-column="id"]')
-    .click()
+  await page.locator('[data-testid="column-header"][data-column="id"]').click()
 
   await expect.poll(firstRowId, { timeout: 20_000 }).not.toBe(initial)
 })
@@ -131,33 +129,30 @@ test('hiding a column via the preferences panel removes its header', async ({
 })
 
 /**
- * KNOWN FAILING against current main, deliberately.
+ * Was `test.fail()`: reset pushed null into every column's filter.changes but
+ * never cleared `col.filter.options[0].value`, the backing store for the input
+ * itself, so the table and its own filter boxes disagreed and the (unlabelled)
+ * reset button read as inert.
  *
- * Reset pushes null into every column's filter.changes subject, so the query
- * clears and the rows repopulate — but it never clears
- * `col.filter.options[0].value`, which is the backing store for the filter
- * input's [cvcModel]. The table and its own filter boxes end up disagreeing,
- * which is why the (unlabelled) reset button reads as inert.
- *
- * `test.fail()` keeps the suite honest about this: it stays green while the bug
- * exists, and turns RED the moment the extraction fixes it — at which point
- * delete this annotation. That flip is the evidence the refactor changed
- * behaviour for the better.
+ * In the entity table a filter's value has one home, so reset clears one thing
+ * and both follow. The annotation is deleted rather than the assertion
+ * loosened — that flip is the evidence the extraction changed behaviour for the
+ * better.
  */
-test.fail('reset clears both the query and the filter inputs', async ({
-  page,
-}) => {
+test('reset clears both the query and the filter inputs', async ({ page }) => {
   await openManager(page)
   const unfiltered = await filteredCount(page)
 
   const disease = filterInput(page, 'disease')
   await disease.fill('Leukemia')
-  await expect.poll(() => filteredCount(page), { timeout: 20_000 }).toBeLessThan(unfiltered)
+  await expect
+    .poll(() => filteredCount(page), { timeout: 20_000 })
+    .toBeLessThan(unfiltered)
 
   await page.getByTestId('filter-reset').click()
 
-  // the query does clear — this half already works
-  await expect.poll(() => filteredCount(page), { timeout: 20_000 }).toBe(unfiltered)
-  // ...but the input still shows "Leukemia", so the UI contradicts the data
+  await expect
+    .poll(() => filteredCount(page), { timeout: 20_000 })
+    .toBe(unfiltered)
   await expect(disease).toHaveValue('')
 })

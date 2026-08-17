@@ -29,11 +29,10 @@ import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
-import { EvidenceManagerSettings } from './evidence-manager/evidence-manager.component'
-import { CvcEvidenceManagerModule } from './evidence-manager/evidence-manager.module'
 import {
-  EvidenceManagerRowData,
-} from './evidence-manager/evidence-manager.types'
+  CvcEvidenceManagerComponent,
+  EvidenceManagerSettings,
+} from './evidence-manager/evidence-manager.component'
 import {
   EvidenceSelectTagGQL,
   EvidenceSelectTypeaheadFieldsFragment,
@@ -52,8 +51,7 @@ export interface CvcEvidenceSelectFieldProps extends CvcEntitySelectFieldProps {
 // NOTE: any multi-select field must have the string 'multi' in its type name,
 // as UI logic (currently in base-field) depends on its presence to differentiate
 // field types in some expressions
-export interface CvcEvidenceSelectFieldConfig
-  extends FormlyFieldConfig<CvcEvidenceSelectFieldProps> {
+export interface CvcEvidenceSelectFieldConfig extends FormlyFieldConfig<CvcEvidenceSelectFieldProps> {
   type:
     | 'evidence-select'
     | 'evidence-multi-select'
@@ -66,17 +64,14 @@ export interface CvcEvidenceSelectFieldConfig
  * The manager filters entity columns by NAME, not id (only 'id'/EID is
  * numeric), so it resolves each id to a name out of the Apollo cache.
  */
-const SYNCHRONIZED_FIELD_TO_COL = new Map<
-  keyof AssertionFields,
-  keyof Omit<EvidenceManagerRowData, 'id' | 'status'>
->([
+const SYNCHRONIZED_FIELD_TO_COL = new Map<keyof AssertionFields, string>([
   ['molecularProfileId', 'molecularProfile'],
   ['diseaseId', 'disease'],
   ['therapyIds', 'therapies'],
 ])
 
 /** manager columns shown/hidden in step with whether their field is required */
-const REQUIRED_FIELD_TO_COL = new Map<keyof EvidenceManagerRowData, string>([
+const REQUIRED_FIELD_TO_COL = new Map<string, string>([
   ['disease', 'requiresDisease'],
   ['therapies', 'requiresTherapy'],
 ])
@@ -108,7 +103,7 @@ const EID_PATTERN = /^(?:EID)?(\d+)$/i
     CvcTagComponent,
     CvcEntitySelectDirective,
     CvcSelectMessagesComponent,
-    CvcEvidenceManagerModule,
+    CvcEvidenceManagerComponent,
   ],
   templateUrl: './evidence-select.type.html',
   styleUrl: './evidence-select.type.less',
@@ -142,9 +137,8 @@ export class CvcEvidenceSelectField extends CvcEntitySelectFieldBase<
   protected readonly showManager = signal(false)
 
   /** column filters and preferences derived from the sibling fields' state */
-  protected readonly tableSettings = signal<Maybe<EvidenceManagerSettings>>(
-    undefined
-  )
+  protected readonly tableSettings =
+    signal<Maybe<EvidenceManagerSettings>>(undefined)
 
   protected readonly selected = computed(() => this.selectedIds())
 
