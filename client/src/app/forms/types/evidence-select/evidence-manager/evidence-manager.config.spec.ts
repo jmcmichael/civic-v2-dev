@@ -10,7 +10,11 @@ import {
   VariantOrigin,
 } from '@app/generated/civic.apollo.types'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
-import { describeEntityTableContract } from '@app/testing/entity-table.harness'
+import {
+  describeEntityTableContract,
+  specCell,
+  specColumn,
+} from '@app/testing/entity-table.harness'
 import { OperationDefinitionNode, visit } from 'graphql'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { evidenceManagerConfig } from './evidence-manager.config'
@@ -138,11 +142,7 @@ describe('evidenceManagerConfig', () => {
     spec = evidenceManagerConfig(TestBed.inject(EvidenceManagerGQL))
   })
 
-  const column = (key: string) => {
-    const found = spec.columns.find((c) => c.key === key)
-    expect(found, `no column keyed '${key}'`).toBeTruthy()
-    return found!
-  }
+  const column = (key: string) => specColumn(spec, key)
 
   it('gives every column a distinct key', () => {
     const keys = spec.columns.map((c) => c.key)
@@ -226,19 +226,20 @@ describe('evidenceManagerConfig', () => {
   })
 
   describe('cell accessors', () => {
-    const cellOf = (key: string) => column(key).cell as any
+    const entityTag = (key: string) => specCell(spec, key, 'entity-tag')
+    const enumTag = (key: string) => specCell(spec, key, 'enum-tag')
 
     it('addresses the evidence item by cache identity alone', () => {
-      expect(cellOf('id').ref(ROW)).toEqual({
+      expect(entityTag('id').ref(ROW)).toEqual({
         __typename: 'EvidenceItem',
         id: 812,
       })
     })
 
     it('passes nested entities through untouched', () => {
-      expect(cellOf('molecularProfile').ref(ROW)).toBe(ROW.molecularProfile)
-      expect(cellOf('disease').ref(ROW)).toBe(ROW.disease)
-      expect(cellOf('therapies').ref(ROW)).toBe(ROW.therapies)
+      expect(entityTag('molecularProfile').ref(ROW)).toBe(ROW.molecularProfile)
+      expect(entityTag('disease').ref(ROW)).toBe(ROW.disease)
+      expect(entityTag('therapies').ref(ROW)).toBe(ROW.therapies)
     })
 
     /**
@@ -255,8 +256,8 @@ describe('evidenceManagerConfig', () => {
     })
 
     it('expands enum values into sentences for their tooltips', () => {
-      expect(cellOf('evidenceType').tooltip(ROW)).toBe('Predictive')
-      expect(cellOf('evidenceRating').tooltip(ROW)).toBe('Four Stars')
+      expect(enumTag('evidenceType').tooltip!(ROW)).toBe('Predictive')
+      expect(enumTag('evidenceRating').tooltip!(ROW)).toBe('Four Stars')
     })
   })
 

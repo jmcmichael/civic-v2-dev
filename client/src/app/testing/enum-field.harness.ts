@@ -1,7 +1,4 @@
-import { OverlayContainer } from '@angular/cdk/overlay'
 import { Type, signal } from '@angular/core'
-import { ComponentFixture } from '@angular/core/testing'
-import { By } from '@angular/platform-browser'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { provideRouter } from '@angular/router'
 import { CvcSelectFieldsRegistryModule } from '@app/forms/select/select-fields.registry.module'
@@ -16,26 +13,14 @@ import {
   MockGraphqlOperation,
   provideMockApollo,
 } from './apollo-test.providers'
-import {
-  FormlyTestHostComponent,
-  createFieldTestHost,
-} from './formly-test.host'
+import { FieldHarnessCore, fieldHarnessCore } from './field-harness-core'
+import { createFieldTestHost } from './formly-test.host'
 
 /** Everything a spec needs to drive one mounted enum-select field. */
-export interface EnumFieldHarness {
-  fixture: ComponentFixture<FormlyTestHostComponent>
+export interface EnumFieldHarness extends FieldHarnessCore {
   operations: MockGraphqlOperation[]
-  /** flushes pending macrotasks and re-renders; see the entity harness */
-  settle(ms?: number): Promise<void>
-  openDropdown(): void
-  /** the rendered dropdown options, which live in the cdk overlay container */
-  optionItems(): HTMLElement[]
-  selectedItem(): HTMLElement
-  control(): import('@angular/forms').AbstractControl
-  field<T>(fieldType: Type<T>): T
   /** the props object the form-field wrapper renders around this field */
   props(): Record<string, any>
-  destroy(): void
 }
 
 export interface EnumFieldHarnessConfig {
@@ -84,40 +69,19 @@ export async function createEnumFieldHarness(
     ],
   })
 
-  const overlay = fixture.debugElement.injector
-    .get(OverlayContainer)
-    .getContainerElement()
-
   const select = (): HTMLElement =>
     fixture.nativeElement.querySelector('nz-select')
 
   const harness: EnumFieldHarness = {
-    fixture,
+    // 0 ms default settle: no typeahead, nothing debounces
+    ...fieldHarnessCore(fixture, {
+      key: config.key,
+      select,
+      settleMs: 0,
+    }),
     operations,
-    async settle(ms = 0) {
-      fixture.detectChanges()
-      await new Promise((r) => setTimeout(r, ms))
-      fixture.detectChanges()
-      await new Promise((r) => setTimeout(r, 0))
-      fixture.detectChanges()
-    },
-    openDropdown() {
-      select().click()
-      fixture.detectChanges()
-    },
-    optionItems: () =>
-      Array.from(overlay.querySelectorAll('nz-option-item')) as HTMLElement[],
-    selectedItem: () =>
-      select().querySelector('.ant-select-selection-item') as HTMLElement,
-    control: () => fixture.componentInstance.form.get(config.key)!,
-    field: <T>(fieldType: Type<T>) =>
-      fixture.debugElement.query(By.directive(fieldType as Type<any>))
-        .componentInstance as T,
     props: () =>
       fixture.componentInstance.fields[0].props as Record<string, any>,
-    destroy() {
-      fixture.debugElement.injector.get(OverlayContainer).ngOnDestroy()
-    },
   }
 
   await harness.settle()
