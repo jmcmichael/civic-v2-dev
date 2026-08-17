@@ -24,12 +24,15 @@ the component and template should rarely need edits.
 `width`, `align`, `fixed`, `hidden`, `tooltip`, `emptyValue` are plain column
 fields — edit them in the manager's `*.config.ts`. Two constraints:
 
-- `width` must be a **px string** (`'240px'`). Sticky offsets for pinned
-  columns are computed arithmetically from the declared widths (`pxWidth`);
-  a `%`/`em` width parses to 0 and shifts every pinned column after it.
-- If you pin (`fixed`), keep pinned columns contiguous at their edge — the
-  offsets stack left-to-right / right-to-left in declaration order, matching
-  ng-zorro's own model.
+- `width` should be a **px string** (`'240px'`). It seeds the colgroup;
+  pinned-column offsets come from ng-zorro's own measured widths, so the
+  declared value no longer has to be arithmetic-exact — but px keeps the
+  layout predictable.
+- If you pin (`fixed`), keep pinned columns contiguous at their edge —
+  ng-zorro sums only the measured widths of the _pinned_ cells before/after
+  each one, so a non-pinned column interleaved into a pinned run mis-stacks.
+- Never wrap the body's `nz-virtual-scroll` template in `<tbody>` (see
+  troubleshooting §11 — it silently zeroes every pinned offset).
 
 ### Change a filter
 
@@ -121,11 +124,11 @@ Checklist:
 - If the rows are denormalised (`Browse*`) and the new column is an
   `entity-tag`, it needs a `seed` (see §3 below).
 - New enum-tag values may resolve **civic icons** the test harness must know:
-  `TABLE_ICONS` in `app/testing/entity-table.harness.ts` already registers
-  `civicIcons` + the ant set, but a brand-new ant icon in a cell must be
-  added there _and_ in `entity-table.component.spec.ts`'s `NzIconModule.forRoot`
-  list — a missing icon throws outside the test call stack and floods the
-  run with unhandled errors while every assertion stays green.
+  `TABLE_ICONS` in `app/testing/entity-table.harness.ts` registers
+  `civicIcons` + the ant set, and every table spec (component spec included)
+  imports it — add a brand-new ant icon there, in one place. A missing icon
+  throws outside the test call stack and floods the run with unhandled
+  errors while every assertion stays green.
 - The contract suite picks the column up automatically (it filters every
   filterable column and sorts every sortable one); add a config-spec
   assertion only for column-specific behaviour (a transform, a seed).
@@ -164,33 +167,43 @@ have identical members; the enum-identity test in that spec guards the drift.
 
 ---
 
-## 3. One-off cells: the `cvcCell` template override
+## 3. One-off cells: `kind: 'custom'` with polymorpheus content
 
-For a cell no built-in kind covers, declare `cell: { kind: 'custom' }` (or
-override any kind) and supply a typed template from the host:
+For a cell no built-in kind covers, declare the rendering **in the config**,
+where `TRow` is already inferred — no template rendezvous, no extra imports:
 
-```html
-<cvc-entity-table [spec]="spec()">
-  <ng-template
-    cvcCell="molecularProfile"
-    [cvcCellOf]="spec()"
-    let-row>
-    <cvc-tag [ref]="row.molecularProfile" />
-  </ng-template>
-</cvc-entity-table>
+```ts
+// simplest: a handler returning text
+{
+  key: 'span',
+  label: 'Span',
+  width: '80px',
+  cell: {
+    kind: 'custom',
+    content: (ctx) => `${ctx.row.start}–${ctx.row.stop}`,
+  },
+},
+
+// richer: a component; context arrives via injectContext and same-named inputs
+cell: {
+  kind: 'custom',
+  content: new PolymorpheusComponent(CvcMyCellComponent),
+},
+// in CvcMyCellComponent:
+//   private readonly ctx = injectContext<CvcCellContext<MyRow>>()
+//   — or declare `row` / `column` inputs and let the outlet write them
 ```
 
-- `cvcCell` names the column `key`; the template receives
-  `{ $implicit: row, row, column }` (`CvcCellContext<TRow>`).
-- `[cvcCellOf]="spec()"` exists **only to type `let-row`** — a directive's
-  generic can only be inferred from its own inputs, so binding the same spec
-  gives `TRow` something to infer from. Its value is never read.
-- The host imports `CvcCellDirective`; the table only queries for it.
-- Prefer a built-in kind when one fits: a custom cell opts out of the shared
-  filter-highlighting and empty-value handling.
-
-Caveat: a misspelled `cvcCell` key renders a silently blank cell — the
-`@case ('custom')` branch has no else. Check the key against the config.
+- `content` is a `PolymorpheusContent<CvcCellContext<TRow>>` — a handler, a
+  `PolymorpheusComponent`, or a `TemplateRef` (grab one with `viewChild` in
+  the facade). Prefer handler/component: the outlet types template contexts
+  weakly.
+- The context is `{ $implicit: row, row, column }`.
+- A custom cell owns its whole rendering, including its empty state — it
+  opts out of the shared filter-highlighting and empty-value handling, so
+  prefer a built-in kind when one fits.
+- `entityTableConfig` throws in dev mode when a custom cell has no content
+  (the old string-keyed template lookup failed silently blank instead).
 
 ---
 

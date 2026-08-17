@@ -50,12 +50,10 @@ The 17 browse tables under `views/` are the intended future consumers.
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `entity-table.component.ts/.html/.less`               | The component: card chrome, toolbar, header/filter/body rows, all user-input state                                              |
 | `entity-table-query.ts`                               | `CvcEntityTableQuery` — the QueryRef and everything derived from a response; the pipeline behind the component's variables      |
-| `sticky-offsets.ts`                                   | `resolveStickyOffsets()` — px offsets and edge-shadow flags for pinned columns                                                  |
 | `entity-table.types.ts`                               | The column model: `CvcColumn`, the `CvcCellSpec` union, filters, sort, settings types                                           |
 | `entity-table-config.ts`                              | `entityTableConfig()` — type-checks a config literal against its query's generated types, then erases them to `EntityTableSpec` |
 | `connection.types.ts`                                 | `CvcConnection<TNode>` (the common shape of all 42 `*Connection` types), `connectionNodes()`, `displayedCount()`                |
 | `table-scroll.directive.ts`                           | `cvcTableScrollObserver` — scroll phase + next-page requests for the CDK virtual-scroll viewport                                |
-| `cell.directive.ts`                                   | `cvcCell` — typed `ng-template` overrides for one-off cells                                                                     |
 | `filters/table-filter-input.component.ts`             | Text/numeric filter box in the filter row                                                                                       |
 | `filters/enum-filter-menu.component.ts`               | The funnel-icon dropdown for enum filters                                                                                       |
 | `enum-filter-options.ts`                              | `enumFilterOptions(Enum)` — filter options derived from a generated enum                                                        |
@@ -82,7 +80,7 @@ flowchart TB
   subgraph libLayer["Library — owns the table's behaviour"]
     comp["CvcEntityTableComponent<br/>columns · filters · sort · prefs · selection · scroll"]
     store["CvcEntityTableQuery<br/>one QueryRef · refetch · fetchMore · errors"]
-    helpers["resolveStickyOffsets · connectionNodes<br/>displayedCount · splitError"]
+    helpers["connectionNodes · displayedCount<br/>splitError"]
     dir["cvcTableScrollObserver<br/>reports, never acts"]
   end
   subgraph vendorLayer["Vendor — owns pixels and cache"]
@@ -237,7 +235,6 @@ flowchart TB
   subgraph derivedBlk["Computed"]
     columns["columns()"]
     visible["visibleColumns()"]
-    offsets["stickyOffsets()"]
     prefs["columnPrefs() · checkedPrefs()"]
     effSort["effectiveSort()"]
     vars["queryVars()"]
@@ -261,7 +258,6 @@ flowchart TB
   hidden --> columns
   columns --> visible
   columns --> prefs
-  visible --> offsets
   spec --> effSort
   sortSt --> effSort
   spec --> vars
@@ -350,9 +346,11 @@ cell's _contents_ vary by kind.
 | 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                    |
 | 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                        |
 
-The `|<- fixed ->|` brackets in the header band are `stickyOffsets()`: computed
-px offsets and manually applied edge-shadow classes, **not** ng-zorro's
-`nzLeft="true"` auto-measurement (see troubleshooting §11).
+The `|<- fixed ->|` brackets in the header band are ng-zorro's own boolean
+`nzLeft`/`nzRight` pinning: a hidden measure row supplies the widths and the
+table writes each cell's offset and edge-shadow class itself. This works
+**only because the body's `nz-virtual-scroll` template is not wrapped in a
+`<tbody>`** — see troubleshooting §11 for the trap.
 
 ### Inputs / outputs
 
@@ -362,7 +360,6 @@ px offsets and manually applied edge-shadow classes, **not** ng-zorro's
 | `[(selectedIds)]` | `number[]` (model)                 | The **complete** selection on every change, not a delta. Emits `selectedIdsChange`. |
 | `[settings]`      | `CvcTableSettings`                 | Externally-driven filters + column visibility (see "Settings injection")            |
 | `[height]`        | `string` (CSS length)              | Omit to fill available space via the flex chain; set for a fixed-height region      |
-| content children  | `ng-template[cvcCell]`             | Per-column cell overrides (see the guide)                                           |
 
 There are no other outputs: filters, sort and preferences are internal state;
 the observable consequence of all of them is the query the table sends.
@@ -383,9 +380,10 @@ the observable consequence of all of them is the query the table sends.
   on `CvcEntityTableQuery`, which the component holds as `query` and re-exposes
   under the names the template binds.
 
-Derived: `columns` (spec + overrides), `visibleColumns`, `stickyOffsets`
-(px offsets for pinned columns via `resolveStickyOffsets` — ng-zorro's
-`nzLeft="true"` auto-measurement does not work in this composition),
+Derived: `columns` (spec + overrides), `visibleColumns` (pinned-column
+offsets are not derived here — they are ng-zorro's own boolean
+`nzLeft`/`nzRight` measurement; see troubleshooting §11 for the `<tbody>`
+trap that breaks it),
 `queryVars`, `connection` → `rows` / `pageInfo` / `displayedTotal`,
 `selectedSet`.
 
@@ -405,7 +403,7 @@ Cell kinds (`CvcCellSpec<TRow>` union):
 | `enum-tag`   | `cvc-attribute-tag`                               | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
 | `text-tag`   | icon tag, full text in tooltip                    | `text(row)`                                                                                                                                             |
 | `text`       | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`                                                                                                       |
-| `custom`     | host-supplied `ng-template[cvcCell]`              | —                                                                                                                                                       |
+| `custom`     | polymorpheus content declared in the config       | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
 
 Every kind reads through an **accessor** (`ref`/`value`/`text`) checked
 against `TRow` — a column's data need not share its key, and there is no
@@ -428,18 +426,18 @@ inputs — the config describes once what the old templates re-bound in every
 `th`/`td` block. When debugging rendering, this is the translation table
 (bindings applied in `entity-table.component.html`):
 
-| `CvcColumn` member                   | ng-zorro binding / type                                                                                                    | Notes                                                                                                                                                                                                                                                                                                                                        |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `key`                                | `[nzColumnKey]` on `th`                                                                                                    | also the `data-column` test hook                                                                                                                                                                                                                                                                                                             |
-| `width`                              | `[nzWidth]` on `th`                                                                                                        | px strings only — sticky offsets are computed from them                                                                                                                                                                                                                                                                                      |
-| `align`                              | `[nzAlign]` on `th`/`td`                                                                                                   | `'left' \| 'center' \| 'right'`, same union                                                                                                                                                                                                                                                                                                  |
-| `fixed: 'left'/'right'`              | `[nzLeft]` / `[nzRight]` (`NzCellFixedDirective`)                                                                          | we pass a **CSS length**, never `true`: a string disables ng-zorro's auto-offset measurement (`isAutoLeft` is only true for `''`/`true`), which mis-stacks in this composition — offsets are computed in `stickyOffsets` and the edge-shadow classes (`ant-table-cell-fix-left-last`, `ant-table-cell-fix-right-first`) are applied manually |
-| `sort.default`, `CvcSortState.order` | `NzTableSortOrder` (`'ascend' \| 'descend' \| null`)                                                                       | imported directly from `ng-zorro-antd/table` — our sort state speaks ng-zorro's vocabulary and translates to the generated `SortDirection` only at the query boundary                                                                                                                                                                        |
-| `sort` presence                      | `[nzShowSort]`, `[nzSortFn]`, `[nzSortOrder]`, `(nzSortOrderChange)`                                                       | `nzSortFn` is set to `true` (server-side contract: "don't sort locally"); actual sorting is the `sortBy` query variable                                                                                                                                                                                                                      |
-| `filter` (enum)                      | `nz-filter-trigger` + `nz-dropdown-menu`                                                                                   | deliberately **not** `[nzFilters]`/`NzTableFilterList`, which types option values as `any`; `CvcEnumOption<TValue>` carries the generated enum through and the menu maps to ng-zorro at the boundary                                                                                                                                         |
-| `filter` (text/numeric)              | plain `nz-input` / `nz-input-number` in a second `thead` row                                                               | ant expects the filter row inside `thead`                                                                                                                                                                                                                                                                                                    |
-| `hidden` / prefs panel               | `nz-checkbox-group` `[nzOptions]`                                                                                          | `columnPrefs()` produces exactly ng-zorro 22's `NzCheckboxOption` shape (`{label, value}`); checked values ride `ngModel` separately (the v22 API split)                                                                                                                                                                                     |
-| — (table level)                      | `[nzScroll]="{ x, y }"`, `[nzVirtualItemSize]="28"`, `[nzVirtualForTrackBy]`, `[nzFrontPagination]="false"`, `[nzLoading]` | `nzScroll.y` is written verbatim to the CDK viewport's `style.height`, which is why `'100%'` + the flex chain works                                                                                                                                                                                                                          |
+| `CvcColumn` member                   | ng-zorro binding / type                                                                                                    | Notes                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`                                | `[nzColumnKey]` on `th`                                                                                                    | also the `data-column` test hook                                                                                                                                                                                                                                                                                                                                     |
+| `width`                              | `[nzWidth]` on `th`                                                                                                        | px strings recommended — they seed the colgroup; the measured widths drive the pinned offsets                                                                                                                                                                                                                                                                        |
+| `align`                              | `[nzAlign]` on `th`/`td`                                                                                                   | `'left' \| 'center' \| 'right'`, same union                                                                                                                                                                                                                                                                                                                          |
+| `fixed: 'left'/'right'`              | `[nzLeft]` / `[nzRight]` (`NzCellFixedDirective`)                                                                          | booleans, so ng-zorro's own measure row computes the offsets and applies the edge-shadow classes (`ant-table-cell-fix-left-last`, `ant-table-cell-fix-right-first`). Depends on the template NOT wrapping the virtual-scroll body in `<tbody>` — a wrapper becomes a detached measure row that reports all widths as 0 and zeroes every offset (troubleshooting §11) |
+| `sort.default`, `CvcSortState.order` | `NzTableSortOrder` (`'ascend' \| 'descend' \| null`)                                                                       | imported directly from `ng-zorro-antd/table` — our sort state speaks ng-zorro's vocabulary and translates to the generated `SortDirection` only at the query boundary                                                                                                                                                                                                |
+| `sort` presence                      | `[nzShowSort]`, `[nzSortFn]`, `[nzSortOrder]`, `(nzSortOrderChange)`                                                       | `nzSortFn` is set to `true` (server-side contract: "don't sort locally"); actual sorting is the `sortBy` query variable                                                                                                                                                                                                                                              |
+| `filter` (enum)                      | `nz-filter-trigger` + `nz-dropdown-menu`                                                                                   | deliberately **not** `[nzFilters]`/`NzTableFilterList`, which types option values as `any`; `CvcEnumOption<TValue>` carries the generated enum through and the menu maps to ng-zorro at the boundary                                                                                                                                                                 |
+| `filter` (text/numeric)              | plain `nz-input` / `nz-input-number` in a second `thead` row                                                               | ant expects the filter row inside `thead`                                                                                                                                                                                                                                                                                                                            |
+| `hidden` / prefs panel               | `nz-checkbox-group` `[nzOptions]`                                                                                          | `columnPrefs()` produces exactly ng-zorro 22's `NzCheckboxOption` shape (`{label, value}`); checked values ride `ngModel` separately (the v22 API split)                                                                                                                                                                                                             |
+| — (table level)                      | `[nzScroll]="{ x, y }"`, `[nzVirtualItemSize]="28"`, `[nzVirtualForTrackBy]`, `[nzFrontPagination]="false"`, `[nzLoading]` | `nzScroll.y` is written verbatim to the CDK viewport's `style.height`, which is why `'100%'` + the flex chain works                                                                                                                                                                                                                                                  |
 
 Similarly, `CvcTableQuery` is a structural facade over apollo-angular's
 generated `Query` service (over `watch` rather than `fetch`), and the scroll
@@ -470,7 +468,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
 used — so the literal is fully type-checked with **zero explicit type
 arguments** — then erases the query types so the component carries only
 `TRow`. It also throws in dev mode on duplicate column keys (keys address
-columns in prefs, filters, sticky offsets and the `data-testid` contract, so
+columns in prefs, filters and the `data-testid` contract, so
 a duplicate is a silent aliasing bug).
 
 Three type-level guarantees, all pinned by self-enforcing `@ts-expect-error`
@@ -771,9 +769,9 @@ flowchart BT
 | Layer         | Runs in                      | Sees                                 | Catches                                                                                                                                             | Cannot catch                                     |
 | ------------- | ---------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | 1 Unit / type | `tsc` + vitest               | one function or one type             | a filter naming an undeclared variable; a variable declared but never used in the document; bottom-detection arithmetic                             | anything about wiring                            |
-| 2 Component   | vitest + jsdom               | the component, synthetic spec        | variable routing, transforms, sort states, reset, prefs, selection, sticky offsets, fetchMore dedup                                                 | whether a **real** config is wired correctly     |
+| 2 Component   | vitest + jsdom               | the component, synthetic spec        | variable routing, transforms, sort states, reset, prefs, selection, fetchMore dedup                                                                 | whether a **real** config is wired correctly     |
 | 3 Contract    | vitest + jsdom + a mock link | a shipped config in a real component | every filterable column reaching its declared variable; every sortable column reaching the sort variable; fetchMore carrying filters; cache seeding | anything that needs layout                       |
-| 4 Golden      | Playwright, real Chrome      | the shipped app                      | rendering, virtual scroll, sticky columns, popovers                                                                                                 | fast feedback — it is the slowest and last layer |
+| 4 Golden      | Playwright, real Chrome      | the shipped app                      | rendering, virtual scroll, popovers, pinned-column offsets and edge shadows                                                                         | fast feedback — it is the slowest and last layer |
 
 **Why layer 3 exists at all.** Layers 1 and 2 can both be green while a table
 is broken, because neither one ever mounts a real config. The contract does,
