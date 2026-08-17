@@ -123,11 +123,48 @@ class Resolvers::TopLevelEvidenceItems < GraphQL::Schema::Resolver
   end
 
 
+  # The name of the alphabetically first therapy attached to an evidence item,
+  # as a correlated subquery.
+  #
+  # Therapies are habtm, so joining them multiplies rows — and because the
+  # DISTINCT ON list ends in `id`, every therapy would survive as its own
+  # distinct tuple and the evidence item would appear once per therapy. A
+  # scalar subquery keeps one row per evidence item. It also has to appear in
+  # the DISTINCT ON list verbatim, since Postgres requires those expressions to
+  # match the leading ORDER BY ones.
+  FIRST_THERAPY_NAME = <<~SQL.squish
+    (SELECT MIN(therapies.name)
+       FROM therapies
+       INNER JOIN evidence_items_therapies
+               ON evidence_items_therapies.therapy_id = therapies.id
+      WHERE evidence_items_therapies.evidence_item_id = evidence_items.id)
+  SQL
+
   option :sort_by, type: Types::BrowseTables::EvidenceSortType, description: "Columm and direction to sort evidence on." do |scope, value|
     case value.column
     when "DISEASE_NAME"
       scope.left_joins(:disease).reorder("diseases.name #{value.direction} NULLS LAST")
         .reselect(generate_select("diseases.name"))
+    when "MOLECULAR_PROFILE_NAME"
+      # molecular_profile is a required belongs_to, so an inner join cannot drop
+      # rows the way it would for the optional disease above
+      scope.joins(:molecular_profile).reorder("molecular_profiles.name #{value.direction} NULLS LAST")
+        .reselect(generate_select("molecular_profiles.name"))
+    when "THERAPY_NAME"
+      # Arel.sql because Rails' raw-SQL guard rejects an ORDER BY that is not a
+      # plain column reference. The string is a constant above and the only
+      # interpolation is `direction`, which the SortDirection enum constrains to
+      # ASC or DESC.
+      scope.reorder(Arel.sql("#{FIRST_THERAPY_NAME} #{value.direction} NULLS LAST"))
+        .reselect(Arel.sql(generate_select(FIRST_THERAPY_NAME)))
+    when "THERAPY_INTERACTION_TYPE"
+      # an integer-backed enum, and Constants::THERAPY_INTERACTION_TYPES happens
+      # to be declared alphabetically, so the column sorts the way the labels
+      # read. Given its own branch rather than falling through below only for
+      # NULLS LAST — most evidence items have no interaction type, and the
+      # default puts nulls first on DESC.
+      scope.reorder("therapy_interaction_type #{value.direction} NULLS LAST")
+        .reselect(generate_select("therapy_interaction_type"))
     when "EVIDENCE_RATING"
       scope.reorder("rating #{value.direction} NULLS LAST")
     else
