@@ -1,6 +1,9 @@
+import { signal } from '@angular/core'
+import { CvcTypeGateConfig } from '@app/forms/select'
 import { AssertionType, EvidenceType } from '@app/generated/civic.apollo.types'
 import { describe, expect, it } from 'vitest'
 import { AssertionState } from './assertion.state'
+import { EntityRequires } from './base.state'
 import { EvidenceState } from './evidence.state'
 
 /**
@@ -72,5 +75,26 @@ describe('AssertionState', () => {
     state.fields.assertionType.set(AssertionType.Predictive)
     expect(state.requires.allowsFdaApproval()).toBe(true)
     expect(state.requires.requiresAmpLevel()).toBe(true)
+  })
+})
+
+/**
+ * The typed-formState guarantees, self-enforced: if either of these stops
+ * being a compile error, a console-compensation path deleted in the typed
+ * formState migration is reachable again.
+ */
+describe('typed formState guarantees', () => {
+  it('rejects partial requires maps and unknown requires keys at compile time', () => {
+    // @ts-expect-error EntityRequires is total — a partial map is unrepresentable
+    const partial: EntityRequires = { requiresDisease: signal(false) }
+
+    const gate: CvcTypeGateConfig = {
+      // @ts-expect-error requiresKey is compile-checked against EntityRequires
+      requiresKey: 'requiresNothing',
+      excludedDescription: () => '',
+    }
+
+    expect(partial).toBeDefined()
+    expect(gate).toBeDefined()
   })
 })
