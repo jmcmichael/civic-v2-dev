@@ -4,13 +4,11 @@ import {
   Component,
   DestroyRef,
   computed,
-  contentChildren,
   effect,
   inject,
   input,
   model,
   signal,
-  TemplateRef,
   untracked,
 } from '@angular/core'
 import { toObservable, toSignal } from '@angular/core/rxjs-interop'
@@ -22,11 +20,14 @@ import {
   CvcCollectionTagComponent,
   CvcTagComponent,
   CvcTagListComponent,
+  EntityTagRef,
   LabelSegment,
   labelSegments,
   readCachedEntityName,
   writeCachedEntity,
 } from '@app/tags'
+import { CvcInputEnum } from '@app/forms/forms.types'
+import { PolymorpheusOutlet } from '@taiga-ui/polymorpheus'
 import { Apollo } from 'apollo-angular'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzCardModule } from 'ng-zorro-antd/card'
@@ -42,7 +43,6 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { NzTagModule } from 'ng-zorro-antd/tag'
-import { CvcCellContext, CvcCellDirective } from './cell.directive'
 import {
   CvcPageInfo,
   connectionNodes,
@@ -51,6 +51,7 @@ import {
 import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
 import { CvcEntityTableQuery } from './entity-table-query'
 import {
+  CvcCellContext,
   CvcEntityTagCell,
   CvcSortState,
   CvcTableSettings,
@@ -58,7 +59,6 @@ import {
 } from './entity-table.types'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
-import { resolveStickyOffsets } from './sticky-offsets'
 import {
   CvcScrollEvent,
   CvcScrollFetch,
@@ -80,8 +80,8 @@ const QUERY_DEBOUNCE_MS = 300
  * The component owns columns, filters, sort, selection and scroll state, and
  * turns them into one debounced variables signal. Everything downstream of
  * those variables — the QueryRef, the response and its errors — belongs to
- * `CvcEntityTableQuery`; pinned-column positions are computed by
- * `resolveStickyOffsets`.
+ * `CvcEntityTableQuery`; pinned-column positions are ng-zorro's own
+ * boolean-`nzLeft`/`nzRight` measurement.
  *
  * Filter values live in one signal map that both the query variables and the
  * filter inputs read, so reset clears a single source and the two cannot
@@ -116,6 +116,7 @@ const QUERY_DEBOUNCE_MS = 300
     NzTagModule,
     NzTooltipModule,
     NzTypographyModule,
+    PolymorpheusOutlet,
   ],
   templateUrl: './entity-table.component.html',
   styleUrl: './entity-table.component.less',
@@ -142,13 +143,6 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    */
   readonly height = input<string>()
 
-  /**
-   * `cvcCell` overrides supplied by the host. Content children, so the *host*
-   * imports `CvcCellDirective` — this component only queries for the type, and
-   * importing it here would be flagged as an unused directive.
-   */
-  readonly cellTemplates = contentChildren(CvcCellDirective)
-
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
@@ -171,33 +165,10 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     this.columns().filter((column) => !column.hidden)
   )
 
-  /**
-   * Where each pinned column sits, and which one carries the edge shadow.
-   * Computed rather than delegated to ng-zorro's auto-offset mode, for the
-   * reasons documented on `resolveStickyOffsets`.
-   */
-  private readonly stickyOffsets = computed(() =>
-    resolveStickyOffsets(this.visibleColumns())
-  )
-
-  /** `nzLeft` for a column: a CSS length when pinned left, else false */
-  stickyLeft(column: CvcSpecColumn<TRow>): string | false {
-    return this.stickyOffsets().get(column.key)?.left ?? false
-  }
-
-  /** `nzRight` for a column: a CSS length when pinned right, else false */
-  stickyRight(column: CvcSpecColumn<TRow>): string | false {
-    return this.stickyOffsets().get(column.key)?.right ?? false
-  }
-
-  /** the pinned column that carries the shadow separating it from the scroll */
-  isLastLeft(column: CvcSpecColumn<TRow>): boolean {
-    return this.stickyOffsets().get(column.key)?.lastLeft ?? false
-  }
-
-  isFirstRight(column: CvcSpecColumn<TRow>): boolean {
-    return this.stickyOffsets().get(column.key)?.firstRight ?? false
-  }
+  // Pinned-column offsets are ng-zorro's own: the template passes boolean
+  // `nzLeft`/`nzRight` and the table's measure row supplies the widths. This
+  // only works because the template does NOT wrap its `nz-virtual-scroll`
+  // template in a `<tbody>` — see the template comment at the body band.
 
   /**
    * `tooltip || label`, matching what the preferences panel has always shown.
@@ -250,6 +221,18 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
   filterValue(key: string): unknown {
     return this.filterValues().get(key) ?? null
+  }
+
+  /** the active text filter for a column, for tag `emphasize` bindings */
+  protected textFilterValue(key: string): string | undefined {
+    const value = this.filterValues().get(key)
+    return typeof value === 'string' ? value : undefined
+  }
+
+  /** a text/numeric filter's current value, in the filter input's own type */
+  protected filterBoxValue(key: string): string | number | null {
+    const value = this.filterValues().get(key)
+    return typeof value === 'string' || typeof value === 'number' ? value : null
   }
 
   sortOrderFor(column: CvcSpecColumn<TRow>): NzTableSortOrder {
@@ -305,7 +288,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   private readonly query = new CvcEntityTableQuery({
     query: () => this.spec().query,
     destroyRef: this.destroyRef,
-    onRefetch: () => this.scrollToIndex.set(0),
+    onRefetch: () => this.scrollRequest.set({ index: 0 }),
   })
 
   readonly loading = this.query.loading
@@ -337,7 +320,14 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     () =>
       this.scrollPhase() === 'bottom' && this.pageInfo()?.hasNextPage === false
   )
-  readonly scrollToIndex = signal<Maybe<number>>(undefined)
+  /**
+   * A scroll *request*, not a position. Each landed refetch must return the
+   * viewport to the top, and consecutive refetches request the same index —
+   * a `signal<number>` would swallow the second `set(0)` on equality and
+   * leave the viewport wherever the user had scrolled. A fresh object per
+   * request keeps every one observable.
+   */
+  readonly scrollRequest = signal<Maybe<{ index: number }>>(undefined)
 
   constructor() {
     // one debounced driver for the whole query: a reset that touches every
@@ -379,10 +369,12 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /**
    * Handles a scroll-observer page request. The directive reports that the
    * viewport wants another page; the store decides whether that cursor is
-   * still worth asking for.
+   * still worth asking for, and extends the variables it last ran with — not
+   * this component's live `queryVars`, which can already be ahead of the
+   * result set inside the debounce window.
    */
   onFetchRequest(fetch: CvcScrollFetch): void {
-    this.query.fetchMore(fetch, this.queryVars())
+    this.query.fetchMore(fetch)
   }
 
   onScrollPhase(phase: CvcScrollEvent): void {
@@ -403,10 +395,11 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * query's copy always wins over a browse row's projection of it.
    */
   private seedRows(rows: ReadonlyArray<TRow>): void {
-    const seeds = this.spec()
-      .columns.map((column) => column.cell)
-      .filter((cell) => cell.kind === 'entity-tag' && !!cell.seed)
-      .map((cell) => (cell as CvcEntityTagCell<TRow>).seed!)
+    const seeds = this.spec().columns.flatMap((column) =>
+      column.cell.kind === 'entity-tag' && column.cell.seed
+        ? [column.cell.seed]
+        : []
+    )
     if (seeds.length === 0) return
 
     for (const row of rows) {
@@ -420,9 +413,44 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     }
   }
 
-  /** the `cvcCell` override for a column, if the host supplied one */
-  templateFor(key: string): Maybe<TemplateRef<CvcCellContext<TRow>>> {
-    return this.cellTemplates().find((cell) => cell.cvcCell() === key)?.template
+  /**
+   * Context for a custom cell's polymorpheus content. A fresh object per
+   * read — custom cells are rare, and the content treats it as data.
+   */
+  protected cellContext(
+    column: CvcSpecColumn<TRow>,
+    row: TRow
+  ): CvcCellContext<TRow> {
+    return { $implicit: row, row, column }
+  }
+
+  /**
+   * An entity-tag cell's refs, shaped for the template: exactly one of
+   * `list`/`single` is set (or neither, for the empty state). Splitting here
+   * keeps the template fully typed — a pipe cannot narrow a union in a
+   * binding, which is what the `$any`s this replaces papered over.
+   */
+  protected entityTagRefs(
+    cell: CvcEntityTagCell<TRow>,
+    row: TRow
+  ): { list: ReadonlyArray<EntityTagRef> | null; single: EntityTagRef | null } {
+    const refs = cell.ref(row)
+    if (Array.isArray(refs)) return { list: refs, single: null }
+    // Array.isArray's false branch does not exclude ReadonlyArray (its guard
+    // is `any[]`), so the compiler still sees the array arm here — it cannot
+    // occur at runtime
+    return { list: null, single: (refs as Maybe<EntityTagRef>) ?? null }
+  }
+
+  /**
+   * The one deliberate erasure at the render boundary: the column model
+   * cannot know which generated enum a column renders (`value` is
+   * `string | number`), and `cvc-attribute-tag` resolves values by runtime
+   * lookup — numbers included (evidence ratings). This method is the single
+   * point where that erasure meets the tag's declared input type.
+   */
+  protected asAttrValue(value: string | number): Maybe<CvcInputEnum> {
+    return value as unknown as Maybe<CvcInputEnum>
   }
 
   /**

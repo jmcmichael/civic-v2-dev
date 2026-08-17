@@ -166,6 +166,7 @@ export function entityTableConfig<
   config: EntityTableConfig<TQuery, TNode, TSortColumn>
 ): EntityTableSpec<TNode> {
   assertUniqueKeys(config.columns)
+  assertCustomCellContent(config.columns)
   return {
     ...config,
     // The two members no assignment can express. `query`: apollo-angular's
@@ -205,6 +206,33 @@ function assertUniqueKeys(columns: ReadonlyArray<{ key: string }>): void {
       `entityTableConfig: duplicate column key(s) ${duplicates.join(', ')}. ` +
         'Keys address columns in preferences, filters and sticky offsets, so ' +
         'they must be unique.'
+    )
+  }
+}
+
+/**
+ * A custom cell renders nothing but its polymorpheus content, so a missing
+ * `content` is a silently blank cell — the exact failure mode the old
+ * string-keyed template lookup had, moved to a loud dev-mode throw.
+ */
+function assertCustomCellContent(
+  columns: ReadonlyArray<{
+    key: string
+    cell: { kind: string; content?: unknown }
+  }>
+): void {
+  if (!isDevMode()) return
+  const missing = columns
+    .filter((column) => column.cell.kind === 'custom')
+    .filter(
+      (column) =>
+        column.cell.content === null || column.cell.content === undefined
+    )
+    .map((column) => column.key)
+  if (missing.length > 0) {
+    throw new Error(
+      `entityTableConfig: custom cell(s) ${missing.join(', ')} declare no ` +
+        'content. A custom cell renders only its polymorpheus content.'
     )
   }
 }

@@ -53,6 +53,15 @@ export class CvcEntityTableQuery {
   private queryRef?: QueryRef<unknown, CvcTableVars>
 
   /**
+   * The variables of the current result set — what `run` last sent. A
+   * fetchMore always extends THIS set: the component's live variables can be
+   * ahead of it inside the query debounce window, and a page fetched with
+   * variables that were never refetched would land in a cache entry whose
+   * first page never existed.
+   */
+  private lastVars?: CvcTableVars
+
+  /**
    * The cursor a fetchMore is already in flight for. The guard lives here
    * rather than in the scroll directive because a refetch is what makes a
    * cursor stale, and only this store sees one happen.
@@ -67,7 +76,14 @@ export class CvcEntityTableQuery {
   /** the latest response payload, for the spec's `connection` accessor */
   readonly data = computed(() => this.result()?.data)
 
-  /** true until the first response, so the first paint is not a blank table */
+  /**
+   * True until the first response, so the first paint is not a blank table.
+   *
+   * Deliberately NOT true during a refetch: `valueChanges` only re-emits
+   * loading states under `notifyOnNetworkStatusChange`, and the chosen UX is
+   * to keep the previous rows visible without a flicker while a filter/sort
+   * change is in flight — the debounced pipeline keeps that window short.
+   */
   readonly loading = computed(() => this.result()?.loading ?? true)
 
   /** a page is being appended, as opposed to the result set being replaced */
@@ -80,6 +96,7 @@ export class CvcEntityTableQuery {
    * and subscribes, every later one refetches through it.
    */
   run(vars: CvcTableVars): void {
+    this.lastVars = vars
     this.error.set(undefined)
     this.fetchingMore.set(false)
 
@@ -122,15 +139,19 @@ export class CvcEntityTableQuery {
    * already asked for — positional relay cursors repeat, so the same `after`
    * arriving twice is routine rather than exceptional.
    *
+   * The page's variables are `lastVars` — the set the current result was
+   * fetched with — never the component's live variables, which can already
+   * differ inside the query debounce window (see `lastVars`).
+   *
    * @param fetch the page request the scroll observer reported
-   * @param vars the current query variables, which the page must not change
    */
-  fetchMore(fetch: CvcScrollFetch, vars: CvcTableVars): void {
-    if (!this.queryRef || fetch.after === this.requestedCursor) return
+  fetchMore(fetch: CvcScrollFetch): void {
+    if (!this.queryRef || !this.lastVars) return
+    if (fetch.after === this.requestedCursor) return
     this.requestedCursor = fetch.after
     this.fetchingMore.set(true)
     this.queryRef
-      .fetchMore({ variables: { ...vars, ...fetch } })
+      .fetchMore({ variables: { ...this.lastVars, ...fetch } })
       .then((value) => {
         if (value.error) this.error.set(splitError(value.error))
       })

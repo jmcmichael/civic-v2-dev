@@ -1,20 +1,15 @@
-import { Component, signal } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-import {
-  CloseCircleFill,
-  FilterFill,
-  QuestionCircleOutline,
-  RetweetOutline,
-  SearchOutline,
-  SettingOutline,
-  SyncOutline,
-} from '@ant-design/icons-angular/icons'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   MockGraphqlOperation,
   provideMockApollo,
 } from '@app/testing/apollo-test.providers'
+import {
+  TABLE_ICONS,
+  TableHostComponent,
+  settleTable,
+} from '@app/testing/entity-table.harness'
 import { EvidenceManagerGQL } from '@app/forms/types/evidence-select/evidence-manager/evidence-manager.query.gql.generated'
 import { CvcEntityTableComponent } from './entity-table.component'
 import { entityTableConfig, EntityTableSpec } from './entity-table-config'
@@ -104,58 +99,26 @@ function buildSpec(
   }) as unknown as EntityTableSpec<Row>
 }
 
-@Component({
-  imports: [CvcEntityTableComponent],
-  template: `<cvc-entity-table
-    [spec]="spec()"
-    [(selectedIds)]="selected" />`,
-})
-class HostComponent {
-  readonly spec = signal<EntityTableSpec<Row>>(undefined as never)
-  selected: number[] = []
-}
-
 describe('cvc-entity-table', () => {
-  let fixture: ComponentFixture<HostComponent>
+  let fixture: ComponentFixture<TableHostComponent<Row>>
   let table: CvcEntityTableComponent<Row>
   let recorded: MockGraphqlOperation[]
 
-  /**
-   * Flushes the query debounce and re-renders. `fixture.whenStable()` never
-   * resolves in this TestBed — a zone macrotask stays pending — so waits are
-   * manual, as in `testing/enum-field.harness.ts`. The default clears
-   * QUERY_DEBOUNCE_MS.
-   */
-  const settle = async (ms = 400) => {
-    fixture.detectChanges()
-    await new Promise((r) => setTimeout(r, ms))
-    fixture.detectChanges()
-  }
+  // shared with the contract harness; the default clears QUERY_DEBOUNCE_MS
+  const settle = (ms?: number) => settleTable(fixture, ms)
 
   beforeEach(async () => {
     recorded = []
     await TestBed.configureTestingModule({
-      // Every ant icon the toolbar and filter row can render. Ant's icon
-      // service throws on an unregistered name, and it throws *outside* the
-      // test's own call stack — so a missing icon leaves every assertion
-      // passing while the runner still exits non-zero. Registering them is
-      // what keeps a green report honest.
-      imports: [
-        HostComponent,
-        NzIconModule.forRoot([
-          CloseCircleFill,
-          FilterFill,
-          QuestionCircleOutline,
-          RetweetOutline,
-          SearchOutline,
-          SettingOutline,
-          SyncOutline,
-        ]),
-      ],
+      // TABLE_ICONS carries every icon the table can render — see its doc for
+      // why a missing icon fails silently-but-loudly
+      imports: [TableHostComponent, NzIconModule.forRoot(TABLE_ICONS)],
       providers: [provideMockApollo(() => ({}), recorded)],
     }).compileComponents()
 
-    fixture = TestBed.createComponent(HostComponent)
+    fixture = TestBed.createComponent<TableHostComponent<Row>>(
+      TableHostComponent as never
+    )
     fixture.componentInstance.spec.set(buildSpec())
     fixture.detectChanges()
     table = fixture.debugElement.children[0]
@@ -373,52 +336,61 @@ describe('cvc-entity-table', () => {
 
       expect(recorded.length).toBe(before + 1)
     })
+
+    /**
+     * A near-bottom fetch can land inside the query debounce window, when the
+     * component's live variables are already ahead of the result set on
+     * screen. The page must extend the CURRENT result set: the store fetches
+     * with the variables it last ran, never the live ones — a page fetched
+     * with unflushed variables would land in a cache entry whose first page
+     * was never fetched.
+     */
+    it('pages with the current result set variables, not unflushed ones', async () => {
+      await settle()
+
+      table.onFilterChange(table.columns()[1], 'kinase')
+      // deliberately no settle: the filter change is inside the debounce
+      table.onFetchRequest({ first: 25, after: 'b' })
+      await settle(0)
+
+      const paged = recorded.at(-1)!.variables
+      expect(paged['after']).toBe('b')
+      expect(paged['description']).toBeUndefined()
+    })
   })
 
+  // Pinned-column offsets are ng-zorro's own boolean nzLeft/nzRight
+  // measurement and need real layout, which jsdom does not provide — they are
+  // asserted by the Playwright golden ('pinned columns hold their offsets…').
+  // The one component-level invariant — that the template must not wrap the
+  // virtual-scroll body in a <tbody> — is documented in the template itself.
+
   /**
-   * ng-zorro can derive these itself from `nzLeft="true"`, but its per-row
-   * coordination never reached these cells: every pinned column resolved to
-   * `left: 0` and stacked on the next, so the select column covered the first
-   * data column. The offsets are arithmetic over widths the config already
-   * declares, so the table computes them rather than depending on a
-   * measurement pass it does not control.
+   * A request, not a position: consecutive refetches all target row 0, and
+   * each must be newly observable — a bare number held in a signal would be
+   * swallowed by equality on the second `set(0)`, leaving the viewport
+   * wherever the user had scrolled while the rows are replaced under them.
    */
-  describe('pinned column offsets', () => {
-    beforeEach(() => {
-      fixture.componentInstance.spec.set(buildSpec({ pinned: true }))
-      fixture.detectChanges()
-    })
+  describe('refetch scroll requests', () => {
+    it('issues a fresh scroll request for every landed refetch', async () => {
+      await settle()
 
-    it('stacks left-pinned columns by the widths before them', () => {
-      expect(table.stickyLeft(table.columns()[0])).toBe('0px')
-      expect(table.stickyLeft(table.columns()[1])).toBe('40px')
-    })
+      table.onFilterChange(table.columns()[1], 'kinase')
+      await settle()
+      // the request lands when the refetch promise resolves, which is not
+      // bound to the debounce window — poll rather than guess the timing
+      await vi.waitFor(() =>
+        expect(table.scrollRequest()).toEqual({ index: 0 })
+      )
+      const first = table.scrollRequest()
 
-    it('accumulates right-pinned columns inward from the edge', () => {
-      expect(table.stickyRight(table.columns()[2])).toBe('0px')
-    })
-
-    it('reports false for a column that is not pinned', () => {
-      fixture.componentInstance.spec.set(buildSpec())
-      fixture.detectChanges()
-
-      expect(table.stickyLeft(table.columns()[1])).toBe(false)
-      expect(table.stickyRight(table.columns()[2])).toBe(false)
-    })
-
-    // the shadow marking the boundary between pinned and scrolling columns
-    it('marks the innermost pinned column on each side', () => {
-      expect(table.isLastLeft(table.columns()[0])).toBe(false)
-      expect(table.isLastLeft(table.columns()[1])).toBe(true)
-      expect(table.isFirstRight(table.columns()[2])).toBe(true)
-    })
-
-    // hiding a pinned column has to shift everything after it
-    it('recomputes when a preceding column is hidden', () => {
-      table.onPrefsChange(['rating'])
-
-      expect(table.stickyLeft(table.columns()[0])).toBe('0px')
-      expect(table.isLastLeft(table.columns()[0])).toBe(true)
+      table.onFilterChange(table.columns()[1], 'kinases')
+      await settle()
+      await vi.waitFor(() => {
+        const second = table.scrollRequest()
+        expect(second).toEqual({ index: 0 })
+        expect(second).not.toBe(first)
+      })
     })
   })
 

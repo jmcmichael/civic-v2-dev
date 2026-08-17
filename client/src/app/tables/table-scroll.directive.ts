@@ -2,6 +2,7 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling'
 import {
   DestroyRef,
   Directive,
+  afterNextRender,
   effect,
   inject,
   input,
@@ -67,8 +68,13 @@ export class CvcTableScrollObserverDirective {
   readonly fetchCount = input(50)
   /** the current connection's page info; without it nothing is ever fetched */
   readonly pageInfo = input<Maybe<CvcPageInfo>>(undefined)
-  /** set to send the viewport back to a row, e.g. row 0 after a refetch */
-  readonly scrollToIndex = input<Maybe<number>>(undefined)
+  /**
+   * A scroll request: send the viewport to a row, e.g. row 0 after a refetch.
+   * An object rather than a bare index because consecutive requests routinely
+   * target the same row — every landed refetch returns to 0 — and each must
+   * be observed; a bare number would be swallowed by signal equality.
+   */
+  readonly scrollTo = input<Maybe<{ index: number }>>(undefined)
 
   /** scroll gesture phase; `bottom` accompanies each fetch request */
   readonly scrollPhase = output<CvcScrollEvent>()
@@ -83,14 +89,23 @@ export class CvcTableScrollObserverDirective {
 
   constructor() {
     effect(() => {
-      const index = this.scrollToIndex()
-      if (index === undefined || index === null) return
-      this.viewport()?.scrollToIndex(index)
+      const request = this.scrollTo()
+      if (!request) return
+      this.viewport()?.scrollToIndex(request.index)
     })
 
-    // the viewport only exists after the table has rendered, so binding to it
-    // waits for a microtask rather than running in the constructor
-    afterViewportReady(this.host, (viewport) => this.connect(viewport))
+    // the viewport only exists once nz-table's own template has rendered, so
+    // bind to it after that render rather than in the constructor
+    afterNextRender(() => {
+      const viewport = this.viewport()
+      if (!viewport) {
+        throw new Error(
+          'cvcTableScrollObserver found no cdkVirtualScrollViewport on its host nz-table. ' +
+            'The table needs [nzVirtualItemSize] and an nz-virtual-scroll body.'
+        )
+      }
+      this.connect(viewport)
+    })
   }
 
   private viewport(): Maybe<CdkVirtualScrollViewport> {
@@ -208,33 +223,4 @@ export function nextFetch(
   // endCursor is nullable on an empty connection
   if (!after) return undefined
   return { first: fetchCount, after }
-}
-
-/**
- * Runs `fn` once the table has produced its virtual-scroll viewport. nz-table
- * creates it during its own first render, so it is not available when a
- * directive on the same element constructs.
- */
-function afterViewportReady(
-  host: NzTableComponent<unknown>,
-  fn: (viewport: CdkVirtualScrollViewport) => void
-): void {
-  queueMicrotask(() => {
-    const viewport = host.cdkVirtualScrollViewport
-    if (viewport) {
-      fn(viewport)
-      return
-    }
-    // one frame later covers the case where the table renders asynchronously
-    requestAnimationFrame(() => {
-      const late = host.cdkVirtualScrollViewport
-      if (!late) {
-        throw new Error(
-          'cvcTableScrollObserver found no cdkVirtualScrollViewport on its host nz-table. ' +
-            'The table needs [nzVirtualItemSize] and an nz-virtual-scroll body.'
-        )
-      }
-      fn(late)
-    })
-  })
 }

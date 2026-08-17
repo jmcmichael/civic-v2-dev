@@ -17,7 +17,7 @@
     cvcTableScrollObserver
     [pageInfo]="pageInfo()"
     [fetchCount]="spec().pageSize"
-    [scrollToIndex]="scrollToIndex()"
+    [scrollTo]="scrollRequest()"
     (scrollPhase)="onScrollPhase($event)"
     (fetchRequest)="onFetchRequest($event)">
     <thead>
@@ -31,10 +31,8 @@
             [nzColumnKey]="col.key"
             [nzWidth]="col.width"
             [nzAlign]="col.align ?? 'left'"
-            [nzLeft]="stickyLeft(col)"
-            [nzRight]="stickyRight(col)"
-            [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
-            [class.ant-table-cell-fix-right-first]="isFirstRight(col)"
+            [nzLeft]="col.fixed === 'left'"
+            [nzRight]="col.fixed === 'right'"
             [nzShowSort]="!!col.sort && !col.sort.disabled"
             [nzSortFn]="!!col.sort && !col.sort.disabled"
             [nzSortOrder]="sortOrderFor(col)"
@@ -58,10 +56,8 @@
             [nzColumnKey]="col.key"
             [nzWidth]="col.width"
             [nzAlign]="col.align ?? 'left'"
-            [nzLeft]="stickyLeft(col)"
-            [nzRight]="stickyRight(col)"
-            [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
-            [class.ant-table-cell-fix-right-first]="isFirstRight(col)"
+            [nzLeft]="col.fixed === 'left'"
+            [nzRight]="col.fixed === 'right'"
             class="attribute-filter">
             @if (col.filter; as filter) {
               @switch (filter.kind) {
@@ -89,7 +85,7 @@
                   <cvc-table-filter-input
                     [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
                     [placeholder]="filter.placeholder"
-                    [value]="$any(filterValue(col.key))"
+                    [value]="filterBoxValue(col.key)"
                     (valueChange)="onFilterChange(col, $event)" />
                 }
               }
@@ -99,151 +95,150 @@
       </tr>
     </thead>
 
-    <tbody>
-      <ng-template
-        nz-virtual-scroll
-        let-row>
-        <tr
-          data-testid="row"
-          class="data-row"
-          [attr.data-row-id]="row.id">
-          @for (col of visibleColumns(); track col.key) {
-            <td
-              data-testid="cell"
-              [attr.data-column]="col.key"
-              [nzAlign]="col.align ?? 'left'"
-              [nzLeft]="stickyLeft(col)"
-              [nzRight]="stickyRight(col)"
-              [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
-              [class.ant-table-cell-fix-right-first]="isFirstRight(col)">
-              <!-- bound to a local so the discriminant narrows reliably -->
-              @let cell = col.cell;
-              @switch (cell.kind) {
-                @case ('select') {
-                  <label
-                    nz-checkbox
-                    data-testid="row-select"
-                    [ngModel]="isSelected(row)"
-                    (ngModelChange)="onRowSelectedChange(row, $event)"></label>
-                }
+    <!-- Deliberately NOT wrapped in <tbody>, although ng-zorro's own
+         virtual-scroll demo does. In virtual mode nz-table never places its
+         projected content, so a user tbody becomes a live but DETACHED
+         NzTbodyComponent whose hidden measure row reports every column width
+         as 0 into the shared style service, right after the real measure row
+         reports the true widths — zeroing every boolean nzLeft/nzRight
+         offset. The viewport supplies its own tbody; this template must not.
+         (Probed live against ng-zorro 22.0.6; see docs/03-troubleshooting.md
+         §11.) -->
+    <ng-template
+      nz-virtual-scroll
+      let-row>
+      <tr
+        data-testid="row"
+        class="data-row"
+        [attr.data-row-id]="row.id">
+        @for (col of visibleColumns(); track col.key) {
+          <td
+            data-testid="cell"
+            [attr.data-column]="col.key"
+            [nzAlign]="col.align ?? 'left'"
+            [nzLeft]="col.fixed === 'left'"
+            [nzRight]="col.fixed === 'right'">
+            <!-- bound to a local so the discriminant narrows reliably -->
+            @let cell = col.cell;
+            @switch (cell.kind) {
+              @case ('select') {
+                <label
+                  nz-checkbox
+                  data-testid="row-select"
+                  [ngModel]="isSelected(row)"
+                  (ngModelChange)="onRowSelectedChange(row, $event)"></label>
+              }
 
-                @case ('entity-tag') {
-                  @let refs = cell.ref(row);
-                  @if (refs | isArray) {
-                    @let list = $any(refs);
-                    @if (list.length > 0) {
-                      <cvc-tag-list
-                        [refs]="list.slice(0, cell.maxTags ?? list.length)"
-                        [emphasize]="$any(filterValue(col.key))"
-                        [popover]="!isScrolling()"
-                        [popoverPlacement]="cell.popoverPlacement ?? 'top'"
-                        [fullWidth]="cell.fullWidth ?? false"
-                        [truncate]="cell.truncateLabel" />
-                      @if (cell.maxTags && list.length > cell.maxTags) {
-                        <cvc-collection-tag
-                          [refs]="list.slice(cell.maxTags)"
-                          [emphasize]="$any(filterValue(col.key))"
-                          [popover]="!isScrolling()" />
-                      }
-                    } @else {
-                      <cvc-empty-value
-                        [cvcEmptyCategory]="
-                          col.emptyValue ?? defaultEmptyValue
-                        " />
-                    }
-                  } @else if (refs) {
-                    <cvc-tag
-                      [ref]="$any(refs)"
-                      [emphasize]="$any(filterValue(col.key))"
+              @case ('entity-tag') {
+                @let refs = entityTagRefs(cell, row);
+                @if (refs.list; as list) {
+                  @if (list.length > 0) {
+                    <cvc-tag-list
+                      [refs]="list.slice(0, cell.maxTags ?? list.length)"
+                      [emphasize]="textFilterValue(col.key)"
                       [popover]="!isScrolling()"
                       [popoverPlacement]="cell.popoverPlacement ?? 'top'"
                       [fullWidth]="cell.fullWidth ?? false"
                       [truncate]="cell.truncateLabel" />
+                    @if (cell.maxTags && list.length > cell.maxTags) {
+                      <cvc-collection-tag
+                        [refs]="list.slice(cell.maxTags)"
+                        [emphasize]="textFilterValue(col.key)"
+                        [popover]="!isScrolling()" />
+                    }
                   } @else {
                     <cvc-empty-value
                       [cvcEmptyCategory]="
                         col.emptyValue ?? defaultEmptyValue
                       " />
                   }
-                }
-
-                @case ('enum-tag') {
-                  @let value = cell.value(row);
-                  @if (value) {
-                    <cvc-attribute-tag
-                      [cvcFullWidth]="true"
-                      cvcContext="compact"
-                      [cvcAttrValue]="$any(value)"
-                      [cvcTooltip]="
-                        isScrolling()
-                          ? undefined
-                          : (cell.tooltip?.(row) ?? undefined)
-                      " />
-                  } @else {
-                    <cvc-empty-value
-                      [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue"
-                      cvcDisplayMode="small" />
-                  }
-                }
-
-                @case ('text-tag') {
-                  @let text = cell.text(row);
-                  @if (text) {
-                    <!-- the icon is the whole cell: these columns are 40px and
-                         the text is a full evidence description, so it lives in
-                         the tooltip -->
-                    <nz-tag
-                      nz-tooltip
-                      [nzTooltipTitle]="isScrolling() ? null : text"
-                      class="text-tag-cell">
-                      <span
-                        nz-icon
-                        nzType="align-left"
-                        nzTheme="outline"></span>
-                    </nz-tag>
-                  } @else {
-                    <cvc-empty-value
-                      [cvcEmptyCategory]="
-                        col.emptyValue ?? defaultEmptyValue
-                      " />
-                  }
-                }
-
-                @case ('text') {
-                  <!-- empty segments mean there was nothing to show; the
-                       accessor's own emptiness rules live in textSegments -->
-                  @let segments = textSegments(col, row);
-                  @if (segments.length) {
-                    <span class="text-cell">
-                      @for (segment of segments; track $index) {
-                        <span [class.typeahead-match]="segment.highlight">{{
-                          segment.text
-                        }}</span>
-                      }
-                    </span>
-                  } @else {
-                    <cvc-empty-value
-                      [cvcEmptyCategory]="
-                        col.emptyValue ?? defaultEmptyValue
-                      " />
-                  }
-                }
-
-                @case ('custom') {
-                  @if (templateFor(col.key); as tpl) {
-                    <ng-container
-                      *ngTemplateOutlet="
-                        tpl;
-                        context: { $implicit: row, row: row, column: col }
-                      "></ng-container>
-                  }
+                } @else if (refs.single; as ref) {
+                  <cvc-tag
+                    [ref]="ref"
+                    [emphasize]="textFilterValue(col.key)"
+                    [popover]="!isScrolling()"
+                    [popoverPlacement]="cell.popoverPlacement ?? 'top'"
+                    [fullWidth]="cell.fullWidth ?? false"
+                    [truncate]="cell.truncateLabel" />
+                } @else {
+                  <cvc-empty-value
+                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
                 }
               }
-            </td>
-          }
-        </tr>
-      </ng-template>
-    </tbody>
+
+              @case ('enum-tag') {
+                @let value = cell.value(row);
+                @if (value) {
+                  <cvc-attribute-tag
+                    [cvcFullWidth]="true"
+                    cvcContext="compact"
+                    [cvcAttrValue]="asAttrValue(value)"
+                    [cvcTooltip]="
+                      isScrolling()
+                        ? undefined
+                        : (cell.tooltip?.(row) ?? undefined)
+                    " />
+                } @else {
+                  <cvc-empty-value
+                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue"
+                    cvcDisplayMode="small" />
+                }
+              }
+
+              @case ('text-tag') {
+                @let text = cell.text(row);
+                @if (text) {
+                  <!-- the icon is the whole cell: these columns are 40px and
+                         the text is a full evidence description, so it lives in
+                         the tooltip -->
+                  <nz-tag
+                    nz-tooltip
+                    [nzTooltipTitle]="isScrolling() ? null : text"
+                    class="text-tag-cell">
+                    <span
+                      nz-icon
+                      nzType="align-left"
+                      nzTheme="outline"></span>
+                  </nz-tag>
+                } @else {
+                  <cvc-empty-value
+                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
+                }
+              }
+
+              @case ('text') {
+                <!-- empty segments mean there was nothing to show; the
+                       accessor's own emptiness rules live in textSegments -->
+                @let segments = textSegments(col, row);
+                @if (segments.length) {
+                  <span class="text-cell">
+                    @for (segment of segments; track $index) {
+                      <span [class.typeahead-match]="segment.highlight">{{
+                        segment.text
+                      }}</span>
+                    }
+                  </span>
+                } @else {
+                  <cvc-empty-value
+                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
+                }
+              }
+
+              @case ('custom') {
+                <!-- the content is declared in the config, typed against
+                       TRow there; a custom cell owns its whole rendering,
+                       including its empty state -->
+                <ng-container
+                  *polymorpheusOutlet="
+                    cell.content;
+                    context: cellContext(col, row)
+                  " />
+              }
+            }
+          </td>
+        }
+      </tr>
+    </ng-template>
   </nz-table>
 </nz-card>
 
