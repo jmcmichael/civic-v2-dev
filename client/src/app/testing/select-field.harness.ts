@@ -1,4 +1,4 @@
-import { Type, signal } from '@angular/core'
+import { Type, WritableSignal, signal } from '@angular/core'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { provideRouter } from '@angular/router'
 import { CvcSelectFieldsRegistryModule } from '@app/forms/select/select-fields.registry.module'
@@ -9,9 +9,12 @@ import {
   CaretRightOutline,
   QuestionCircleFill,
 } from '@ant-design/icons-angular/icons'
+import { CvcTypeGatedSelectFieldProps } from '@app/forms/select'
+import { BaseState, EntityType } from '@app/forms/states/base.state'
+import { Maybe } from '@app/generated/civic.apollo.types'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   MockGraphqlOperation,
   provideMockApollo,
@@ -370,5 +373,197 @@ export function describeEntitySelectContract<TField>(
         h.destroy()
       })
     }
+  })
+}
+
+export interface TypeGateContractConfig<
+  TField extends { props: CvcTypeGatedSelectFieldProps },
+> {
+  /** the field component class, used to reach the mounted instance's props */
+  fieldType: Type<TField>
+  /** registered single-select type name */
+  type: string
+  key: string
+  respond: (op: MockGraphqlOperation) => Record<string, any>
+  /**
+   * The real state class the field's forms provide, fresh per test. The
+   * contract drives the gate the way the form's type-select would: by
+   * writing the entity type into the state and letting the requires/enums
+   * computeds derive from it.
+   */
+  formState: () => BaseState
+  /** the state slot the gate derives from, e.g. 'evidenceType' */
+  typeKey: string
+  /** an entity type under which the state requires this field */
+  requiredType: EntityType
+  /** an entity type under which the state excludes this field */
+  excludedType: EntityType
+  /** the field's `typeGate.requiresKey`, for the misconfiguration report */
+  requiresKey: string
+  /** a control value whose tag query `respond` can answer */
+  value: number | number[]
+  /** a distinctive fragment of the field's excluded-type description */
+  excludedPhrase: string
+}
+
+/**
+ * The behavior every type-gated select inherits from
+ * CvcTypeGatedSelectFieldBase: the three gate postures (awaiting a type,
+ * required by it, excluded by it), the two value-reset branches, first-run
+ * ordering, and the misconfigured-state reports. Call inside the field's
+ * `describe`, alongside `describeEntitySelectContract`.
+ *
+ * Fields that override `onTypeGateApplied` to manage their own description
+ * still pass: the contract asserts required/disabled/reset behavior in all
+ * postures, and description content only where the base's wording must
+ * survive (the excluded posture's explanation).
+ */
+export function describeTypeGateContract<
+  TField extends { props: CvcTypeGatedSelectFieldProps },
+>(config: TypeGateContractConfig<TField>): void {
+  const setType = (state: BaseState, et: Maybe<EntityType>) =>
+    (state.fields[config.typeKey] as WritableSignal<Maybe<EntityType>>).set(et)
+
+  const mount = (
+    formState: unknown,
+    overrides: Partial<SelectFieldHarnessConfig> = {}
+  ) =>
+    createSelectFieldHarness({
+      type: config.type,
+      key: config.key,
+      respond: config.respond,
+      formState,
+      ...overrides,
+    })
+
+  const props = (h: SelectFieldHarness): CvcTypeGatedSelectFieldProps =>
+    h.field(config.fieldType).props
+
+  const selectEl = (h: SelectFieldHarness): HTMLElement =>
+    h.fixture.nativeElement.querySelector('nz-select[cvcEntitySelect]') ??
+    h.fixture.nativeElement.querySelector('nz-select')
+
+  const isDisabled = (h: SelectFieldHarness) =>
+    selectEl(h).classList.contains('ant-select-disabled')
+
+  describe('type-gate contract', () => {
+    it('disables itself and prompts for the entity type until one is chosen', async () => {
+      const h = await mount(config.formState())
+      const p = props(h)
+      expect(p.disabled).toBe(true)
+      expect(p.required).toBe(false)
+      expect(p.extraType).toBe('prompt')
+      expect(p.description).toBeTruthy()
+      expect(isDisabled(h)).toBe(true)
+      h.destroy()
+    })
+
+    it('enables and requires itself when the chosen type requires it', async () => {
+      const state = config.formState()
+      const h = await mount(state)
+      setType(state, config.requiredType)
+      await h.settle(0)
+      const p = props(h)
+      expect(p.required).toBe(true)
+      expect(p.disabled).toBe(false)
+      expect(isDisabled(h)).toBe(false)
+      h.destroy()
+    })
+
+    it('disables itself and explains why when the chosen type excludes it', async () => {
+      const state = config.formState()
+      const h = await mount(state)
+      setType(state, config.excludedType)
+      await h.settle(0)
+      const p = props(h)
+      expect(p.required).toBe(false)
+      expect(p.disabled).toBe(true)
+      expect(p.extraType).toBe('prompt')
+      expect(p.description).toContain(config.excludedPhrase)
+      expect(isDisabled(h)).toBe(true)
+      h.destroy()
+    })
+
+    it('drops a selected value when the type changes to one that excludes it', async () => {
+      const state = config.formState()
+      const h = await mount(state)
+      setType(state, config.requiredType)
+      await h.settle(0)
+      h.control().setValue(config.value)
+      await h.settle(0)
+      expect(h.control().value).toEqual(config.value)
+
+      setType(state, config.excludedType)
+      await h.settle(0)
+      expect(h.control().value).toBeUndefined()
+      h.destroy()
+    })
+
+    it('drops the value and prompts again when the entity type is cleared', async () => {
+      const state = config.formState()
+      const h = await mount(state)
+      setType(state, config.requiredType)
+      await h.settle(0)
+      h.control().setValue(config.value)
+      await h.settle(0)
+
+      setType(state, undefined)
+      await h.settle(0)
+      expect(h.control().value).toBeUndefined()
+      const p = props(h)
+      expect(p.disabled).toBe(true)
+      expect(p.extraType).toBe('prompt')
+      h.destroy()
+    })
+
+    it('keeps a prepopulated value on first run when the state already holds its type', async () => {
+      // in a real form the type field publishes during the same ngOnInit
+      // round, before any effect flushes — a revise form's state is therefore
+      // already typed when the gate first runs, and must not clear the model
+      const state = config.formState()
+      setType(state, config.requiredType)
+      const h = await mount(state, { model: { [config.key]: config.value } })
+      expect(h.control().value).toEqual(config.value)
+      expect(props(h).required).toBe(true)
+      h.destroy()
+    })
+
+    it('reports a requires map that lacks its key and stays ungated', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        const { formState } = statePublicationProbe(config.key, {
+          requires: {},
+        })
+        const h = await mount(formState)
+        expect(
+          warn.mock.calls.some((args) =>
+            String(args[0]).includes(config.requiresKey)
+          )
+        ).toBe(true)
+        expect(props(h).disabled).not.toBe(true)
+        expect(isDisabled(h)).toBe(false)
+        h.destroy()
+      } finally {
+        warn.mockRestore()
+      }
+    })
+
+    it('is not gated by a form that provides no requires map', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      try {
+        const { formState } = statePublicationProbe(config.key, {})
+        const h = await mount(formState)
+        expect(
+          warn.mock.calls.some((args) =>
+            String(args[0]).includes(config.requiresKey)
+          )
+        ).toBe(false)
+        expect(props(h).disabled).not.toBe(true)
+        expect(isDisabled(h)).toBe(false)
+        h.destroy()
+      } finally {
+        warn.mockRestore()
+      }
+    })
   })
 }

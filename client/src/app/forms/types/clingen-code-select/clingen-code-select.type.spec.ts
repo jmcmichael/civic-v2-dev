@@ -1,7 +1,10 @@
+import { AssertionState } from '@app/forms/states/assertion.state'
+import { AssertionType } from '@app/generated/civic.apollo.types'
 import { MockGraphqlOperation } from '@app/testing/apollo-test.providers'
 import {
   createSelectFieldHarness,
   describeEntitySelectContract,
+  describeTypeGateContract,
 } from '@app/testing/select-field.harness'
 import { describe, expect, it } from 'vitest'
 import { CvcClingenCodeSelectField } from './clingen-code-select.type'
@@ -69,6 +72,20 @@ describe('CvcClingenCodeSelectField', () => {
     tagVars: (id) => ({ id }),
     searchTerm: 'OM1',
     hasQuickAdd: false,
+  })
+
+  describeTypeGateContract({
+    fieldType: CvcClingenCodeSelectField,
+    type: 'clingen-code-select',
+    key: 'clingenCodeIds',
+    respond,
+    formState: () => new AssertionState(),
+    typeKey: 'assertionType',
+    requiredType: AssertionType.Oncogenic,
+    excludedType: AssertionType.Predictive,
+    requiresKey: 'requiresClingenCodes',
+    value: OM1.id,
+    excludedPhrase: 'does not include associated ClinGen/CGC/VICC Code(s)',
   })
 
   it('renders each code with its description', async () => {
