@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Type,
   computed,
@@ -8,7 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core'
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ReactiveFormsModule } from '@angular/forms'
 import {
   CvcEntitySelectDirective,
@@ -38,7 +37,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-import { filter, map, take } from 'rxjs'
+import { map } from 'rxjs'
 import {
   CvcFusionVariantSelectForm,
   FusionVariantSelectModalData,
@@ -152,7 +151,6 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
   private readonly tagGQL = inject(VariantSelectTagGQL)
   private readonly featureGQL = inject(FeatureSelectTagGQL)
   private readonly modal = inject(NzModalService)
-  private readonly cdr = inject(ChangeDetectorRef)
 
   protected readonly select = entitySelectConfig({
     entityName: { singular: 'Variant', plural: 'Variants' },
@@ -171,9 +169,28 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
     },
   })
 
-  /** the Feature this field is scoped to, once its name has been fetched */
-  private readonly selectedFeature =
-    signal<Maybe<FeatureSelectTypeaheadFieldsFragment>>(undefined)
+  /**
+   * The scoping Feature's record, fetched cache-first whenever `param`
+   * changes. A resource rather than a hand-rolled fetch/subscribe: a rapid
+   * feature change cancels the in-flight lookup, so a slow earlier fetch can
+   * never land after — and overwrite — a later one.
+   */
+  private readonly featureResource = rxResource({
+    params: () => this.param() ?? undefined,
+    stream: ({ params: featureId }) =>
+      this.featureGQL
+        .fetch({ variables: { featureId }, fetchPolicy: 'cache-first' })
+        .pipe(map((r) => r.data?.feature ?? undefined)),
+    defaultValue: undefined,
+  })
+
+  /** the Feature this field is scoped to, once its record has arrived */
+  private readonly selectedFeature = computed(() =>
+    this.featureResource.hasValue() ? this.featureResource.value() : undefined
+  )
+
+  /** the config's own alwaysShowCreate, under the per-feature derivation */
+  private configuredAlwaysShowCreate = false
 
   protected readonly showManager = signal(false)
 
@@ -212,6 +229,7 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
 
   override ngOnInit(): void {
     super.ngOnInit()
+    this.configuredAlwaysShowCreate = this.props.alwaysShowCreate ?? false
     if (!this.props.requireFeature) return
     this.connectFeature()
   }
@@ -289,12 +307,9 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
 
   /**
    * Scopes the typeahead to the form's chosen Feature, and drops the selected
-   * Variant when that Feature changes.
-   *
-   * The first run never clears. Effects flush after every field's ngOnInit, so
-   * by then a revise form has published its Feature — but if this form has no
-   * feature field at all, the first read is legitimately `undefined`, and
-   * clearing then would wipe a Variant the form had just loaded.
+   * Variant when that Feature changes (never on first run — a revise form's
+   * initial Feature accompanies its prepopulated Variant; see
+   * `connectClearOnChange`).
    */
   private connectFeature(): void {
     const featureId = this.state?.fields.featureId
@@ -304,53 +319,42 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
       )
       return
     }
-    let isFirstRun = true
-    effect(
-      () => {
-        this.applyFeature(featureId(), isFirstRun)
-        isFirstRun = false
-      },
-      { injector: this.injector }
-    )
+    this.connectClearOnChange(featureId)
+    effect(() => this.param.set(featureId()), { injector: this.injector })
+    effect(() => this.describeFeature(this.param(), this.selectedFeature()), {
+      injector: this.injector,
+    })
   }
 
-  private applyFeature(featureId: Maybe<number>, isFirstRun = false): void {
-    this.param.set(featureId)
-
+  private describeFeature(
+    featureId: Maybe<number>,
+    feature: Maybe<FeatureSelectTypeaheadFieldsFragment>
+  ): void {
     if (!featureId) {
-      // clearing the Feature invalidates whatever Variant was chosen
-      if (!isFirstRun) this.resetField()
       this.paramName.set(undefined)
-      this.selectedFeature.set(undefined)
-      this.props.description = this.props.requireFeaturePrompt
-      this.props.placeholder = 'Select a Variant'
-      this.props.extraType = 'prompt'
-      this.cdr.markForCheck()
+      this.applyProps({
+        description: this.props.requireFeaturePrompt,
+        placeholder: 'Select a Variant',
+        extraType: 'prompt',
+      })
       return
     }
-
-    this.props.description = undefined
-    this.props.extraType = undefined
-
-    this.featureGQL
-      .fetch({ variables: { featureId }, fetchPolicy: 'cache-first' })
-      .pipe(
-        map((r) => r.data?.feature),
-        filter(Boolean),
-        take(1),
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe((feature) => {
-        this.selectedFeature.set(feature)
-        this.paramName.set(feature.name)
-        this.props.placeholder = this.props.requireFeaturePlaceholderFn(
-          feature.name
-        )
-        // a Region variant is always worth offering to build
-        if (feature.featureType === FeatureInstanceTypes.Region) {
-          this.props.alwaysShowCreate = true
-        }
-        this.cdr.markForCheck()
-      })
+    if (!feature) {
+      // record still arriving; drop the prompt without describing yet
+      this.applyProps({ description: undefined, extraType: undefined })
+      return
+    }
+    this.paramName.set(feature.name)
+    this.applyProps({
+      description: undefined,
+      extraType: undefined,
+      placeholder: this.props.requireFeaturePlaceholderFn(feature.name),
+      // a Region variant is always worth offering to build. Derived per
+      // feature — earlier code latched `true` permanently once any Region
+      // feature had been chosen
+      alwaysShowCreate:
+        this.configuredAlwaysShowCreate ||
+        feature.featureType === FeatureInstanceTypes.Region,
+    })
   }
 }

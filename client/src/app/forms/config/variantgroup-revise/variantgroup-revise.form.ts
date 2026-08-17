@@ -3,7 +3,6 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  OnDestroy,
   OnInit,
   ChangeDetectionStrategy,
 } from '@angular/core'
@@ -38,9 +37,7 @@ import { variantgroupSuggestFields } from './variantgroup-revise.form.config'
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class CvcVariantgroupReviseForm
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
   @Input() variantGroupId!: number
   model?: VariantGroupReviseModel
   form: UntypedFormGroup
@@ -87,9 +84,6 @@ export class CvcVariantgroupReviseForm
     this.url = `/variant-groups/${this.variantGroupId}/revisions`
   }
 
-  ngOnDestroy(): void {
-    // this.options.formState.onDestroy()
-  }
   ngAfterViewInit(): void {
     this.revisableFieldsGQL
       .fetch({ variables: { variantGroupId: this.variantGroupId } })

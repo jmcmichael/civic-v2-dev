@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Directive, effect, inject } from '@angular/core'
+import { Directive, effect } from '@angular/core'
 import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { EntityType } from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
@@ -41,8 +41,6 @@ export abstract class CvcTypeGatedSelectFieldBase<
   P extends CvcTypeGatedSelectFieldProps = CvcTypeGatedSelectFieldProps,
 > extends CvcEntitySelectFieldBase<TResult, TParam, P> {
   protected abstract readonly typeGate: CvcTypeGateConfig
-
-  protected readonly cdr = inject(ChangeDetectorRef)
 
   override ngOnInit(): void {
     super.ngOnInit()
@@ -141,7 +139,7 @@ export abstract class CvcTypeGatedSelectFieldBase<
 
     // props are plain objects read by the OnPush form-field wrapper above this
     // field; only marking the view dirty makes the wrapper re-render them
-    this.cdr.markForCheck()
+    this.markDirty()
   }
 
   /**

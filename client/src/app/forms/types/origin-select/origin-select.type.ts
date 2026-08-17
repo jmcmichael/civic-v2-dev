@@ -50,8 +50,7 @@ export type CvcOriginSelectFieldOptions = Partial<
 
 export interface CvcOriginSelectFieldProps extends CvcEnumSelectFieldProps {}
 
-export interface CvcOriginSelectFieldConfig
-  extends FormlyFieldConfig<CvcOriginSelectFieldProps> {
+export interface CvcOriginSelectFieldConfig extends FormlyFieldConfig<CvcOriginSelectFieldProps> {
   type: 'origin-select' | Type<CvcOriginSelectField>
 }
 
@@ -86,7 +85,7 @@ export class CvcOriginSelectField extends CvcEnumSelectFieldBase<
   // NA last, which is the order curators read them in
   override ngOnInit(): void {
     super.ngOnInit()
-    this.optionValues.set(Array.from(optionText.keys()))
+    this.setOptions(Array.from(optionText.keys()))
     this.connectValueDescription()
   }
 

@@ -1,8 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnDestroy,
-} from '@angular/core'
+import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
@@ -31,7 +27,7 @@ import { assertionSubmitFields } from './assertion-submit.form.config'
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class CvcAssertionSubmitForm implements OnDestroy {
+export class CvcAssertionSubmitForm {
   model: AssertionSubmitModel
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
@@ -74,10 +70,5 @@ export class CvcAssertionSubmitForm implements OnDestroy {
         }
       )
     }
-  }
-
-
-  ngOnDestroy(): void {
-    this.options.formState.onDestroy()
   }
 }
