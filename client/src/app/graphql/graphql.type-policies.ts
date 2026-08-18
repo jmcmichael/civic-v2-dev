@@ -82,12 +82,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'molecularProfileAlias',
         'variantId',
       ]),
-      browseVariantGroups: relayStylePagination([
-        'name',
-        'geneNames',
-        'variantNames',
-        'variantId',
-      ]),
+      // the variant groups browse table's field; see paginatedByAllArgs
+      // above (the previous list named nonexistent `geneNames`/`variantId`
+      // args while omitting the real `featureNames` and `sortBy`)
+      browseVariantGroups: paginatedByAllArgs(),
       browseSources: relayStylePagination([
         'name',
         'year',
