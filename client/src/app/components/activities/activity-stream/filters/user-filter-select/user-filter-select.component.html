@@ -1,0 +1,39 @@
+<nz-select
+  nzPlaceHolder="Select User"
+  nzMode="multiple"
+  nzAllowClear
+  [(ngModel)]="cvcUserId"
+  (nzOnSearch)="onSearch$.next($event)"
+  [nzCustomTemplate]="userLabel"
+  [nzNotFoundContent]="notFound"
+  [nzOptionOverflowSize]="12"
+  [nzOptionHeightPx]="28">
+  @for (user of filteredUsers(); track user.id) {
+    <nz-option
+      nzCustomContent
+      [nzLabel]="user.displayName"
+      [nzValue]="user.id">
+      <span
+        nz-icon
+        nzType="civic-curator"
+        nzTheme="twotone"
+        [nzTwotoneColor]="'Curator' | entityColor"></span>
+      {{ user.displayName }}
+    </nz-option>
+  }
+</nz-select>
+
+<ng-template
+  #userLabel
+  let-selected>
+  <span
+    nz-icon
+    nzType="civic-curator"
+    nzTheme="twotone"
+    [nzTwotoneColor]="'Curator' | entityColor"></span>
+  {{ selected.nzLabel }}
+</ng-template>
+
+<ng-template #notFound>
+  <span>No users found matching "{{ onSearch() }}"</span>
+</ng-template>

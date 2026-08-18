@@ -9,7 +9,10 @@ import {
   viewChild,
 } from '@angular/core'
 import { CvcEntityStreamComponent } from '@app/streams/entity-stream.component'
+import { CvcStreamSidebarDirective } from '@app/streams/stream-slots'
 import { ActivityStreamState } from './activity-stream-state'
+import { CvcActivityStreamFilters } from './filters/activity-stream-filters.component'
+import { CvcActivityStreamSettings } from './settings/activity-stream-settings.component'
 import {
   activityStreamConfig,
   streamDefaultFilters,
@@ -44,7 +47,12 @@ import {
   templateUrl: './activity-stream.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ActivityStreamState],
-  imports: [CvcEntityStreamComponent],
+  imports: [
+    CvcEntityStreamComponent,
+    CvcStreamSidebarDirective,
+    CvcActivityStreamFilters,
+    CvcActivityStreamSettings,
+  ],
 })
 export class CvcActivityStream {
   readonly cvcTitle = input<string>('Activity Feed')
