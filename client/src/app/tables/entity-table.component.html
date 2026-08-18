@@ -283,6 +283,16 @@
   } @else {
     <span>{{ spec().title ?? '' }}</span>
   }
+  <!-- counts read as part of the title, not as a toolbar control -->
+  @if (displayedTotal(); as total) {
+    <span
+      data-testid="row-count"
+      class="table-counts"
+      nz-typography
+      nzType="secondary">
+      {{ rows().length | number }} of {{ total | number }} displayed
+    </span>
+  }
 </ng-template>
 
 <!-- TOOLBAR: counts, request errors, reset and the visible-columns panel -->
@@ -334,18 +344,6 @@
             </span>
           </nz-tag>
         }
-      }
-    </nz-col>
-
-    <nz-col nzFlex="auto">
-      @if (displayedTotal(); as total) {
-        <span
-          data-testid="row-count"
-          class="table-counts"
-          nz-typography
-          nzType="secondary">
-          {{ rows().length | number }} of {{ total | number }} displayed
-        </span>
       }
     </nz-col>
 

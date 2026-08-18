@@ -186,10 +186,10 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
         labelIcon: 'civic-evidence',
-        width: '75px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: {
@@ -203,10 +203,10 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Assertion Count',
         labelIcon: 'civic-assertion',
-        width: '75px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => formatCount(row.assertionCount) },
@@ -217,10 +217,10 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Variant Count',
         labelIcon: 'civic-variant',
-        width: '75px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => formatCount(row.variantCount) },
