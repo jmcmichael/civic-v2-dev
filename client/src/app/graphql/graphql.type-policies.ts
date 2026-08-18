@@ -86,17 +86,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       // above (the previous list named nonexistent `geneNames`/`variantId`
       // args while omitting the real `featureNames` and `sortBy`)
       browseVariantGroups: paginatedByAllArgs(),
-      browseSources: relayStylePagination([
-        'name',
-        'year',
-        'sourceType',
-        'citationId',
-        'author',
-        'journal',
-        'clinicalTrialId',
-        'id',
-        'openAccess',
-      ]),
+      // the sources browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing sortBy, and named a
+      // nonexistent `id` arg while omitting the real `ids`)
+      browseSources: paginatedByAllArgs(),
       sourceSuggestions: relayStylePagination([
         'sourceType',
         'citationId',
