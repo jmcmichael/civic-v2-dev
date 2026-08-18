@@ -219,15 +219,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       // previous list was also missing ids)
       browseUsers: paginatedByAllArgs(),
       users: relayStylePagination(['userName', 'orgName', 'userRole']),
-      revisionSets: relayStylePagination([
-        'status',
-        'fieldName',
-        'originatingUserName',
-        'excludeRevisionsFromUserId',
-        'organizationName',
-        'subjectType',
-        'id',
-      ]),
+      // the revisions browse table's field; the previous hand-maintained
+      // list omitted ids (search-result scoping) and sortBy, and named the
+      // now-removed singular id
+      revisionSets: paginatedByAllArgs(),
     },
   },
   AdvancedSearchResult: CvcAdvancedSearchResultPolicy as any,
