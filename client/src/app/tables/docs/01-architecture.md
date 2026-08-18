@@ -56,7 +56,7 @@ The 17 browse tables under `views/` are the intended future consumers.
 | `table-scroll.directive.ts`                           | `cvcTableScrollObserver` — scroll phase + next-page requests for the CDK virtual-scroll viewport                                |
 | `filters/table-filter-input.component.ts`             | Text/numeric filter box in the filter row                                                                                       |
 | `filters/enum-filter-menu.component.ts`               | The funnel-icon dropdown for enum filters                                                                                       |
-| `enum-filter-options.ts`                              | `enumFilterOptions(Enum)` — filter options derived from a generated enum                                                        |
+| `enum-filter-options.ts`                              | `enumFilterOptions(Enum)` — filter options derived from a generated enum; `groupEnumOptions` — their rendered sections          |
 | `index.ts`                                            | Barrel; its doc names the consumer surface vs. internals                                                                        |
 | `testing/entity-table.harness.ts` (in `app/testing/`) | `describeEntityTableContract` — the 12-behaviour contract every table must pass                                                 |
 

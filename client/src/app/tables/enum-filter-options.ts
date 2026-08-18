@@ -21,3 +21,33 @@ export function enumFilterOptions<TValue extends InputEnum>(
     value,
   }))
 }
+
+/** One rendered section of an enum filter: a heading (or none) + its options. */
+export interface CvcEnumOptionGroup<TValue = unknown> {
+  title: string | null
+  options: CvcEnumOption<TValue>[]
+}
+
+/**
+ * Partitions filter options into their rendered sections: contiguous options
+ * sharing a `group` become one titled section, ungrouped options one untitled
+ * run, all in declaration order. Both enum filter controls render through
+ * this — the funnel's menu as `nz-menu-group`s, the select as
+ * `nz-option-group`s. A wholly ungrouped options list yields a single
+ * untitled section, so callers need no special case.
+ */
+export function groupEnumOptions<TValue>(
+  options: ReadonlyArray<CvcEnumOption<TValue>>
+): CvcEnumOptionGroup<TValue>[] {
+  const groups: CvcEnumOptionGroup<TValue>[] = []
+  for (const option of options) {
+    const title = option.group ?? null
+    const current = groups.at(-1)
+    if (current && current.title === title) {
+      current.options.push(option)
+    } else {
+      groups.push({ title, options: [option] })
+    }
+  }
+  return groups
+}

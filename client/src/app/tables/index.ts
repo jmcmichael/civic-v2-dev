@@ -26,7 +26,8 @@ export {
 export type { CvcScrollEvent, CvcScrollFetch } from './table-scroll.directive'
 export { connectionNodes, displayedCount } from './connection.types'
 export type { CvcConnection, CvcEdge, CvcPageInfo } from './connection.types'
-export { enumFilterOptions } from './enum-filter-options'
+export { enumFilterOptions, groupEnumOptions } from './enum-filter-options'
+export type { CvcEnumOptionGroup } from './enum-filter-options'
 export { formatCount } from './format'
 export {
   DEFAULT_PAGE_SIZE,

@@ -348,6 +348,17 @@ export interface CvcNumericFilter<TVars> extends CvcFilterBase<TVars> {
 export interface CvcEnumOption<TValue = string | number> {
   label: string
   value: TValue
+  /**
+   * Section heading this option renders under, in both filter controls: the
+   * funnel's dropdown menu (`nz-menu-group`) and the `'select'` control
+   * (`nz-option-group`). Contiguous options sharing a `group` form one
+   * section, in declaration order; ungrouped options render at the top
+   * level. The same VALUE may appear under several groups (the assertions
+   * significance filter lists NA under each of its five contexts) — all its
+   * occurrences read as selected, and choosing any of them filters
+   * identically.
+   */
+  group?: string
 }
 
 export interface CvcEnumFilter<

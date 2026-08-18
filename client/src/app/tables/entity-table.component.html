@@ -81,10 +81,27 @@
                         [nzPlaceHolder]="filter.placeholder ?? ''"
                         [ngModel]="filterValue(col.key)"
                         (ngModelChange)="onFilterChange(col, $event)">
-                        @for (option of filter.options; track option.value) {
-                          <nz-option
-                            [nzValue]="option.value"
-                            [nzLabel]="option.label" />
+                        <!-- index tracking: a grouped enum may repeat a value
+                             under several headings (significance's NA) -->
+                        @for (
+                          group of enumOptionGroups(filter.options);
+                          track $index
+                        ) {
+                          @if (group.title) {
+                            <nz-option-group [nzLabel]="group.title">
+                              @for (option of group.options; track $index) {
+                                <nz-option
+                                  [nzValue]="option.value"
+                                  [nzLabel]="option.label" />
+                              }
+                            </nz-option-group>
+                          } @else {
+                            @for (option of group.options; track $index) {
+                              <nz-option
+                                [nzValue]="option.value"
+                                [nzLabel]="option.label" />
+                            }
+                          }
                         }
                       </nz-select>
                     } @else {

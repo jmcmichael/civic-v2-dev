@@ -41,6 +41,13 @@ Enum filters render as the funnel-icon dropdown by default; set
 the full inline `nz-select` — the legacy tables' idiom (users' Role,
 features'/sources'/variants' Type).
 
+Options may declare a `group`: contiguous options sharing one render as a
+titled section in both controls (`nz-menu-group` under the funnel,
+`nz-option-group` in the select), via `groupEnumOptions`. The same value may
+repeat under several groups — assertions' significance filter lists NA per
+clinical context — and every occurrence reads as selected; grouped option
+loops therefore track by index, not value.
+
 The filter's `var` must be a variable **of that table's query** — it is typed
 `keyof TVars`, so a wrong name will not compile. If the variable genuinely
 does not exist yet, the fix starts server-side (add the resolver `option`,
