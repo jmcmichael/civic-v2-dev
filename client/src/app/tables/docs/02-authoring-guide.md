@@ -36,6 +36,11 @@ fields — edit them in the manager's `*.config.ts`. Two constraints:
 
 ### Change a filter
 
+Enum filters render as the funnel-icon dropdown by default; set
+`control: 'select'` (with a `placeholder`) on columns wide enough to show
+the full inline `nz-select` — the legacy tables' idiom (users' Role,
+features'/sources'/variants' Type).
+
 The filter's `var` must be a variable **of that table's query** — it is typed
 `keyof TVars`, so a wrong name will not compile. If the variable genuinely
 does not exist yet, the fix starts server-side (add the resolver `option`,
@@ -207,7 +212,10 @@ cell: {
   `PolymorpheusComponent`, or a `TemplateRef` (grab one with `viewChild` in
   the facade). Prefer handler/component: the outlet types template contexts
   weakly.
-- The context is `{ $implicit: row, row, column, isScrolling }` — suspend any
+- The context is `{ $implicit: row, row, column, isScrolling, filterText }`
+  — `filterText()` is the column's live text-filter value, for match
+  emphasis the way built-in kinds highlight (the users table's User tag is
+  the worked example) — and suspend any
   popover/tooltip the cell renders while `isScrolling` is true, the way the
   built-in tag kinds do (§ Scroll etiquette below).
 - A custom cell owns its whole rendering, including its empty state — it

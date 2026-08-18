@@ -150,11 +150,13 @@ export function sourcesTableConfig(
       {
         key: 'sourceType',
         label: 'Type',
-        width: '75px',
+        width: '130px',
         cell: { kind: 'text', text: (row) => row.displayType ?? undefined },
         sort: { column: SourcesSortColumns.SourceType },
         filter: {
           kind: 'enum',
+          control: 'select',
+          placeholder: 'Select Type',
           var: 'sourceType',
           options: enumFilterOptions(SourceSource),
           showIcons: false,

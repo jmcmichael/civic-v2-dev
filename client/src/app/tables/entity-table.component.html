@@ -71,25 +71,43 @@
               @if (col.filter; as filter) {
                 @switch (filter.kind) {
                   @case ('enum') {
-                    <nz-filter-trigger
-                      [nzActive]="filterValue(col.key) !== null"
-                      [nzDropdownMenu]="enumMenu"
-                      #enumTrigger="nzFilterTrigger">
-                      <span
-                        nz-icon
-                        nzType="filter"
-                        nzTheme="fill"></span>
-                    </nz-filter-trigger>
-                    <nz-dropdown-menu #enumMenu="nzDropdownMenu">
-                      <cvc-enum-filter-menu
-                        [options]="filter.options"
-                        [showIcons]="filter.showIcons ?? true"
-                        [selected]="filterValue(col.key)"
-                        (selectedChange)="
-                          onFilterChange(col, $event);
-                          enumTrigger.nzVisible = false
-                        " />
-                    </nz-dropdown-menu>
+                    @if (filter.control === 'select') {
+                      <!-- the legacy tables' idiom, for columns wide enough
+                           to show it; the funnel is for narrow icon columns -->
+                      <nz-select
+                        class="enum-filter-select"
+                        nzSize="small"
+                        nzAllowClear
+                        [nzPlaceHolder]="filter.placeholder ?? ''"
+                        [ngModel]="filterValue(col.key)"
+                        (ngModelChange)="onFilterChange(col, $event)">
+                        @for (option of filter.options; track option.value) {
+                          <nz-option
+                            [nzValue]="option.value"
+                            [nzLabel]="option.label" />
+                        }
+                      </nz-select>
+                    } @else {
+                      <nz-filter-trigger
+                        [nzActive]="filterValue(col.key) !== null"
+                        [nzDropdownMenu]="enumMenu"
+                        #enumTrigger="nzFilterTrigger">
+                        <span
+                          nz-icon
+                          nzType="filter"
+                          nzTheme="fill"></span>
+                      </nz-filter-trigger>
+                      <nz-dropdown-menu #enumMenu="nzDropdownMenu">
+                        <cvc-enum-filter-menu
+                          [options]="filter.options"
+                          [showIcons]="filter.showIcons ?? true"
+                          [selected]="filterValue(col.key)"
+                          (selectedChange)="
+                            onFilterChange(col, $event);
+                            enumTrigger.nzVisible = false
+                          " />
+                      </nz-dropdown-menu>
+                    }
                   }
                   @default {
                     <cvc-table-filter-input

@@ -220,9 +220,17 @@ export interface CvcCellContext<TRow> {
    * cell that renders its own popover/tooltip should suspend it while this
    * is true, the way the built-in `entity-tag`/`enum-tag`/`text-tag` kinds
    * do (docs/03-troubleshooting.md §13) — nothing else exposes that state
-   * to config-authored content.
+   * to config-authored content. A live getter, not a snapshot.
    */
   isScrolling: boolean
+  /**
+   * The column's live text-filter value, for match emphasis — what the
+   * built-in kinds get via `[emphasize]`/highlighting. A function so even a
+   * held context reads the current value (per review direction: the users
+   * table's User tag highlights the active name filter; this supersedes the
+   * earlier "custom cells have no filter hook by design" stance).
+   */
+  filterText: () => Maybe<string>
 }
 
 /**
@@ -348,6 +356,16 @@ export interface CvcEnumFilter<
 > extends CvcFilterBase<TVars> {
   kind: 'enum'
   options: ReadonlyArray<CvcEnumOption<TValue>>
+  /**
+   * How the filter renders in the filter row. `'funnel'` (default):
+   * ng-zorro's `nz-filter-trigger` icon with a dropdown menu — for narrow
+   * icon columns (the evidence attribute columns). `'select'`: a full
+   * `nz-select` in the filter row, the way the legacy tables rendered their
+   * enum filters — for columns wide enough to show one (users' Role et al.).
+   */
+  control?: 'funnel' | 'select'
+  /** the select control's placeholder; unused by the funnel */
+  placeholder?: string
   /**
    * Render the menu's attribute tags without icons. Set `false` for enums
    * with no `civic-*` icon set (e.g. `VariantCategories`) — the tag's

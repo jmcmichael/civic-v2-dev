@@ -87,11 +87,13 @@ export function variantsTableConfig(
         label: 'Type',
         tooltip: 'Feature Type',
         labelIcon: 'civic-feature',
-        width: '80px',
+        width: '130px',
         fixed: 'left',
         cell: { kind: 'text', text: (row) => formatEvidenceEnum(row.category) },
         filter: {
           kind: 'enum',
+          control: 'select',
+          placeholder: 'Select Type',
           var: 'category',
           options: enumFilterOptions(VariantCategories),
           // no civic-* icons exist for the feature categories

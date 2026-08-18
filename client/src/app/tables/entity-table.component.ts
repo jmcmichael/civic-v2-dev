@@ -41,6 +41,7 @@ import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
@@ -142,6 +143,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     NzGridModule,
     NzIconModule,
     NzPopoverModule,
+    NzSelectModule,
     NzSpaceModule,
     NzTableModule,
     NzTagModule,
@@ -585,7 +587,20 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     column: CvcSpecColumn<TRow>,
     row: TRow
   ): CvcCellContext<TRow> {
-    return { $implicit: row, row, column, isScrolling: this.isScrolling() }
+    // isScrolling is a live getter and filterText a closure: a custom cell
+    // may hold one context object across change detection, and both values
+    // must read current state when it does (signal reads inside the cell's
+    // template still register reactivity for the reading view)
+    const table = this
+    return {
+      $implicit: row,
+      row,
+      column,
+      get isScrolling(): boolean {
+        return table.isScrolling()
+      },
+      filterText: () => table.textFilterValue(column.key),
+    }
   }
 
   /**

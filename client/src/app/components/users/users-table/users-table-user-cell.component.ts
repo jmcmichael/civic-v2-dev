@@ -9,9 +9,10 @@ import { UserBrowseTableRowFieldsFragment } from './users-table.query.gql.genera
  * (`users-table.config.ts`): `User` is not a taggable typename (no
  * `entity-tag-specs.ts` entry, no `Linkable*` fragment, no `TAG_POPOVERS`
  * entry), so the generic `entity-tag` kind can't address it. Wraps the
- * existing bespoke `cvc-user-tag`, which has its own popover, instead. No
- * sort or filter on this column, matching the legacy table (Name, not
- * User, is where those live).
+ * existing bespoke `cvc-user-tag`, which has its own popover, instead.
+ * Carries the name sort and filter (the legacy Name column folded in here
+ * per review — the tag already shows the username) and highlights the
+ * active filter in the tag label via `ctx.filterText()`.
  */
 @Component({
   selector: 'cvc-user-cell',
@@ -39,6 +40,7 @@ import { UserBrowseTableRowFieldsFragment } from './users-table.query.gql.genera
         displayName: ctx.row.displayName,
         role: ctx.row.role,
       }"
+      [matchingText]="ctx.filterText()"
       [enablePopover]="!ctx.isScrolling"
       popoverPlacement="right" />
   `,

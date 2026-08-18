@@ -123,7 +123,7 @@ describe('usersTableConfig', () => {
     expect(
       spec.columns.filter((c) => c.filter).map((c) => [c.key, c.filter!.var])
     ).toEqual([
-      ['name', 'name'],
+      ['user', 'name'],
       ['organizations', 'organization'],
       ['role', 'role'],
     ])
@@ -155,10 +155,6 @@ describe('usersTableConfig', () => {
     ])
   })
 
-  it('discloses its clip-prone text columns in hover tooltips', () => {
-    expect(column('name').cell).toMatchObject({ kind: 'text', tooltip: true })
-  })
-
   it('offers a sorter on every sortable column', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)
@@ -169,8 +165,8 @@ describe('usersTableConfig', () => {
       UsersSortColumns.EvidenceCount,
       UsersSortColumns.RevisionCount,
     ])
-    // no sort control on the User/Organizations columns, matching the legacy table
-    expect(column('user').sort).toBeUndefined()
+    // the User column carries the folded-in Name sort; Organizations has none
+    expect(column('user').sort?.column).toBe(UsersSortColumns.Name)
     expect(column('organizations').sort).toBeUndefined()
   })
 
@@ -195,13 +191,6 @@ describe('usersTableConfig', () => {
     it('renders the User and Organizations columns as custom cells (neither is a taggable typename)', () => {
       expect(column('user').cell.kind).toBe('custom')
       expect(column('organizations').cell.kind).toBe('custom')
-    })
-
-    it('renders name as plain text, falling back to the shared empty state', () => {
-      expect(specCell(spec, 'name', 'text').text(ROW)).toBe('Jane Doe')
-      expect(
-        specCell(spec, 'name', 'text').text({ ...ROW, name: undefined })
-      ).toBeUndefined()
     })
 
     it('renders role with the legacy enumToTitle formatting', () => {

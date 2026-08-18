@@ -104,7 +104,7 @@ export function featuresTableConfig(
       {
         key: 'featureInstanceType',
         label: 'Type',
-        width: '70px',
+        width: '130px',
         cell: {
           kind: 'text',
           text: (row) =>
@@ -112,6 +112,8 @@ export function featuresTableConfig(
         },
         filter: {
           kind: 'enum',
+          control: 'select',
+          placeholder: 'Select Type',
           var: 'featureType',
           options: FEATURE_TYPE_OPTIONS,
           showIcons: false,
