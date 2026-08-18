@@ -351,10 +351,10 @@ export function assertionsTableConfig(
       },
       {
         key: 'evidenceItemsCount',
-        label: 'CT.',
+        label: '',
         labelIcon: 'civic-evidence',
         tooltip: 'Evidence Item Count',
-        width: '70px',
+        width: '55px',
         align: 'right',
         fixed: 'right',
         cell: {

@@ -23,10 +23,11 @@ touching it** — they are maintained in lockstep with the code.
 
 Conventions every table config follows:
 
-- Count/score columns: `label: 'CT.'` (normal header styling) +
-  `labelIcon: 'civic-<entity>'` (twotone, entity-colored, auto-spaced from
-  the label), `directions: SORT_DESCEND_FIRST`, ~70px; the header `tooltip`
-  carries the name and doubles as the prefs-panel label.
+- Count/score columns: `label: ''` + `labelIcon: 'civic-<entity>'`
+  (twotone, entity-colored), `directions: SORT_DESCEND_FIRST`, ~55px; the
+  header `tooltip` carries the name and doubles as the prefs-panel label.
+  Icon+label headers (variants Type, mp Score) get their gap from CSS —
+  the header template is whitespace-controlled, never pad with spaces.
 - Subject column (first entity column): entity-tag `fullWidth: true`
   (labels flex-ellipsize when clipped); custom subject cells use block
   host+tag styles.

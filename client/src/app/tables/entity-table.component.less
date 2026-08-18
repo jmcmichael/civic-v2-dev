@@ -131,10 +131,11 @@ tr.data-row td:first-of-type {
   text-overflow: ellipsis;
 }
 
-// breathing room between a header's entity icon and its label (the count
-// columns' 'CT.'); icon-only headers stay centered without it
+// breathing room between a header's entity icon and its label (variants
+// Type, mp Score); icon-only headers stay centered without it. The template
+// guarantees no whitespace text node, so this margin IS the gap.
 .header-label-icon.with-label {
-  margin-right: 5px;
+  margin-right: 4px;
 }
 
 .prefs-popover {
