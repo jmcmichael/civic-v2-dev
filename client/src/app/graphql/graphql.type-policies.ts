@@ -176,13 +176,9 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       // (the previous list named a nonexistent `id` arg while omitting the
       // real `ids` -- a pre-existing bug, fixed with this table's migration)
       variantTypes: paginatedByAllArgs(),
-      browseDiseases: relayStylePagination([
-        'name',
-        'doid',
-        'diseaseAlias',
-        'featureName',
-        'sortBy',
-      ]),
+      // the diseases browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing ids)
+      browseDiseases: paginatedByAllArgs(),
       therapies: relayStylePagination(['ncitId', 'name', 'id']),
       // the clinical trials browse table's field; see paginatedByAllArgs
       // above (the previous list was also missing sortBy)
@@ -203,12 +199,9 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'fieldName',
         'revisionsetId',
       ]),
-      browseUsers: relayStylePagination([
-        'name',
-        'organization',
-        'role',
-        'sortBy',
-      ]),
+      // the users browse table's field; see paginatedByAllArgs above (the
+      // previous list was also missing ids)
+      browseUsers: paginatedByAllArgs(),
       users: relayStylePagination(['userName', 'orgName', 'userRole']),
       revisionSets: relayStylePagination([
         'status',
