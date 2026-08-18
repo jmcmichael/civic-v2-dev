@@ -187,6 +187,26 @@ describe('CvcEntityStreamQuery', () => {
     expect(range.map((e) => e.cursor)).toEqual(['2', '3', '4'])
   })
 
+  it('waits for a page that lands after its fetch promise settles', async () => {
+    store.run({ first: 2 })
+    ref.emit(connection([edge('1'), edge('2')], true))
+
+    // the fetch's promise settles with the network result; the merged list
+    // arrives through a later emission
+    ref.nextFetchMore = Promise.resolve({ data: undefined, loading: false })
+    const pending = store.getRange(0, 4)
+    setTimeout(
+      () =>
+        ref.emit(
+          connection([edge('1'), edge('2'), edge('3'), edge('4')], true)
+        ),
+      50
+    )
+
+    const range = await pending
+    expect(range.map((e) => e.cursor)).toEqual(['1', '2', '3', '4'])
+  })
+
   it('resolves empty for a range awaited across a variables change', async () => {
     store.run({ first: 2 })
     ref.emit(connection([edge('1'), edge('2')], true))
