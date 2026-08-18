@@ -16,14 +16,12 @@ fragment eventTimelineNode on Event {
   organization {
     id
     name
-    profileImagePath(size: 32)
   }
   originatingUser {
     id
     username
     displayName
     role
-    profileImagePath(size: 32)
   }
   subject {
     name

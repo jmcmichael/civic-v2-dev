@@ -29,7 +29,6 @@ fragment MolecularProfileSummaryFields on MolecularProfile {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   variantDeprecationActivity{
@@ -38,7 +37,6 @@ fragment MolecularProfileSummaryFields on MolecularProfile {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   complexMolecularProfileDeprecationActivity{
@@ -47,7 +45,6 @@ fragment MolecularProfileSummaryFields on MolecularProfile {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     parsedNote {
       ...parsedCommentFragment
