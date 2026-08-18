@@ -2,7 +2,7 @@ import {
   Maybe,
   MolecularProfilesSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
+import { entityTableConfig, formatCount, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcMolecularProfileAliasesCellComponent } from './molecular-profile-table-aliases-cell.component'
 import { CvcMolecularProfileNameCellComponent } from './molecular-profile-table-name-cell.component'
@@ -174,7 +174,10 @@ export function molecularProfileTableConfig(
         width: '75px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.molecularProfileScore },
+        cell: {
+          kind: 'text',
+          text: (row) => formatCount(row.molecularProfileScore),
+        },
         sort: {
           column: MolecularProfilesSortColumns.MolecularProfileScore,
           directions: SORT_DESCEND_FIRST,
@@ -187,7 +190,10 @@ export function molecularProfileTableConfig(
         width: '75px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: {
+          kind: 'text',
+          text: (row) => formatCount(row.evidenceItemCount),
+        },
         sort: {
           column: MolecularProfilesSortColumns.EvidenceItemCount,
           directions: SORT_DESCEND_FIRST,
@@ -200,7 +206,7 @@ export function molecularProfileTableConfig(
         width: '75px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
+        cell: { kind: 'text', text: (row) => formatCount(row.assertionCount) },
         sort: {
           column: MolecularProfilesSortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,
@@ -213,7 +219,7 @@ export function molecularProfileTableConfig(
         width: '75px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.variantCount },
+        cell: { kind: 'text', text: (row) => formatCount(row.variantCount) },
         sort: {
           column: MolecularProfilesSortColumns.VariantCount,
           directions: SORT_DESCEND_FIRST,

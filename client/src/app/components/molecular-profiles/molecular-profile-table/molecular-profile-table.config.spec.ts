@@ -43,7 +43,7 @@ const ROW: BrowseMolecularProfilesFieldsFragment = {
   __typename: 'BrowseMolecularProfile',
   id: 7,
   name: 'BRAF V600E',
-  evidenceItemCount: 40,
+  evidenceItemCount: 1240,
   molecularProfileScore: 125.5,
   assertionCount: 3,
   variantCount: 1,
@@ -244,13 +244,15 @@ describe('molecularProfileTableConfig', () => {
       expect(therapies.ref(ROW)).toEqual([{ __typename: 'Therapy', id: 9 }])
     })
 
-    it('renders the score and counts as plain text', () => {
+    it('renders score and counts locale-grouped, like the legacy | number pipe', () => {
       expect(specCell(spec, 'molecularProfileScore', 'text').text(ROW)).toBe(
-        125.5
+        '125.5'
       )
-      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(40)
-      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe(3)
-      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe(1)
+      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(
+        '1,240'
+      )
+      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe('3')
+      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe('1')
     })
   })
 

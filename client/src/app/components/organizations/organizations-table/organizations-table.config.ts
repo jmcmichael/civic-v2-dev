@@ -2,7 +2,7 @@ import {
   Maybe,
   OrganizationSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, formatCount } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CivicTimeagoFormatter } from '@app/core/pipes/timeago-formatter'
 import { CvcOrganizationChildOrgsCellComponent } from './organizations-table-child-orgs-cell.component'
@@ -52,7 +52,7 @@ export function organizationsTableConfig(
         key: 'memberCount',
         label: 'Members',
         width: '100px',
-        cell: { kind: 'text', text: (row) => row.memberCount },
+        cell: { kind: 'text', text: (row) => formatCount(row.memberCount) },
         sort: { column: OrganizationSortColumns.MemberCount },
       },
       {
@@ -72,7 +72,7 @@ export function organizationsTableConfig(
         width: '80px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.activityCount },
+        cell: { kind: 'text', text: (row) => formatCount(row.activityCount) },
         sort: { column: OrganizationSortColumns.ActivityCount },
       },
       {

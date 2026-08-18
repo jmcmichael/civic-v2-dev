@@ -31,7 +31,7 @@ const ROW: OrganizationBrowseTableRowFieldsFragment = {
   description: 'Clinical Genome Resource',
   url: 'https://clinicalgenome.org',
   memberCount: 12,
-  activityCount: 340,
+  activityCount: 12340,
   mostRecentActivityTimestamp: '2026-08-01T00:00:00Z',
   childOrganizations: [
     { __typename: 'Organization', id: 9, name: 'ClinGen Somatic' },
@@ -144,9 +144,9 @@ describe('organizationsTableConfig', () => {
       expect(column('childOrganizations').cell.kind).toBe('custom')
     })
 
-    it('renders member/activity counts as plain text', () => {
-      expect(specCell(spec, 'memberCount', 'text').text(ROW)).toBe(12)
-      expect(specCell(spec, 'activityCount', 'text').text(ROW)).toBe(340)
+    it('renders counts locale-grouped, as the legacy | number pipe did', () => {
+      expect(specCell(spec, 'memberCount', 'text').text(ROW)).toBe('12')
+      expect(specCell(spec, 'activityCount', 'text').text(ROW)).toBe('12,340')
     })
 
     it('formats the last-action timestamp with the timeAgo formatter', () => {
