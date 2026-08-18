@@ -167,7 +167,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       ]),
       // the phenotypes browse table's field; see paginatedByAllArgs above
       browsePhenotypes: paginatedByAllArgs(),
-      variantTypes: relayStylePagination(['soid', 'name', 'id']),
+      // the variant types browse table's field; see paginatedByAllArgs above
+      // (the previous list named a nonexistent `id` arg while omitting the
+      // real `ids` -- a pre-existing bug, fixed with this table's migration)
+      variantTypes: paginatedByAllArgs(),
       browseDiseases: relayStylePagination([
         'name',
         'doid',
