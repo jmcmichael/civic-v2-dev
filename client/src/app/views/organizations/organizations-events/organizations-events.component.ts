@@ -2,12 +2,12 @@ import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { EventFeedMode } from '@app/generated/civic.apollo.types'
 import {
-  ActivityFeedScope,
-  ActivityFeedSettings,
-} from '@app/components/activities/activity-feed/activity-feed.types'
-import { feedDefaultSettings } from '@app/components/activities/activity-feed/activity-feed.config'
-import { ActivityFeedFilters } from '../../../components/activities/activity-feed/activity-feed.types'
-import { feedDefaultFilters } from '../../../components/activities/activity-feed/activity-feed.config'
+  ActivityStreamScope,
+  ActivityStreamSettings,
+} from '@app/components/activities/activity-stream/activity-stream.types'
+import { streamDefaultSettings } from '@app/components/activities/activity-stream/activity-stream.config'
+import { ActivityStreamFilters } from '../../../components/activities/activity-stream/activity-stream.types'
+import { streamDefaultFilters } from '../../../components/activities/activity-stream/activity-stream.config'
 
 @Component({
   selector: 'cvc-organizations-events',
@@ -17,17 +17,17 @@ import { feedDefaultFilters } from '../../../components/activities/activity-feed
   standalone: false,
 })
 export class OrganizationsEventsComponent {
-  feedScope: ActivityFeedScope
-  feedSettings: ActivityFeedSettings
-  feedFilters: ActivityFeedFilters
+  feedScope: ActivityStreamScope
+  feedSettings: ActivityStreamSettings
+  feedFilters: ActivityStreamFilters
 
   constructor(private route: ActivatedRoute) {
     this.feedSettings = {
-      ...feedDefaultSettings,
+      ...streamDefaultSettings,
       showOrganization: false,
     }
     this.feedFilters = {
-      ...feedDefaultFilters,
+      ...streamDefaultFilters,
       includeSubgroups:
         this.route.snapshot.queryParams['includeSubgroups'] === 'true'
           ? true

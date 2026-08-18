@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { ActivityFeedScope } from '@app/components/activities/activity-feed/activity-feed.types'
+import { ActivityStreamScope } from '@app/components/activities/activity-stream/activity-stream.types'
 import { EventFeedMode } from '@app/generated/civic.apollo.types'
 
 @Component({
@@ -11,7 +11,7 @@ import { EventFeedMode } from '@app/generated/civic.apollo.types'
   standalone: false,
 })
 export class UsersEventsComponent {
-  feedScope: ActivityFeedScope
+  feedScope: ActivityStreamScope
 
   constructor(private route: ActivatedRoute) {
     this.feedScope = {
