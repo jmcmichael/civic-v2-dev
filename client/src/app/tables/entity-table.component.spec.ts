@@ -46,13 +46,15 @@ function buildSpec(
     descendFirstRating?: boolean
     /** opts the name text cell into the full-text hover tooltip */
     nameTooltip?: boolean
+    /** overrides the host-scope variables (default `{ assertionId: 7 }`) */
+    scope?: Record<string, unknown>
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
   return entityTableConfig({
     query: gql,
     pageSize: 25,
-    scope: { assertionId: 7 },
+    scope: options.scope ?? { assertionId: 7 },
     connection: () => ({
       edges: [
         { cursor: 'a', node: row(1, 'one') },
@@ -177,6 +179,27 @@ describe('cvc-entity-table', () => {
     )
     expect(initial.length).toBeGreaterThan(0)
     expect(initial[0].variables).toMatchObject({ first: 25, assertionId: 7 })
+  })
+
+  /**
+   * The facade pattern replaces every legacy `ngOnChanges`/`refresh()` with a
+   * `computed()` spec, and the audit of the 12-table migration found exactly
+   * why that matters: three legacy tables' refetch payloads dropped a scope
+   * input (users' `ids`, sources' `clinicalTrialId`, molecular-profiles'
+   * `variantId`), so a live instance whose scope input changed later never
+   * reflected it — silently, forever. The fix is by construction, but until
+   * this test nothing asserted the mechanism at the wire: a spec identity
+   * change must re-query with the new scope.
+   */
+  it('re-queries with the new scope when the spec changes', async () => {
+    await settle()
+
+    fixture.componentInstance.spec.set(buildSpec({ scope: { assertionId: 9 } }))
+    await settle()
+
+    const ops = recorded.filter((op) => op.operationName === 'EvidenceManager')
+    expect(ops.length).toBeGreaterThan(1)
+    expect(ops.at(-1)!.variables).toMatchObject({ assertionId: 9 })
   })
 
   /**
