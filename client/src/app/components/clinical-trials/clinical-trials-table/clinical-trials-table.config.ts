@@ -57,9 +57,8 @@ export function clinicalTrialsTableConfig(
       },
       {
         key: 'sourceCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Source Count',
-        labelSecondary: true,
         labelIcon: 'civic-source',
         width: '70px',
         fixed: 'right',
@@ -72,9 +71,8 @@ export function clinicalTrialsTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
         width: '70px',
         fixed: 'right',

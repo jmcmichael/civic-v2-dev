@@ -45,15 +45,13 @@
               @if (col.labelIcon; as icon) {
                 <span
                   nz-icon
+                  class="header-label-icon"
+                  [class.with-label]="!!col.label"
                   [nzType]="icon"
                   nzTheme="twotone"
                   [nzTwotoneColor]="labelIconColor(icon)"></span>
               }
-              @if (col.labelSecondary) {
-                <span class="label-secondary">{{ col.label }}</span>
-              } @else {
-                {{ col.label }}
-              }
+              {{ col.label }}
             </span>
           </th>
         }

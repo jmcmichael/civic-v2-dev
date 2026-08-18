@@ -186,9 +186,8 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
         width: '70px',
         fixed: 'right',
@@ -204,9 +203,8 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Assertion Count',
-        labelSecondary: true,
         labelIcon: 'civic-assertion',
         width: '70px',
         fixed: 'right',
@@ -219,9 +217,8 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Variant Count',
-        labelSecondary: true,
         labelIcon: 'civic-variant',
         width: '70px',
         fixed: 'right',

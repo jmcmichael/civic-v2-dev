@@ -131,11 +131,10 @@ tr.data-row td:first-of-type {
   text-overflow: ellipsis;
 }
 
-// a labelSecondary header label: quiet text beside the entity icon (the
-// count columns' 'Ct.')
-.label-secondary {
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: normal;
+// breathing room between a header's entity icon and its label (the count
+// columns' 'CT.'); icon-only headers stay centered without it
+.header-label-icon.with-label {
+  margin-right: 5px;
 }
 
 .prefs-popover {

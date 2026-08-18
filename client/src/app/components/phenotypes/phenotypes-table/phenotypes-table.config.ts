@@ -69,9 +69,8 @@ export function phenotypesTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
         width: '70px',
         fixed: 'right',
@@ -85,9 +84,8 @@ export function phenotypesTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Assertion Count',
-        labelSecondary: true,
         labelIcon: 'civic-assertion',
         width: '70px',
         fixed: 'right',

@@ -116,9 +116,8 @@ export function usersTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
         width: '70px',
         fixed: 'right',
@@ -128,9 +127,8 @@ export function usersTableConfig(
       },
       {
         key: 'revisionCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Revision Count',
-        labelSecondary: true,
         labelIcon: 'civic-revision',
         width: '70px',
         fixed: 'right',

@@ -215,9 +215,8 @@ export function sourcesTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
         width: '70px',
         fixed: 'right',
@@ -231,9 +230,8 @@ export function sourcesTableConfig(
       },
       {
         key: 'sourceSuggestionCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Suggestion Count',
-        labelSecondary: true,
         labelIcon: 'civic-queue',
         width: '70px',
         fixed: 'right',

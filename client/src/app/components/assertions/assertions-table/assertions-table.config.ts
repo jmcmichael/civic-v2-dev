@@ -351,8 +351,7 @@ export function assertionsTableConfig(
       },
       {
         key: 'evidenceItemsCount',
-        label: 'Ct.',
-        labelSecondary: true,
+        label: 'CT.',
         labelIcon: 'civic-evidence',
         tooltip: 'Evidence Item Count',
         width: '70px',

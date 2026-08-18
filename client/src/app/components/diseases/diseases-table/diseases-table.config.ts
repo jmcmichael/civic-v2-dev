@@ -105,9 +105,8 @@ export function diseasesTableConfig(
       },
       {
         key: 'featureCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Feature Count',
-        labelSecondary: true,
         labelIcon: 'civic-feature',
         width: '70px',
         fixed: 'right',
@@ -120,9 +119,8 @@ export function diseasesTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Variant Count',
-        labelSecondary: true,
         labelIcon: 'civic-variant',
         width: '70px',
         fixed: 'right',
@@ -135,9 +133,8 @@ export function diseasesTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
         width: '70px',
         fixed: 'right',
@@ -151,9 +148,8 @@ export function diseasesTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Assertion Count',
-        labelSecondary: true,
         labelIcon: 'civic-assertion',
         width: '70px',
         fixed: 'right',

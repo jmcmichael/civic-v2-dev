@@ -74,9 +74,8 @@ export function variantGroupsTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Variant Count',
-        labelSecondary: true,
         labelIcon: 'civic-variant',
         width: '70px',
         fixed: 'right',
@@ -90,9 +89,8 @@ export function variantGroupsTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: 'CT.',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
         width: '70px',
         fixed: 'right',
