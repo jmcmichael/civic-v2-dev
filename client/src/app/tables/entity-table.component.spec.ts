@@ -12,6 +12,7 @@ import {
   settleTable,
 } from '@app/testing/entity-table.harness'
 import { EvidenceManagerGQL } from '@app/forms/types/evidence-select/evidence-manager/evidence-manager.query.gql.generated'
+import { Maybe } from '@app/generated/civic.apollo.types'
 import { writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
 import { CvcEntityTableComponent } from './entity-table.component'
@@ -48,6 +49,8 @@ function buildSpec(
     nameTooltip?: boolean
     /** overrides the host-scope variables (default `{ assertionId: 7 }`) */
     scope?: Record<string, unknown>
+    /** strips every column filter, comments-browse-style */
+    noFilters?: boolean
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
@@ -92,13 +95,17 @@ function buildSpec(
           column: 'name',
           default: options.defaultSortOnName ? 'ascend' : undefined,
         },
-        filter: {
-          kind: 'text',
-          var: 'description',
-          ...(options.nameFilterByEntity
-            ? { entityTypename: 'Disease' as const }
-            : {}),
-        },
+        ...(options.noFilters
+          ? {}
+          : {
+              filter: {
+                kind: 'text' as const,
+                var: 'description' as const,
+                ...(options.nameFilterByEntity
+                  ? { entityTypename: 'Disease' as const }
+                  : {}),
+              },
+            }),
       },
       {
         key: 'rating',
@@ -113,18 +120,22 @@ function buildSpec(
             ? { directions: SORT_DESCEND_FIRST }
             : {}),
         },
-        filter: {
-          kind: 'text',
-          var: 'id',
-          // the EID shape: 'EID123' and '123' both mean 123
-          transform: (value) => {
-            const match = value
-              ?.toString()
-              .trim()
-              .match(/^(?:EID)?(\d+)$/i)
-            return match ? +match[1] : null
-          },
-        },
+        ...(options.noFilters
+          ? {}
+          : {
+              filter: {
+                kind: 'text' as const,
+                var: 'id' as const,
+                // the EID shape: 'EID123' and '123' both mean 123
+                transform: (value: Maybe<string>) => {
+                  const match = value
+                    ?.toString()
+                    .trim()
+                    .match(/^(?:EID)?(\d+)$/i)
+                  return match ? +match[1] : null
+                },
+              },
+            }),
       },
     ],
   }) as unknown as EntityTableSpec<Row>
@@ -336,6 +347,21 @@ describe('cvc-entity-table', () => {
       column: 'evidenceRating',
       direction: 'DESC',
     })
+  })
+
+  // A table with no filterable columns (comments-browse) renders no filter
+  // row at all — its legacy counterpart never had one, and a row of empty
+  // <th>s reads as a dead blank band under the headers.
+  it('renders the filter row only when a visible column declares a filter', () => {
+    const filterCells = () =>
+      fixture.nativeElement.querySelectorAll('[data-testid="column-filter"]')
+        .length
+    expect(filterCells()).toBeGreaterThan(0)
+
+    fixture.componentInstance.spec.set(buildSpec({ noFilters: true }))
+    fixture.detectChanges()
+
+    expect(filterCells()).toBe(0)
   })
 
   // jsdom cannot render the virtual-scroll body, so the tooltip contract is

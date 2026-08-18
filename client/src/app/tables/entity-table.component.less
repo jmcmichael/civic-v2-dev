@@ -110,6 +110,12 @@ tr.data-row td:first-of-type {
 }
 
 .text-cell {
+  // single line, clipped with an ellipsis: the virtual scroll strategy
+  // assumes a fixed 28px row (nzVirtualItemSize), so a text cell must
+  // never wrap — and as an inline span, text-overflow was inert without
+  // block display + nowrap (long values clipped mid-letter instead)
+  display: block;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }

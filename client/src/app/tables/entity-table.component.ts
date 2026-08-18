@@ -186,6 +186,16 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     this.columns().filter((column) => !column.hidden)
   )
 
+  /**
+   * Whether the filter row renders at all. A table whose visible columns
+   * declare no filters (the comments browse table — its query has no filter
+   * variables) would otherwise show a dead blank row under the headers that
+   * its legacy counterpart never had.
+   */
+  readonly hasFilterRow = computed(() =>
+    this.visibleColumns().some((column) => column.filter)
+  )
+
   // Pinned-column offsets are ng-zorro's own: the template passes boolean
   // `nzLeft`/`nzRight` and the table's measure row supplies the widths. This
   // only works because the template does NOT wrap its `nz-virtual-scroll`

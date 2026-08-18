@@ -97,7 +97,7 @@ export function sourcesTableConfig(
       {
         key: 'citation',
         label: 'Citation',
-        width: '400px',
+        width: '250px',
         fixed: 'left',
         cell: {
           kind: 'entity-tag',
@@ -113,15 +113,16 @@ export function sourcesTableConfig(
             citation: row.citation,
             sourceType: row.sourceType,
           }),
+          // no truncateLabel: fullWidth bounds the label at the cell edge,
+          // where the tag's own overflow ellipsis takes over
           fullWidth: true,
-          truncateLabel: '350px',
           popoverPlacement: 'right',
         },
       },
       {
         key: 'name',
         label: 'Name',
-        width: '200px',
+        width: '350px',
         cell: {
           kind: 'text',
           text: (row) => row.name ?? undefined,

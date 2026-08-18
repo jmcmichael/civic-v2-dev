@@ -49,52 +49,54 @@
       </tr>
 
       <!-- FILTERS. A second row inside thead, as ant expects. -->
-      <tr class="filter-row">
-        @for (col of visibleColumns(); track col.key) {
-          <th
-            data-testid="column-filter"
-            [attr.data-column]="col.key"
-            [nzColumnKey]="col.key"
-            [nzWidth]="col.width"
-            [nzAlign]="col.align ?? 'left'"
-            [nzLeft]="col.fixed === 'left'"
-            [nzRight]="col.fixed === 'right'"
-            class="attribute-filter">
-            @if (col.filter; as filter) {
-              @switch (filter.kind) {
-                @case ('enum') {
-                  <nz-filter-trigger
-                    [nzActive]="filterValue(col.key) !== null"
-                    [nzDropdownMenu]="enumMenu"
-                    #enumTrigger="nzFilterTrigger">
-                    <span
-                      nz-icon
-                      nzType="filter"
-                      nzTheme="fill"></span>
-                  </nz-filter-trigger>
-                  <nz-dropdown-menu #enumMenu="nzDropdownMenu">
-                    <cvc-enum-filter-menu
-                      [options]="filter.options"
-                      [showIcons]="filter.showIcons ?? true"
-                      [selected]="filterValue(col.key)"
-                      (selectedChange)="
-                        onFilterChange(col, $event);
-                        enumTrigger.nzVisible = false
-                      " />
-                  </nz-dropdown-menu>
-                }
-                @default {
-                  <cvc-table-filter-input
-                    [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
-                    [placeholder]="filter.placeholder"
-                    [value]="filterBoxValue(col.key)"
-                    (valueChange)="onFilterChange(col, $event)" />
+      @if (hasFilterRow()) {
+        <tr class="filter-row">
+          @for (col of visibleColumns(); track col.key) {
+            <th
+              data-testid="column-filter"
+              [attr.data-column]="col.key"
+              [nzColumnKey]="col.key"
+              [nzWidth]="col.width"
+              [nzAlign]="col.align ?? 'left'"
+              [nzLeft]="col.fixed === 'left'"
+              [nzRight]="col.fixed === 'right'"
+              class="attribute-filter">
+              @if (col.filter; as filter) {
+                @switch (filter.kind) {
+                  @case ('enum') {
+                    <nz-filter-trigger
+                      [nzActive]="filterValue(col.key) !== null"
+                      [nzDropdownMenu]="enumMenu"
+                      #enumTrigger="nzFilterTrigger">
+                      <span
+                        nz-icon
+                        nzType="filter"
+                        nzTheme="fill"></span>
+                    </nz-filter-trigger>
+                    <nz-dropdown-menu #enumMenu="nzDropdownMenu">
+                      <cvc-enum-filter-menu
+                        [options]="filter.options"
+                        [showIcons]="filter.showIcons ?? true"
+                        [selected]="filterValue(col.key)"
+                        (selectedChange)="
+                          onFilterChange(col, $event);
+                          enumTrigger.nzVisible = false
+                        " />
+                    </nz-dropdown-menu>
+                  }
+                  @default {
+                    <cvc-table-filter-input
+                      [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
+                      [placeholder]="filter.placeholder"
+                      [value]="filterBoxValue(col.key)"
+                      (valueChange)="onFilterChange(col, $event)" />
+                  }
                 }
               }
-            }
-          </th>
-        }
-      </tr>
+            </th>
+          }
+        </tr>
+      }
     </thead>
 
     <!-- Deliberately NOT wrapped in <tbody>, although ng-zorro's own
