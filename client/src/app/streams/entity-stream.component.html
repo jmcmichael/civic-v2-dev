@@ -1,0 +1,142 @@
+<nz-card
+  nzSize="small"
+  class="entity-stream"
+  data-testid="entity-stream"
+  [nzTitle]="cardTitle"
+  [nzExtra]="cardExtra">
+  <div class="stream-banner">
+    <ng-content select="[cvcStreamBanner]" />
+  </div>
+  <nz-row [nzGutter]="[16, 8]">
+    <!-- STREAM COLUMN -->
+    <nz-col [nzSpan]="hasSidebar() ? 18 : 24">
+      <div
+        class="stream-container"
+        [class.stream-border]="hasSidebar()">
+        <div class="stream-layers">
+          <!-- messages layer - TOP -->
+          <div class="messages">
+            @if (zeroItems()) {
+              <nz-result
+                nzStatus="info"
+                [nzTitle]="emptyTitle"></nz-result>
+            }
+          </div>
+
+          <!-- list layer - BOTTOM -->
+          <div class="scroller">
+            <nz-spin
+              [nzSpinning]="refetching()"
+              nzSize="large"
+              [nzDelay]="0">
+              @if (spec().pagination === 'infinite') {
+                <div
+                  class="stream-body stream-viewport"
+                  [style.height]="bodyHeight() ?? null">
+                  @if (engine(); as engine) {
+                    <cvc-stream-item
+                      *uiScroll="
+                        let edge of engine.datasource;
+                        routines: engine.routines
+                      "
+                      [item]="$any(edge.node)"
+                      [itemSpec]="spec().item" />
+                  }
+                </div>
+              } @else {
+                <div
+                  class="stream-body stream-list"
+                  [style.height]="bodyHeight() ?? null"
+                  [style.overflow-y]="bodyHeight() ? 'auto' : null">
+                  @for (edge of edges(); track edge.cursor) {
+                    @if (edge.node; as node) {
+                      <cvc-stream-item
+                        [item]="node"
+                        [itemSpec]="spec().item" />
+                    }
+                  }
+                  @if (hasNextPage()) {
+                    <div class="load-more">
+                      <button
+                        nz-button
+                        data-testid="stream-load-more"
+                        [nzLoading]="query.isFetchingMore()"
+                        (click)="loadMore()">
+                        Load More
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </nz-spin>
+          </div>
+        </div>
+      </div>
+    </nz-col>
+
+    <!-- SIDEBAR COLUMN -->
+    @if (hasSidebar()) {
+      <nz-col
+        [nzSm]="24"
+        [nzMd]="6">
+        <ng-content select="[cvcStreamSidebar]" />
+      </nz-col>
+    }
+  </nz-row>
+</nz-card>
+
+<ng-template #cardTitle>
+  <nz-space nzDirection="horizontal">
+    @if (spec().title; as title) {
+      <span
+        class="title"
+        *nzSpaceItem>
+        {{ title }}
+      </span>
+    }
+    @if (counts(); as counts) {
+      @if (counts.rows) {
+        <span
+          class="stream-counts"
+          data-testid="stream-counts"
+          nz-typography
+          nzType="secondary"
+          *nzSpaceItem>
+          {{ counts.rows }} of {{ counts.total | number }} loaded
+        </span>
+      }
+    }
+    @if (requestError(); as error) {
+      <nz-tag
+        *nzSpaceItem
+        data-testid="stream-error"
+        nzColor="error"
+        nz-tooltip
+        [nzTooltipTitle]="errorMessages(error)">
+        <span
+          nz-icon
+          nzType="warning"></span>
+        {{ error.network ? 'Network Error' : 'Query Error' }}
+      </nz-tag>
+    }
+  </nz-space>
+</ng-template>
+
+<ng-template #cardExtra>
+  <ng-content select="[cvcStreamHeaderExtra]" />
+</ng-template>
+
+<ng-template #emptyTitle>
+  <div
+    class="results-message"
+    data-testid="stream-empty">
+    @if (spec().emptyState; as empty) {
+      <ng-container
+        *polymorpheusOutlet="empty as value; context: emptyContext()"
+        >{{ value }}</ng-container
+      >
+    } @else {
+      No items found matching current filters.
+    }
+  </div>
+</ng-template>
