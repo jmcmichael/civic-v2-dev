@@ -18,7 +18,6 @@ import {
 import { Maybe, TimeWindow } from '@app/generated/civic.apollo.types'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { Query, QueryRef } from 'apollo-angular'
-import { WatchQueryFetchPolicy } from '@apollo/client'
 import { BehaviorSubject, map } from 'rxjs'
 import { TagLinkableOrganization } from '../organization-tag/organization-tag.component'
 
@@ -102,14 +101,6 @@ export class CvcOrganizationLeaderboardsComponent implements OnInit {
   initialRows: number = 25
   initialWindow: TimeWindow = TimeWindow.AllTime
 
-  fetchPolicy: {
-    fetchPolicy: WatchQueryFetchPolicy
-    nextFetchPolicy: WatchQueryFetchPolicy
-  } = {
-    fetchPolicy: 'no-cache',
-    nextFetchPolicy: 'no-cache',
-  }
-
   constructor(
     private commentsGQL: OrganizationCommentsLeaderboardGQL,
     private revisionsGQL: OrganizationRevisionsLeaderboardGQL,
@@ -118,6 +109,10 @@ export class CvcOrganizationLeaderboardsComponent implements OnInit {
   ) {
     this.timeWindow$ = new BehaviorSubject<TimeWindow>(this.initialWindow)
     this.timeWindow$.pipe(untilDestroyed(this)).subscribe((window) => {
+      // BehaviorSubject emits synchronously on subscribe, before ngOnInit
+      // has created the query refs; that initial window is already passed
+      // to the watch() calls
+      if (!this.commentsQueryRef) return
       this.commentsQueryRef.refetch({ window: window })
       this.revisionsQueryRef.refetch({ window: window })
       this.moderationQueryRef.refetch({ window: window })
@@ -161,7 +156,6 @@ export class CvcOrganizationLeaderboardsComponent implements OnInit {
         first: this.initialRows,
         window: this.initialWindow,
       },
-      ...this.fetchPolicy,
     })
 
     this.commentsQueryRef.valueChanges
@@ -201,7 +195,6 @@ export class CvcOrganizationLeaderboardsComponent implements OnInit {
         first: this.initialRows,
         window: this.initialWindow,
       },
-      ...this.fetchPolicy,
     })
 
     this.moderationQueryRef.valueChanges
@@ -243,7 +236,6 @@ export class CvcOrganizationLeaderboardsComponent implements OnInit {
         first: this.initialRows,
         window: this.initialWindow,
       },
-      ...this.fetchPolicy,
     })
 
     this.revisionsQueryRef.valueChanges
@@ -285,7 +277,6 @@ export class CvcOrganizationLeaderboardsComponent implements OnInit {
         first: this.initialRows,
         window: this.initialWindow,
       },
-      ...this.fetchPolicy,
     })
 
     this.submissionsQueryRef.valueChanges
