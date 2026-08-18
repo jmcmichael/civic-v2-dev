@@ -68,11 +68,13 @@ export const TABLE_ICONS = [
   template: `<cvc-entity-table
     [spec]="spec()"
     [settings]="settings()"
+    [height]="height()"
     [(selectedIds)]="selected" />`,
 })
 export class TableHostComponent<TRow extends { id: number }> {
   readonly spec = signal<EntityTableSpec<TRow>>(undefined as never)
   readonly settings = signal<Maybe<CvcTableSettings>>(undefined)
+  readonly height = signal<Maybe<string>>(undefined)
   selected: number[] = []
 }
 

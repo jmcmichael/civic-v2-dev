@@ -7,7 +7,7 @@
     data-testid="entity-table"
     class="cvc-entity-table__body"
     [nzData]="rows()"
-    [nzScroll]="{ x: '800px', y: height() ?? '100%' }"
+    [nzScroll]="{ x: '800px', y: bodyHeight() }"
     [nzVirtualItemSize]="28"
     [nzVirtualForTrackBy]="trackById"
     nzSize="small"

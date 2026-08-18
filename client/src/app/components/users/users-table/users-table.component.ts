@@ -42,7 +42,7 @@ import { UsersBrowseGQL } from './users-table.query.gql.generated'
       #table
       [spec]="spec()"
       [titleTemplate]="cvcTitleTemplate()"
-      [height]="cvcHeight() ?? '800px'">
+      [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
         cvcTableToolbarExtra
         [vars]="table.queryVars()"

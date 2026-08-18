@@ -312,7 +312,7 @@ cell's _contents_ vary by kind.
 │ (1) spec().title                        (2)[Loading...]  (3)[No more rows]       │
 │                    (4)[! Query Error]   (5) 50 of 1,284 displayed  (6)[R](7)[C]  │
 ├──────────────────────────────────────────────────────────────────────────────────┤
-│ (8) nz-table   nzScroll = { x: '800px', y: height() ?? '100%' }                  │
+│ (8) nz-table   nzScroll = { x: '800px', y: bodyHeight() }                        │
 │ ┌──────────────────────────────────────────────────────────────────────────────┐ │
 │ │ (9) thead > tr.col-header-row        @for (col of visibleColumns())          │ │
 │ │  [ ] | EID        ^v | Molecular Profile ^v | Disease ^v | ... | Status ^v   │ │
@@ -330,21 +330,21 @@ cell's _contents_ vary by kind.
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-|  #  | Region             | Template anchor                            | Driven by                                                           |
-| :-: | ------------------ | ------------------------------------------ | ------------------------------------------------------------------- |
-|  1  | Card title         | `#cardTitle` → `[nzTitle]`                 | `spec().title`                                                      |
-|  2  | "Loading…" tag     | `#toolbar` → `[nzExtra]`                   | `isFetchingMore()` — a page being appended, not the first load      |
-|  3  | "No more rows" tag | `#toolbar`                                 | `noMoreRows()` — phase `'bottom'` **and** `hasNextPage === false`   |
-|  4  | Error tags         | `#toolbar`                                 | `requestError()`, split by `splitError` into query vs. network      |
-|  5  | Row count          | `data-testid="row-count"`                  | `rows().length` of `displayedTotal()`                               |
-|  6  | Reset filters      | `data-testid="filter-reset"`               | `onResetFilters()` — filters + sort, never visibility               |
-|  7  | Visible columns    | `data-testid="column-prefs-trigger"`       | `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`              |
-|  8  | Scroll region      | `[nzScroll]` on `nz-table`                 | `height()` input; `'100%'` resolves through the flex chain          |
-|  9  | Header row         | `thead > tr.col-header-row`                | `visibleColumns()`; sorters via `sortOrderFor()` / `onSortChange()` |
-| 10  | Filter row         | `thead > tr.filter-row`                    | `filterValue(col.key)` / `onFilterChange()`                         |
-| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options`, typed by `CvcEnumOption`                      |
-| 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                    |
-| 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                        |
+|  #  | Region             | Template anchor                            | Driven by                                                                                      |
+| :-: | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+|  1  | Card title         | `#cardTitle` → `[nzTitle]`                 | `spec().title`                                                                                 |
+|  2  | "Loading…" tag     | `#toolbar` → `[nzExtra]`                   | `isFetchingMore()` — a page being appended, not the first load                                 |
+|  3  | "No more rows" tag | `#toolbar`                                 | `noMoreRows()` — phase `'bottom'` **and** `hasNextPage === false`                              |
+|  4  | Error tags         | `#toolbar`                                 | `requestError()`, split by `splitError` into query vs. network                                 |
+|  5  | Row count          | `data-testid="row-count"`                  | `rows().length` of `displayedTotal()`                                                          |
+|  6  | Reset filters      | `data-testid="filter-reset"`               | `onResetFilters()` — filters + sort, never visibility                                          |
+|  7  | Visible columns    | `data-testid="column-prefs-trigger"`       | `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`                                         |
+|  8  | Scroll region      | `[nzScroll]` on `nz-table`                 | `bodyHeight()` — explicit `height()`, `'auto'` measurement, or `'100%'` through the flex chain |
+|  9  | Header row         | `thead > tr.col-header-row`                | `visibleColumns()`; sorters via `sortOrderFor()` / `onSortChange()`                            |
+| 10  | Filter row         | `thead > tr.filter-row`                    | `filterValue(col.key)` / `onFilterChange()`                                                    |
+| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options`, typed by `CvcEnumOption`                                                 |
+| 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                                               |
+| 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                                                   |
 
 The `|<- fixed ->|` brackets in the header band are ng-zorro's own boolean
 `nzLeft`/`nzRight` pinning: a hidden measure row supplies the widths and the
@@ -354,13 +354,13 @@ table writes each cell's offset and edge-shadow class itself. This works
 
 ### Inputs / outputs
 
-| Binding           | Type                               | Notes                                                                               |
-| ----------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
-| `[spec]`          | `EntityTableSpec<TRow>` (required) | Produce only via `entityTableConfig()`                                              |
-| `[(selectedIds)]` | `number[]` (model)                 | The **complete** selection on every change, not a delta. Emits `selectedIdsChange`. |
-| `[settings]`      | `CvcTableSettings`                 | Externally-driven filters + column visibility (see "Settings injection")            |
-| `[height]`        | `string` (CSS length)              | Omit to fill available space via the flex chain; set for a fixed-height region      |
-| `[titleTemplate]` | `TemplateRef<void>`                | Replaces the card title's plain `spec().title` text (icons, links)                  |
+| Binding           | Type                               | Notes                                                                                                                                                                     |
+| ----------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[spec]`          | `EntityTableSpec<TRow>` (required) | Produce only via `entityTableConfig()`                                                                                                                                    |
+| `[(selectedIds)]` | `number[]` (model)                 | The **complete** selection on every change, not a delta. Emits `selectedIdsChange`.                                                                                       |
+| `[settings]`      | `CvcTableSettings`                 | Externally-driven filters + column visibility (see "Settings injection")                                                                                                  |
+| `[height]`        | `string` (CSS length or `'auto'`)  | Explicit CSS height; `'auto'` fits the viewport minus the layout's measured bottom reserve (browse home pages); omit to fill a height-bounded ancestor via the flex chain |
+| `[titleTemplate]` | `TemplateRef<void>`                | Replaces the card title's plain `spec().title` text (icons, links)                                                                                                        |
 
 The component also projects one content slot: host elements marked
 `cvcTableToolbarExtra` land in the card-extra toolbar row, between the row

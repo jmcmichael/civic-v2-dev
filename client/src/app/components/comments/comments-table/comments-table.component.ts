@@ -32,7 +32,7 @@ import { CommentsBrowseGQL } from './comments-table.query.gql.generated'
     <cvc-entity-table
       [spec]="spec()"
       [titleTemplate]="cvcTitleTemplate()"
-      [height]="cvcHeight() ?? '800px'" />
+      [height]="cvcHeight() ?? 'auto'" />
   `,
 })
 export class CvcCommentsTableComponent {

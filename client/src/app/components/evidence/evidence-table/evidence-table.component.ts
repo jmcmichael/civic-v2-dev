@@ -183,7 +183,7 @@ export class CvcEvidenceTableComponent {
 
   protected readonly height = computed(() => {
     const height = this.cvcHeight()
-    if (!height) return '800px'
+    if (!height) return 'auto'
     return /^\d+$/.test(height) ? `${height}px` : height
   })
 

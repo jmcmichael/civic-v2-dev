@@ -319,10 +319,15 @@ Using the variant manager as the template (it is the smaller of the two):
    than `[(selectedIds)]="cvcSelectedIds"`; the banana box compiles but IDE
    analysis flags writing to a readonly signal property.
 
-4. **Height context.** The table fills its container via a flex chain — the
-   host must give it a definite height (the managers' drawer does; see the
-   facade `.less` files for the `flex` + `min-height: 0` + `min-width: 0`
-   passthrough). Alternatively pass a fixed `[height]="'400px'"`.
+4. **Height context.** Three modes on `[height]`: a fixed CSS length
+   (`'400px'` — detail-page embeds); `'auto'` — fit the visible viewport,
+   stopping at the page layout's measured bottom padding rather than the
+   window edge (what browse-table home pages want; the facades default to
+   it when the host passes no `cvcHeight`); or omitted — fill a
+   height-bounded ancestor via the flex chain (the managers' drawer does;
+   see the facade `.less` files for the `flex` + `min-height: 0` +
+   `min-width: 0` passthrough). With no bounded ancestor the omitted mode
+   collapses to zero height — use `'auto'`.
 
    **Card chrome.** Two hooks for hosts whose cards carry more than a title
    string (the browse tables' downloaders and scope menus):

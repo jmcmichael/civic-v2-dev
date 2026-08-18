@@ -43,7 +43,7 @@ import { BrowseVariantsGQL } from './variants-table.query.gql.generated'
       #table
       [spec]="spec()"
       [titleTemplate]="cvcTitleTemplate()"
-      [height]="cvcHeight() ?? '800px'">
+      [height]="cvcHeight() ?? 'auto'">
       <span
         cvcTableToolbarExtra
         style="display: inline-flex; align-items: center; gap: 8px">

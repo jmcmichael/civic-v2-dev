@@ -349,6 +349,22 @@ describe('cvc-entity-table', () => {
     })
   })
 
+  // Three height modes (see the `height` input doc). jsdom has no layout,
+  // so 'auto' is asserted only as resolving to a px value — the fallback
+  // before a real browser's measurement lands. The measurement itself is a
+  // live-browser concern, like everything below the thead.
+  it('resolves the three height modes: explicit, flex-fill, auto', () => {
+    expect(table.bodyHeight()).toBe('100%')
+
+    fixture.componentInstance.height.set('400px')
+    fixture.detectChanges()
+    expect(table.bodyHeight()).toBe('400px')
+
+    fixture.componentInstance.height.set('auto')
+    fixture.detectChanges()
+    expect(table.bodyHeight()).toMatch(/^\d+px$/)
+  })
+
   // A table with no filterable columns (comments-browse) renders no filter
   // row at all — its legacy counterpart never had one, and a row of empty
   // <th>s reads as a dead blank band under the headers.
