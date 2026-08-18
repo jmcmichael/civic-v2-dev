@@ -259,7 +259,10 @@
                     }
                   </nz-tag>
                 } @else {
+                  <!-- small mode, like enum-tag: text-tag columns are the
+                       40-60px attribute columns -->
                   <cvc-empty-value
+                    cvcDisplayMode="small"
                     [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
                 }
               }
