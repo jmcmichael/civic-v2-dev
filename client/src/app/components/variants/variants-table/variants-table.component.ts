@@ -1,263 +1,86 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
   TemplateRef,
+  computed,
+  inject,
+  input,
+  signal,
 } from '@angular/core'
-import { ApolloQueryResult } from '@apollo/client/core'
-import {
-  buildSortParams,
-  SortDirectionEvent,
-} from '@app/core/utilities/datatable-helpers'
-import { ScrollEvent } from '@app/directives/table-scroll/table-scroll.directive'
-import {
-  BrowseVariantsFieldsFragment,
-  BrowseVariantsGQL,
-  BrowseVariantsQuery,
-  BrowseVariantsQueryVariables,
-} from './variants-table.query.gql.generated'
-import {
-  BrowseVariantConnection,
-  Maybe,
-  PageInfo,
-  SortDirection,
-  VariantCategories,
-  VariantsSortColumns,
-} from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  skip,
-  takeWhile,
-  withLatestFrom,
-} from 'rxjs/operators'
-import { pluck } from 'rxjs-etc/operators'
+import { FormsModule } from '@angular/forms'
+import { CvcTableDownloaderComponent } from '@app/components/shared/table-downloader/table-downloader.component'
+import { Maybe } from '@app/generated/civic.apollo.types'
+import { CvcEntityTableComponent } from '@app/tables'
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
+import { variantsTableConfig } from './variants-table.config'
+import { BrowseVariantsGQL } from './variants-table.query.gql.generated'
 
-export interface VariantTableUserFilters {
-  variantNameInput?: Maybe<string>
-  featureNameInput?: Maybe<string>
-  diseaseNameInput?: Maybe<string>
-  therapyNameInput?: Maybe<string>
-  variantAliasInput?: Maybe<string>
-}
-
-@UntilDestroy()
+/**
+ * Browse-table facade over `cvc-entity-table`: keeps the legacy selector and
+ * the input surface its ~4 embed sites bind (`ids`, `variantTypeId`,
+ * `variantGroupId`, `cvcTitle`), while the table itself is configuration —
+ * see `variants-table.config.ts`.
+ *
+ * The scope inputs feed the spec through a `computed`, so an embed changing
+ * `[ids]` (query-search re-runs) re-queries through the table's normal
+ * debounced-variables path — no `ngOnChanges` refetch plumbing.
+ *
+ * The legacy Variant Types "None" header filter survives as the Untyped
+ * toolbar toggle; the downloader reads the table's live `queryVars()` the
+ * way the legacy card-extra read `queryRef.variables`.
+ */
 @Component({
   selector: 'cvc-variants-table',
-  templateUrl: './variants-table.component.html',
-  styleUrls: ['./variants-table.component.less'],
+  imports: [
+    CvcEntityTableComponent,
+    CvcTableDownloaderComponent,
+    FormsModule,
+    NzCheckboxModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  template: `
+    <cvc-entity-table
+      #table
+      [spec]="spec()"
+      [titleTemplate]="cvcTitleTemplate()"
+      [height]="cvcHeight() ?? '800px'">
+      <span
+        cvcTableToolbarExtra
+        style="display: inline-flex; align-items: center; gap: 8px">
+        <label
+          nz-checkbox
+          data-testid="has-no-variant-type"
+          [ngModel]="hasNoVariantType()"
+          (ngModelChange)="hasNoVariantType.set($event)">
+          Untyped
+        </label>
+        <cvc-table-downloader
+          [vars]="table.queryVars()"
+          tableName="variants" />
+      </span>
+    </cvc-entity-table>
+  `,
 })
-export class CvcVariantsTableComponent implements OnInit, OnChanges {
-  @Input() ids: Maybe<number[]>
-  @Input() cvcHeight?: number
-  @Input() variantTypeId: Maybe<number>
-  @Input() variantGroupId: Maybe<number>
-  @Input() cvcTitleTemplate: Maybe<TemplateRef<void>>
-  @Input() cvcTitle: Maybe<string>
-  @Input() initialPageSize: number = 35
-  @Input()
-  set initialUserFilters(f: Maybe<VariantTableUserFilters>) {
-    // assign any attributes in filters object to this class
-    if (f) Object.assign(this, f)
-  }
+export class CvcVariantsTableComponent {
+  private readonly gql = inject(BrowseVariantsGQL)
 
-  // SOURCE STREAMS
-  scrollEvent$: BehaviorSubject<ScrollEvent>
-  sortChange$: Subject<SortDirectionEvent>
-  filterChange$: Subject<void>
+  readonly ids = input<Maybe<number[]>>()
+  readonly variantTypeId = input<Maybe<number>>()
+  readonly variantGroupId = input<Maybe<number>>()
+  readonly cvcTitle = input<Maybe<string>>()
+  readonly cvcTitleTemplate = input<Maybe<TemplateRef<void>>>()
+  /** explicit body height; the default matches the legacy table's 800px */
+  readonly cvcHeight = input<Maybe<string>>()
 
-  // INTERMEDIATE STREAMS
-  queryRef!: QueryRef<BrowseVariantsQuery, BrowseVariantsQueryVariables>
-  result$!: Observable<ApolloQueryResult<BrowseVariantsQuery>>
-  connection$!: Observable<BrowseVariantConnection>
+  /** show only variants with no variant type at all */
+  protected readonly hasNoVariantType = signal(false)
 
-  // PRESENTATION STREAMS
-  pageInfo$!: Observable<PageInfo>
-  initialLoading$!: Observable<boolean>
-  moreLoading$!: Observable<boolean>
-  row$!: Observable<Maybe<BrowseVariantsFieldsFragment>[]>
-  scrollIndex$: Subject<number>
-  noMoreRows$: BehaviorSubject<boolean>
-
-  // need a static var for scrolling state b/c sub/unsub in
-  // virtual scroll rows degrades performance
-  isScrolling: boolean = false
-
-  // filters
-  variantNameInput: Maybe<string>
-  featureNameInput: Maybe<string>
-  diseaseNameInput: Maybe<string>
-  therapyNameInput: Maybe<string>
-  variantAliasInput: Maybe<string>
-  variantTypeNameInput: Maybe<string>
-  variantCategoryInput: Maybe<VariantCategories>
-  hasNoVariantTypeInput: boolean = false
-
-  variantCategories = VariantCategories
-
-  private initialQueryArgs?: BrowseVariantsQueryVariables
-
-  sortColumns = VariantsSortColumns
-
-  constructor(
-    private gql: BrowseVariantsGQL,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.noMoreRows$ = new BehaviorSubject<boolean>(false)
-    this.scrollEvent$ = new BehaviorSubject<ScrollEvent>('stop')
-    this.sortChange$ = new Subject<SortDirectionEvent>()
-    this.filterChange$ = new Subject<void>()
-    this.scrollIndex$ = new Subject<number>()
-  }
-
-  ngOnInit(): void {
-    this.initialQueryArgs = {
-      first: this.initialPageSize,
-      variantTypeId: this.variantTypeId,
-      variantGroupId: this.variantGroupId,
-      hasNoVariantType: this.hasNoVariantTypeInput,
-      category: this.variantCategoryInput,
-      ids: this.ids,
-      sortBy: {
-        column: VariantsSortColumns.EvidenceItemCount,
-        direction: SortDirection.Desc,
-      },
-    }
-
-    this.queryRef = this.gql.watch({ variables: this.initialQueryArgs })
-
-    this.result$ = this.queryRef.valueChanges
-
-    // toggles table overlay 'Loading...' spinner
-    this.initialLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      takeWhile((l) => l !== false, true)
-    ) // only activate on 1st true/false sequence
-
-    // toggles table header 'Loading...' tag
-    this.moreLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      skip(2)
-    ) // skip 1st true/false sequence
-
-    this.connection$ = this.result$.pipe(
-      pluck('data', 'browseVariants'),
-      filter(isNonNulled)
-    ) as Observable<BrowseVariantConnection>
-
-    // entity row nodes
-    this.row$ = this.connection$.pipe(
-      pluck('edges'),
-      filter(isNonNulled),
-      map((edges) => edges.map((e) => e.node))
-    )
-
-    // provided to table-scroll directive for fetchMore queries
-    this.pageInfo$ = this.connection$.pipe(
-      pluck('pageInfo'),
-      filter(isNonNulled)
-    )
-
-    // refetch when column sort changes
-    this.sortChange$
-      .pipe(untilDestroyed(this))
-      .subscribe((e: SortDirectionEvent) => {
-        this.queryRef.refetch({ sortBy: buildSortParams(e) })
-      })
-
-    // refresh when filters change
-    this.filterChange$
-      .pipe(debounceTime(500), untilDestroyed(this))
-      .subscribe(() => {
-        this.refresh()
-      })
-
-    // for every onScrolled event, convert to bool & set isScrolling
-    this.scrollEvent$
-      .pipe(
-        map((e: ScrollEvent) => (e === 'stop' ? false : true)),
-        distinctUntilChanged(),
-        untilDestroyed(this)
-      )
-      .subscribe((e) => {
-        this.isScrolling = e
-        this.cdr.detectChanges()
-      })
-
-    // emit event from noMoreRow$ if hasNextPage false
-    this.scrollEvent$
-      .pipe(
-        filter((e) => e === 'bottom'),
-        withLatestFrom(this.pageInfo$),
-        map(([_, pageInfo]: [ScrollEvent, PageInfo]) => pageInfo),
-        untilDestroyed(this)
-      )
-      .subscribe((pageInfo: PageInfo) => {
-        if (!pageInfo.hasNextPage) {
-          this.noMoreRows$.next(true)
-          this.cdr.detectChanges()
-
-          // need to send a followup 'false' here or else
-          // ng won't interpret subsequent 'true' events as changes
-          setInterval(() => this.noMoreRows$.next(false))
-        }
-      })
-  } // ngOnInit()
-
-  // fetch a new set of records
-  refresh() {
-    if (!this.queryRef) return
-    this.queryRef
-      .refetch({
-        ids: this.ids,
-        diseaseName: this.diseaseNameInput,
-        therapyName: this.therapyNameInput,
-        variantName: this.variantNameInput ? this.variantNameInput : undefined,
-        variantAlias: this.variantAliasInput
-          ? this.variantAliasInput
-          : undefined,
-        featureName: this.featureNameInput,
-        variantTypeName: this.variantTypeNameInput
-          ? this.variantTypeNameInput
-          : undefined,
-        hasNoVariantType: this.hasNoVariantTypeInput,
-        category: this.variantCategoryInput,
-      })
-      .then(() => this.scrollIndex$.next(0))
-
-    this.cdr.detectChanges()
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('ids' in changes) {
-      this.refresh()
-    }
-  }
-
-  // virtual scroll helpers
-  trackByIndex(
-    _: number,
-    data: Maybe<BrowseVariantsFieldsFragment>
-  ): Maybe<number> {
-    return data?.id
-  }
-
-  onHasNoVariantTypeInputChange(value: boolean[]) {
-    this.hasNoVariantTypeInput = value[0]
-    this.filterChange$.next()
-  }
+  protected readonly spec = computed(() =>
+    variantsTableConfig(this.gql, this.cvcTitle(), {
+      ids: this.ids(),
+      variantTypeId: this.variantTypeId(),
+      variantGroupId: this.variantGroupId(),
+      hasNoVariantType: this.hasNoVariantType(),
+    })
+  )
 }
