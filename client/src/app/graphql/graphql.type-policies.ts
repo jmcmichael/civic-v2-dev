@@ -148,28 +148,12 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       comments: paginatedByAllArgs(),
       // the evidence manager's field; see paginatedByAllArgs above
       evidenceItems: paginatedByAllArgs(),
-      assertions: relayStylePagination([
-        'diseaseName',
-        'therapyName',
-        'id',
-        'name',
-        'summary',
-        'assertionDirection',
-        'significance',
-        'assertionType',
-        'variantId',
-        'molecularProfileId',
-        'ampLevel',
-        'geneName',
-        'variantName',
-        'evidenceId',
-        'organizationId',
-        'userId',
-        'phenotypeId',
-        'diseaseId',
-        'therapyId',
-        'status',
-      ]),
+      // the assertions browse table's field; see paginatedByAllArgs above
+      // (the previous list was missing ids, sortBy, and both
+      // OrganizationFilter wrappers, and named nonexistent geneName/
+      // variantName/organizationId args -- planned with the assertions
+      // migration, landed late)
+      assertions: paginatedByAllArgs(),
       organizations: relayStylePagination(['name', 'id']),
       // the organizations browse table's field; see paginatedByAllArgs
       // above. Had NO field policy at all -- Apollo's default merge
