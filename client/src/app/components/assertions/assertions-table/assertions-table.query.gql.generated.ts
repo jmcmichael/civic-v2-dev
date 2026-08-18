@@ -34,13 +34,13 @@ export type AssertionsBrowseQueryVariables = Types.Exact<{
 }>;
 
 
-export type AssertionsBrowseQuery = { __typename: 'Query', assertions: { __typename: 'AssertionConnection', totalCount: number, pageInfo: { __typename: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined, endCursor?: string | undefined }, edges: Array<{ __typename: 'AssertionEdge', cursor: string, node?: { __typename: 'Assertion', id: number, name: string, link: string, therapyInteractionType?: Types.TherapyInteraction | undefined, summary: string, assertionType: Types.AssertionType, assertionDirection: Types.AssertionDirection, significance: Types.AssertionSignificance, ampLevel?: Types.AmpLevel | undefined, evidenceItemsCount: number, status: Types.EvidenceStatus, flagged: boolean, molecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string, deprecated: boolean, parsedName: Array<
+export type AssertionsBrowseQuery = { __typename: 'Query', assertions: { __typename: 'AssertionConnection', totalCount: number, pageInfo: { __typename: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined, endCursor?: string | undefined }, edges: Array<{ __typename: 'AssertionEdge', cursor: string, node?: { __typename: 'Assertion', id: number, name: string, link: string, therapyInteractionType?: Types.TherapyInteraction | undefined, summary: string, assertionType: Types.AssertionType, assertionDirection: Types.AssertionDirection, significance: Types.AssertionSignificance, ampLevel?: Types.AmpLevel | undefined, evidenceItemsCount: number, status: Types.EvidenceStatus, flagged: boolean, molecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string, flagged: boolean, deprecated: boolean, parsedName: Array<
             | { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
             | { __typename: 'MolecularProfileTextSegment', text: string }
             | { __typename: 'Variant', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
           > }, disease?: { __typename: 'Disease', id: number, name: string, link: string, deprecated: boolean } | undefined, therapies: Array<{ __typename: 'Therapy', id: number, name: string, link: string, deprecated: boolean }> } | undefined }> } };
 
-export type AssertionBrowseFieldsFragment = { __typename: 'Assertion', id: number, name: string, link: string, therapyInteractionType?: Types.TherapyInteraction | undefined, summary: string, assertionType: Types.AssertionType, assertionDirection: Types.AssertionDirection, significance: Types.AssertionSignificance, ampLevel?: Types.AmpLevel | undefined, evidenceItemsCount: number, status: Types.EvidenceStatus, flagged: boolean, molecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string, deprecated: boolean, parsedName: Array<
+export type AssertionBrowseFieldsFragment = { __typename: 'Assertion', id: number, name: string, link: string, therapyInteractionType?: Types.TherapyInteraction | undefined, summary: string, assertionType: Types.AssertionType, assertionDirection: Types.AssertionDirection, significance: Types.AssertionSignificance, ampLevel?: Types.AmpLevel | undefined, evidenceItemsCount: number, status: Types.EvidenceStatus, flagged: boolean, molecularProfile: { __typename: 'MolecularProfile', id: number, name: string, link: string, flagged: boolean, deprecated: boolean, parsedName: Array<
       | { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
       | { __typename: 'MolecularProfileTextSegment', text: string }
       | { __typename: 'Variant', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
@@ -55,6 +55,7 @@ export const AssertionBrowseFieldsFragmentDoc = gql`
     id
     name
     link
+    flagged
     parsedName {
       ...MolecularProfileParsedName
     }

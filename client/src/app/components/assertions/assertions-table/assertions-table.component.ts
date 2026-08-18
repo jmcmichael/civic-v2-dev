@@ -1,383 +1,266 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  TemplateRef,
+  computed,
+  inject,
+  input,
+  linkedSignal,
 } from '@angular/core'
-import { ApolloQueryResult } from '@apollo/client/core'
+import { toSignal } from '@angular/core/rxjs-interop'
+import { FormsModule } from '@angular/forms'
+import { ActivatedRoute } from '@angular/router'
+import { CvcTableDownloaderComponent } from '@app/components/shared/table-downloader/table-downloader.component'
 import {
-  buildSortParams,
-  SortDirectionEvent,
-} from '@app/core/utilities/datatable-helpers'
-import { ScrollEvent } from '@app/directives/table-scroll/table-scroll.directive'
-import {
-  AssertionBrowseFieldsFragment,
-  AssertionsBrowseGQL,
-  AssertionsBrowseQuery,
-  AssertionsBrowseQueryVariables,
-} from './assertions-table.query.gql.generated'
-import {
-  AmpLevel,
-  AssertionConnection,
-  AssertionSignificance,
-  AssertionSortColumns,
-  EvidenceDirection,
   EvidenceStatusFilter,
-  EvidenceType,
   Maybe,
   OrganizationFilter,
-  PageInfo,
 } from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  skip,
-  takeUntil,
-  takeWhile,
-  withLatestFrom,
-} from 'rxjs/operators'
-import { pluck } from 'rxjs-etc/operators'
-import { ActivatedRoute } from '@angular/router'
+import { CvcEntityTableComponent, CvcTableSettings } from '@app/tables'
+import { NzCardModule } from 'ng-zorro-antd/card'
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
+import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
+import { NzGridModule } from 'ng-zorro-antd/grid'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzRadioModule } from 'ng-zorro-antd/radio'
+import { NzTableModule } from 'ng-zorro-antd/table'
+import { assertionsTableConfig } from './assertions-table.config'
+import { AssertionsBrowseGQL } from './assertions-table.query.gql.generated'
 
-@UntilDestroy()
+/**
+ * The five query params `clinical-significance-counts` links carry to
+ * `/assertions`, mapped to the column each prefilters. Snapshotted at init:
+ * every producer navigates to a fresh page, and the legacy constructor
+ * subscription was init-only in effect too (it mutated fields without
+ * refetching).
+ */
+const FILTER_PARAMS: ReadonlyArray<[param: string, columnKey: string]> = [
+  ['assertionType', 'assertionType'],
+  ['assertionDirection', 'assertionDirection'],
+  ['significance', 'significance'],
+  ['molecularProfileName', 'molecularProfile'],
+  ['diseaseName', 'disease'],
+]
+
+/**
+ * Browse-table facade over `cvc-entity-table`: keeps the legacy selector and
+ * the input surface its 11 embed sites bind (one entity-id scope input plus a
+ * title, `[status]` on the curation queue and query-search), while the table
+ * itself is configuration — see `assertions-table.config.ts`.
+ *
+ * The legacy card-extra scope menu survives in the toolbar slot: the
+ * evidence-status radio plus, on organization pages, an include-subgroups
+ * checkbox (worded for submitted vs approved assertions depending on which
+ * org input scoped the table — one shared flag feeds both wrappers, as it
+ * always has). The status radio is a `linkedSignal` seeded from `[status]`,
+ * which fixes two legacy bugs at once: the radio claiming Non-Rejected while
+ * the queue queried SUBMITTED, and `refresh()` silently reverting the host's
+ * scope on any filter keystroke.
+ *
+ * The legacy `cvcTitleTemplate` and `variantId` inputs had no consumers and
+ * are dropped.
+ */
 @Component({
   selector: 'cvc-assertions-table',
-  templateUrl: './assertions-table.component.html',
-  styleUrls: ['./assertions-table.component.less'],
+  imports: [
+    CvcEntityTableComponent,
+    CvcTableDownloaderComponent,
+    FormsModule,
+    NzCardModule,
+    NzCheckboxModule,
+    NzDropdownModule,
+    NzGridModule,
+    NzIconModule,
+    NzRadioModule,
+    NzTableModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
-})
-export class CvcAssertionsTableComponent implements OnInit, OnChanges {
-  @Input() cvcHeight: Maybe<string>
-  @Input() evidenceId: Maybe<number>
-  @Input() variantId: Maybe<number>
-  @Input() molecularProfileId: Maybe<number>
-  @Input() organizationId: Maybe<number>
-  @Input() userId: Maybe<number>
-  @Input() phenotypeId: Maybe<number>
-  @Input() diseaseId: Maybe<number>
-  @Input() therapyId: Maybe<number>
-  @Input() status: Maybe<EvidenceStatusFilter>
-  @Input() cvcTitleTemplate: Maybe<TemplateRef<void>>
-  @Input() cvcTitle: Maybe<string>
-  @Input() approvingOrganizationId: Maybe<number>
-  @Input() ids: Maybe<number[]>
-
-  // SOURCE STREAMS
-  scrollEvent$: BehaviorSubject<ScrollEvent>
-  sortChange$: Subject<SortDirectionEvent>
-
-  // INTERMEDIATE STREAMS
-  result$!: Observable<ApolloQueryResult<AssertionsBrowseQuery>>
-  connection$!: Observable<AssertionConnection>
-  pageInfo$!: Observable<PageInfo>
-
-  // PRESENTATION STREAMS
-  initialLoading$!: Observable<boolean>
-  moreLoading$!: Observable<boolean>
-  row$!: Observable<Maybe<AssertionBrowseFieldsFragment>[]>
-  scrollIndex$: Subject<number>
-  noMoreRows$: BehaviorSubject<boolean>
-  queryRef!: QueryRef<AssertionsBrowseQuery, AssertionsBrowseQueryVariables>
-
-  // need a static var for scrolling state b/c sub/unsub in
-  // virtual scroll rows degrades performance
-  isScrolling: boolean = false
-
-  private debouncedQuery = new Subject<void>()
-
-  queryParamsSub$: Subscription
-
-  isLoading$?: Observable<boolean>
-  assertions$?: Observable<Maybe<AssertionBrowseFieldsFragment>[]>
-  filteredCount$?: Observable<number>
-
-  isLoading = false
-
-  initialPageSize = 25
-  totalCount?: number
-  fetchMorePageSize = 25
-  isLoadingDelay = 300
-  visibleCount: number = this.initialPageSize
-
-  loadedPages: number = 1
-
-  tableView: boolean = true
-
-  textInputCallback?: () => void
-
-  showTooltips = true
-
-  //filters
-  aidInput: Maybe<string>
-  diseaseNameInput: Maybe<string>
-  therapyNameInput: Maybe<string>
-  summaryInput: Maybe<string>
-  assertionTypeInput: Maybe<EvidenceType>
-  assertionDirectionInput: Maybe<EvidenceDirection>
-  SignificanceInput: Maybe<AssertionSignificance>
-  molecularProfileNameInput: Maybe<string>
-  ampLevelInput: Maybe<AmpLevel>
-  statusInput: Maybe<EvidenceStatusFilter> = EvidenceStatusFilter.NonRejected
-  includeSubgroups: Maybe<boolean>
-
-  availableStatusFilters = EvidenceStatusFilter
-  statusFilterVisible = false
-
-  sortColumns: typeof AssertionSortColumns = AssertionSortColumns
-
-  private destroy$ = new Subject<void>()
-
-  constructor(
-    private gql: AssertionsBrowseGQL,
-    private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute
-  ) {
-    this.noMoreRows$ = new BehaviorSubject<boolean>(false)
-    this.scrollEvent$ = new BehaviorSubject<ScrollEvent>('stop')
-    this.sortChange$ = new Subject<SortDirectionEvent>()
-    this.scrollIndex$ = new Subject<number>()
-    this.queryParamsSub$ = this.route.queryParamMap.subscribe((params) => {
-      if (params.has('includeSubgroups')) {
-        this.includeSubgroups =
-          params.get('includeSubgroups') === 'true' ? true : false
-      }
-      if (params.has('assertionType') && params.get('assertionType') != null) {
-        this.assertionTypeInput = params.get('assertionType') as EvidenceType
-      }
-      if (
-        params.has('assertionDirection') &&
-        params.get('assertionDirection') != null
-      ) {
-        this.assertionDirectionInput = params.get(
-          'assertionDirection'
-        ) as EvidenceDirection
-      }
-      if (params.has('significance') && params.get('significance') != null) {
-        this.SignificanceInput = params.get(
-          'significance'
-        ) as AssertionSignificance
-      }
-      if (
-        params.has('molecularProfileName') &&
-        params.get('molecularProfileName') != null
-      ) {
-        this.molecularProfileNameInput = params.get(
-          'molecularProfileName'
-        ) as string
-      }
-      if (params.has('diseaseName') && params.get('diseaseName') != null) {
-        this.diseaseNameInput = params.get('diseaseName') as string
-      }
-    })
-  }
-
-  ngOnInit() {
-    this.queryRef = this.gql.watch({
-      variables: {
-        first: this.initialPageSize,
-        variantId: this.variantId,
-        molecularProfileId: this.molecularProfileId,
-        molecularProfileName: this.molecularProfileNameInput,
-        evidenceId: this.evidenceId,
-        organization: this.organizationFilter(this.organizationId),
-        approvingOrganizations: this.organizationFilter(
-          this.approvingOrganizationId
-        ),
-        userId: this.userId,
-        phenotypeId: this.phenotypeId,
-        diseaseId: this.diseaseId,
-        therapyId: this.therapyId,
-        status: this.status || EvidenceStatusFilter.NonRejected,
-        assertionType: this.assertionTypeInput,
-        assertionDirection: this.assertionDirectionInput,
-        significance: this.SignificanceInput,
-        diseaseName: this.diseaseNameInput,
-        ids: this.ids,
-      },
-    })
-
-    this.result$ = this.queryRef.valueChanges
-
-    // for controlling nzTable's loading overlay, which covers the whole table -
-    // good for the initial load as it's hard to miss
-    this.initialLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      takeWhile((l) => l !== false, true)
-    ) // only activate on 1st true/false sequence
-
-    // controls the smaller [Loading...] indicator, better for not distracting
-    // users by overlaying the row data they're focusing on
-    this.moreLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      skip(2)
-    ) // skip 1st true/false sequence
-
-    this.connection$ = this.result$.pipe(
-      pluck('data', 'assertions'),
-      filter(isNonNulled)
-    ) as Observable<AssertionConnection>
-
-    this.row$ = this.connection$.pipe(
-      pluck('edges'),
-      filter(isNonNulled),
-      map((edges) => edges.map((e) => e.node))
-    )
-
-    this.pageInfo$ = this.connection$.pipe(
-      pluck('pageInfo'),
-      filter(isNonNulled)
-    )
-
-    // refetch when column sort changes
-    this.sortChange$
-      .pipe(untilDestroyed(this))
-      .subscribe((e: SortDirectionEvent) => {
-        this.queryRef.refetch({ sortBy: buildSortParams(e) })
-      })
-
-    this.debouncedQuery
-      .pipe(takeUntil(this.destroy$), debounceTime(500))
-      .subscribe((_) => this.refresh())
-
-    this.textInputCallback = () => {
-      this.debouncedQuery.next()
-    }
-
-    // for every onScrolled event, convert to bool, share multicast
-    // false on 'scroll', true on 'stop'
-    this.scrollEvent$
-      .pipe(
-        map((e: ScrollEvent) => (e === 'stop' ? false : true)),
-        distinctUntilChanged(),
-        untilDestroyed(this)
-      )
-      .subscribe((e) => {
-        this.isScrolling = e
-        this.cdr.detectChanges()
-      })
-
-    // emit event from noMoreRow$ when scroll viewport hits bottom
-    // and no next page exists
-    this.scrollEvent$
-      .pipe(
-        filter((e) => e === 'bottom'),
-        withLatestFrom(this.pageInfo$),
-        map(([_, pageInfo]: [ScrollEvent, PageInfo]) => pageInfo),
-        untilDestroyed(this)
-      )
-      .subscribe((pageInfo: PageInfo) => {
-        if (!pageInfo.hasNextPage) {
-          this.noMoreRows$.next(true)
-          this.cdr.detectChanges()
-
-          // need to send a followup 'false' here or else
-          // ng won't interpret subsequent 'true' events as changes
-          setInterval(() => this.noMoreRows$.next(false))
+  template: `
+    <cvc-entity-table
+      #table
+      [spec]="spec()"
+      [settings]="paramSettings"
+      [height]="height()">
+      <span
+        cvcTableToolbarExtra
+        style="display: inline-flex; align-items: center; gap: 8px">
+        <cvc-table-downloader
+          [vars]="table.queryVars()"
+          tableName="assertions" />
+        @if (!idsScoped()) {
+          <nz-filter-trigger
+            data-testid="assertions-scope-trigger"
+            [nzVisible]="scopeMenuVisible"
+            (nzVisibleChange)="scopeMenuVisible = $event"
+            [nzActive]="scopeActive()"
+            [nzDropdownMenu]="scopeMenu">
+            <span
+              nz-icon
+              nzType="filter"
+              nzTheme="fill"></span>
+          </nz-filter-trigger>
         }
-      })
-  } // ngOnInit()
+      </span>
+    </cvc-entity-table>
 
-  // filtering, sorting callbacks
-  onModelChanged() {
-    this.debouncedQuery.next()
+    <nz-dropdown-menu #scopeMenu>
+      <nz-card data-testid="assertions-scope-menu">
+        <nz-row>
+          <nz-radio-group
+            [ngModel]="statusFilter()"
+            (ngModelChange)="onStatusChange($event)">
+            <label
+              nz-radio-button
+              [nzValue]="statusFilters.NonRejected"
+              >Non-Rejected</label
+            >
+            <label
+              nz-radio-button
+              [nzValue]="statusFilters.Accepted"
+              >Accepted</label
+            >
+            <label
+              nz-radio-button
+              [nzValue]="statusFilters.Submitted"
+              >Submitted</label
+            >
+            <label
+              nz-radio-button
+              [nzValue]="statusFilters.Rejected"
+              >Rejected</label
+            >
+            <label
+              nz-radio-button
+              [nzValue]="statusFilters.All"
+              >All</label
+            >
+          </nz-radio-group>
+        </nz-row>
+        @if (organizationId()) {
+          <nz-row>
+            <nz-col nzSpan="2">
+              <label
+                nz-checkbox
+                [ngModel]="includeSubgroups()"
+                (ngModelChange)="onSubgroupsChange($event)"></label>
+            </nz-col>
+            <nz-col nzSpan="22">
+              <span>Include assertions submitted by child organizations</span>
+            </nz-col>
+          </nz-row>
+        }
+        @if (approvingOrganizationId()) {
+          <nz-row>
+            <nz-col nzSpan="2">
+              <label
+                nz-checkbox
+                [ngModel]="includeSubgroups()"
+                (ngModelChange)="onSubgroupsChange($event)"></label>
+            </nz-col>
+            <nz-col nzSpan="22">
+              <span>Include assertions approved by child organizations</span>
+            </nz-col>
+          </nz-row>
+        }
+      </nz-card>
+    </nz-dropdown-menu>
+  `,
+})
+export class CvcAssertionsTableComponent {
+  private readonly gql = inject(AssertionsBrowseGQL)
+  private readonly route = inject(ActivatedRoute)
+
+  readonly evidenceId = input<Maybe<number>>()
+  readonly molecularProfileId = input<Maybe<number>>()
+  readonly organizationId = input<Maybe<number>>()
+  readonly approvingOrganizationId = input<Maybe<number>>()
+  readonly userId = input<Maybe<number>>()
+  readonly phenotypeId = input<Maybe<number>>()
+  readonly diseaseId = input<Maybe<number>>()
+  readonly therapyId = input<Maybe<number>>()
+  readonly ids = input<Maybe<number[]>>()
+  readonly status = input<Maybe<EvidenceStatusFilter>>()
+  readonly cvcTitle = input<Maybe<string>>()
+  /** explicit body height; a bare number is treated as px (the phenotypes
+   * embed passes `cvcHeight="400"`) */
+  readonly cvcHeight = input<Maybe<string>>()
+
+  protected readonly statusFilters = EvidenceStatusFilter
+  protected scopeMenuVisible = false
+
+  /** the scope menu's choice; reseeds when the host's `[status]` changes */
+  protected readonly statusFilter = linkedSignal<EvidenceStatusFilter>(
+    () => this.status() ?? EvidenceStatusFilter.NonRejected
+  )
+
+  private readonly queryParams = toSignal(this.route.queryParamMap)
+
+  /** query-param seeded, user-toggleable thereafter */
+  protected readonly includeSubgroups = linkedSignal<boolean>(
+    () => this.queryParams()?.get('includeSubgroups') === 'true'
+  )
+
+  /**
+   * The clinical-significance-counts prefilters, read once from the opening
+   * URL and handed to the table as settings — they land in the filter row's
+   * controls and on the wire together.
+   */
+  protected readonly paramSettings: Maybe<CvcTableSettings> = (() => {
+    const params = this.route.snapshot.queryParamMap
+    const filters = FILTER_PARAMS.filter(([param]) => params.get(param)).map(
+      ([param, key]) => ({ key, value: params.get(param) })
+    )
+    return filters.length ? { filters } : undefined
+  })()
+
+  protected readonly idsScoped = computed(() => (this.ids()?.length ?? 0) > 0)
+
+  protected readonly scopeActive = computed(
+    () =>
+      this.statusFilter() !== EvidenceStatusFilter.NonRejected ||
+      this.includeSubgroups()
+  )
+
+  protected readonly height = computed(() => {
+    const height = this.cvcHeight()
+    if (!height) return 'auto'
+    return /^\d+$/.test(height) ? `${height}px` : height
+  })
+
+  private readonly organization = computed<Maybe<OrganizationFilter>>(() =>
+    this.organizationFilter(this.organizationId())
+  )
+
+  private readonly approvingOrganizations = computed<Maybe<OrganizationFilter>>(
+    () => this.organizationFilter(this.approvingOrganizationId())
+  )
+
+  private organizationFilter(id: Maybe<number>): Maybe<OrganizationFilter> {
+    if (!id) return undefined
+    return { ids: [id], includeSubgroups: this.includeSubgroups() }
   }
 
-  // refetch results, replacing current rows
-  refresh() {
-    if (!this.queryRef) return
-    this.isLoading = true
-    this.loadedPages = 1
-    var aid: Maybe<number>
-    if (this.aidInput)
-      if (this.aidInput.toUpperCase().startsWith('AID')) {
-        aid = +this.aidInput.toUpperCase().replace('AID', '')
-      } else {
-        aid = +this.aidInput
-      }
-    else {
-      aid = undefined
-    }
-    this.queryRef.refetch({
-      id: aid,
-      diseaseName: this.diseaseNameInput,
-      molecularProfileName: this.molecularProfileNameInput,
-      therapyName: this.therapyNameInput,
-      summary: this.summaryInput,
-      status: this.statusInput,
-      organization: this.organizationFilter(this.organizationId),
-      approvingOrganizations: this.organizationFilter(
-        this.approvingOrganizationId
-      ),
-      assertionType: this.assertionTypeInput
-        ? this.assertionTypeInput
-        : undefined,
-      assertionDirection: this.assertionDirectionInput
-        ? this.assertionDirectionInput
-        : undefined,
-      significance: this.SignificanceInput ? this.SignificanceInput : undefined,
-      ampLevel: this.ampLevelInput ? this.ampLevelInput : undefined,
-      ids: this.ids ? this.ids : undefined,
+  protected readonly spec = computed(() =>
+    assertionsTableConfig(this.gql, this.cvcTitle(), {
+      evidenceId: this.evidenceId(),
+      molecularProfileId: this.molecularProfileId(),
+      userId: this.userId(),
+      phenotypeId: this.phenotypeId(),
+      diseaseId: this.diseaseId(),
+      therapyId: this.therapyId(),
+      ids: this.ids(),
+      organization: this.organization(),
+      approvingOrganizations: this.approvingOrganizations(),
+      status: this.statusFilter(),
     })
+  )
+
+  protected onStatusChange(status: EvidenceStatusFilter): void {
+    this.statusFilter.set(status)
+    this.scopeMenuVisible = false
   }
 
-  // fetch more results, append to current rows
-  loadMore(cursor: Maybe<string>) {
-    this.isLoading = true
-    this.queryRef.fetchMore({
-      variables: { after: cursor },
-    })
-
-    this.loadedPages += 1
-  }
-
-  statusChanged() {
-    this.debouncedQuery.next()
-    this.statusFilterVisible = false
-  }
-
-  includeSubgroupsChanged() {
-    this.debouncedQuery.next()
-    this.statusFilterVisible = false
-  }
-
-  private organizationFilter(
-    organizationId: Maybe<number>
-  ): OrganizationFilter {
-    return {
-      ids: organizationId ? [organizationId] : [],
-      includeSubgroups: this.includeSubgroups ? this.includeSubgroups : false,
-    }
-  }
-
-  // virtual scroll helpers
-  trackByIndex(
-    _: number,
-    data: Maybe<AssertionBrowseFieldsFragment>
-  ): Maybe<number> {
-    return data?.id
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('ids' in changes) {
-      this.refresh()
-    }
-  }
-  ngOnDestroy() {
-    this.queryParamsSub$.unsubscribe()
-    this.destroy$.next()
-    this.destroy$.unsubscribe()
+  protected onSubgroupsChange(include: boolean): void {
+    this.includeSubgroups.set(include)
+    this.scopeMenuVisible = false
   }
 }
