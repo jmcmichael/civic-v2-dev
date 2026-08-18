@@ -73,15 +73,12 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       browseFeatures: paginatedByAllArgs(),
       // the variant manager's field; see paginatedByAllArgs above
       browseVariants: paginatedByAllArgs(),
-      browseMolecularProfiles: relayStylePagination([
-        'variantName',
-        'entrezSymbol',
-        'diseaseName',
-        'therapyName',
-        'molecularProfileScore',
-        'molecularProfileAlias',
-        'variantId',
-      ]),
+      // the molecular profiles browse table's field; see paginatedByAllArgs
+      // above (the previous list was also missing ids, molecularProfileName,
+      // featureName, and sortBy; named a nonexistent `entrezSymbol` arg
+      // -- predates the rename to `featureName` -- and `molecularProfileScore`,
+      // which is a sort column, not a filter argument at all)
+      browseMolecularProfiles: paginatedByAllArgs(),
       // the variant groups browse table's field; see paginatedByAllArgs
       // above (the previous list named nonexistent `geneNames`/`variantId`
       // args while omitting the real `featureNames` and `sortBy`)
