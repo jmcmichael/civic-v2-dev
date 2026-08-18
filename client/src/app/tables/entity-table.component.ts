@@ -244,6 +244,9 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
+  /** five glyphs for a count column's stacked header icon */
+  protected readonly iconStack = [0, 1, 2, 3, 4]
+
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
     return LABEL_ICON_COLORS[icon] ?? getEntityColor('Greyscale')

@@ -14,6 +14,7 @@ import {
 } from '@app/tags'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { Apollo } from 'apollo-angular'
+import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverDirective, NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
@@ -45,6 +46,7 @@ const POPOVER_PAGE = 10
   imports: [
     CvcPopoverContentResizeDirective,
     CvcTagListComponent,
+    NzIconModule,
     NzPopoverModule,
     NzSpinModule,
     NzTagModule,
@@ -63,7 +65,15 @@ const POPOVER_PAGE = 10
       nzPopoverPlacement="left"
       nzPopoverTrigger="hover"
       (nzPopoverVisibleChange)="onVisibleChange($event)">
-      {{ display() }}
+      @if (icon(); as glyph) {
+        <span
+          class="count-tag-icon"
+          nz-icon
+          [nzType]="glyph"
+          nzTheme="twotone"
+          [nzTwotoneColor]="iconColor()"></span>
+      }
+      <span class="count-tag-count">{{ display() }}</span>
     </nz-tag>
 
     <ng-template #content>
@@ -94,9 +104,22 @@ const POPOVER_PAGE = 10
       display: block;
     }
     .count-tag {
+      /* inline-block, not flex: a flex tag synthesizes its own baseline
+         and sits ~1px off the row's inline-block tags (the full-width tag
+         lesson); the count floats right instead */
       width: 100%;
       margin-inline-end: 0;
-      text-align: right;
+      text-align: left;
+    }
+    .count-tag-icon {
+      /* keep the glyph inside the tag's 20px line box: its own line box
+         collapsed, nudged to the text's optical center */
+      margin-right: 2px;
+      line-height: 0;
+      vertical-align: -0.175em;
+    }
+    .count-tag-count {
+      float: right;
     }
     .count-tag.has-popover {
       cursor: help;
@@ -120,6 +143,9 @@ export class CvcCountTagCellComponent {
   })
 
   readonly count = input<Maybe<number>>()
+  /** the column's entity glyph, shown before the count */
+  readonly icon = input<Maybe<string>>()
+  readonly iconColor = input<Maybe<string>>()
   /** entities the row already carries */
   readonly items = input<Maybe<ReadonlyArray<CvcCountEntity>>>()
   /** what to ask the resolver for, lazily on first open */

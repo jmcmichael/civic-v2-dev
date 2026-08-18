@@ -50,13 +50,24 @@
               nz-tooltip
               [nzTooltipTitle]="col.tooltip"
               >@if (col.labelIcon; as icon) {
-                <span
-                  nz-icon
-                  class="header-label-icon"
-                  [class.with-label]="!!col.label"
-                  [nzType]="icon"
-                  nzTheme="twotone"
-                  [nzTwotoneColor]="labelIconColor(icon)"></span>
+                @if (col.cell.kind === 'count-tag') {
+                  <!-- a count column's header stacks five entity glyphs,
+                       collection-tag style: many-of-this-entity at a glance -->
+                  <span class="header-icon-stack">@for (i of iconStack; track i) {<span
+                      nz-icon
+                      class="stacked-icon"
+                      [nzType]="icon"
+                      nzTheme="twotone"
+                      [nzTwotoneColor]="labelIconColor(icon)"></span>}</span>
+                } @else {
+                  <span
+                    nz-icon
+                    class="header-label-icon"
+                    [class.with-label]="!!col.label"
+                    [nzType]="icon"
+                    nzTheme="twotone"
+                    [nzTwotoneColor]="labelIconColor(icon)"></span>
+                }
               }{{ col.label }}</span
             >
           </th>
@@ -304,6 +315,10 @@
                   [count]="cell.count(row)"
                   [items]="cell.refs?.(row)"
                   [request]="cell.fetch?.(row)"
+                  [icon]="col.labelIcon"
+                  [iconColor]="
+                    col.labelIcon ? labelIconColor(col.labelIcon) : undefined
+                  "
                   [suspended]="isScrolling()" />
               }
 

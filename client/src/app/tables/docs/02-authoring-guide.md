@@ -161,10 +161,11 @@ Checklist:
   `yarn generate-apollo` or the accessor will not compile.
 - `key` must be unique — `entityTableConfig` throws in dev mode otherwise.
 - A count column follows the count convention: `label: ''` with `labelIcon`
-  set to its entity's civic glyph (`'civic-evidence'` etc., rendered
-  twotone), ~55px — the icon alone is the header — and a
-  `kind: 'count-tag'` cell: a full-width tag carrying the count whose hover
-  popover shows the counted entities themselves. Give the cell `fetch`
+  set to its entity's civic glyph — the header renders it as a stack of five
+  overlapped glyphs (~2px step; a `count-tag` cell is what triggers the
+  stack), ~55px — and a `kind: 'count-tag'` cell: a full-width tag carrying
+  the entity glyph + the count, whose hover popover shows the counted
+  entities themselves. Give the cell `fetch`
   (`(row) => ({ entity: 'EvidenceItem', scope: { diseaseId: row.id } })`,
   resolved lazily by the app's `CVC_COUNT_ENTITY_RESOLVER` — see
   `components/shared/counted-entities/`) or `refs` when the row already
