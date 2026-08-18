@@ -167,8 +167,12 @@ describe('phenotypesTableConfig', () => {
       expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe(2)
     })
 
-    it('renders HPO ID as a custom cell (external link-out, no built-in kind fits)', () => {
-      expect(specCell(spec, 'hpoId', 'custom').content).toBeTruthy()
+    it('renders HPO ID as an external link-out to the HPO term', () => {
+      const link = specCell(spec, 'hpoId', 'external-link')
+      expect(link.href(ROW)).toBe(
+        'https://hpo.jax.org/app/browse/term/HP:0001363'
+      )
+      expect(link.text?.(ROW)).toBe('HP:0001363')
     })
   })
 

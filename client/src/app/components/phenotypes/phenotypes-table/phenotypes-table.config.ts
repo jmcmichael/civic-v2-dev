@@ -1,7 +1,5 @@
 import { Maybe, PhenotypeSortColumns } from '@app/generated/civic.apollo.types'
 import { entityTableConfig } from '@app/tables'
-import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
-import { CvcPhenotypeHpoIdCellComponent } from './phenotypes-table-hpo-id-cell.component'
 import { PhenotypesBrowseGQL } from './phenotypes-table.query.gql.generated'
 
 /** The query variables a host page scopes the table with. */
@@ -20,9 +18,8 @@ export interface PhenotypesTableScope {
  * bespoke `cvc-phenotype-tag` embedded directly) — no framework changes
  * needed, just not reaching for a custom cell.
  *
- * HPO ID has no built-in cell kind: it is an external link-out to the term
- * on the Human Phenotype Ontology site, not an in-app entity, so it is a
- * `kind: 'custom'` cell (see `phenotypes-table-hpo-id-cell.component.ts`).
+ * HPO ID is an external link-out to the term on the Human Phenotype
+ * Ontology site, not an in-app entity — `kind: 'external-link'`.
  */
 export function phenotypesTableConfig(
   query: PhenotypesBrowseGQL,
@@ -62,8 +59,9 @@ export function phenotypesTableConfig(
         label: 'HPO ID',
         width: '150px',
         cell: {
-          kind: 'custom',
-          content: new PolymorpheusComponent(CvcPhenotypeHpoIdCellComponent),
+          kind: 'external-link',
+          href: (row) => row.url,
+          text: (row) => row.hpoId,
         },
         sort: { column: PhenotypeSortColumns.HpoId },
         filter: { kind: 'text', var: 'hpoId', placeholder: 'Filter HPO ID' },
