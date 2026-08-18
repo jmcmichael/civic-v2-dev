@@ -1,13 +1,16 @@
 <cvc-tag-list size="xs">
+  <!-- contexts are prebuilt, stable objects: an inline literal here is a new
+       object each CD pass, and NgTemplateOutlet recreates its view on context
+       identity change — destroying the tag (and its popover) every tick -->
   <div
-    *ngFor="let tag of displayedTags"
+    *ngFor="let ctx of displayedContexts; trackBy: trackByTagId"
     [ngClass]="{
       'matched-tag':
-        matchingText && tag.matchText!.toLowerCase().includes(matchingText),
+        matchingText && ctx.tag.matchText!.toLowerCase().includes(matchingText),
     }">
     <ng-container
       [ngTemplateOutlet]="tagTemplate"
-      [ngTemplateOutletContext]="{ tagType: tagType, tag: tag }">
+      [ngTemplateOutletContext]="ctx">
     </ng-container>
   </div>
   <div [ngClass]="{ 'matched-tag': matchedHiddenCount > 0 }">
@@ -28,17 +31,15 @@
     <div class="popover-tag-list">
       <cvc-tag-list size="xs">
         <div
-          *ngFor="let tag of hiddenTags"
+          *ngFor="let ctx of hiddenContexts; trackBy: trackByTagId"
           [ngClass]="{
             'matched-tag':
               matchingText &&
-              tag.matchText!.toLowerCase().includes(matchingText),
+              ctx.tag.matchText!.toLowerCase().includes(matchingText),
           }">
-          <ng-container [ngSwitch]="tagType">
-            <ng-container
-              [ngTemplateOutlet]="tagTemplate"
-              [ngTemplateOutletContext]="{ tagType: tagType, tag: tag }">
-            </ng-container>
+          <ng-container
+            [ngTemplateOutlet]="tagTemplate"
+            [ngTemplateOutletContext]="ctx">
           </ng-container>
         </div>
       </cvc-tag-list>
