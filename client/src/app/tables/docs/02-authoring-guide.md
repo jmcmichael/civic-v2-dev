@@ -312,6 +312,29 @@ Using the variant manager as the template (it is the smaller of the two):
    facade `.less` files for the `flex` + `min-height: 0` + `min-width: 0`
    passthrough). Alternatively pass a fixed `[height]="'400px'"`.
 
+   **Card chrome.** Two hooks for hosts whose cards carry more than a title
+   string (the browse tables' downloaders and scope menus):
+
+   ```html
+   <ng-template #cardTitle
+     ><i
+       nz-icon
+       nzType="pie-chart"></i>
+     Variants</ng-template
+   >
+   <cvc-entity-table
+     [spec]="spec()"
+     [titleTemplate]="cardTitle">
+     <cvc-table-downloader
+       cvcTableToolbarExtra
+       [tableName]="'variants'" />
+   </cvc-entity-table>
+   ```
+
+   `[titleTemplate]` replaces the `spec().title` text; anything marked
+   `cvcTableToolbarExtra` is projected into the card-extra toolbar row,
+   between the row counts and the reset/preferences buttons.
+
 5. **Config spec.** Copy the shape of `variant-manager.config.spec.ts`:
    the filter declared∧used invariant, sort-members assertion, accessor
    tests, seed round-trips if any — then call

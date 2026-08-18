@@ -360,6 +360,12 @@ table writes each cell's offset and edge-shadow class itself. This works
 | `[(selectedIds)]` | `number[]` (model)                 | The **complete** selection on every change, not a delta. Emits `selectedIdsChange`. |
 | `[settings]`      | `CvcTableSettings`                 | Externally-driven filters + column visibility (see "Settings injection")            |
 | `[height]`        | `string` (CSS length)              | Omit to fill available space via the flex chain; set for a fixed-height region      |
+| `[titleTemplate]` | `TemplateRef<void>`                | Replaces the card title's plain `spec().title` text (icons, links)                  |
+
+The component also projects one content slot: host elements marked
+`cvcTableToolbarExtra` land in the card-extra toolbar row, between the row
+counts and the reset/preferences buttons — where the browse tables put their
+downloaders and scope menus.
 
 There are no other outputs: filters, sort and preferences are internal state;
 the observable consequence of all of them is the query the table sends.

@@ -243,7 +243,11 @@
 </nz-card>
 
 <ng-template #cardTitle>
-  <span>{{ spec().title ?? '' }}</span>
+  @if (titleTemplate(); as title) {
+    <ng-container [ngTemplateOutlet]="title" />
+  } @else {
+    <span>{{ spec().title ?? '' }}</span>
+  }
 </ng-template>
 
 <!-- TOOLBAR: counts, request errors, reset and the visible-columns panel -->
@@ -308,6 +312,11 @@
           {{ rows().length | number }} of {{ total | number }} displayed
         </span>
       }
+    </nz-col>
+
+    <!-- host-supplied toolbar content (downloaders, scope menus) -->
+    <nz-col>
+      <ng-content select="[cvcTableToolbarExtra]" />
     </nz-col>
 
     <nz-col nzFlex="35px">

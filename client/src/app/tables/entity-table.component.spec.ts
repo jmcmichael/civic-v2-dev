@@ -1,3 +1,4 @@
+import { Component, signal } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -518,4 +519,69 @@ describe('cvc-entity-table', () => {
       ])
     })
   })
+
+  /**
+   * The card chrome the browse-table facades depend on: a host title template
+   * that outranks `spec().title`, and the `[cvcTableToolbarExtra]` slot that
+   * projects host content (downloaders, scope menus) into the card-extra row.
+   */
+  describe('card chrome', () => {
+    const mountChrome = (withTitleTemplate: boolean) => {
+      const chrome = TestBed.createComponent(ChromeHostComponent)
+      chrome.componentInstance.spec.set({
+        ...buildSpec(),
+        title: 'Chrome Table',
+      })
+      chrome.componentInstance.withTitle.set(withTitleTemplate)
+      chrome.detectChanges()
+      return chrome.nativeElement as HTMLElement
+    }
+
+    it("renders the host's title template in place of the spec title", () => {
+      const el = mountChrome(true)
+      const custom = el.querySelector('[data-testid="host-title"]')
+      expect(custom).toBeTruthy()
+      expect(el.querySelector('.ant-card-head')!.textContent).not.toContain(
+        'Chrome Table'
+      )
+    })
+
+    it('falls back to the spec title without a template', () => {
+      const el = mountChrome(false)
+      expect(el.querySelector('[data-testid="host-title"]')).toBeNull()
+      expect(el.querySelector('.ant-card-head')!.textContent).toContain(
+        'Chrome Table'
+      )
+    })
+
+    it('projects toolbar-extra content into the card-extra row', () => {
+      const el = mountChrome(true)
+      const extra = el.querySelector('[data-testid="host-toolbar-extra"]')
+      expect(extra).toBeTruthy()
+      expect(extra!.closest('.ant-card-extra')).toBeTruthy()
+    })
+  })
 })
+
+@Component({
+  imports: [CvcEntityTableComponent],
+  template: `
+    <ng-template #title>
+      <em data-testid="host-title">Custom Title</em>
+    </ng-template>
+    <cvc-entity-table
+      [spec]="spec()"
+      [titleTemplate]="withTitle() ? title : undefined">
+      <button
+        cvcTableToolbarExtra
+        data-testid="host-toolbar-extra"
+        type="button">
+        Extra
+      </button>
+    </cvc-entity-table>
+  `,
+})
+class ChromeHostComponent {
+  readonly spec = signal<EntityTableSpec<Row>>(undefined as never)
+  readonly withTitle = signal(true)
+}

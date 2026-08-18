@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  TemplateRef,
   computed,
   effect,
   inject,
@@ -141,6 +142,14 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * computes a pixel height in JavaScript.
    */
   readonly height = input<string>()
+
+  /**
+   * Replaces the card title's plain `spec().title` text — for hosts whose
+   * legacy card titles carry markup (an icon, a link). The toolbar's
+   * counterpart is the `[cvcTableToolbarExtra]` content slot, which projects
+   * host content (downloaders, scope menus) into the card-extra row.
+   */
+  readonly titleTemplate = input<Maybe<TemplateRef<void>>>()
 
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
