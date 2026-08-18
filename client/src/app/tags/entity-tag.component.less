@@ -42,8 +42,17 @@
   &.full-width {
     nz-tag {
       width: 100%;
+      // flex so the label takes the leftover space and can actually clip:
+      // text-overflow is inert on an inline element, and a plain width
+      // lets long labels overflow the tag instead of ellipsizing
+      display: inline-flex;
+      align-items: center;
       .tag-label {
-        width: 100%;
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
