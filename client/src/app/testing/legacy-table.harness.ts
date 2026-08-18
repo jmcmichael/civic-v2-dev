@@ -73,6 +73,15 @@ export interface LegacyTableDescriptor<T> {
   sorts?: LegacyInteractionCase<T>[]
   /** does this table refetch when its `ids` input changes? default true */
   idsRefetch?: boolean
+  /**
+   * What the refetch is expected to send once `ids` changes, checked with
+   * `toMatchObject`. Defaults to `{ ids: [42] }`. Override only to document
+   * a legacy bug where the refetch does not actually carry the new value
+   * (e.g. a `refresh()` that rebuilds its variables object from scratch and
+   * forgets `ids` — Apollo's `refetch` then keeps whatever `ids` was at
+   * mount time, forever, however the input changes afterward).
+   */
+  idsRefetchSends?: Record<string, unknown>
 }
 
 export interface LegacyTableHarness<T> {
@@ -212,7 +221,9 @@ export function describeLegacyTableCharacterization<T>(
       await h.settle()
 
       expect(h.requests().length).toBeGreaterThan(opening)
-      expect(h.requests().at(-1)).toMatchObject({ ids: [42] })
+      expect(h.requests().at(-1)).toMatchObject(
+        descriptor.idsRefetchSends ?? { ids: [42] }
+      )
     })
   })
 }
