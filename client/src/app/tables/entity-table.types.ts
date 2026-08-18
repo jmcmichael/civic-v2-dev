@@ -173,6 +173,14 @@ export interface CvcEnumTagCell<TRow> {
 export interface CvcTextTagCell<TRow> {
   kind: 'text-tag'
   text: (row: TRow) => Maybe<string>
+  /**
+   * The tag's visible content — for cells whose tooltip expands an
+   * abbreviation rather than restating overflow (assertions' AMP category:
+   * label 'IA', text 'Tier I - Level A'). Omitted, the tag shows the
+   * align-left icon and `text` is overflow disclosure (evidence
+   * descriptions).
+   */
+  label?: (row: TRow) => Maybe<string>
 }
 
 /** plain text, or a comma-joined list of it */

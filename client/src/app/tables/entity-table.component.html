@@ -240,17 +240,23 @@
               @case ('text-tag') {
                 @let text = cell.text(row);
                 @if (text) {
-                  <!-- the icon is the whole cell: these columns are 40px and
-                         the text is a full evidence description, so it lives in
-                         the tooltip -->
+                  <!-- without a label accessor the icon is the whole cell:
+                         these columns are 40px and the text is a full evidence
+                         description, so it lives in the tooltip. With one, the
+                         tag shows the compact label and the tooltip expands it
+                         (the AMP category's 'IA' -> 'Tier I - Level A'). -->
                   <nz-tag
                     nz-tooltip
                     [nzTooltipTitle]="isScrolling() ? null : text"
                     class="text-tag-cell">
-                    <span
-                      nz-icon
-                      nzType="align-left"
-                      nzTheme="outline"></span>
+                    @if (cell.label; as label) {
+                      {{ label(row) }}
+                    } @else {
+                      <span
+                        nz-icon
+                        nzType="align-left"
+                        nzTheme="outline"></span>
+                    }
                   </nz-tag>
                 } @else {
                   <cvc-empty-value
