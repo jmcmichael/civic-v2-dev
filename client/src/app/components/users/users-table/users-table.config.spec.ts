@@ -196,9 +196,9 @@ describe('usersTableConfig', () => {
       expect(specCell(spec, 'role', 'text').text(ROW)).toBe('Editor')
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'evidenceCount', 'text').text(ROW)).toBe(12)
-      expect(specCell(spec, 'revisionCount', 'text').text(ROW)).toBe(3)
+    it('renders the counts as count-tag cells', () => {
+      expect(specCell(spec, 'evidenceCount', 'count-tag').count(ROW)).toBe(12)
+      expect(specCell(spec, 'revisionCount', 'count-tag').count(ROW)).toBe(3)
     })
 
     it('formats the last-action timestamp with the timeAgo formatter', () => {

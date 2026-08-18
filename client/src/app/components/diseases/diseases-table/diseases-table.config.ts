@@ -112,7 +112,7 @@ export function diseasesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.featureCount },
+        cell: { kind: 'count-tag', count: (row) => row.featureCount },
         sort: {
           column: DiseasesSortColumns.FeatureCount,
           directions: SORT_DESCEND_FIRST,
@@ -126,7 +126,7 @@ export function diseasesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.variantCount },
+        cell: { kind: 'count-tag', count: (row) => row.variantCount },
         sort: {
           column: DiseasesSortColumns.VariantCount,
           directions: SORT_DESCEND_FIRST,
@@ -140,7 +140,14 @@ export function diseasesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceItemCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { diseaseId: row.id },
+          }),
+        },
         sort: {
           column: DiseasesSortColumns.EvidenceItemCount,
           default: 'descend',
@@ -155,7 +162,14 @@ export function diseasesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.assertionCount,
+          fetch: (row) => ({
+            entity: 'Assertion',
+            scope: { diseaseId: row.id },
+          }),
+        },
         sort: {
           column: DiseasesSortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,

@@ -216,7 +216,14 @@ export function variantsTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceItemCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { variantId: row.id },
+          }),
+        },
         sort: {
           column: VariantsSortColumns.EvidenceItemCount,
           default: 'descend',

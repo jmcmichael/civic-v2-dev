@@ -193,9 +193,9 @@ describe('therapiesTableConfig', () => {
       expect(text.highlight).toBe(true)
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'evidenceCount', 'text').text(ROW)).toBe(62)
-      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe(8)
+    it('renders the counts as count-tag cells', () => {
+      expect(specCell(spec, 'evidenceCount', 'count-tag').count(ROW)).toBe(62)
+      expect(specCell(spec, 'assertionCount', 'count-tag').count(ROW)).toBe(8)
     })
   })
 

@@ -76,7 +76,14 @@ export function phenotypesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { phenotypeId: row.id },
+          }),
+        },
         sort: {
           column: PhenotypeSortColumns.EvidenceItemCount,
           default: 'descend',
@@ -91,7 +98,14 @@ export function phenotypesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.assertionCount,
+          fetch: (row) => ({
+            entity: 'Assertion',
+            scope: { phenotypeId: row.id },
+          }),
+        },
         sort: {
           column: PhenotypeSortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,

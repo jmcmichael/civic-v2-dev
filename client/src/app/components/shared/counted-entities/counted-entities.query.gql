@@ -1,0 +1,115 @@
+# The count-tag popovers' queries: first-page linkable projections of the
+# entities a browse row counts, scoped by the parent id. One query per
+# counted entity type; the resolver (counted-entities.resolver.ts) routes
+# CvcCountEntitiesRequests here.
+
+query CountedEvidenceItems(
+  $first: Int!
+  $assertionId: Int
+  $clinicalTrialId: Int
+  $diseaseId: Int
+  $molecularProfileId: Int
+  $phenotypeId: Int
+  $sourceId: Int
+  $therapyId: Int
+  $userId: Int
+  $variantId: Int
+) {
+  evidenceItems(
+    first: $first
+    assertionId: $assertionId
+    clinicalTrialId: $clinicalTrialId
+    diseaseId: $diseaseId
+    molecularProfileId: $molecularProfileId
+    phenotypeId: $phenotypeId
+    sourceId: $sourceId
+    therapyId: $therapyId
+    userId: $userId
+    variantId: $variantId
+  ) {
+    totalCount
+    edges {
+      node {
+        ...LinkableEvidenceItem
+      }
+    }
+  }
+}
+
+query CountedAssertions(
+  $first: Int!
+  $diseaseId: Int
+  $molecularProfileId: Int
+  $phenotypeId: Int
+  $therapyId: Int
+  $userId: Int
+) {
+  assertions(
+    first: $first
+    diseaseId: $diseaseId
+    molecularProfileId: $molecularProfileId
+    phenotypeId: $phenotypeId
+    therapyId: $therapyId
+    userId: $userId
+  ) {
+    totalCount
+    edges {
+      node {
+        ...LinkableAssertion
+      }
+    }
+  }
+}
+
+query CountedMolecularProfiles($first: Int!, $featureId: Int) {
+  molecularProfiles(first: $first, featureId: $featureId) {
+    totalCount
+    edges {
+      node {
+        ...LinkableMolecularProfile
+      }
+    }
+  }
+}
+
+query CountedVariants($first: Int!, $featureId: Int, $variantTypeIds: [Int!]) {
+  variants(first: $first, featureId: $featureId, variantTypeIds: $variantTypeIds) {
+    totalCount
+    edges {
+      node {
+        ...LinkableVariant
+      }
+    }
+  }
+}
+
+query CountedGroupVariants($first: Int!, $variantGroupId: Int) {
+  browseVariants(first: $first, variantGroupId: $variantGroupId) {
+    totalCount
+    edges {
+      node {
+        id
+        name
+        link
+        flagged
+        deprecated
+      }
+    }
+  }
+}
+
+query CountedSources($first: Int!, $clinicalTrialId: Int) {
+  browseSources(first: $first, clinicalTrialId: $clinicalTrialId) {
+    totalCount
+    edges {
+      node {
+        id
+        name
+        link
+        citation
+        sourceType
+        deprecated
+      }
+    }
+  }
+}

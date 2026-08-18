@@ -81,7 +81,14 @@ export function variantGroupsTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.variantCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.variantCount,
+          fetch: (row) => ({
+            entity: 'Variant',
+            scope: { variantGroupId: row.id },
+          }),
+        },
         sort: {
           column: VariantGroupsSortColumns.VariantCount,
           default: 'descend',
@@ -96,7 +103,7 @@ export function variantGroupsTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: { kind: 'count-tag', count: (row) => row.evidenceItemCount },
         sort: {
           column: VariantGroupsSortColumns.EvidenceItemCount,
           directions: SORT_DESCEND_FIRST,

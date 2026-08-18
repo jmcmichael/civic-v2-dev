@@ -57,6 +57,7 @@ import {
   connectionNodes,
   displayedCount,
 } from './connection.types'
+import { CvcCountTagCellComponent } from './cells/count-tag-cell.component'
 import { CvcColumnFilterExtraDirective } from './column-filter-extra.directive'
 import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
 import { CvcEntityTableQuery } from './entity-table-query'
@@ -133,6 +134,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     FormsModule,
     CvcAttributeTagModule,
     CvcCollectionTagComponent,
+    CvcCountTagCellComponent,
     CvcEnumFilterMenuComponent,
     CvcPipesModule,
     CvcTableFilterInputComponent,

@@ -253,9 +253,13 @@ describe('sourcesTableConfig', () => {
       expect(transform('nonsense')).toBeUndefined()
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(12)
-      expect(specCell(spec, 'sourceSuggestionCount', 'text').text(ROW)).toBe(1)
+    it('renders the counts as count-tag cells', () => {
+      expect(specCell(spec, 'evidenceItemCount', 'count-tag').count(ROW)).toBe(
+        12
+      )
+      expect(
+        specCell(spec, 'sourceSuggestionCount', 'count-tag').count(ROW)
+      ).toBe(1)
     })
   })
 

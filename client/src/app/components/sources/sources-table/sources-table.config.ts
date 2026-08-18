@@ -222,7 +222,14 @@ export function sourcesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceItemCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { sourceId: row.id },
+          }),
+        },
         sort: {
           column: SourcesSortColumns.EvidenceCount,
           default: 'descend',
@@ -237,7 +244,7 @@ export function sourcesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.sourceSuggestionCount },
+        cell: { kind: 'count-tag', count: (row) => row.sourceSuggestionCount },
         sort: {
           column: SourcesSortColumns.SuggestionCount,
           directions: SORT_DESCEND_FIRST,

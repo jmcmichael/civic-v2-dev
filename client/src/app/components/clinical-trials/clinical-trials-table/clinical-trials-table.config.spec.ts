@@ -166,9 +166,9 @@ describe('clinicalTrialsTableConfig', () => {
       expect(text.highlight).toBe(true)
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'sourceCount', 'text').text(ROW)).toBe(1)
-      expect(specCell(spec, 'evidenceCount', 'text').text(ROW)).toBe(3)
+    it('renders the counts as count-tag cells', () => {
+      expect(specCell(spec, 'sourceCount', 'count-tag').count(ROW)).toBe(1)
+      expect(specCell(spec, 'evidenceCount', 'count-tag').count(ROW)).toBe(3)
     })
 
     it('renders NCT ID as a custom cell (ClinicalTrial is not a taggable typename)', () => {

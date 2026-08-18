@@ -123,7 +123,14 @@ export function usersTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { userId: row.id },
+          }),
+        },
         sort: { column: UsersSortColumns.EvidenceCount },
       },
       {
@@ -134,7 +141,7 @@ export function usersTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.revisionCount },
+        cell: { kind: 'count-tag', count: (row) => row.revisionCount },
         sort: { column: UsersSortColumns.RevisionCount },
       },
     ],

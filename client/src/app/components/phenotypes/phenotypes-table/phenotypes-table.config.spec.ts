@@ -178,9 +178,9 @@ describe('phenotypesTableConfig', () => {
       })
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'evidenceCount', 'text').text(ROW)).toBe(5)
-      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe(2)
+    it('renders the counts as count-tag cells', () => {
+      expect(specCell(spec, 'evidenceCount', 'count-tag').count(ROW)).toBe(5)
+      expect(specCell(spec, 'assertionCount', 'count-tag').count(ROW)).toBe(2)
     })
 
     it('renders HPO ID as an external link-out to the HPO term', () => {

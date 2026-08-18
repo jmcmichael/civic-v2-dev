@@ -296,6 +296,14 @@
                 }
               }
 
+              @case ('count-tag') {
+                <cvc-count-tag-cell
+                  [count]="cell.count(row)"
+                  [items]="cell.refs?.(row)"
+                  [request]="cell.fetch?.(row)"
+                  [suspended]="isScrolling()" />
+              }
+
               @case ('text') {
                 <!-- empty segments mean there was nothing to show; the
                        accessor's own emptiness rules live in textSegments -->

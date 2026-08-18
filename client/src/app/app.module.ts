@@ -1,3 +1,5 @@
+import { CvcCountedEntitiesResolver } from '@app/components/shared/counted-entities/counted-entities.resolver'
+import { CVC_COUNT_ENTITY_RESOLVER } from '@app/tables'
 import { BrowserModule } from '@angular/platform-browser'
 import { ErrorHandler, NgModule } from '@angular/core'
 import { registerLocaleData } from '@angular/common'
@@ -49,6 +51,11 @@ registerLocaleData(en)
   ],
   providers: [
     graphqlProvider,
+    // the entity tables' count-tag popovers resolve their entities here
+    {
+      provide: CVC_COUNT_ENTITY_RESOLVER,
+      useExisting: CvcCountedEntitiesResolver,
+    },
     {
       // inject deps, instantiate and register formly expression extensions
       provide: FORMLY_CONFIG,

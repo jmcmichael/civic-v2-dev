@@ -64,7 +64,14 @@ export function clinicalTrialsTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.sourceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.sourceCount,
+          fetch: (row) => ({
+            entity: 'Source',
+            scope: { clinicalTrialId: row.id },
+          }),
+        },
         sort: {
           column: ClinicalTrialSortColumns.SourceCount,
           directions: SORT_DESCEND_FIRST,
@@ -78,7 +85,14 @@ export function clinicalTrialsTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { clinicalTrialId: row.id },
+          }),
+        },
         sort: {
           column: ClinicalTrialSortColumns.EvidenceItemCount,
           directions: SORT_DESCEND_FIRST,

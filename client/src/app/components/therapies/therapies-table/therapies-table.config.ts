@@ -95,7 +95,14 @@ export function therapiesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { therapyId: row.id },
+          }),
+        },
         sort: {
           column: TherapySortColumns.EvidenceItemCount,
           default: 'descend',
@@ -110,7 +117,14 @@ export function therapiesTableConfig(
         width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.assertionCount,
+          fetch: (row) => ({
+            entity: 'Assertion',
+            scope: { therapyId: row.id },
+          }),
+        },
         sort: {
           column: TherapySortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,

@@ -15,7 +15,6 @@ import {
   CvcEnumOption,
   entityTableConfig,
   enumFilterOptions,
-  formatCount,
   SORT_DESCEND_FIRST,
 } from '@app/tables'
 import { AssertionsBrowseGQL } from './assertions-table.query.gql.generated'
@@ -359,8 +358,12 @@ export function assertionsTableConfig(
         align: 'right',
         fixed: 'right',
         cell: {
-          kind: 'text',
-          text: (row) => formatCount(row.evidenceItemsCount),
+          kind: 'count-tag',
+          count: (row) => row.evidenceItemsCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { assertionId: row.id },
+          }),
         },
         sort: {
           column: AssertionSortColumns.EvidenceItemsCount,
