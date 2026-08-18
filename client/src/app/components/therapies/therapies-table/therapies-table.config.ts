@@ -48,6 +48,7 @@ export function therapiesTableConfig(
             link: row.link,
             deprecated: row.deprecated,
           }),
+          fullWidth: true,
           popoverPlacement: 'right',
         },
         sort: { column: TherapySortColumns.Name },

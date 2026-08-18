@@ -50,6 +50,7 @@ export function variantTypesTableConfig(
             name: row.name,
             link: row.link,
           }),
+          fullWidth: true,
         },
         sort: { column: VariantTypeSortColumns.Name },
         filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },

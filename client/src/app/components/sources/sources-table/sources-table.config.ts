@@ -113,6 +113,7 @@ export function sourcesTableConfig(
             citation: row.citation,
             sourceType: row.sourceType,
           }),
+          fullWidth: true,
           truncateLabel: '350px',
           popoverPlacement: 'right',
         },

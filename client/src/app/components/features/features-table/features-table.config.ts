@@ -74,6 +74,7 @@ export function featuresTableConfig(
             deprecated: row.deprecated,
             featureType: row.featureInstanceType,
           }),
+          fullWidth: true,
           popoverPlacement: 'right',
         },
         sort: { column: FeaturesSortColumns.FeatureName },

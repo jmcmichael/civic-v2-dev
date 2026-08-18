@@ -16,6 +16,17 @@ import { BrowseMolecularProfilesFieldsFragment } from './molecular-profile-table
   selector: 'cvc-molecular-profile-name-cell',
   imports: [CvcMolecularProfileTagModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // subject-column tag: block display at full cell width, the same
+  // treatment the entity-tag kind's `fullWidth` gives generic subject
+  // columns (the bespoke tag this cell wraps has no such input)
+  styles: `
+    :host {
+      display: block;
+    }
+    :host ::ng-deep nz-tag {
+      width: 100%;
+    }
+  `,
   template: `
     <cvc-molecular-profile-tag
       [molecularProfile]="$any(ctx.row)"

@@ -20,6 +20,17 @@ import { BrowseVariantGroupRowFieldsFragment } from './variant-groups-table.quer
   selector: 'cvc-variant-group-name-cell',
   imports: [CvcVariantGroupTagModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // subject-column tag: block display at full cell width, the same
+  // treatment the entity-tag kind's `fullWidth` gives generic subject
+  // columns (the bespoke tag this cell wraps has no such input)
+  styles: `
+    :host {
+      display: block;
+    }
+    :host ::ng-deep nz-tag {
+      width: 100%;
+    }
+  `,
   template: `
     <cvc-variant-group-tag
       [variantgroup]="$any(ctx.row)"

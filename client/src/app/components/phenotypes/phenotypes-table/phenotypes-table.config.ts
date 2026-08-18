@@ -49,6 +49,7 @@ export function phenotypesTableConfig(
             name: row.name,
             link: row.link,
           }),
+          fullWidth: true,
           popoverPlacement: 'right',
         },
         sort: { column: PhenotypeSortColumns.Name },
