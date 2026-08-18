@@ -125,6 +125,7 @@ export function sourcesTableConfig(
           kind: 'text',
           text: (row) => row.name ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         sort: { column: SourcesSortColumns.Name },
         filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },

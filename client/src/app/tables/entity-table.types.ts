@@ -174,6 +174,15 @@ export interface CvcTextCell<TRow> {
   text: (row: TRow) => Maybe<string | number | ReadonlyArray<string>>
   /** emphasise the active filter substring within the value */
   highlight?: boolean
+  /**
+   * Disclose the full text in a hover tooltip — for columns whose values
+   * routinely outrun the column width (a comment body, a citation-length
+   * name). The tooltip is suspended while the viewport scrolls, the same
+   * rule every built-in kind's popover/tooltip follows. Off by default:
+   * most text cells fit, and a tooltip that restates a short value is
+   * noise.
+   */
+  tooltip?: boolean
 }
 
 /**

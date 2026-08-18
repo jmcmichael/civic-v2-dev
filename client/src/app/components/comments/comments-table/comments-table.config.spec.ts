@@ -91,6 +91,13 @@ describe('commentsTableConfig', () => {
     expect(column('createdAt').sort?.directions).toEqual(SORT_DESCEND_FIRST)
   })
 
+  it('discloses the full comment text in a hover tooltip, as legacy did', () => {
+    expect(column('commentText').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
   it('offers a sorter only on Created', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)

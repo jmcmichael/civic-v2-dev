@@ -132,6 +132,13 @@ describe('variantGroupsTableConfig', () => {
     }
   })
 
+  it('discloses the full variant list in a hover tooltip, as legacy did', () => {
+    expect(column('variantNames').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
   it('offers a sorter only where the legacy table did', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)

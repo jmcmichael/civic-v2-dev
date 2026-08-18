@@ -63,7 +63,7 @@ export function commentsTableConfig(
         key: 'commentText',
         label: 'Comment Text',
         width: '325px',
-        cell: { kind: 'text', text: (row) => row.comment },
+        cell: { kind: 'text', text: (row) => row.comment, tooltip: true },
       },
       {
         key: 'commenter',

@@ -408,7 +408,7 @@ Cell kinds (`CvcCellSpec<TRow>` union):
 | `entity-tag`    | `cvc-tag` / `cvc-tag-list` + `cvc-collection-tag` | `ref(row)` (single, list or nothing), `seed(row)` (cache projection for denormalised rows), `maxTags`, `truncateLabel`, `fullWidth`, `popoverPlacement` |
 | `enum-tag`      | `cvc-attribute-tag`                               | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
 | `text-tag`      | icon tag, full text in tooltip                    | `text(row)`                                                                                                                                             |
-| `text`          | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`                                                                                                       |
+| `text`          | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`, `tooltip` (full text on hover, for values that outrun the column; suspended during scroll)           |
 | `external-link` | `cvc-link-tag` to an off-site URL                 | `href(row)`, `text(row)` (falls back to the href), `tooltip`, `iconName`                                                                                |
 | `custom`        | polymorpheus content declared in the config       | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
 

@@ -219,7 +219,10 @@
                        accessor's own emptiness rules live in textSegments -->
                 @let segments = textSegments(col, row);
                 @if (segments.length) {
-                  <span class="text-cell">
+                  <span
+                    class="text-cell"
+                    nz-tooltip
+                    [nzTooltipTitle]="textTooltip(col, row)">
                     @for (segment of segments; track $index) {
                       <span [class.typeahead-match]="segment.highlight">{{
                         segment.text

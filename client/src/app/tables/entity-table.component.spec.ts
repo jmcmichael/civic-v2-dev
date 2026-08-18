@@ -44,6 +44,8 @@ function buildSpec(
     nameFilterByEntity?: boolean
     /** gives the rating sort a descend-first click cycle */
     descendFirstRating?: boolean
+    /** opts the name text cell into the full-text hover tooltip */
+    nameTooltip?: boolean
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
@@ -78,7 +80,12 @@ function buildSpec(
         label: 'Name',
         width: '200px',
         fixed: options.pinned ? ('left' as const) : undefined,
-        cell: { kind: 'text', text: (r) => r.name, highlight: true },
+        cell: {
+          kind: 'text',
+          text: (r) => r.name,
+          highlight: true,
+          ...(options.nameTooltip ? { tooltip: true } : {}),
+        },
         sort: {
           column: 'name',
           default: options.defaultSortOnName ? 'ascend' : undefined,
@@ -306,6 +313,21 @@ describe('cvc-entity-table', () => {
       column: 'evidenceRating',
       direction: 'DESC',
     })
+  })
+
+  // jsdom cannot render the virtual-scroll body, so the tooltip contract is
+  // asserted on the method the template binds — the same reason rows are
+  // never asserted in this file.
+  it('discloses a text tooltip only where the cell opts in, never mid-scroll', () => {
+    fixture.componentInstance.spec.set(buildSpec({ nameTooltip: true }))
+    fixture.detectChanges()
+    const [, name, rating] = table.columns()
+
+    expect(table.textTooltip(name, row(1, 'one'))).toBe('one')
+    expect(table.textTooltip(rating, row(1, 'one'))).toBeNull()
+
+    table.onScrollPhase('scroll')
+    expect(table.textTooltip(name, row(1, 'one'))).toBeNull()
   })
 
   // the reset button read as inert in both managers: it cleared the query but

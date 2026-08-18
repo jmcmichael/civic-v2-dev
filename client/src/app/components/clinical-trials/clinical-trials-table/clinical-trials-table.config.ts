@@ -46,7 +46,12 @@ export function clinicalTrialsTableConfig(
         key: 'name',
         label: 'Name',
         width: '600px',
-        cell: { kind: 'text', text: (row) => row.name, highlight: true },
+        cell: {
+          kind: 'text',
+          text: (row) => row.name,
+          highlight: true,
+          tooltip: true,
+        },
         sort: { column: ClinicalTrialSortColumns.Name },
         filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
       },

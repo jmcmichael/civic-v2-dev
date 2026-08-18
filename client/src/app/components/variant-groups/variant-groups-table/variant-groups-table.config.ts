@@ -47,6 +47,7 @@ export function variantGroupsTableConfig(
         cell: {
           kind: 'text',
           text: (row) => row.variantNames ?? undefined,
+          tooltip: true,
           highlight: true,
         },
         filter: {

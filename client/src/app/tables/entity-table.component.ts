@@ -503,6 +503,24 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
+   * The full text a `tooltip: true` text cell discloses on hover — the same
+   * normalisation as `textSegments`, because truncation hides exactly what
+   * the segments render. `null` (no tooltip) unless the cell opts in, and
+   * while the viewport scrolls — the same suspend rule every built-in
+   * kind's popover/tooltip follows.
+   */
+  textTooltip(column: CvcSpecColumn<TRow>, row: TRow): string | null {
+    const cell = column.cell
+    if (cell.kind !== 'text' || !cell.tooltip || this.isScrolling()) {
+      return null
+    }
+    const value = cell.text(row)
+    if (value === null || value === undefined) return null
+    const text = Array.isArray(value) ? value.join(', ') : String(value)
+    return text === '' ? null : text
+  }
+
+  /**
    * Virtual scroll needs a stable identity per row: tracking by index
    * recycles a row's DOM into a different record when a refetch reorders the
    * list — visible as a tag briefly showing the wrong entity.
