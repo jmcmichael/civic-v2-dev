@@ -48,6 +48,7 @@ export type {
   EntityTableSpec,
 } from './entity-table-config'
 export type {
+  CvcAppliedFilter,
   CvcCellContext,
   CvcCellSpec,
   CvcColumn,

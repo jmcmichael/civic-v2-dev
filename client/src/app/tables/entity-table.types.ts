@@ -84,6 +84,24 @@ export interface CvcColumn<
   styles?: CvcColumnStyles<TRow>
 }
 
+/**
+ * One row of the global filter popover: an applied filter, described the way
+ * the advanced-search query builder describes its filters — field,
+ * comparison, value — but derived from live table state rather than a form
+ * model (the builder's formly machinery edits filters; this table reviews
+ * and removes them).
+ */
+export interface CvcAppliedFilter {
+  /** the filtered column's key — the remove action routes through it */
+  key: string
+  /** the column's display name (its header tooltip, or its label) */
+  field: string
+  /** how the value applies: 'contains' for text, 'is' for enum/numeric */
+  comparison: 'contains' | 'is'
+  /** what the popover shows: an enum option's label, or the typed text */
+  display: string
+}
+
 /** inline styles, `ngStyle` shape: `{ 'background-color': '#fff1f0' }` */
 export type CvcStyle = Record<string, string>
 

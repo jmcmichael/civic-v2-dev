@@ -152,6 +152,56 @@ tr.data-row td:first-of-type {
   }
 }
 
+// the toolbar funnel tints when any filter is applied
+.filters-applied {
+  color: #1890ff;
+}
+
+// popover title row: "[Entity] Table Filters" + the Clear All button
+.filters-popover-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 16px;
+}
+
+.filters-popover {
+  min-width: 260px;
+  max-width: 380px;
+
+  .applied-filters {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+
+    th {
+      text-align: left;
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.45);
+      padding: 2px 8px 4px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    td {
+      padding: 3px 8px 3px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .af-comparison {
+      color: rgba(0, 0, 0, 0.45);
+      font-style: italic;
+    }
+    .af-value {
+      font-weight: 500;
+      max-width: 160px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
 .prefs-popover {
   max-width: 240px;
 

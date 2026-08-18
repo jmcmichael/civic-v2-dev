@@ -59,7 +59,7 @@ The 17 browse tables under `views/` are the intended future consumers.
 | `cells/count-tag-cell.component.ts`                   | The `count-tag` cell: count tag + lazy entities popover                                                                         |
 | `count-entity-resolver.ts`                            | `CVC_COUNT_ENTITY_RESOLVER` token — the app maps popover requests onto queries                                                  |
 | `column-filter-extra.directive.ts`                    | `ng-template[cvcColumnFilterExtra]` — host content beside a column's filter control                                             |
-| `style-helpers.ts`                                    | `heatmapStyle` — value-range background tints for `styles.cell`                                                                  |
+| `style-helpers.ts`                                    | `heatmapStyle` — value-range background tints for `styles.cell`                                                                 |
 | `enum-filter-options.ts`                              | `enumFilterOptions(Enum)` — filter options derived from a generated enum; `groupEnumOptions` — their rendered sections          |
 | `index.ts`                                            | Barrel; its doc names the consumer surface vs. internals                                                                        |
 | `testing/entity-table.harness.ts` (in `app/testing/`) | `describeEntityTableContract` — the 12-behaviour contract every table must pass                                                 |
@@ -334,21 +334,22 @@ cell's _contents_ vary by kind.
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-|  #  | Region             | Template anchor                            | Driven by                                                                                                                                                                   |
-| :-: | ------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|  1  | Card title         | `#cardTitle` → `[nzTitle]`                 | `spec().title`                                                                                                                                                              |
-|  2  | "Loading…" tag     | `#toolbar` → `[nzExtra]`                   | `isFetchingMore()` — a page being appended, not the first load                                                                                                              |
-|  3  | "No more rows" tag | `#toolbar`                                 | `noMoreRows()` — phase `'bottom'` **and** `hasNextPage === false`                                                                                                           |
-|  4  | Error tags         | `#toolbar`                                 | `requestError()`, split by `splitError` into query vs. network                                                                                                              |
-|  5  | Row count          | `data-testid="row-count"`                  | `rows().length` of `displayedTotal()`                                                                                                                                       |
-|  6  | Settings popover   | `data-testid="column-prefs-trigger"`       | `settingsTitle()` ("[entity] Settings"); `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`; `reset-columns` → `onResetColumns()`, `reset-filters` → `onResetFilters()` |
-|  8  | Scroll region      | `[nzScroll]` on `nz-table`                 | `bodyHeight()` — explicit `height()`, `'auto'` measurement, or `'100%'` through the flex chain                                                                              |
-|  9  | Header row         | `thead > tr.col-header-row`                | `visibleColumns()`; sorters via `sortOrderFor()` / `onSortChange()`                                                                                                         |
-| 10  | Filter row         | `thead > tr.filter-row`                    | `filterValue(col.key)` / `onFilterChange()`                                                                                                                                 |
-| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options` (`CvcEnumOption`); its split Reset clears the column, its `reset-all` item fires `onResetFilters()` (the funnel deliberately stays open)               |
-| 12  | Filter-cell extras | `ng-template[cvcColumnFilterExtra="key"]`  | host-projected content beside a column's filter control (assertions' status scope menu beside the AID box)                                                                  |
-| 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                                                                                                                            |
-| 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                                                                                                                                |
+|  #  | Region             | Template anchor                            | Driven by                                                                                                                                                                     |
+| :-: | ------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  1  | Card title         | `#cardTitle` → `[nzTitle]`                 | `spec().title`                                                                                                                                                                |
+|  2  | "Loading…" tag     | `#toolbar` → `[nzExtra]`                   | `isFetchingMore()` — a page being appended, not the first load                                                                                                                |
+|  3  | "No more rows" tag | `#toolbar`                                 | `noMoreRows()` — phase `'bottom'` **and** `hasNextPage === false`                                                                                                             |
+|  4  | Error tags         | `#toolbar`                                 | `requestError()`, split by `splitError` into query vs. network                                                                                                                |
+|  5  | Row count          | `data-testid="row-count"`                  | `rows().length` of `displayedTotal()`                                                                                                                                         |
+|  6  | Filter popover     | `data-testid="table-filters-trigger"`      | `filtersTitle()` ("[entity] Table Filters"); `appliedFilters()` rows (field/matches/value), `remove-filter` → `onRemoveFilter(key)`, `clear-all-filters` → `onResetFilters()` |
+| 6b  | Settings popover   | `data-testid="column-prefs-trigger"`       | `settingsTitle()` ("[entity] Settings"); `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`; `reset-columns` → `onResetColumns()`, `reset-filters` → `onResetFilters()`   |
+|  8  | Scroll region      | `[nzScroll]` on `nz-table`                 | `bodyHeight()` — explicit `height()`, `'auto'` measurement, or `'100%'` through the flex chain                                                                                |
+|  9  | Header row         | `thead > tr.col-header-row`                | `visibleColumns()`; sorters via `sortOrderFor()` / `onSortChange()`                                                                                                           |
+| 10  | Filter row         | `thead > tr.filter-row`                    | `filterValue(col.key)` / `onFilterChange()`                                                                                                                                   |
+| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options` (`CvcEnumOption`); its split Reset clears the column, its `reset-all` item fires `onResetFilters()` (the funnel deliberately stays open)                 |
+| 12  | Filter-cell extras | `ng-template[cvcColumnFilterExtra="key"]`  | host-projected content beside a column's filter control (assertions' status scope menu beside the AID box)                                                                    |
+| 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                                                                                                                              |
+| 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                                                                                                                                  |
 
 The `|<- fixed ->|` brackets in the header band are ng-zorro's own boolean
 `nzLeft`/`nzRight` pinning: a hidden measure row supplies the widths and the
@@ -843,8 +844,9 @@ reason `table-scroll.directive.spec.ts` tests its pure `nextFetch` rather than
 the directive. Row-level behaviour lives in the Playwright goldens, which
 address the table through the `data-testid` contract (`entity-table`, `row`,
 `column-header`, `column-filter`, `row-count`, `column-prefs-trigger/-panel`,
-`reset-columns`, `reset-filters`, `reset-reveal`, `reset-all`, all carrying
-`data-column`/`data-row-id`).
+`reset-columns`, `reset-filters`, `reset-reveal`, `reset-all`,
+`table-filters-trigger/-panel`, `applied-filter`, `remove-filter`,
+`clear-all-filters`, all carrying `data-column`/`data-row-id`).
 
 One trap worth knowing at every jsdom layer: ant's icon service throws on an
 unregistered icon name **outside** the test's call stack, which leaves

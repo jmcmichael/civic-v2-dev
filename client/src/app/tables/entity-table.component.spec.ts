@@ -351,6 +351,78 @@ describe('cvc-entity-table', () => {
     expect(table.sortOrderFor(table.columns()[2])).toBe('ascend')
   })
 
+  it('applies column styles to the header and filter cells, and merges cell styles', async () => {
+    fixture.componentInstance.spec.set(buildSpec({ styledName: true }))
+    await settle()
+
+    const el = fixture.nativeElement as HTMLElement
+    const header = el.querySelector(
+      'th[data-testid="column-header"][data-column="name"]'
+    ) as HTMLElement
+    const filter = el.querySelector(
+      'th[data-testid="column-filter"][data-column="name"]'
+    ) as HTMLElement
+    expect(header.style.fontStyle).toBe('italic')
+    expect(filter.style.backgroundColor).toBe('rgb(250, 250, 250)')
+
+    // rows never render in jsdom, so the merge is asserted on the method:
+    // the column's row-driven style and the cell spec's own apply together
+    const nameCol = table.columns().find((c) => c.key === 'name')!
+    const styleOf = (r: Row) =>
+      (
+        table as unknown as {
+          cellStyle(c: typeof nameCol, r: Row): Record<string, string> | null
+        }
+      ).cellStyle(nameCol, r)
+    expect(styleOf(row(1, 'one'))).toEqual({ color: 'rgb(170, 0, 0)' })
+    expect(styleOf(row(2, 'two'))).toEqual({
+      'font-weight': 'bold',
+      color: 'rgb(170, 0, 0)',
+    })
+  })
+
+  it('describes applied filters for the filter popover, and removes them by key', async () => {
+    const spec = buildSpec()
+    // swap the rating filter for an enum to cover option-label resolution
+    const rating = spec.columns.find((c) => c.key === 'rating')!
+    rating.filter = {
+      kind: 'enum',
+      var: 'evidenceRating' as never,
+      options: [
+        { label: 'Four Stars', value: 4 },
+        { label: 'Five Stars', value: 5 },
+      ],
+    }
+    fixture.componentInstance.spec.set(spec)
+    await settle()
+
+    expect(table.appliedFilters()).toEqual([])
+
+    const nameCol = table.columns().find((c) => c.key === 'name')!
+    const ratingCol = table.columns().find((c) => c.key === 'rating')!
+    table.onFilterChange(nameCol, 'braf')
+    table.onFilterChange(ratingCol, 4)
+    await settle()
+
+    expect(table.appliedFilters()).toEqual([
+      { key: 'name', field: 'Name', comparison: 'contains', display: 'braf' },
+      {
+        key: 'rating',
+        field: 'Evidence Rating',
+        comparison: 'is',
+        display: 'Four Stars',
+      },
+    ])
+
+    table.onRemoveFilter('name')
+    await settle()
+    expect(table.appliedFilters().map((f) => f.key)).toEqual(['rating'])
+
+    table.onResetFilters()
+    await settle()
+    expect(table.appliedFilters()).toEqual([])
+  })
+
   it('cycles descend-first when the column declares it', () => {
     fixture.componentInstance.spec.set(buildSpec({ descendFirstRating: true }))
     fixture.detectChanges()
