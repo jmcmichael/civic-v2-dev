@@ -187,6 +187,15 @@ describe('diseasesTableConfig', () => {
       expect(link.text?.(ROW)).toBe('DOID:1909')
     })
 
+    // href gated on doid, not just diseaseUrl: the external-link kind falls
+    // back to the href as its label when `text` yields nothing, so a row
+    // with a url but no doid would render the raw url where the legacy
+    // table branched on doid and showed its empty state
+    it('shows the empty state when doid is absent, whatever the url says', () => {
+      const link = specCell(spec, 'doid', 'external-link')
+      expect(link.href({ ...ROW, doid: undefined })).toBeUndefined()
+    })
+
     it('renders aliases as highlightable plain text', () => {
       const text = specCell(spec, 'diseaseAliases', 'text')
       expect(text.text(ROW)).toEqual(['Malignant Melanoma'])

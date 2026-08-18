@@ -61,7 +61,11 @@ export function diseasesTableConfig(
         fixed: 'left',
         cell: {
           kind: 'external-link',
-          href: (row) => row.diseaseUrl,
+          // gated on doid, not just diseaseUrl: the external-link kind
+          // falls back to rendering the href itself when `text` yields
+          // nothing, so a row with a url but no doid would show the raw
+          // url where the legacy table showed its empty state
+          href: (row) => (row.doid ? row.diseaseUrl : undefined),
           text: (row) => (row.doid ? `DOID:${row.doid}` : undefined),
           tooltip: 'View on disease-ontology.org',
         },
