@@ -114,12 +114,9 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'status',
         'submitterId',
       ]),
-      browseTherapies: relayStylePagination([
-        'name',
-        'ncitId',
-        'therapyAlias',
-        'sortBy',
-      ]),
+      // the therapies browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing ids)
+      browseTherapies: paginatedByAllArgs(),
       events: relayStylePagination([
         'subject',
         'organizationId',
