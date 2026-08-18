@@ -35,6 +35,7 @@ export type { CvcConnection, CvcEdge, CvcPageInfo } from './connection.types'
 export { enumFilterOptions, groupEnumOptions } from './enum-filter-options'
 export type { CvcEnumOptionGroup } from './enum-filter-options'
 export { formatCount } from './format'
+export { heatmapStyle } from './style-helpers'
 export {
   DEFAULT_PAGE_SIZE,
   DEFAULT_SORT_VAR,
@@ -53,6 +54,8 @@ export type {
   CvcColumnFilter,
   CvcColumnPref,
   CvcColumnSort,
+  CvcCellStyle,
+  CvcColumnStyles,
   CvcCountEntitiesRequest,
   CvcCountEntity,
   CvcCountTagCell,
@@ -67,6 +70,7 @@ export type {
   CvcSelectCell,
   CvcSortState,
   CvcTableSettings,
+  CvcStyle,
   CvcTextCell,
   CvcTextFilter,
   CvcTextTagCell,

@@ -59,6 +59,7 @@ The 17 browse tables under `views/` are the intended future consumers.
 | `cells/count-tag-cell.component.ts`                   | The `count-tag` cell: count tag + lazy entities popover                                                                         |
 | `count-entity-resolver.ts`                            | `CVC_COUNT_ENTITY_RESOLVER` token — the app maps popover requests onto queries                                                  |
 | `column-filter-extra.directive.ts`                    | `ng-template[cvcColumnFilterExtra]` — host content beside a column's filter control                                             |
+| `style-helpers.ts`                                    | `heatmapStyle` — value-range background tints for `styles.cell`                                                                  |
 | `enum-filter-options.ts`                              | `enumFilterOptions(Enum)` — filter options derived from a generated enum; `groupEnumOptions` — their rendered sections          |
 | `index.ts`                                            | Barrel; its doc names the consumer surface vs. internals                                                                        |
 | `testing/entity-table.harness.ts` (in `app/testing/`) | `describeEntityTableContract` — the 12-behaviour contract every table must pass                                                 |

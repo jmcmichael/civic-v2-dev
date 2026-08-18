@@ -63,9 +63,11 @@ import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
 import { CvcEntityTableQuery } from './entity-table-query'
 import {
   CvcCellContext,
+  CvcCellStyle,
   CvcEntityTagCell,
   CvcEnumOption,
   CvcSortState,
+  CvcStyle,
   CvcTableSettings,
   DEFAULT_EMPTY_VALUE,
 } from './entity-table.types'
@@ -102,6 +104,15 @@ const LABEL_ICON_COLORS: Record<string, string> = {
   'civic-revision': getEntityColor('Revision'),
   'civic-source': getEntityColor('Source'),
   'civic-variant': getEntityColor('Variant'),
+}
+
+/** a CvcCellStyle resolved against its row; null when it yields nothing */
+function resolveCellStyle<TRow>(
+  style: CvcCellStyle<TRow> | undefined,
+  row: TRow
+): CvcStyle | null {
+  if (!style) return null
+  return (typeof style === 'function' ? style(row) : style) ?? null
 }
 
 /** `height: 'auto'` floor — a viewport too short to be useful still scrolls */
@@ -235,6 +246,21 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
     return LABEL_ICON_COLORS[icon] ?? getEntityColor('Greyscale')
+  }
+
+  /**
+   * The data cell's `ngStyle`: the column's `styles.cell` with the cell
+   * SPEC's own `style` layered over it — a kind overrides its column. Both
+   * halves may be row-driven (statuses, heatmaps; see style-helpers.ts).
+   */
+  protected cellStyle(col: CvcSpecColumn<TRow>, row: TRow): CvcStyle | null {
+    const column = resolveCellStyle(col.styles?.cell, row)
+    const spec = resolveCellStyle(
+      (col.cell as { style?: CvcCellStyle<TRow> }).style,
+      row
+    )
+    if (!column && !spec) return null
+    return { ...column, ...spec }
   }
 
   /**

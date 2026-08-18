@@ -80,6 +80,30 @@ export interface CvcColumn<
   cell: CvcCellSpec<TRow>
   sort?: CvcColumnSort<TSortColumn>
   filter?: CvcColumnFilter<TVars>
+  /** custom styles for the column's three cell rows; see CvcColumnStyles */
+  styles?: CvcColumnStyles<TRow>
+}
+
+/** inline styles, `ngStyle` shape: `{ 'background-color': '#fff1f0' }` */
+export type CvcStyle = Record<string, string>
+
+/** a static style, or one computed per row (states, statuses, heatmaps) */
+export type CvcCellStyle<TRow> = CvcStyle | ((row: TRow) => Maybe<CvcStyle>)
+
+/**
+ * Custom styles for one column, split by row: the header label cell, the
+ * filter cell, and the data cells. `cell` may be row-driven — the heatmap/
+ * status/range hook (see `style-helpers.ts` for `heatmapStyle`). A cell
+ * SPEC's own `style` (every kind carries one) layers over `styles.cell`,
+ * so a kind can override its column.
+ */
+export interface CvcColumnStyles<TRow> {
+  /** the column's header cell (`th` in the header row) */
+  header?: CvcStyle
+  /** the column's filter cell (`th` in the filter row) */
+  filter?: CvcStyle
+  /** the column's data cells (`td`), static or per-row */
+  cell?: CvcCellStyle<TRow>
 }
 
 /**
@@ -134,6 +158,8 @@ export interface CvcCountEntitiesRequest {
  */
 export interface CvcCountTagCell<TRow> {
   kind: 'count-tag'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
   count: (row: TRow) => Maybe<number>
   refs?: (row: TRow) => ReadonlyArray<CvcCountEntity>
   fetch?: (row: TRow) => CvcCountEntitiesRequest
@@ -147,6 +173,8 @@ export interface CvcCountTagCell<TRow> {
  */
 export interface CvcEntityTagCell<TRow> {
   kind: 'entity-tag'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
   /** a single ref, a list, or nothing */
   ref: (row: TRow) => Maybe<EntityTagRef> | ReadonlyArray<EntityTagRef>
   /**
@@ -186,6 +214,8 @@ export interface CvcEntityTagCell<TRow> {
  */
 export interface CvcEnumTagCell<TRow> {
   kind: 'enum-tag'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
   /**
    * The raw value, not a rendering of it. `string | number` because evidence
    * ratings are numbers, and the tag's icon resolver switches on the type: a
@@ -206,6 +236,8 @@ export interface CvcEnumTagCell<TRow> {
 /** long text shown as a tag, with the full string in a tooltip */
 export interface CvcTextTagCell<TRow> {
   kind: 'text-tag'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
   text: (row: TRow) => Maybe<string>
   /**
    * The tag's visible content — for cells whose tooltip expands an
@@ -220,6 +252,8 @@ export interface CvcTextTagCell<TRow> {
 /** plain text, or a comma-joined list of it */
 export interface CvcTextCell<TRow> {
   kind: 'text'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
   text: (row: TRow) => Maybe<string | number | ReadonlyArray<string>>
   /** emphasise the active filter substring within the value */
   highlight?: boolean
@@ -243,6 +277,8 @@ export interface CvcTextCell<TRow> {
  */
 export interface CvcExternalLinkCell<TRow> {
   kind: 'external-link'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
   /** the external URL; the empty state renders when this yields nothing */
   href: (row: TRow) => Maybe<string>
   /** the link's visible label; the href itself when omitted */
@@ -295,6 +331,8 @@ export interface CvcCellContext<TRow> {
  */
 export interface CvcCustomCell<TRow> {
   kind: 'custom'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
   content: PolymorpheusContent<CvcCellContext<TRow>>
 }
 

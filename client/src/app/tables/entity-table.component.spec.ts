@@ -53,6 +53,8 @@ function buildSpec(
     noFilters?: boolean
     /** gives the rating header a civic entity icon */
     ratingLabelIcon?: boolean
+    /** gives the name column header/filter/cell custom styles */
+    styledName?: boolean
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
@@ -87,11 +89,22 @@ function buildSpec(
         label: 'Name',
         width: '200px',
         fixed: options.pinned ? ('left' as const) : undefined,
+        ...(options.styledName
+          ? {
+              styles: {
+                header: { 'font-style': 'italic' },
+                filter: { 'background-color': 'rgb(250, 250, 250)' },
+                cell: (r: Row) =>
+                  r.id > 1 ? { 'font-weight': 'bold' } : undefined,
+              },
+            }
+          : {}),
         cell: {
           kind: 'text',
           text: (r) => r.name,
           highlight: true,
           ...(options.nameTooltip ? { tooltip: true } : {}),
+          ...(options.styledName ? { style: { color: 'rgb(170, 0, 0)' } } : {}),
         },
         sort: {
           column: 'name',
