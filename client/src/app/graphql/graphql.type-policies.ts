@@ -67,13 +67,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'subjectType',
         'linkedApprovalId',
       ]),
-      browseFeatures: relayStylePagination([
-        'name',
-        'featureType',
-        'therapyName',
-        'featureAlias',
-        'diseaseName',
-      ]),
+      // the features browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing ids, featureFullName, and
+      // used a stale `name` instead of the query's real `featureName`)
+      browseFeatures: paginatedByAllArgs(),
       // the variant manager's field; see paginatedByAllArgs above
       browseVariants: paginatedByAllArgs(),
       browseMolecularProfiles: relayStylePagination([
