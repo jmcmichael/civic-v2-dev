@@ -20,6 +20,11 @@ GraphQL + Searchkick/OpenSearch). Area-specific guides: `client/AGENTS.md`,
   recursive searches; stay inside the repo unless asked.
 - Secrets: never snapshot secrets into a file, and never reference
   uncommitted files in public documents or comments.
+- Public artifacts (commit messages, PRs, code comments, these guides) carry
+  no personal information: no personnel names, no personal-environment
+  details. Describe defects blamelessly — what the code did and what it does
+  now, never who wrote or missed it — while stating real problems and their
+  impact plainly: no euphemism, no papering over, just the helpful truth.
 
 ## Dev processes (typically already running — ask before starting/killing)
 
