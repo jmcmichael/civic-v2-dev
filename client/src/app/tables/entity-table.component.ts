@@ -430,7 +430,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     column: CvcSpecColumn<TRow>,
     row: TRow
   ): CvcCellContext<TRow> {
-    return { $implicit: row, row, column }
+    return { $implicit: row, row, column, isScrolling: this.isScrolling() }
   }
 
   /**

@@ -199,6 +199,14 @@ export interface CvcCellContext<TRow> {
   $implicit: TRow
   row: TRow
   column: CvcColumn<TRow, any, string>
+  /**
+   * Whether the virtual-scroll viewport is actively scrolling. A custom
+   * cell that renders its own popover/tooltip should suspend it while this
+   * is true, the way the built-in `entity-tag`/`enum-tag`/`text-tag` kinds
+   * do (docs/03-troubleshooting.md §13) — nothing else exposes that state
+   * to config-authored content.
+   */
+  isScrolling: boolean
 }
 
 /**

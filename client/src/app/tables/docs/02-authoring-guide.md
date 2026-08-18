@@ -198,7 +198,9 @@ cell: {
   `PolymorpheusComponent`, or a `TemplateRef` (grab one with `viewChild` in
   the facade). Prefer handler/component: the outlet types template contexts
   weakly.
-- The context is `{ $implicit: row, row, column }`.
+- The context is `{ $implicit: row, row, column, isScrolling }` — suspend any
+  popover/tooltip the cell renders while `isScrolling` is true, the way the
+  built-in tag kinds do (§ Scroll etiquette below).
 - A custom cell owns its whole rendering, including its empty state — it
   opts out of the shared filter-highlighting and empty-value handling, so
   prefer a built-in kind when one fits.
