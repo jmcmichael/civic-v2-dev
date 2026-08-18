@@ -70,10 +70,11 @@ export function variantTypesTableConfig(
       },
       {
         key: 'variantCount',
-        label: '',
+        label: 'Ct.',
         tooltip: 'Variant Count',
+        labelSecondary: true,
         labelIcon: 'civic-variant',
-        width: '55px',
+        width: '70px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },

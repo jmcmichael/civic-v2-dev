@@ -68,6 +68,12 @@ export interface CvcColumn<
    * with the rest of the civic set; `TABLE_ICONS` covers specs.
    */
   labelIcon?: string
+  /**
+   * Render the header label in secondary (muted) text — the count columns'
+   * convention: entity icon + a quiet 'Ct.', so the icon stays the header's
+   * identity and the label just disambiguates it from an entity column.
+   */
+  labelSecondary?: boolean
   /** keep the column out of the visible-columns panel, e.g. the select column */
   omitFromPrefs?: boolean
   /**

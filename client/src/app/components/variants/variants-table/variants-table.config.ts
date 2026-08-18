@@ -209,10 +209,11 @@ export function variantsTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: '',
+        label: 'Ct.',
         tooltip: 'Evidence Count',
+        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '55px',
+        width: '70px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },

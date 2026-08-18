@@ -49,7 +49,11 @@
                   nzTheme="twotone"
                   [nzTwotoneColor]="labelIconColor(icon)"></span>
               }
-              {{ col.label }}
+              @if (col.labelSecondary) {
+                <span class="label-secondary">{{ col.label }}</span>
+              } @else {
+                {{ col.label }}
+              }
             </span>
           </th>
         }
