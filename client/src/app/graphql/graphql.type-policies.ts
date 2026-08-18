@@ -159,6 +159,11 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'status',
       ]),
       organizations: relayStylePagination(['name', 'id']),
+      // the organizations browse table's field; see paginatedByAllArgs
+      // above. Had NO field policy at all -- Apollo's default merge
+      // strategy applies to a relay connection field, which does not
+      // append fetchMore pages the way relayStylePagination's merge does
+      browseOrganizations: paginatedByAllArgs(),
       flags: relayStylePagination([
         'flaggable',
         'flaggingUserId',
