@@ -11,8 +11,8 @@ modes that actually bite.
   files you edit, or diffs fill with churn.
 - Standalone components, `input()`/`model()`/signals, OnPush. Imports are
   sorted by module path.
-- Check IDE inspections (Serena/JetBrains MCP) for problems, not just build
-  output.
+- Check IDE inspections (via the available MCP inspection tools) for
+  problems, not just build output.
 
 ## The entity-table framework (`src/app/tables/`)
 
@@ -32,8 +32,10 @@ Conventions every table config follows:
   host+tag styles.
 - Text cells are single-line ellipsized (28px virtual rows); clip-prone
   columns opt into `tooltip: true`.
-- Enum filters: funnel icon by default; `control: 'select'` (+placeholder)
-  on columns wide enough (~130px).
+- Enum filters: funnel icon by default (plain menu items: civic icon +
+  label; options may declare a `group` for sectioned menus/selects);
+  `control: 'select'` on columns wide enough, prompt `'Any'`, column sized
+  to fit label + prompt (~90px).
 - `[height]`: explicit px | `'auto'` (viewport-fit minus measured layout
   padding — browse facades default to it) | omitted = flex-fill inside a
   height-bounded ancestor (form managers). Never reintroduce the legacy
@@ -91,6 +93,12 @@ Conventions every table config follows:
   row-level behavior belongs to Playwright against a live serve.
 - jsdom can't do layout: height/measurement features assert their
   resolution logic only; verify visually on your own `--port 4201` serve.
-- When migrating a legacy component, characterization-test it first
-  (`src/app/testing/legacy-table.harness.ts`) and **commit the
-  characterization spec** before the refactor commit deletes it.
+- When migrating a legacy component, characterization-test it first and
+  **commit the characterization spec** before the refactor commit deletes
+  it. (The browse-table migration is complete — its harness was
+  `legacy-table.harness.ts`, retired with the 17th table; resurrect the
+  pattern from history for the next legacy family, e.g. the feeds.)
+- Mutation-wired custom cells: per-row popover hosting the existing form,
+  `optimisticResponse` through `MutatorWithState`'s options for the instant
+  cache flip, no table refetch — see
+  `source-suggestions-table-actions-cell.component.ts`.
