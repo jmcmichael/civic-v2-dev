@@ -45,9 +45,25 @@ Bundle work: `yarn build:stats` + `node scripts/analyze-bundle.mjs`
 (`--save`/`--diff` snapshots) — measure, don't reason; removing a "dead"
 lazy import can hoist 60 kB+ into `main`.
 
+## CI / PR checks
+
+- Every PR needs **exactly one** release label (`bugfix`, `housekeeping`,
+  `new-feature`, `enhancement`, `ignore-for-release`, `dependencies`) or the
+  `label` check fails.
+- `server/bin/brakeman` passes `--ensure-latest`: any new upstream brakeman
+  release fails **all** PRs (exit 5; sole output "X is not the latest
+  version Y", no scan). Fix by bumping the gem — `bundle lock
+  --update=brakeman` in `server/` — not by debugging the PR.
+- Rubocop sweeps the whole server tree (omakase style — e.g. trailing
+  commas in multiline hashes). Exact file/line for a CI failure:
+  `gh api repos/griffithlab/civic-v2/check-runs/<job-id>/annotations`.
+
 ## Server quick notes
 
 - Searchkick dev indices go stale after DB resets:
   `bundle exec rails searchkick:reindex:all` (env loaded as above).
 - `rails dev:restore_images` repopulates user/org avatars after a reset.
+  Fixed per-user exceptions live in `USER_AVATAR_OVERRIDES`
+  (`server/lib/tasks/dev.rake`); a plain re-run self-corrects an overridden
+  user whose attached file doesn't match — no `FORCE=1` needed.
 - GraphQL schema dumps are a manual step after schema changes.
