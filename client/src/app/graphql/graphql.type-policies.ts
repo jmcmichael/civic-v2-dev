@@ -179,7 +179,9 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'sortBy',
       ]),
       therapies: relayStylePagination(['ncitId', 'name', 'id']),
-      clinicalTrials: relayStylePagination(['nctId', 'name', 'id']),
+      // the clinical trials browse table's field; see paginatedByAllArgs
+      // above (the previous list was also missing sortBy)
+      clinicalTrials: paginatedByAllArgs(),
       notifications: relayStylePagination([
         'notificationReason',
         'subscriptionId',
