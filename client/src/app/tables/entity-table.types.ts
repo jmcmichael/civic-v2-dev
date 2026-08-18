@@ -90,6 +90,7 @@ export type CvcCellSpec<TRow> =
   | CvcEnumTagCell<TRow>
   | CvcTextTagCell<TRow>
   | CvcTextCell<TRow>
+  | CvcExternalLinkCell<TRow>
   | CvcCustomCell<TRow>
 
 /** row checkbox; the table owns the selection, the column just marks the slot */
@@ -173,6 +174,24 @@ export interface CvcTextCell<TRow> {
   text: (row: TRow) => Maybe<string | number | ReadonlyArray<string>>
   /** emphasise the active filter substring within the value */
   highlight?: boolean
+}
+
+/**
+ * A `cvc-link-tag` to an off-site resource — an HPO term page, a sequence
+ * ontology entry, a registry lookup. No other kind fits: `entity-tag`
+ * addresses an in-app entity by cache identity, and `text` has no href.
+ * Recurs often enough (phenotypes' HPO ID, variant types' SOID, and more to
+ * come) to be a kind rather than a one-off `custom` cell per table.
+ */
+export interface CvcExternalLinkCell<TRow> {
+  kind: 'external-link'
+  /** the external URL; the empty state renders when this yields nothing */
+  href: (row: TRow) => Maybe<string>
+  /** the link's visible label; the href itself when omitted */
+  text?: (row: TRow) => Maybe<string>
+  tooltip?: string
+  /** ant icon name; `cvc-link-tag`'s own 'link' default when omitted */
+  iconName?: string
 }
 
 /** what custom-cell content receives — as template context or via injection */

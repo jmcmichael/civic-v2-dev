@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms'
 import { Maybe, SortDirection } from '@app/generated/civic.apollo.types'
 import { CvcAttributeTagModule } from '@app/forms/components/attribute-tag/attribute-tag.module'
 import { CvcEmptyValueModule } from '@app/forms/components/empty-value/empty-value.module'
+import { CvcLinkTagModule } from '@app/components/shared/link-tag/link-tag.module'
 import {
   CvcCollectionTagComponent,
   CvcTagComponent,
@@ -104,6 +105,7 @@ const QUERY_DEBOUNCE_MS = 300
     CvcTagComponent,
     CvcTagListComponent,
     CvcEmptyValueModule,
+    CvcLinkTagModule,
     NzButtonModule,
     NzCardModule,
     NzCheckboxModule,

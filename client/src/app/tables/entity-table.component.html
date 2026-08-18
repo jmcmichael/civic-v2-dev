@@ -231,6 +231,21 @@
                 }
               }
 
+              @case ('external-link') {
+                @let href = cell.href(row);
+                @if (href) {
+                  <cvc-link-tag
+                    [href]="href"
+                    [tooltip]="cell.tooltip"
+                    [iconName]="cell.iconName">
+                    {{ cell.text?.(row) ?? href }}
+                  </cvc-link-tag>
+                } @else {
+                  <cvc-empty-value
+                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
+                }
+              }
+
               @case ('custom') {
                 <!-- the content is declared in the config, typed against
                        TRow there; a custom cell owns its whole rendering,

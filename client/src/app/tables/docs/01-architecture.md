@@ -402,14 +402,15 @@ template has exactly one `<th>` for headers, one for filters, and one `<td>`.
 
 Cell kinds (`CvcCellSpec<TRow>` union):
 
-| kind         | renders                                           | key fields                                                                                                                                              |
-| ------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `select`     | row checkbox                                      | — (the table owns the selection)                                                                                                                        |
-| `entity-tag` | `cvc-tag` / `cvc-tag-list` + `cvc-collection-tag` | `ref(row)` (single, list or nothing), `seed(row)` (cache projection for denormalised rows), `maxTags`, `truncateLabel`, `fullWidth`, `popoverPlacement` |
-| `enum-tag`   | `cvc-attribute-tag`                               | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
-| `text-tag`   | icon tag, full text in tooltip                    | `text(row)`                                                                                                                                             |
-| `text`       | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`                                                                                                       |
-| `custom`     | polymorpheus content declared in the config       | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
+| kind            | renders                                           | key fields                                                                                                                                              |
+| --------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `select`        | row checkbox                                      | — (the table owns the selection)                                                                                                                        |
+| `entity-tag`    | `cvc-tag` / `cvc-tag-list` + `cvc-collection-tag` | `ref(row)` (single, list or nothing), `seed(row)` (cache projection for denormalised rows), `maxTags`, `truncateLabel`, `fullWidth`, `popoverPlacement` |
+| `enum-tag`      | `cvc-attribute-tag`                               | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
+| `text-tag`      | icon tag, full text in tooltip                    | `text(row)`                                                                                                                                             |
+| `text`          | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`                                                                                                       |
+| `external-link` | `cvc-link-tag` to an off-site URL                 | `href(row)`, `text(row)` (falls back to the href), `tooltip`, `iconName`                                                                                |
+| `custom`        | polymorpheus content declared in the config       | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
 
 Every kind reads through an **accessor** (`ref`/`value`/`text`) checked
 against `TRow` — a column's data need not share its key, and there is no
