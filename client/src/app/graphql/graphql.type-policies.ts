@@ -165,7 +165,8 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'resolvingUserId',
         'state',
       ]),
-      browsePhenotypes: relayStylePagination(['hpoId', 'name', 'sortBy']),
+      // the phenotypes browse table's field; see paginatedByAllArgs above
+      browsePhenotypes: paginatedByAllArgs(),
       variantTypes: relayStylePagination(['soid', 'name', 'id']),
       browseDiseases: relayStylePagination([
         'name',
