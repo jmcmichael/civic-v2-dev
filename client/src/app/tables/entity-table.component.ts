@@ -14,6 +14,7 @@ import {
   inject,
   input,
   model,
+  output,
   signal,
   untracked,
 } from '@angular/core'
@@ -105,6 +106,11 @@ const LABEL_ICON_COLORS: Record<string, string> = {
   'civic-revision': getEntityColor('Revision'),
   'civic-source': getEntityColor('Source'),
   'civic-variant': getEntityColor('Variant'),
+}
+
+/** the filter-state key of a column's extraFilter (see CvcColumn.extraFilter) */
+function extraKey(key: string): string {
+  return `${key}:extra`
 }
 
 /** a CvcCellStyle resolved against its row; null when it yields nothing */
@@ -408,6 +414,19 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     return typeof value === 'string' || typeof value === 'number' ? value : null
   }
 
+  /** a column's extraFilter value; same null-means-cleared contract */
+  protected extraFilterValue(key: string): unknown {
+    return this.filterValues().get(extraKey(key)) ?? null
+  }
+
+  onExtraFilterChange(column: CvcSpecColumn<TRow>, value: unknown): void {
+    this.filterValues.update((current) => {
+      const next = new Map(current)
+      next.set(extraKey(column.key), value)
+      return next
+    })
+  }
+
   sortOrderFor(column: CvcSpecColumn<TRow>): NzTableSortOrder {
     const sort = this.effectiveSort()
     return sort?.key === column.key ? sort.order : null
@@ -447,6 +466,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       // variable rather than an explicit null — a null still reaches the
       // resolver and filters for rows whose column is null
       vars[column.filter.var] =
+        value === null || value === '' ? undefined : value
+    }
+
+    for (const column of spec.columns) {
+      if (!column.extraFilter) continue
+      const value = this.filterValues().get(extraKey(column.key))
+      vars[column.extraFilter.var] =
         value === null || value === '' ? undefined : value
     }
 
@@ -836,6 +862,34 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   )
 
   /**
+   * Filter rows the HOST contributes to the filter popover — scope state the
+   * table cannot see (assertions' status radio, subgroup checkboxes). Their
+   * removes route back out through `hostFilterRemove`/`hostFiltersCleared`.
+   */
+  readonly hostFilters = input<ReadonlyArray<CvcAppliedFilter>>([])
+  readonly hostFilterRemove = output<string>()
+  readonly hostFiltersCleared = output<void>()
+
+  /** everything the filter popover lists: host scope rows first */
+  readonly allAppliedFilters = computed<CvcAppliedFilter[]>(() => [
+    ...this.hostFilters(),
+    ...this.appliedFilters(),
+  ])
+
+  protected onRemoveAnyFilter(key: string): void {
+    if (this.hostFilters().some((filter) => filter.key === key)) {
+      this.hostFilterRemove.emit(key)
+    } else {
+      this.onRemoveFilter(key)
+    }
+  }
+
+  protected onClearAllFilters(): void {
+    this.onResetFilters()
+    if (this.hostFilters().length) this.hostFiltersCleared.emit()
+  }
+
+  /**
    * The global filter popover's rows: every column filter currently
    * applied, in column order. Enum values render their option's label
    * (grouped enums may repeat a value across sections — the label is the
@@ -848,34 +902,53 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     const rows: CvcAppliedFilter[] = []
     for (const column of this.columns()) {
       const filter = column.filter
-      if (!filter) continue
       const value = values.get(column.key)
-      if (value === null || value === undefined || value === '') continue
+      if (filter && value !== null && value !== undefined && value !== '') {
+        if (filter.kind === 'enum') {
+          const option = filter.options.find((o) => o.value === value)
+          rows.push({
+            key: column.key,
+            field: column.tooltip || column.label,
+            comparison: 'is',
+            display: option?.label ?? String(value),
+          })
+        } else {
+          rows.push({
+            key: column.key,
+            field: column.tooltip || column.label,
+            comparison: filter.kind === 'numeric' ? 'is' : 'contains',
+            display: String(value),
+          })
+        }
+      }
 
-      if (filter.kind === 'enum') {
-        const option = filter.options.find((o) => o.value === value)
+      const extra = column.extraFilter
+      const extraValue = values.get(extraKey(column.key))
+      if (
+        extra &&
+        extraValue !== null &&
+        extraValue !== undefined &&
+        extraValue !== ''
+      ) {
+        const option = extra.options.find((o) => o.value === extraValue)
         rows.push({
-          key: column.key,
+          key: extraKey(column.key),
           field: column.tooltip || column.label,
           comparison: 'is',
-          display: option?.label ?? String(value),
-        })
-      } else {
-        rows.push({
-          key: column.key,
-          field: column.tooltip || column.label,
-          comparison: filter.kind === 'numeric' ? 'is' : 'contains',
-          display: String(value),
+          display: option?.label ?? String(extraValue),
         })
       }
     }
     return rows
   })
 
-  /** clears one applied filter, by its column key (a popover row's remove) */
+  /** clears one applied filter, by its (possibly `:extra`) key */
   onRemoveFilter(key: string): void {
-    const column = this.columns().find((c) => c.key === key)
-    if (column) this.onFilterChange(column, null)
+    this.filterValues.update((current) => {
+      const next = new Map(current)
+      next.set(key, null)
+      return next
+    })
   }
 
   /**

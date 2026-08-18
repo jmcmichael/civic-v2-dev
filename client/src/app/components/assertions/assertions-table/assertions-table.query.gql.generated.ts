@@ -12,6 +12,7 @@ export type AssertionsBrowseQueryVariables = Types.Exact<{
   after?: Types.InputMaybe<Types.Scalars['String']['input']>;
   diseaseName?: Types.InputMaybe<Types.Scalars['String']['input']>;
   therapyName?: Types.InputMaybe<Types.Scalars['String']['input']>;
+  therapyInteractionType?: Types.InputMaybe<Types.TherapyInteraction>;
   id?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   ids?: Types.InputMaybe<Array<Types.Scalars['Int']['input']> | Types.Scalars['Int']['input']>;
   summary?: Types.InputMaybe<Types.Scalars['String']['input']>;
@@ -85,7 +86,7 @@ export const AssertionBrowseFieldsFragmentDoc = gql`
 }
     ${MolecularProfileParsedNameFragmentDoc}`;
 export const AssertionsBrowseDocument = gql`
-    query AssertionsBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $id: Int, $ids: [Int!], $summary: String, $assertionDirection: EvidenceDirection, $significance: AssertionSignificance, $assertionType: EvidenceType, $variantId: Int, $molecularProfileId: Int, $evidenceId: Int, $molecularProfileName: String, $sortBy: AssertionSort, $ampLevel: AmpLevel, $organization: OrganizationFilter, $userId: Int, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $status: EvidenceStatusFilter, $approvingOrganizations: OrganizationFilter) {
+    query AssertionsBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $therapyInteractionType: TherapyInteraction, $id: Int, $ids: [Int!], $summary: String, $assertionDirection: EvidenceDirection, $significance: AssertionSignificance, $assertionType: EvidenceType, $variantId: Int, $molecularProfileId: Int, $evidenceId: Int, $molecularProfileName: String, $sortBy: AssertionSort, $ampLevel: AmpLevel, $organization: OrganizationFilter, $userId: Int, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $status: EvidenceStatusFilter, $approvingOrganizations: OrganizationFilter) {
   assertions(
     first: $first
     last: $last
@@ -93,6 +94,7 @@ export const AssertionsBrowseDocument = gql`
     after: $after
     diseaseName: $diseaseName
     therapyName: $therapyName
+    therapyInteractionType: $therapyInteractionType
     id: $id
     ids: $ids
     summary: $summary

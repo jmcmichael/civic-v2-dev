@@ -159,6 +159,31 @@
                     }
                   }
                 }
+                @if (col.extraFilter; as extraFilter) {
+                  <!-- the column's second, funnel-only filter (the legacy
+                       managers' dual-control filter cell) -->
+                  <nz-filter-trigger
+                    data-testid="extra-filter-trigger"
+                    [nzActive]="extraFilterValue(col.key) !== null"
+                    [nzDropdownMenu]="extraEnumMenu"
+                    #extraTrigger="nzFilterTrigger">
+                    <span
+                      nz-icon
+                      nzType="filter"
+                      nzTheme="fill"></span>
+                  </nz-filter-trigger>
+                  <nz-dropdown-menu #extraEnumMenu="nzDropdownMenu">
+                    <cvc-enum-filter-menu
+                      [options]="extraFilter.options"
+                      [showIcons]="extraFilter.showIcons ?? true"
+                      [selected]="extraFilterValue(col.key)"
+                      (selectedChange)="
+                        onExtraFilterChange(col, $event);
+                        extraTrigger.nzVisible = false
+                      "
+                      (resetAll)="onResetFilters()" />
+                  </nz-dropdown-menu>
+                }
                 @if (filterExtraFor(col.key); as extra) {
                   <!-- no context, so the embedded view is created once -->
                   <ng-container [ngTemplateOutlet]="extra" />
@@ -471,7 +496,7 @@
             nz-icon
             nzType="filter"
             nzTheme="fill"
-            [class.filters-applied]="appliedFilters().length > 0"></span>
+            [class.filters-applied]="allAppliedFilters().length > 0"></span>
         </button>
         <button
           nz-button
@@ -499,8 +524,8 @@
             nzType="default"
             nzSize="small"
             data-testid="clear-all-filters"
-            [disabled]="!appliedFilters().length"
-            (click)="onResetFilters()">
+            [disabled]="!allAppliedFilters().length"
+            (click)="onClearAllFilters()">
             <span
               nz-icon
               nzType="retweet"
@@ -514,7 +539,7 @@
         <div
           class="filters-popover"
           data-testid="table-filters-panel">
-          @if (appliedFilters().length) {
+          @if (allAppliedFilters().length) {
             <table class="applied-filters">
               <thead>
                 <tr>
@@ -525,7 +550,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (filter of appliedFilters(); track filter.key) {
+                @for (filter of allAppliedFilters(); track filter.key) {
                   <tr
                     data-testid="applied-filter"
                     [attr.data-column]="filter.key">
@@ -541,7 +566,7 @@
                         data-testid="remove-filter"
                         nz-tooltip
                         nzTooltipTitle="Remove this filter"
-                        (click)="onRemoveFilter(filter.key)">
+                        (click)="onRemoveAnyFilter(filter.key)">
                         <span
                           nz-icon
                           nzType="close-circle"

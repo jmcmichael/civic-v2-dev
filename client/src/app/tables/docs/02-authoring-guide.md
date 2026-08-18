@@ -63,6 +63,18 @@ false` drops the icon for enums without a civic set). Set
 the column to the smallest px width that fits the header label and that
 prompt (90px fits 'Type'/'Role' + 'Any').
 
+A column may also declare `extraFilter` — a second, funnel-only enum filter
+rendered beside its primary filter control (the legacy managers'
+dual-control filter cell; assertions' therapy-interaction funnel beside the
+therapy-name input). It lives in the shared filter state keyed
+`` `${key}:extra` ``, so resets and the filter popover cover it, and the
+config specs' declared∧used walk should include it.
+
+Hosts with SCOPE state the table cannot see (assertions' status radio) can
+list it in the filter popover via `[hostFilters]` +
+`(hostFilterRemove)`/`(hostFiltersCleared)` — rows appear when scope departs
+from the page's own seed.
+
 Options may declare a `group`: contiguous options sharing one render as a
 titled section in both controls (`nz-menu-group` under the funnel,
 `nz-option-group` in the select), via `groupEnumOptions`. The same value may
