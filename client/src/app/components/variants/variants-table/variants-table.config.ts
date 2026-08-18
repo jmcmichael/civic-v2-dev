@@ -42,6 +42,7 @@ export function variantsTableConfig(
   scope: VariantsTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Variant',
     title: title ?? undefined,
     query,
     pageSize: 35,

@@ -23,6 +23,7 @@ export function variantGroupsTableConfig(
   title: Maybe<string>
 ) {
   return entityTableConfig({
+    entity: 'Variant Group',
     title: title ?? undefined,
     query,
     pageSize: 30,

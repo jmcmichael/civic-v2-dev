@@ -28,6 +28,7 @@ export function variantTypesTableConfig(
   scope: VariantTypesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Variant Type',
     title: title ?? undefined,
     query,
     pageSize: 35,

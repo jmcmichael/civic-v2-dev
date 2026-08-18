@@ -53,6 +53,7 @@ export function molecularProfileTableConfig(
   scope: MolecularProfileTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Molecular Profile',
     title: title ?? undefined,
     query,
     pageSize: 35,

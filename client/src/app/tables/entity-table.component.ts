@@ -9,6 +9,7 @@ import {
   TemplateRef,
   afterNextRender,
   computed,
+  contentChildren,
   effect,
   inject,
   input,
@@ -37,6 +38,7 @@ import { Apollo } from 'apollo-angular'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzCardModule } from 'ng-zorro-antd/card'
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
+import { NzDividerModule } from 'ng-zorro-antd/divider'
 import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -55,6 +57,7 @@ import {
   connectionNodes,
   displayedCount,
 } from './connection.types'
+import { CvcColumnFilterExtraDirective } from './column-filter-extra.directive'
 import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
 import { CvcEntityTableQuery } from './entity-table-query'
 import {
@@ -141,6 +144,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     NzButtonModule,
     NzCardModule,
     NzCheckboxModule,
+    NzDividerModule,
     NzDropdownModule,
     NzGridModule,
     NzIconModule,
@@ -162,6 +166,17 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   private readonly destroyRef = inject(DestroyRef)
 
   readonly spec = input.required<EntityTableSpec<TRow>>()
+
+  /** host-projected per-column filter-cell extras; see the directive */
+  private readonly filterExtras = contentChildren(CvcColumnFilterExtraDirective)
+
+  /** the projected template for a column's filter cell, if the host gave one */
+  protected filterExtraFor(key: string): TemplateRef<void> | null {
+    return (
+      this.filterExtras().find((extra) => extra.cvcColumnFilterExtra() === key)
+        ?.template ?? null
+    )
+  }
 
   /** ids of the checked rows; two-way, and the complete set on every change */
   readonly selectedIds = model<number[]>([])
@@ -768,6 +783,20 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       )
     )
   }
+
+  /**
+   * Returns every column to its configured visibility — the settings
+   * popover's Reset Columns. The independent half of what Reset Filters
+   * does for filter/sort state.
+   */
+  onResetColumns(): void {
+    this.hiddenOverrides.set(new Map())
+  }
+
+  /** titles the settings popover: "Assertion Settings", "Variant Settings"… */
+  readonly settingsTitle = computed(
+    () => `${this.spec().entity ?? 'Table'} Settings`
+  )
 
   /**
    * Applies filters and visibility pushed in by a host.

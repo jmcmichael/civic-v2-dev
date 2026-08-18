@@ -85,6 +85,7 @@ export function sourcesTableConfig(
   scope: SourcesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Source',
     title: title ?? undefined,
     query,
     pageSize: 35,

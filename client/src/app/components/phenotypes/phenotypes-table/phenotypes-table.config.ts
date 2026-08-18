@@ -27,6 +27,7 @@ export function phenotypesTableConfig(
   scope: PhenotypesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Phenotype',
     title: title ?? undefined,
     query,
     pageSize: 35,

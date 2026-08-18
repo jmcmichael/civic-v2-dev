@@ -15,7 +15,11 @@ import {
   Maybe,
   OrganizationFilter,
 } from '@app/generated/civic.apollo.types'
-import { CvcEntityTableComponent, CvcTableSettings } from '@app/tables'
+import {
+  CvcColumnFilterExtraDirective,
+  CvcEntityTableComponent,
+  CvcTableSettings,
+} from '@app/tables'
 import { NzCardModule } from 'ng-zorro-antd/card'
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
 import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
@@ -62,6 +66,7 @@ const FILTER_PARAMS: ReadonlyArray<[param: string, columnKey: string]> = [
 @Component({
   selector: 'cvc-assertions-table',
   imports: [
+    CvcColumnFilterExtraDirective,
     CvcEntityTableComponent,
     CvcTableDownloaderComponent,
     FormsModule,
@@ -80,12 +85,14 @@ const FILTER_PARAMS: ReadonlyArray<[param: string, columnKey: string]> = [
       [spec]="spec()"
       [settings]="paramSettings"
       [height]="height()">
-      <span
-        cvcTableToolbarExtra
-        style="display: inline-flex; align-items: center; gap: 8px">
+      <span cvcTableToolbarExtra>
         <cvc-table-downloader
           [vars]="table.queryVars()"
           tableName="assertions" />
+      </span>
+      <!-- the status/subgroups scope menu lives beside the AID filter box,
+           in the id column's filter cell -->
+      <ng-template cvcColumnFilterExtra="id">
         @if (!idsScoped()) {
           <nz-filter-trigger
             data-testid="assertions-scope-trigger"
@@ -99,7 +106,7 @@ const FILTER_PARAMS: ReadonlyArray<[param: string, columnKey: string]> = [
               nzTheme="fill"></span>
           </nz-filter-trigger>
         }
-      </span>
+      </ng-template>
     </cvc-entity-table>
 
     <nz-dropdown-menu #scopeMenu>

@@ -25,6 +25,7 @@ export function therapiesTableConfig(
   scope: TherapiesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Therapy',
     title: title ?? undefined,
     query,
     pageSize: 35,

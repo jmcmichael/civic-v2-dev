@@ -23,6 +23,7 @@ export function clinicalTrialsTableConfig(
   title: Maybe<string>
 ) {
   return entityTableConfig({
+    entity: 'Clinical Trial',
     title: title ?? undefined,
     query,
     pageSize: 35,

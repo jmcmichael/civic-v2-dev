@@ -337,12 +337,12 @@ cell's _contents_ vary by kind.
 |  3  | "No more rows" tag | `#toolbar`                                 | `noMoreRows()` — phase `'bottom'` **and** `hasNextPage === false`                              |
 |  4  | Error tags         | `#toolbar`                                 | `requestError()`, split by `splitError` into query vs. network                                 |
 |  5  | Row count          | `data-testid="row-count"`                  | `rows().length` of `displayedTotal()`                                                          |
-|  6  | Reset filters      | `data-testid="filter-reset"`               | `onResetFilters()` — filters + sort, never visibility                                          |
-|  7  | Visible columns    | `data-testid="column-prefs-trigger"`       | `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`                                         |
+|  6  | Settings popover   | `data-testid="column-prefs-trigger"`       | `settingsTitle()` ("[entity] Settings"); `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`; `reset-columns` → `onResetColumns()`, `reset-filters` → `onResetFilters()` |
 |  8  | Scroll region      | `[nzScroll]` on `nz-table`                 | `bodyHeight()` — explicit `height()`, `'auto'` measurement, or `'100%'` through the flex chain |
 |  9  | Header row         | `thead > tr.col-header-row`                | `visibleColumns()`; sorters via `sortOrderFor()` / `onSortChange()`                            |
 | 10  | Filter row         | `thead > tr.filter-row`                    | `filterValue(col.key)` / `onFilterChange()`                                                    |
-| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options`, typed by `CvcEnumOption`                                                 |
+| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options` (`CvcEnumOption`); its split Reset clears the column, its `reset-all` item fires `onResetFilters()` (the funnel deliberately stays open) |
+| 12  | Filter-cell extras | `ng-template[cvcColumnFilterExtra="key"]`  | host-projected content beside a column's filter control (assertions' status scope menu beside the AID box) |
 | 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                                               |
 | 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                                                   |
 
@@ -837,8 +837,9 @@ viewport, which measures real layout and renders nothing in jsdom — the same
 reason `table-scroll.directive.spec.ts` tests its pure `nextFetch` rather than
 the directive. Row-level behaviour lives in the Playwright goldens, which
 address the table through the `data-testid` contract (`entity-table`, `row`,
-`column-header`, `column-filter`, `row-count`, `filter-reset`,
-`column-prefs-trigger/-panel`, all carrying `data-column`/`data-row-id`).
+`column-header`, `column-filter`, `row-count`, `column-prefs-trigger/-panel`,
+`reset-columns`, `reset-filters`, `reset-reveal`, `reset-all`, all carrying
+`data-column`/`data-row-id`).
 
 One trap worth knowing at every jsdom layer: ant's icon service throws on an
 unregistered icon name **outside** the test's call stack, which leaves

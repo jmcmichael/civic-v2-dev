@@ -15,6 +15,7 @@
  * Developer docs live in ./docs: 01-architecture.md (incl. the column-model
  * → ng-zorro mapping), 02-authoring-guide.md, 03-troubleshooting.md.
  */
+export { CvcColumnFilterExtraDirective } from './column-filter-extra.directive'
 export { CvcEntityTableComponent } from './entity-table.component'
 export type { CvcTableRequestError } from './entity-table-query'
 export { CvcTableFilterInputComponent } from './filters/table-filter-input.component'

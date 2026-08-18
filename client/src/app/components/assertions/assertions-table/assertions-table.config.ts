@@ -144,6 +144,7 @@ export function assertionsTableConfig(
   scope: AssertionsTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Assertion',
     title: title ?? undefined,
     query,
     pageSize: 25,

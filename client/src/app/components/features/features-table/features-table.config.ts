@@ -49,6 +49,7 @@ export function featuresTableConfig(
   scope: FeaturesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Feature',
     title: title ?? undefined,
     query,
     pageSize: 35,

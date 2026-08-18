@@ -138,17 +138,42 @@ tr.data-row td:first-of-type {
   margin-right: 4px;
 }
 
+// filter control + optional host-projected extra (a scope-menu trigger)
+// side by side in the filter cell
+.filter-cell-content {
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+  width: 100%;
+
+  > cvc-table-filter-input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
 .prefs-popover {
   max-width: 240px;
+
+  nz-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+  }
 
   // one row per column; flex (not block) so the label text sits beside its
   // checkbox — a global style blockifies the wrapper's label span, which
   // wrapped the text beneath the box
-  ::ng-deep .ant-checkbox-group-item {
+  ::ng-deep label.ant-checkbox-wrapper {
     display: flex;
     align-items: center;
     column-gap: 6px;
+    margin-inline-start: 0;
     margin-right: 0;
+  }
+
+  .prefs-divider {
+    margin: 8px 0;
   }
 }
 

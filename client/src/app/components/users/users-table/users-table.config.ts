@@ -48,6 +48,7 @@ export function usersTableConfig(
   scope: UsersTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Contributor',
     title: title ?? undefined,
     query,
     pageSize: 35,
