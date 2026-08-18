@@ -130,7 +130,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'name',
         'evidenceStatusFilter',
       ]),
-      comments: relayStylePagination(['originatingUserId', 'subject']),
+      // the comments browse table's field; see paginatedByAllArgs above
+      // (the previous list was missing ids, and possibly others -- this
+      // field is also queried, with different args, elsewhere)
+      comments: paginatedByAllArgs(),
       // the evidence manager's field; see paginatedByAllArgs above
       evidenceItems: paginatedByAllArgs(),
       assertions: relayStylePagination([
