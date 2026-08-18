@@ -41,6 +41,7 @@ import { CvcEnumOption } from '../entity-table.types'
           <cvc-attribute-tag
             [cvcFullWidth]="true"
             cvcContext="menu-item"
+            [cvcShowIcon]="showIcons()"
             [cvcChecked]="selected() === option.value"
             [cvcAttrValue]="$any(option.value)" />
         </li>
@@ -66,6 +67,8 @@ import { CvcEnumOption } from '../entity-table.types'
 export class CvcEnumFilterMenuComponent {
   readonly options = input.required<ReadonlyArray<CvcEnumOption<unknown>>>()
   readonly selected = input<unknown>(null)
+  /** false for enums with no civic-* icon set; see CvcEnumFilter.showIcons */
+  readonly showIcons = input<boolean>(true)
 
   readonly selectedChange = output<unknown>()
 }

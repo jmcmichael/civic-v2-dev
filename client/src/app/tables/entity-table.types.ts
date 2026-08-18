@@ -287,6 +287,14 @@ export interface CvcEnumFilter<
 > extends CvcFilterBase<TVars> {
   kind: 'enum'
   options: ReadonlyArray<CvcEnumOption<TValue>>
+  /**
+   * Render the menu's attribute tags without icons. Set `false` for enums
+   * with no `civic-*` icon set (e.g. `VariantCategories`) — the tag's
+   * icon-name derivation would otherwise request unregistered icons, which
+   * @ant-design/icons-angular reports as async errors outside any call
+   * stack. Defaults to showing icons.
+   */
+  showIcons?: boolean
 }
 
 /** the active sort, or none; `order` is ng-zorro's three-valued sort union */

@@ -74,6 +74,7 @@
                   <nz-dropdown-menu #enumMenu="nzDropdownMenu">
                     <cvc-enum-filter-menu
                       [options]="filter.options"
+                      [showIcons]="filter.showIcons ?? true"
                       [selected]="filterValue(col.key)"
                       (selectedChange)="
                         onFilterChange(col, $event);
@@ -152,17 +153,23 @@
                         col.emptyValue ?? defaultEmptyValue
                       " />
                   }
-                } @else if (refs.single; as ref) {
-                  <cvc-tag
-                    [ref]="ref"
-                    [emphasize]="textFilterValue(col.key)"
-                    [popover]="!isScrolling()"
-                    [popoverPlacement]="cell.popoverPlacement ?? 'top'"
-                    [fullWidth]="cell.fullWidth ?? false"
-                    [truncate]="cell.truncateLabel" />
                 } @else {
-                  <cvc-empty-value
-                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
+                  <!-- nested rather than `@else if (…; as ref)`: the eslint
+                       template parser rejects `as` off the primary block -->
+                  @if (refs.single; as ref) {
+                    <cvc-tag
+                      [ref]="ref"
+                      [emphasize]="textFilterValue(col.key)"
+                      [popover]="!isScrolling()"
+                      [popoverPlacement]="cell.popoverPlacement ?? 'top'"
+                      [fullWidth]="cell.fullWidth ?? false"
+                      [truncate]="cell.truncateLabel" />
+                  } @else {
+                    <cvc-empty-value
+                      [cvcEmptyCategory]="
+                        col.emptyValue ?? defaultEmptyValue
+                      " />
+                  }
                 }
               }
 
