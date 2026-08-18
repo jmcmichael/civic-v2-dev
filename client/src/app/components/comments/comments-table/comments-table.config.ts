@@ -1,5 +1,5 @@
 import { DateSortColumns, Maybe } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CivicTimeagoFormatter } from '@app/core/pipes/timeago-formatter'
 import { CvcCommentCellComponent } from './comments-table-comment-cell.component'
@@ -80,7 +80,11 @@ export function commentsTableConfig(
         width: '100px',
         fixed: 'right',
         cell: { kind: 'text', text: (row) => timeAgo.transform(row.createdAt) },
-        sort: { column: DateSortColumns.Created, default: 'descend' },
+        sort: {
+          column: DateSortColumns.Created,
+          default: 'descend',
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

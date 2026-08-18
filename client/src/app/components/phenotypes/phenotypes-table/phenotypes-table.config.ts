@@ -1,5 +1,5 @@
 import { Maybe, PhenotypeSortColumns } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PhenotypesBrowseGQL } from './phenotypes-table.query.gql.generated'
 
 /** The query variables a host page scopes the table with. */
@@ -77,6 +77,7 @@ export function phenotypesTableConfig(
         sort: {
           column: PhenotypeSortColumns.EvidenceItemCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
@@ -87,7 +88,10 @@ export function phenotypesTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: PhenotypeSortColumns.AssertionCount },
+        sort: {
+          column: PhenotypeSortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

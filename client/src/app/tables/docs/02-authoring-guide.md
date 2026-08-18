@@ -73,6 +73,11 @@ fails the whole query (the `aliases` column in the variant manager documents
 this). Adding a sort column is a server change: see `2f035db5f` for the
 pattern, including the correlated-subquery approach for has-many sorts.
 
+A count or score column should also declare
+`directions: SORT_DESCEND_FIRST` — the first question such a column
+answers is "which has the most", and every legacy browse table cycled
+them descend-first. Omitted, ng-zorro's ascend-first click cycle applies.
+
 ### Edit the query itself
 
 After editing a `*.query.gql`, run `yarn generate-apollo` (fast, no server

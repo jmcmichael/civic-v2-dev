@@ -36,6 +36,7 @@
             [nzShowSort]="!!col.sort && !col.sort.disabled"
             [nzSortFn]="!!col.sort && !col.sort.disabled"
             [nzSortOrder]="sortOrderFor(col)"
+            [nzSortDirections]="col.sort?.directions ?? defaultSortDirections"
             (nzSortOrderChange)="onSortChange(col, $event)">
             <span
               class="col-header-label"

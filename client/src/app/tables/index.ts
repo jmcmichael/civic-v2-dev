@@ -60,4 +60,4 @@ export type {
   CvcTextFilter,
   CvcTextTagCell,
 } from './entity-table.types'
-export { DEFAULT_EMPTY_VALUE } from './entity-table.types'
+export { DEFAULT_EMPTY_VALUE, SORT_DESCEND_FIRST } from './entity-table.types'

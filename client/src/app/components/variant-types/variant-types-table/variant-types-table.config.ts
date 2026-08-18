@@ -2,7 +2,7 @@ import {
   Maybe,
   VariantTypeSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { VariantTypesBrowseGQL } from './variant-types-table.query.gql.generated'
 
 /** The query variables a host page scopes the table with. */
@@ -75,7 +75,10 @@ export function variantTypesTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
-        sort: { column: VariantTypeSortColumns.VariantCount },
+        sort: {
+          column: VariantTypeSortColumns.VariantCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

@@ -248,7 +248,25 @@ export interface CvcColumnSort<TSortColumn extends string> {
   default?: NzTableSortOrder
   /** render the column without a sorter (`nzShowSort` false) */
   disabled?: boolean
+  /**
+   * The order a header click cycles through, as `th[nzSortDirections]`.
+   * Omitted, ng-zorro's ascend-first default applies. Count and score
+   * columns want `SORT_DESCEND_FIRST` — the first question a count column
+   * answers is "which has the most", and every legacy browse table cycled
+   * those columns descend-first.
+   */
+  directions?: NzTableSortOrder[]
 }
+
+/**
+ * Descend-first click cycling for count/score columns — the order every
+ * legacy browse table declared on them via `[nzSortDirections]`.
+ */
+export const SORT_DESCEND_FIRST: NzTableSortOrder[] = [
+  'descend',
+  'ascend',
+  null,
+]
 
 /**
  * A column's filter control, rendered in a second `thead` row (ant's

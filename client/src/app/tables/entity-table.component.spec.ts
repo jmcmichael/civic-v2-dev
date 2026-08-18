@@ -16,6 +16,7 @@ import { writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
 import { CvcEntityTableComponent } from './entity-table.component'
 import { entityTableConfig, EntityTableSpec } from './entity-table-config'
+import { SORT_DESCEND_FIRST } from './entity-table.types'
 
 /**
  * Covers the parts of the table that hold its defects: what ends up in the query
@@ -41,6 +42,8 @@ function buildSpec(
     pinned?: boolean
     /** gives the name filter an entityTypename, for the settings id→name path */
     nameFilterByEntity?: boolean
+    /** gives the rating sort a descend-first click cycle */
+    descendFirstRating?: boolean
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
@@ -95,7 +98,12 @@ function buildSpec(
         width: '60px',
         fixed: options.pinned ? ('right' as const) : undefined,
         cell: { kind: 'text', text: (r) => r.name },
-        sort: { column: 'evidenceRating' },
+        sort: {
+          column: 'evidenceRating',
+          ...(options.descendFirstRating
+            ? { directions: SORT_DESCEND_FIRST }
+            : {}),
+        },
         filter: {
           kind: 'text',
           var: 'id',
@@ -267,6 +275,37 @@ describe('cvc-entity-table', () => {
 
     expect(table.sortOrderFor(table.columns()[1])).toBeNull()
     expect(table.sortOrderFor(table.columns()[2])).toBe('descend')
+  })
+
+  // The click-cycle order is a per-column contract — legacy count columns
+  // declared descend-first via `[nzSortDirections]`, which silently flipped
+  // to ng-zorro's ascend-first as the tables migrated. Asserted through a
+  // real header click because the cycle logic lives in ng-zorro's th;
+  // calling `onSortChange` directly cannot regress it.
+  const ratingHeader = (): HTMLElement =>
+    fixture.nativeElement.querySelector(
+      '[data-testid="column-header"][data-column="rating"]'
+    ) as HTMLElement
+
+  it('cycles ascend-first on a header click by default', () => {
+    ratingHeader().click()
+    fixture.detectChanges()
+
+    expect(table.sortOrderFor(table.columns()[2])).toBe('ascend')
+  })
+
+  it('cycles descend-first when the column declares it', () => {
+    fixture.componentInstance.spec.set(buildSpec({ descendFirstRating: true }))
+    fixture.detectChanges()
+
+    ratingHeader().click()
+    fixture.detectChanges()
+
+    expect(table.sortOrderFor(table.columns()[2])).toBe('descend')
+    expect(table.queryVars()['sortBy']).toEqual({
+      column: 'evidenceRating',
+      direction: 'DESC',
+    })
   })
 
   // the reset button read as inert in both managers: it cleared the query but

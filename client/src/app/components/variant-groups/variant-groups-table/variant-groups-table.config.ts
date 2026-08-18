@@ -2,7 +2,7 @@ import {
   Maybe,
   VariantGroupsSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcVariantGroupNameCellComponent } from './variant-groups-table-name-cell.component'
 import { BrowseVariantGroupsGQL } from './variant-groups-table.query.gql.generated'
@@ -81,6 +81,7 @@ export function variantGroupsTableConfig(
         sort: {
           column: VariantGroupsSortColumns.VariantCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
@@ -91,7 +92,10 @@ export function variantGroupsTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
-        sort: { column: VariantGroupsSortColumns.EvidenceItemCount },
+        sort: {
+          column: VariantGroupsSortColumns.EvidenceItemCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

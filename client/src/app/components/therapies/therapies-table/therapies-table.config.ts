@@ -1,5 +1,5 @@
 import { Maybe, TherapySortColumns } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { TherapiesBrowseGQL } from './therapies-table.query.gql.generated'
 
 /** The query variables a host page scopes the table with. */
@@ -95,6 +95,7 @@ export function therapiesTableConfig(
         sort: {
           column: TherapySortColumns.EvidenceItemCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
@@ -105,7 +106,10 @@ export function therapiesTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: TherapySortColumns.AssertionCount },
+        sort: {
+          column: TherapySortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

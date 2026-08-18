@@ -156,6 +156,17 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
+  /**
+   * ng-zorro's own click-cycle order, restated so a column without
+   * `sort.directions` binds a stable array (`th[nzSortDirections]` treats
+   * `undefined` as "no directions", not "use the default").
+   */
+  protected readonly defaultSortDirections: NzTableSortOrder[] = [
+    'ascend',
+    'descend',
+    null,
+  ]
+
   // ---------------------------------------------------------------- columns
 
   /** per-key visibility overrides from the preferences panel or `settings` */

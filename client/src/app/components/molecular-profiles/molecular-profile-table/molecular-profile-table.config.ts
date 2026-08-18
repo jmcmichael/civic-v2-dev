@@ -2,7 +2,7 @@ import {
   Maybe,
   MolecularProfilesSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcMolecularProfileAliasesCellComponent } from './molecular-profile-table-aliases-cell.component'
 import { CvcMolecularProfileNameCellComponent } from './molecular-profile-table-name-cell.component'
@@ -175,7 +175,10 @@ export function molecularProfileTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.molecularProfileScore },
-        sort: { column: MolecularProfilesSortColumns.MolecularProfileScore },
+        sort: {
+          column: MolecularProfilesSortColumns.MolecularProfileScore,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'evidenceItemCount',
@@ -185,7 +188,10 @@ export function molecularProfileTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
-        sort: { column: MolecularProfilesSortColumns.EvidenceItemCount },
+        sort: {
+          column: MolecularProfilesSortColumns.EvidenceItemCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'assertionCount',
@@ -195,7 +201,10 @@ export function molecularProfileTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: MolecularProfilesSortColumns.AssertionCount },
+        sort: {
+          column: MolecularProfilesSortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'variantCount',
@@ -205,7 +214,10 @@ export function molecularProfileTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
-        sort: { column: MolecularProfilesSortColumns.VariantCount },
+        sort: {
+          column: MolecularProfilesSortColumns.VariantCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

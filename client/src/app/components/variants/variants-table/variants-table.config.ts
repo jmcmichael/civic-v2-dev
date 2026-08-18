@@ -4,7 +4,11 @@ import {
   VariantCategories,
   VariantsSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, enumFilterOptions } from '@app/tables'
+import {
+  entityTableConfig,
+  enumFilterOptions,
+  SORT_DESCEND_FIRST,
+} from '@app/tables'
 import { BrowseVariantsGQL } from './variants-table.query.gql.generated'
 
 /**
@@ -210,6 +214,7 @@ export function variantsTableConfig(
         sort: {
           column: VariantsSortColumns.EvidenceItemCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
     ],

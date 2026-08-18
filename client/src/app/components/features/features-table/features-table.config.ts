@@ -4,7 +4,7 @@ import {
   FeaturesSortColumns,
   Maybe,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { BrowseFeaturesGQL } from './features-table.query.gql.generated'
 
 const titlecase = new TitleCasePipe()
@@ -168,7 +168,10 @@ export function featuresTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.molecularProfileCount },
-        sort: { column: FeaturesSortColumns.MolecularProfileCount },
+        sort: {
+          column: FeaturesSortColumns.MolecularProfileCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'variantCount',
@@ -178,7 +181,11 @@ export function featuresTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
-        sort: { column: FeaturesSortColumns.VariantCount, default: 'descend' },
+        sort: {
+          column: FeaturesSortColumns.VariantCount,
+          default: 'descend',
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'evidenceItemCount',
@@ -188,7 +195,10 @@ export function featuresTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
-        sort: { column: FeaturesSortColumns.EvidenceItemCount },
+        sort: {
+          column: FeaturesSortColumns.EvidenceItemCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'assertionCount',
@@ -198,7 +208,10 @@ export function featuresTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: FeaturesSortColumns.AssertionCount },
+        sort: {
+          column: FeaturesSortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

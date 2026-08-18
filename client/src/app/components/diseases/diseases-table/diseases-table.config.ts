@@ -1,5 +1,5 @@
 import { DiseasesSortColumns, Maybe } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcDiseaseFeaturesCellComponent } from './diseases-table-features-cell.component'
 import { DiseaseBrowseGQL } from './diseases-table.query.gql.generated'
@@ -105,7 +105,10 @@ export function diseasesTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.featureCount },
-        sort: { column: DiseasesSortColumns.FeatureCount },
+        sort: {
+          column: DiseasesSortColumns.FeatureCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'variantCount',
@@ -115,7 +118,10 @@ export function diseasesTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
-        sort: { column: DiseasesSortColumns.VariantCount },
+        sort: {
+          column: DiseasesSortColumns.VariantCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'evidenceItemCount',
@@ -128,6 +134,7 @@ export function diseasesTableConfig(
         sort: {
           column: DiseasesSortColumns.EvidenceItemCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
@@ -138,7 +145,10 @@ export function diseasesTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: DiseasesSortColumns.AssertionCount },
+        sort: {
+          column: DiseasesSortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

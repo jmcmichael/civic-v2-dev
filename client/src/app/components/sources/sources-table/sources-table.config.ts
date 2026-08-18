@@ -3,7 +3,11 @@ import {
   SourceSource,
   SourcesSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, enumFilterOptions } from '@app/tables'
+import {
+  entityTableConfig,
+  enumFilterOptions,
+  SORT_DESCEND_FIRST,
+} from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcSourceAuthorsCellComponent } from './sources-table-authors-cell.component'
 import { CvcSourceOpenAccessCellComponent } from './sources-table-open-access-cell.component'
@@ -211,6 +215,7 @@ export function sourcesTableConfig(
         sort: {
           column: SourcesSortColumns.EvidenceCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
@@ -221,7 +226,10 @@ export function sourcesTableConfig(
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.sourceSuggestionCount },
-        sort: { column: SourcesSortColumns.SuggestionCount },
+        sort: {
+          column: SourcesSortColumns.SuggestionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

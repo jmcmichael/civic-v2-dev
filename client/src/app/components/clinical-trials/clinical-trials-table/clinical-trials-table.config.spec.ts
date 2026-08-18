@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { ClinicalTrialSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
   describeEntityTableContract,
@@ -121,6 +122,12 @@ describe('clinicalTrialsTableConfig', () => {
       ['nctId', 'nctId'],
       ['name', 'name'],
     ])
+  })
+
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of ['sourceCount', 'evidenceCount']) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
   })
 
   it('offers a sorter on every sortable column, none defaulted', () => {

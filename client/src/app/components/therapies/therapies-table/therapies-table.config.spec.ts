@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { TherapySortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
@@ -123,6 +124,12 @@ describe('therapiesTableConfig', () => {
       ['ncitId', 'ncitId'],
       ['therapyAliases', 'therapyAlias'],
     ])
+  })
+
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of ['evidenceCount', 'assertionCount']) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
   })
 
   it('offers a sorter on every sortable column', () => {

@@ -9,6 +9,7 @@ import {
   specCell,
   specColumn,
 } from '@app/testing/entity-table.harness'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -131,6 +132,10 @@ describe('variantsTableConfig', () => {
       ['diseases', 'diseaseName'],
       ['therapies', 'therapyName'],
     ])
+  })
+
+  it('cycles its count column descend-first, as the legacy table did', () => {
+    expect(column('evidenceCount').sort?.directions).toEqual(SORT_DESCEND_FIRST)
   })
 
   it('offers a sorter only where the schema has a sort column', () => {
