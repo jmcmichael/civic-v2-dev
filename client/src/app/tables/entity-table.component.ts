@@ -221,6 +221,16 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
+   * A column's configured width in px — the declarative signal `text-tag`
+   * switches its view on: over 100px the cell shows the string itself,
+   * at/under it the icon-or-compact-label tag. Config-driven by design (no
+   * live measurement): widths are the config's own px strings.
+   */
+  protected columnPx(col: CvcSpecColumn<TRow>): number {
+    return Number.parseInt(col.width, 10) || 0
+  }
+
+  /**
    * A select-control enum filter's options, partitioned into their
    * `nz-option-group` sections. Memoized per options array (config objects
    * are stable across CD) so the template's call returns identical group

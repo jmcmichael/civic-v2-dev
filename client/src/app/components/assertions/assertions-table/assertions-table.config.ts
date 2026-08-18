@@ -250,12 +250,12 @@ export function assertionsTableConfig(
         // and AssertionsBrowse declares no therapyInteractionType variable
       },
       {
+        // wide enough that text-tag renders the summary string itself
+        // (ellipsized, full text on hover) and the filter box takes a real
+        // search phrase
         key: 'summary',
-        label: 'SUM',
-        tooltip: 'Assertion Summary',
-        width: '60px',
-        align: 'center',
-        fixed: 'right',
+        label: 'Summary',
+        width: '150px',
         cell: { kind: 'text-tag', text: (row) => row.summary },
         sort: { column: AssertionSortColumns.Summary },
         filter: {
