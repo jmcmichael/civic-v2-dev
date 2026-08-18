@@ -86,6 +86,7 @@ export function variantsTableConfig(
         key: 'category',
         label: 'Type',
         tooltip: 'Feature Type',
+        labelIcon: 'civic-feature',
         width: '80px',
         fixed: 'left',
         cell: { kind: 'text', text: (row) => formatEvidenceEnum(row.category) },
@@ -132,6 +133,7 @@ export function variantsTableConfig(
           kind: 'text',
           text: (row) => row.aliases.map((alias) => alias.name),
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -207,6 +209,7 @@ export function variantsTableConfig(
         key: 'evidenceCount',
         label: 'Count',
         tooltip: 'Evidence Count',
+        labelIcon: 'civic-evidence',
         width: '80px',
         fixed: 'right',
         align: 'right',

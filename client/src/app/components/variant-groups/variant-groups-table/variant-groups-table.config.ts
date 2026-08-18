@@ -64,6 +64,7 @@ export function variantGroupsTableConfig(
           kind: 'text',
           text: (row) => row.featureNames ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -75,6 +76,7 @@ export function variantGroupsTableConfig(
         key: 'variantCount',
         label: 'Count',
         tooltip: 'Variant Count',
+        labelIcon: 'civic-variant',
         width: '75px',
         fixed: 'right',
         align: 'right',
@@ -89,6 +91,7 @@ export function variantGroupsTableConfig(
         key: 'evidenceItemCount',
         label: 'Count',
         tooltip: 'Evidence Count',
+        labelIcon: 'civic-evidence',
         width: '75px',
         fixed: 'right',
         align: 'right',

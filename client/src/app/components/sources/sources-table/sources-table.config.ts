@@ -183,7 +183,11 @@ export function sourcesTableConfig(
         key: 'journal',
         label: 'Journal',
         width: '150px',
-        cell: { kind: 'text', text: (row) => row.journal ?? undefined },
+        cell: {
+          kind: 'text',
+          text: (row) => row.journal ?? undefined,
+          tooltip: true,
+        },
         sort: { column: SourcesSortColumns.Journal },
         filter: {
           kind: 'text',
@@ -211,6 +215,7 @@ export function sourcesTableConfig(
         key: 'evidenceItemCount',
         label: 'Count',
         tooltip: 'Evidence Count',
+        labelIcon: 'civic-evidence',
         width: '75px',
         fixed: 'right',
         align: 'right',
@@ -225,6 +230,7 @@ export function sourcesTableConfig(
         key: 'sourceSuggestionCount',
         label: 'Count',
         tooltip: 'Suggestion Count',
+        labelIcon: 'civic-queue',
         width: '75px',
         fixed: 'right',
         align: 'right',

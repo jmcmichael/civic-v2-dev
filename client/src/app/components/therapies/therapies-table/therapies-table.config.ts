@@ -78,6 +78,7 @@ export function therapiesTableConfig(
           kind: 'text',
           text: (row) => row.therapyAliases ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -89,6 +90,7 @@ export function therapiesTableConfig(
         key: 'evidenceCount',
         label: 'Count',
         tooltip: 'Evidence Count',
+        labelIcon: 'civic-evidence',
         width: '75px',
         fixed: 'right',
         align: 'right',
@@ -103,6 +105,7 @@ export function therapiesTableConfig(
         key: 'assertionCount',
         label: 'Count',
         tooltip: 'Assertion Count',
+        labelIcon: 'civic-assertion',
         width: '75px',
         fixed: 'right',
         align: 'right',

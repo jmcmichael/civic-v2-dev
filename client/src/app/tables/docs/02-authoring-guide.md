@@ -126,6 +126,10 @@ Checklist:
 - **The field must be in the query.** Add it to `*.query.gql` +
   `yarn generate-apollo` or the accessor will not compile.
 - `key` must be unique — `entityTableConfig` throws in dev mode otherwise.
+- A count column labelled just "Count" should set `labelIcon` to its
+  entity's civic glyph (`'civic-evidence'` etc., rendered twotone) — the
+  icon is what tells four "Count" headers apart, as every legacy browse
+  table did.
 - If the rows are denormalised (`Browse*`) and the new column is an
   `entity-tag`, it needs a `seed` (see §3 below).
 - New enum-tag values may resolve **civic icons** the test harness must know:

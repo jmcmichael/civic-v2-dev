@@ -51,6 +51,8 @@ function buildSpec(
     scope?: Record<string, unknown>
     /** strips every column filter, comments-browse-style */
     noFilters?: boolean
+    /** gives the rating header a civic entity icon */
+    ratingLabelIcon?: boolean
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
@@ -111,6 +113,7 @@ function buildSpec(
         key: 'rating',
         label: 'Rating',
         tooltip: 'Evidence Rating',
+        ...(options.ratingLabelIcon ? { labelIcon: 'civic-evidence' } : {}),
         width: '60px',
         fixed: options.pinned ? ('right' as const) : undefined,
         cell: { kind: 'text', text: (r) => r.name },
@@ -363,6 +366,21 @@ describe('cvc-entity-table', () => {
     fixture.componentInstance.height.set('auto')
     fixture.detectChanges()
     expect(table.bodyHeight()).toMatch(/^\d+px$/)
+  })
+
+  // Four columns all labelled "Count" are told apart by the entity glyph
+  // their legacy headers carried; the icon renders only when configured.
+  it('prefixes the header label with the configured entity icon', () => {
+    const headerIcon = () =>
+      fixture.nativeElement.querySelector(
+        '[data-testid="column-header"][data-column="rating"] .col-header-label [nz-icon]'
+      )
+    expect(headerIcon()).toBeNull()
+
+    fixture.componentInstance.spec.set(buildSpec({ ratingLabelIcon: true }))
+    fixture.detectChanges()
+
+    expect(headerIcon()).not.toBeNull()
   })
 
   // A table with no filterable columns (comments-browse) renders no filter

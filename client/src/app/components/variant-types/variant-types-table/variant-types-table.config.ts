@@ -72,6 +72,7 @@ export function variantTypesTableConfig(
         key: 'variantCount',
         label: 'Count',
         tooltip: 'Variant Count',
+        labelIcon: 'civic-variant',
         width: '75px',
         fixed: 'right',
         align: 'right',

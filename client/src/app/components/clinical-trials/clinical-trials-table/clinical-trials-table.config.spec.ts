@@ -137,6 +137,15 @@ describe('clinicalTrialsTableConfig', () => {
     })
   })
 
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['sourceCount', 'civic-source'],
+      ['evidenceCount', 'civic-evidence'],
+    ])
+  })
+
   it('offers a sorter on every sortable column, none defaulted', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)

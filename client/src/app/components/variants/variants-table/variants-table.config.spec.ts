@@ -138,6 +138,22 @@ describe('variantsTableConfig', () => {
     expect(column('evidenceCount').sort?.directions).toEqual(SORT_DESCEND_FIRST)
   })
 
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['category', 'civic-feature'],
+      ['evidenceCount', 'civic-evidence'],
+    ])
+  })
+
+  it('discloses its clip-prone text columns in hover tooltips', () => {
+    expect(column('aliases').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
   it('offers a sorter only where the schema has a sort column', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => [c.key, c.sort!.column])

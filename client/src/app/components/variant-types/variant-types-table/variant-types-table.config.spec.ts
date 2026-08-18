@@ -133,6 +133,12 @@ describe('variantTypesTableConfig', () => {
     expect(column('variantCount').sort?.directions).toEqual(SORT_DESCEND_FIRST)
   })
 
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([['variantCount', 'civic-variant']])
+  })
+
   it('offers a sorter on every sortable column, none defaulted', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)

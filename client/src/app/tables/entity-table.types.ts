@@ -61,6 +61,13 @@ export interface CvcColumn<
   hidden?: boolean
   /** tooltip on the column label */
   tooltip?: string
+  /**
+   * nz icon rendered before the label — the entity glyph the legacy count
+   * headers carried (`civic-evidence` + "Count"), which is what tells four
+   * columns all labelled "Count" apart at a glance. Registered app-wide
+   * with the rest of the civic set; `TABLE_ICONS` covers specs.
+   */
+  labelIcon?: string
   /** keep the column out of the visible-columns panel, e.g. the select column */
   omitFromPrefs?: boolean
   /**

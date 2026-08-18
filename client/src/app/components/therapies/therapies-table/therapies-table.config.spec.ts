@@ -132,6 +132,22 @@ describe('therapiesTableConfig', () => {
     }
   })
 
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['evidenceCount', 'civic-evidence'],
+      ['assertionCount', 'civic-assertion'],
+    ])
+  })
+
+  it('discloses its clip-prone text columns in hover tooltips', () => {
+    expect(column('therapyAliases').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
   it('offers a sorter on every sortable column', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)

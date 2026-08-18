@@ -194,6 +194,17 @@ describe('molecularProfileTableConfig', () => {
     }
   })
 
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['molecularProfileScore', 'civic-molecularprofile'],
+      ['evidenceItemCount', 'civic-evidence'],
+      ['assertionCount', 'civic-assertion'],
+      ['variantCount', 'civic-variant'],
+    ])
+  })
+
   it('offers a sorter only where the legacy table did', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)

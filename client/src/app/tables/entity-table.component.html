@@ -42,6 +42,13 @@
               class="col-header-label"
               nz-tooltip
               [nzTooltipTitle]="col.tooltip">
+              @if (col.labelIcon; as icon) {
+                <span
+                  nz-icon
+                  [nzType]="icon"
+                  nzTheme="twotone"
+                  [nzTwotoneColor]="labelIconColor(icon)"></span>
+              }
               {{ col.label }}
             </span>
           </th>

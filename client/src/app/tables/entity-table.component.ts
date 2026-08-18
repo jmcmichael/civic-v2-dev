@@ -47,6 +47,7 @@ import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { debouncedSignal } from '@app/core/utilities/debounced-signal'
+import { getEntityColor } from '@app/core/utilities/get-entity-color'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import {
   CvcPageInfo,
@@ -77,6 +78,24 @@ import {
  * enough to collapse a filter reset, which emits one change per column.
  */
 const QUERY_DEBOUNCE_MS = 300
+
+/**
+ * Twotone fill per `labelIcon`, resolved through the same `getEntityColor`
+ * map the page-header icons use (via `| entityColor`). The bridge is
+ * explicit because icon names and typenames spell entities differently
+ * ('civic-evidence' vs 'EvidenceItem'); an unmapped icon falls back to the
+ * map's greyscale rather than ant's default blue.
+ */
+const LABEL_ICON_COLORS: Record<string, string> = {
+  'civic-assertion': getEntityColor('Assertion'),
+  'civic-evidence': getEntityColor('EvidenceItem'),
+  'civic-feature': getEntityColor('Feature'),
+  'civic-molecularprofile': getEntityColor('MolecularProfile'),
+  'civic-queue': getEntityColor('Queue'),
+  'civic-revision': getEntityColor('Revision'),
+  'civic-source': getEntityColor('Source'),
+  'civic-variant': getEntityColor('Variant'),
+}
 
 /** `height: 'auto'` floor — a viewport too short to be useful still scrolls */
 const AUTO_HEIGHT_MIN = 200
@@ -191,6 +210,11 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
+
+  /** the entity color a header's `labelIcon` fills its twotone with */
+  protected labelIconColor(icon: string): string {
+    return LABEL_ICON_COLORS[icon] ?? getEntityColor('Greyscale')
+  }
 
   /**
    * ng-zorro's own click-cycle order, restated so a column without

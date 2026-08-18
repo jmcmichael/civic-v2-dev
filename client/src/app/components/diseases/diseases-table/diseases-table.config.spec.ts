@@ -145,6 +145,24 @@ describe('diseasesTableConfig', () => {
     }
   })
 
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['featureCount', 'civic-feature'],
+      ['variantCount', 'civic-variant'],
+      ['evidenceItemCount', 'civic-evidence'],
+      ['assertionCount', 'civic-assertion'],
+    ])
+  })
+
+  it('discloses its clip-prone text columns in hover tooltips', () => {
+    expect(column('diseaseAliases').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
   it('offers a sorter only where the schema has a sort column', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)

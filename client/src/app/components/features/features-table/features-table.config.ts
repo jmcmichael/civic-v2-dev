@@ -92,6 +92,7 @@ export function featuresTableConfig(
         cell: {
           kind: 'text',
           text: (row) => titlecase.transform(row.fullName) ?? undefined,
+          tooltip: true,
         },
         sort: { column: FeaturesSortColumns.FeatureFullName },
         filter: {
@@ -124,6 +125,7 @@ export function featuresTableConfig(
           kind: 'text',
           text: (row) => row.featureAliases ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -165,6 +167,7 @@ export function featuresTableConfig(
         key: 'molecularProfileCount',
         label: 'Count',
         tooltip: 'Molecular Profile Count',
+        labelIcon: 'civic-molecularprofile',
         width: '75px',
         fixed: 'right',
         align: 'right',
@@ -178,6 +181,7 @@ export function featuresTableConfig(
         key: 'variantCount',
         label: 'Count',
         tooltip: 'Variant Count',
+        labelIcon: 'civic-variant',
         width: '75px',
         fixed: 'right',
         align: 'right',
@@ -192,6 +196,7 @@ export function featuresTableConfig(
         key: 'evidenceItemCount',
         label: 'Count',
         tooltip: 'Evidence Count',
+        labelIcon: 'civic-evidence',
         width: '75px',
         fixed: 'right',
         align: 'right',
@@ -205,6 +210,7 @@ export function featuresTableConfig(
         key: 'assertionCount',
         label: 'Count',
         tooltip: 'Assertion Count',
+        labelIcon: 'civic-assertion',
         width: '75px',
         fixed: 'right',
         align: 'right',
