@@ -38,7 +38,12 @@
             [nzSortOrder]="sortOrderFor(col)"
             [nzSortDirections]="col.sort?.directions ?? defaultSortDirections"
             [ngStyle]="col.styles?.header ?? null"
-            (nzSortOrderChange)="onSortChange(col, $event)">
+            (nzSortOrderChange)="onSortChange(col, $event)"
+            nz-resizable
+            nzBounds="window"
+            nzPreview
+            [nzMinWidth]="40"
+            (nzResizeEnd)="onColumnResize(col.key, $event.width)">
             <!-- whitespace-controlled: the label interpolation sits hard
                  against the @if block so no incidental space text node
                  shifts labels — icon↔label spacing is the CSS margin alone,
@@ -70,6 +75,7 @@
                 }
               }{{ col.label }}</span
             >
+            <nz-resize-handle nzDirection="right" />
           </th>
         }
       </tr>

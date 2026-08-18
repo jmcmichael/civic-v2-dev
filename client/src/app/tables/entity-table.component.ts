@@ -44,6 +44,7 @@ import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzResizableModule } from 'ng-zorro-antd/resizable'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table'
@@ -169,6 +170,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     NzGridModule,
     NzIconModule,
     NzPopoverModule,
+    NzResizableModule,
     NzSelectModule,
     NzSpaceModule,
     NzTableModule,
@@ -322,13 +324,35 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     new Map()
   )
 
+  /** user drag-resizes, px strings keyed by column; cleared by Reset Columns */
+  private readonly widthOverrides = signal<ReadonlyMap<string, string>>(
+    new Map()
+  )
+
   readonly columns = computed<CvcSpecColumn<TRow>[]>(() => {
-    const overrides = this.hiddenOverrides()
+    const hidden = this.hiddenOverrides()
+    const widths = this.widthOverrides()
     return this.spec().columns.map((column) => {
-      const override = overrides.get(column.key)
-      return override === undefined ? column : { ...column, hidden: override }
+      const hiddenOverride = hidden.get(column.key)
+      const width = widths.get(column.key)
+      if (hiddenOverride === undefined && width === undefined) return column
+      return {
+        ...column,
+        ...(hiddenOverride === undefined ? {} : { hidden: hiddenOverride }),
+        ...(width === undefined ? {} : { width }),
+      }
     })
   })
+
+  /** a header drag-resize landing (nzResizeEnd); session state, not config */
+  onColumnResize(key: string, width: number | undefined): void {
+    if (!width) return
+    this.widthOverrides.update((current) => {
+      const next = new Map(current)
+      next.set(key, `${Math.round(width)}px`)
+      return next
+    })
+  }
 
   readonly visibleColumns = computed(() =>
     this.columns().filter((column) => !column.hidden)
@@ -843,12 +867,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
-   * Returns every column to its configured visibility — the settings
-   * popover's Reset Columns. The independent half of what Reset Filters
-   * does for filter/sort state.
+   * Returns every column to its configured visibility AND width — the
+   * settings popover's Reset Columns. The independent half of what Reset
+   * Filters does for filter/sort state.
    */
   onResetColumns(): void {
     this.hiddenOverrides.set(new Map())
+    this.widthOverrides.set(new Map())
   }
 
   /** titles the settings popover: "Assertion Settings", "Variant Settings"… */

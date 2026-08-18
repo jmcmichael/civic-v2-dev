@@ -21,6 +21,12 @@ the component and template should rarely need edits.
 
 ### Change a column's layout
 
+Users can drag-resize any column live: every header carries an
+`nz-resizable` right handle (`nzMinWidth` 40, preview line while
+dragging). Resizes are session state in the table's `widthOverrides` —
+the config's `width` stays the source of truth, and the settings
+popover's Reset Columns restores it along with visibility.
+
 `width`, `align`, `fixed`, `hidden`, `tooltip`, `emptyValue` are plain column
 fields — edit them in the manager's `*.config.ts`. Two constraints:
 

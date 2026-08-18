@@ -423,6 +423,21 @@ describe('cvc-entity-table', () => {
     expect(table.appliedFilters()).toEqual([])
   })
 
+  it('applies a drag-resized width until Reset Columns restores the config', async () => {
+    fixture.componentInstance.spec.set(buildSpec())
+    await settle()
+    const width = () => table.columns().find((c) => c.key === 'name')!.width
+
+    expect(width()).toBe('200px')
+
+    // what (nzResizeEnd) reports; fractional px are rounded
+    table.onColumnResize('name', 262.4)
+    expect(width()).toBe('262px')
+
+    table.onResetColumns()
+    expect(width()).toBe('200px')
+  })
+
   it('cycles descend-first when the column declares it', () => {
     fixture.componentInstance.spec.set(buildSpec({ descendFirstRating: true }))
     fixture.detectChanges()
