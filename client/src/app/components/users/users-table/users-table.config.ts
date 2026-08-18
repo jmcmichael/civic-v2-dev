@@ -89,13 +89,13 @@ export function usersTableConfig(
       {
         key: 'role',
         label: 'Role',
-        width: '130px',
+        width: '90px',
         cell: { kind: 'text', text: (row) => enumToTitle.transform(row.role) },
         sort: { column: UsersSortColumns.Role },
         filter: {
           kind: 'enum',
           control: 'select',
-          placeholder: 'Select Role',
+          placeholder: 'Any',
           var: 'role',
           options: USER_ROLE_OPTIONS,
         },

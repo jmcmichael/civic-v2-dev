@@ -36,10 +36,14 @@ fields — edit them in the manager's `*.config.ts`. Two constraints:
 
 ### Change a filter
 
-Enum filters render as the funnel-icon dropdown by default; set
-`control: 'select'` (with a `placeholder`) on columns wide enough to show
-the full inline `nz-select` — the legacy tables' idiom (users' Role,
-features'/sources'/variants' Type).
+Enum filters render as the funnel-icon dropdown by default — plain
+ng-zorro menu items, the value's civic icon plus its label (`showIcons:
+false` drops the icon for enums without a civic set). Set
+`control: 'select'` on columns wide enough to show the inline `nz-select`
+(users' Role, features'/sources'/variants' Type). Keep the select's
+`placeholder` as short as possible — the convention is `'Any'` — and size
+the column to the smallest px width that fits the header label and that
+prompt (90px fits 'Type'/'Role' + 'Any').
 
 Options may declare a `group`: contiguous options sharing one render as a
 titled section in both controls (`nz-menu-group` under the funnel,
