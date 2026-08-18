@@ -27,6 +27,17 @@ nz-tag {
     margin: -3px 1px -4px -1px;
     padding: 3px 0 3px 0;
     line-height: 1;
+    // a backing disc so stacked glyphs read individually — inherits the
+    // tag's own background so it works on hover/status tints too
+    border-radius: 50%;
+    background-color: inherit;
+    position: relative;
+  }
+  // nz-avatar-group's pileup method: each subsequent icon slides behind
+  // the previous via negative start margin (multiple side-by-side entity
+  // icons are unworkably wide in a table cell)
+  .entity-icon + .entity-icon {
+    margin-left: -7px;
   }
   .entity-icon:last-child {
     padding-right: 3px;
