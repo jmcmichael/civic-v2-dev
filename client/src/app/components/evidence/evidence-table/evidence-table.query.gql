@@ -94,6 +94,9 @@ fragment EvidenceGridFields on EvidenceItem {
     id
     name
     link
+    # the tag reads LinkableMolecularProfile from the cache, which needs
+    # flagged too — one missing field renders every MP tag as '#<id>'
+    flagged
     parsedName {
       ...MolecularProfileParsedName
     }
