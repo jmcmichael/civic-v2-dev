@@ -41,7 +41,9 @@
             <!-- whitespace-controlled: the label interpolation sits hard
                  against the @if block so no incidental space text node
                  shifts labels — icon↔label spacing is the CSS margin alone,
-                 and iconless labels start flush at the cell padding -->
+                 and iconless labels start flush at the cell padding.
+                 prettier-ignore keeps it from re-inserting those nodes. -->
+            <!-- prettier-ignore -->
             <span
               class="col-header-label"
               nz-tooltip
