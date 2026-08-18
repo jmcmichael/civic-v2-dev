@@ -47,6 +47,10 @@
       // lets long labels overflow the tag instead of ellipsizing
       display: inline-flex;
       align-items: center;
+      // flex sizes the tag from its children's margin boxes, and .default's
+      // negative label/icon margins (an inline-block-era padding trick)
+      // collapse it to 14px; pin the height inline-block tags get for free
+      min-height: 20px;
       .tag-label {
         flex: 1 1 auto;
         min-width: 0;
