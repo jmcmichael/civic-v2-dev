@@ -108,6 +108,9 @@ const POPOVER_PAGE = 10
          and sits ~1px off the row's inline-block tags (the full-width tag
          lesson); the count floats right instead */
       width: 100%;
+      /* ant's default 0 7px reads chunky beside the row's trimmed entity
+         tags; match their density */
+      padding: 0 4px;
       margin-inline-end: 0;
       text-align: left;
     }
