@@ -65,15 +65,20 @@ const POPOVER_PAGE = 10
       nzPopoverPlacement="left"
       nzPopoverTrigger="hover"
       (nzPopoverVisibleChange)="onVisibleChange($event)">
+      <span
+        class="entity-count"
+        nz-typography
+        nzType="secondary">
+        <strong>{{ display() }}</strong>
+      </span>
       @if (icon(); as glyph) {
         <span
-          class="count-tag-icon"
+          class="entity-icon"
           nz-icon
           [nzType]="glyph"
           nzTheme="twotone"
           [nzTwotoneColor]="iconColor()"></span>
       }
-      <span class="count-tag-count">{{ display() }}</span>
     </nz-tag>
 
     <ng-template #content>
@@ -107,33 +112,35 @@ const POPOVER_PAGE = 10
          box would add descender space under the tag, growing the 28px
          virtual rows. No line box, no gap. */
       line-height: 0;
-    }
-    .count-tag {
-      /* inline-block, not flex: a flex tag synthesizes its own baseline
-         and sits ~1px off the row's inline-block tags (the full-width tag
-         lesson) */
-      width: 100%;
-      /* ant's default 0 7px reads chunky beside the row's trimmed entity
-         tags; match their density */
-      padding: 0 4px;
-      margin-inline-end: 0;
-      /* icon + count render as one centered cluster with a fixed gap —
-         sized for three digits at the 55px convention. The count must
-         never float right: a wide count outgrew the column and the float
-         dropped below the icon, doubling the row height. */
+      /* a content-sized chip, centered in its column like the tag-list
+         overflow tags it mirrors */
       text-align: center;
+    }
+    /* The collection tag's [+][count][icon] chip, without the plus — the
+       same metrics as collection-tag.component.less so count cells and
+       tag-list overflow tags read as one vocabulary. */
+    .count-tag {
+      margin: 0;
+      padding: 0;
+      margin-inline-end: 0;
       /* a boundary transfer can squeeze the column to the 40px floor;
          the count clips rather than wrapping under the icon */
       white-space: nowrap;
       overflow: hidden;
       vertical-align: top;
     }
-    .count-tag-icon {
-      /* keep the glyph inside the tag's 20px line box: its own line box
-         collapsed, nudged to the text's optical center */
-      margin-right: 3px;
-      line-height: 0;
-      vertical-align: -0.175em;
+    .count-tag .entity-count,
+    .count-tag .entity-icon {
+      display: inline-block;
+      line-height: 1;
+    }
+    .count-tag .entity-count {
+      margin: -3px 0;
+      padding: 3px 4px 3px 5px;
+    }
+    .count-tag .entity-icon {
+      margin: -3px 1px -4px -1px;
+      padding: 3px 3px 3px 0;
     }
     .count-tag.has-popover {
       cursor: help;
