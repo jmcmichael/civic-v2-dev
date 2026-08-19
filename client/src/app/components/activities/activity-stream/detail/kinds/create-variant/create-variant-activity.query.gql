@@ -1,4 +1,0 @@
-fragment CreateVariantActivityDetail on CreateVariantActivity {
-  ...ActivityFeedItemBase
-  ...ActivityFeedItemEvents
-}
