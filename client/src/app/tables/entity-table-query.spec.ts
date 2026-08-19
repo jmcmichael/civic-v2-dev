@@ -1,6 +1,8 @@
+import { DestroyRef } from '@angular/core'
 import { CombinedGraphQLErrors } from '@apollo/client'
+import { EMPTY } from 'rxjs'
 import { describe, expect, it } from 'vitest'
-import { splitError } from './entity-table-query'
+import { CvcEntityTableQuery, splitError } from './entity-table-query'
 
 /**
  * The partition the toolbar renders from: GraphQL errors get the
@@ -23,5 +25,31 @@ describe('splitError', () => {
 
     expect(split.network).toBe(failure)
     expect(split.query).toBeUndefined()
+  })
+})
+
+describe('CvcEntityTableQuery watch options', () => {
+  it('opts out of network-status loading emissions — refetches must not flash the spinner', () => {
+    // the app's global watchQuery defaults set notifyOnNetworkStatusChange:
+    // true; the store's documented UX (no loading flicker on filter/sort
+    // refetches, see loading()) depends on opting back out per-watch
+    let captured: unknown
+    const store = new CvcEntityTableQuery({
+      query: () =>
+        ({
+          watch: (options: unknown) => {
+            captured = options
+            return { valueChanges: EMPTY }
+          },
+        }) as never,
+      destroyRef: { onDestroy: () => () => {}, destroyed: false } as DestroyRef,
+    })
+
+    store.run({ first: 25 })
+
+    expect(captured).toMatchObject({
+      variables: { first: 25 },
+      notifyOnNetworkStatusChange: false,
+    })
   })
 })
