@@ -463,6 +463,14 @@ export interface CvcEnumOption<TValue = string | number> {
   label: string
   value: TValue
   /**
+   * Compact rendering for the icon-select's collapsed state when the enum
+   * has no civic icon set (`showIcons: false`) — the AMP category filter
+   * collapses to 'IA' while its option list reads 'Tier I - Level A', the
+   * way its cells already do. Without it the collapsed state falls back to
+   * `label`.
+   */
+  shortLabel?: string
+  /**
    * Section heading this option renders under, in both filter controls: the
    * funnel's dropdown menu (`nz-menu-group`) and the `'select'` control
    * (`nz-option-group`). Contiguous options sharing a `group` form one

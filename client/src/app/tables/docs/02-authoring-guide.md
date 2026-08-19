@@ -85,10 +85,12 @@ Narrow attribute columns (icon-only `enum-tag` cells) instead set
 `control: 'icon-select'` — `cvc-enum-icon-select`, an always-visible
 select collapsed to a single glyph: an `All` prompt when clear, the
 standard icon + label option list open, and the selected value's civic
-icon (label in its tooltip) with ng-zorro's hover circle-x clear once
-set. No arrow — the prompt is the affordance. Enums without a civic icon
-set (assertions' AMP category) stay on the funnel: the collapsed state
-would have no glyph to show.
+icon (label in its tooltip) with ng-zorro's circle-x clear — shown
+whenever a value is set — once chosen. No arrow — the prompt is the
+affordance. Enums without a civic icon set (`showIcons: false`) collapse
+to each option's `shortLabel` instead: assertions' AMP category shows
+'IA' the way its cells do, with 'Tier I - Level A' in the option list
+and tooltip.
 
 A column may also declare `extraFilter` — a second, funnel-only enum filter
 rendered beside its primary filter control (the legacy managers'

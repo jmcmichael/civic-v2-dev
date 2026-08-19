@@ -42,7 +42,8 @@ Conventions every table config follows:
   `control: 'select'` on columns wide enough, prompt `'Any'`, column sized
   to fit label + prompt (~90px); `control: 'icon-select'` on icon-only
   attribute columns — single-glyph select: 'All' prompt, selected icon +
-  hover circle-x clear, no arrow (needs a civic icon set; AMP stays funnel).
+  persistent circle-x clear, no arrow; iconless enums collapse to
+  `shortLabel` (AMP's 'IA').
 - Attribute columns: 4-char labels (ATYP/ADIR/ASIG/ACAT, ELVL/ETYP/EDIR/
   ESIG/VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
   `resizable: false` for ACAT/DSC-shaped narrow tag columns). Column

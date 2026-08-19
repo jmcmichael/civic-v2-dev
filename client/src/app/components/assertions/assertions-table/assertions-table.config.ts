@@ -104,7 +104,12 @@ const AMP_LEVEL_OPTIONS: CvcEnumOption<AmpLevel>[] = [
   AmpLevel.TierIiLevelC,
   AmpLevel.TierIiLevelD,
   AmpLevel.TierIii,
-].map((value) => ({ label: AMP_FORMAT.transform(value, 'verbose'), value }))
+].map((value) => ({
+  label: AMP_FORMAT.transform(value, 'verbose'),
+  // the icon-select's collapsed state — 'IA', as the ACAT cells render
+  shortLabel: AMP_FORMAT.transform(value, 'compact'),
+  value,
+}))
 
 /**
  * The query variables a host page scopes the table with: at most one entity
@@ -345,8 +350,10 @@ export function assertionsTableConfig(
           kind: 'enum',
           var: 'ampLevel',
           options: AMP_LEVEL_OPTIONS,
-          // AMP tiers have no civic-* icon set
+          // AMP tiers have no civic-* icon set: the icon-select collapses
+          // to each option's compact shortLabel instead
           showIcons: false,
+          control: 'icon-select',
         },
       },
       {

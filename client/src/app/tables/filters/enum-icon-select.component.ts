@@ -26,12 +26,13 @@ import { groupEnumOptions } from '../enum-filter-options'
  *   label, `group`ed options under their headings — in a dropdown wider
  *   than the trigger
  * - selected: only the value's icon (its label in a tooltip), with
- *   ng-zorro's clear control (hover circle-x) restoring All
+ *   ng-zorro's clear control (a circle-x, shown whenever a value is set)
+ *   restoring All
  *
  * No arrow: at attribute-column widths the prompt itself is the entire
- * affordance. `showIcons: false` enums degrade to their option label in
- * the collapsed state — but such enums generally read better through the
- * funnel control.
+ * affordance. `showIcons: false` enums collapse to each option's
+ * `shortLabel` instead (the AMP category's 'IA', as its cells render),
+ * falling back to the full label.
  *
  * Option loops track by index, not value: a grouped enum may list the same
  * value under several headings (significance's NA).
@@ -55,6 +56,12 @@ import { groupEnumOptions } from '../enum-filter-options'
     :host ::ng-deep .ant-select-selection-item,
     :host ::ng-deep .ant-select-selection-placeholder {
       text-align: center;
+    }
+    /* the clear control shows whenever a value is set, not only on hover —
+       at attribute-column widths a hover-only reveal reads as no
+       affordance at all */
+    :host ::ng-deep .ant-select-clear {
+      opacity: 1;
     }
   `,
   template: `
@@ -112,7 +119,12 @@ import { groupEnumOptions } from '../enum-filter-options'
           nz-tooltip
           [nzTooltipTitle]="option.nzLabel"></span>
       } @else {
-        {{ option.nzLabel }}
+        <span
+          class="short-label"
+          nz-tooltip
+          [nzTooltipTitle]="option.nzLabel"
+          >{{ shortLabelFor(option.nzValue) ?? option.nzLabel }}</span
+        >
       }
     </ng-template>
   `,
@@ -130,5 +142,10 @@ export class CvcEnumIconSelectComponent {
   /** the value's civic icon, by the same derivation the attribute tags use */
   protected iconName(value: unknown): string {
     return evidenceEnumDisplay(value as InputEnum, 'icon-name')
+  }
+
+  /** the value's compact collapsed rendering — see CvcEnumOption.shortLabel */
+  protected shortLabelFor(value: unknown): string | undefined {
+    return this.options().find((option) => option.value === value)?.shortLabel
   }
 }

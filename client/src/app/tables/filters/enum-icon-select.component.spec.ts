@@ -21,6 +21,11 @@ const OPTIONS: CvcEnumOption<string>[] = [
   { label: 'Does Not Support', value: 'DOES_NOT_SUPPORT' },
 ]
 
+const SHORT_LABELED: CvcEnumOption<string>[] = [
+  { label: 'Tier I - Level A', shortLabel: 'IA', value: 'TIER_I_LEVEL_A' },
+  { label: 'Tier III', shortLabel: 'III', value: 'TIER_III' },
+]
+
 describe('cvc-enum-icon-select', () => {
   let fixture: ComponentFixture<CvcEnumIconSelectComponent>
 
@@ -35,9 +40,10 @@ describe('cvc-enum-icon-select', () => {
   // collapsed rendering needs a stability flush before it exists
   async function mount(
     selected: string | null = null,
-    showIcons = true
+    showIcons = true,
+    options: CvcEnumOption<string>[] = OPTIONS
   ): Promise<HTMLElement> {
-    fixture.componentRef.setInput('options', OPTIONS)
+    fixture.componentRef.setInput('options', options)
     fixture.componentRef.setInput('selected', selected)
     fixture.componentRef.setInput('showIcons', showIcons)
     fixture.detectChanges()
@@ -67,6 +73,19 @@ describe('cvc-enum-icon-select', () => {
     const item = el.querySelector('.ant-select-selection-item')
     expect(item?.querySelector('[nz-icon]')).toBeNull()
     expect(item?.textContent).toContain('Supports')
+  })
+
+  it('collapses an iconless enum to its shortLabel, full label in the tooltip', async () => {
+    const el = await mount('TIER_I_LEVEL_A', false, SHORT_LABELED)
+    const item = el.querySelector('.ant-select-selection-item')
+    expect(item?.textContent?.trim()).toBe('IA')
+  })
+
+  it('shows the clear control whenever a value is set, without hover', async () => {
+    const cleared = await mount()
+    expect(cleared.querySelector('nz-select-clear')).toBeNull()
+    const set = await mount('SUPPORTS')
+    expect(set.querySelector('nz-select-clear')).toBeTruthy()
   })
 
   it('emits null on clear, never undefined', async () => {
