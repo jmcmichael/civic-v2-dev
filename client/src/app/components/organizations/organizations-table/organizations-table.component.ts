@@ -36,7 +36,7 @@ import { OrganizationsBrowseGQL } from './organizations-table.query.gql.generate
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="organizations" />
     </cvc-entity-table>

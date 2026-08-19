@@ -46,7 +46,7 @@ import { BrowseMolecularProfilesGQL } from './molecular-profile-table.query.gql.
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="molecular_profiles" />
     </cvc-entity-table>

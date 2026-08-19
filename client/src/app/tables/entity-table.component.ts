@@ -75,6 +75,7 @@ import {
   DEFAULT_EMPTY_VALUE,
 } from './entity-table.types'
 import { CvcEnumOptionGroup, groupEnumOptions } from './enum-filter-options'
+import { CvcEntityTableHeaderCtrlsComponent } from './entity-table-header-ctrls.component'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
 import { CvcEnumIconSelectComponent } from './filters/enum-icon-select.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
@@ -214,6 +215,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     CvcAttributeTagModule,
     CvcCollectionTagComponent,
     CvcCountTagCellComponent,
+    CvcEntityTableHeaderCtrlsComponent,
     CvcEnumFilterMenuComponent,
     CvcEnumIconSelectComponent,
     CvcPipesModule,

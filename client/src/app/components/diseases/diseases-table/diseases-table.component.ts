@@ -43,7 +43,7 @@ import { DiseaseBrowseGQL } from './diseases-table.query.gql.generated'
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="diseases" />
     </cvc-entity-table>

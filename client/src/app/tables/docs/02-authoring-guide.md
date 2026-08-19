@@ -454,14 +454,17 @@ Using the variant manager as the template (it is the smaller of the two):
      [spec]="spec()"
      [titleTemplate]="cardTitle">
      <cvc-table-downloader
-       cvcTableToolbarExtra
+       cvcTableCtrlButton
        [tableName]="'variants'" />
    </cvc-entity-table>
    ```
 
-   `[titleTemplate]` replaces the `spec().title` text; anything marked
-   `cvcTableToolbarExtra` is projected into the card-extra toolbar row,
-   between the row counts and the reset/preferences buttons.
+   `[titleTemplate]` replaces the `spec().title` text. Two toolbar
+   slots: `cvcTableCtrlButton` joins the action bar's compact button
+   group ahead of Filters/Settings (downloaders — wrap button text in
+   `.ctrl-label` so it drops with the bar's labels at narrow
+   breakpoints); `cvcTableToolbarExtra` lands beside the bar, outside
+   the group (scope menus, toggles).
 
 5. **Config spec.** Copy the shape of `variant-manager.config.spec.ts`:
    the filter declared∧used invariant, sort-members assertion, accessor

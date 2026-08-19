@@ -508,49 +508,30 @@
       }
     </nz-col>
 
-    <!-- host-supplied toolbar content (downloaders, scope menus) -->
+    <!-- host-supplied toolbar content (scope menus, toggles) -->
     <nz-col>
       <ng-content select="[cvcTableToolbarExtra]" />
     </nz-col>
 
-    <!-- the filter popover reviews/removes applied filters; the settings
-         popover carries the reset actions; the toolbar's old standalone
-         reset button is gone (reset-all also lives in every enum filter
-         dropdown's split Reset button) -->
-    <nz-col nzFlex="70px">
-      <nz-space-compact>
-        <button
-          nz-button
-          nz-popover
-          type="button"
-          nzType="default"
-          nzSize="small"
-          data-testid="table-filters-trigger"
-          [nzPopoverTitle]="filtersPopoverTitle"
-          [nzPopoverContent]="filtersPopover"
-          nzPopoverTrigger="click">
-          <span
-            nz-icon
-            nzType="filter"
-            nzTheme="fill"
-            [class.filters-applied]="allAppliedFilters().length > 0"></span>
-        </button>
-        <button
-          nz-button
-          nz-popover
-          type="button"
-          nzType="default"
-          nzSize="small"
-          data-testid="column-prefs-trigger"
-          [nzPopoverTitle]="settingsTitle()"
-          [nzPopoverContent]="prefsPopover"
-          nzPopoverTrigger="click">
-          <span
-            nz-icon
-            nzType="setting"
-            nzTheme="outline"></span>
-        </button>
-      </nz-space-compact>
+    <!-- the action bar: host ctrl buttons (downloaders) join the table's
+         own Filters and Settings popover triggers in one compact group;
+         labels drop below the sm breakpoint. The filter popover
+         reviews/removes applied filters; the settings popover carries the
+         reset actions (reset-all also lives in every enum filter
+         dropdown's split Reset button). -->
+    <nz-col>
+      <cvc-entity-table-header-ctrls
+        [filtersApplied]="allAppliedFilters().length > 0"
+        [filtersTitle]="filtersPopoverTitle"
+        [filtersContent]="filtersPopover"
+        [settingsTitle]="settingsTitle()"
+        [settingsContent]="prefsPopover">
+        <!-- ngProjectAs: re-projected content must re-declare the selector
+             or the child's select has nothing to match -->
+        <ng-content
+          select="[cvcTableCtrlButton]"
+          ngProjectAs="[cvcTableCtrlButton]" />
+      </cvc-entity-table-header-ctrls>
 
       <ng-template #filtersPopoverTitle>
         <span class="filters-popover-title">
