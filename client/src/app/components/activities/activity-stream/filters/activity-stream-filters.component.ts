@@ -27,7 +27,7 @@ import { distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators'
 import {
   ActivityFeedUpdatesGQL,
   ActivityFeedUpdatesQueryVariables,
-} from '../../activity-feed/feed-filters/feed-filters.query.gql.generated'
+} from './activity-stream-filters.query.gql.generated'
 import { disableDates, scopeToVariables } from '../activity-stream.functions'
 import {
   ActivityStreamFilterOptions,

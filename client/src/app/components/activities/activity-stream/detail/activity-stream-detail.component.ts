@@ -11,8 +11,8 @@ import {
   signal,
 } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
-import { ActivityFeedItemFragment } from '@app/components/activities/activity-feed/activity-feed.query.gql.generated'
-import { ActivityFeedItemGQL } from '@app/components/activities/activity-feed/feed-item/feed-item.query.gql.generated'
+import { ActivityFeedItemFragment } from '@app/components/activities/activity-stream/detail/activity-stream-detail.query.gql.generated'
+import { ActivityFeedItemGQL } from '@app/components/activities/activity-stream/detail/activity-stream-detail.query.gql.generated'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { CvcStreamItemContext } from '@app/streams/entity-stream.types'
 import { CvcStreamState } from '@app/streams/stream-state'
@@ -42,8 +42,7 @@ import { ActivityStreamNode } from '../activity-stream.types'
         No detail view is available for this activity.
       </div>
     } @else if (renderer() && activity()) {
-      <ng-container
-        *ngComponentOutlet="renderer()!; inputs: outletInputs()" />
+      <ng-container *ngComponentOutlet="renderer()!; inputs: outletInputs()" />
     } @else {
       <nz-skeleton
         [nzActive]="true"

@@ -17,7 +17,7 @@ import {
   UserFilterSearchGQL,
   UserFilterSearchQuery,
   UserFilterSearchQueryVariables,
-} from '../../../activity-feed/feed-filters/user-filter-select/user-filter-select.query.gql.generated'
+} from './user-filter-select.query.gql.generated'
 import { ActivityStreamParticipant } from '../../activity-stream.types'
 
 /**

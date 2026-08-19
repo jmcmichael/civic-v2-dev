@@ -38,114 +38,114 @@ export const ACTIVITY_DETAIL_REGISTRY: Record<string, CvcActivityDetailEntry> =
   {
     AcceptRevisionsActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/accept-revisions/accept-revisions-activity.component'
-        ).then((m) => m.CvcAcceptRevisionsActivity),
+        import('./detail/kinds/accept-revisions/accept-revisions-activity.component').then(
+          (m) => m.CvcAcceptRevisionsActivity
+        ),
       input: 'cvcAcceptRevisionActivity',
     },
     CommentActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/comment/comment-activity.component'
-        ).then((m) => m.CvcCommentActivity),
+        import('./detail/kinds/comment/comment-activity.component').then(
+          (m) => m.CvcCommentActivity
+        ),
       input: 'cvcCommentActivity',
     },
     FlagEntityActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/flag-entity/flag-entity-activity.component'
-        ).then((m) => m.CvcFlagEntityActivity),
+        import('./detail/kinds/flag-entity/flag-entity-activity.component').then(
+          (m) => m.CvcFlagEntityActivity
+        ),
       input: 'cvcFlagEntityActivity',
     },
     ModerateAssertionActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/moderate-assertion/moderate-assertion-activity.component'
-        ).then((m) => m.CvcModerateAssertionActivity),
+        import('./detail/kinds/moderate-assertion/moderate-assertion-activity.component').then(
+          (m) => m.CvcModerateAssertionActivity
+        ),
       input: 'cvcModerateAssertionActivity',
     },
     ModerateEvidenceItemActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/moderate-evidence/moderate-evidence-activity.component'
-        ).then((m) => m.CvcModerateEvidenceActivity),
+        import('./detail/kinds/moderate-evidence/moderate-evidence-activity.component').then(
+          (m) => m.CvcModerateEvidenceActivity
+        ),
       input: 'cvcModerateEvidenceActivity',
     },
     RejectRevisionsActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/reject-revisions/reject-revisions-activity.component'
-        ).then((m) => m.CvcRejectRevisionsActivity),
+        import('./detail/kinds/reject-revisions/reject-revisions-activity.component').then(
+          (m) => m.CvcRejectRevisionsActivity
+        ),
       input: 'cvcRejectRevisionsActivity',
     },
     ResolveFlagActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/resolve-flag/resolve-flag-activity.component'
-        ).then((m) => m.CvcResolveFlagActivity),
+        import('./detail/kinds/resolve-flag/resolve-flag-activity.component').then(
+          (m) => m.CvcResolveFlagActivity
+        ),
       input: 'cvcResolveFlagActivity',
     },
     SubmitAssertionActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/submit-assertion/submit-assertion-activity.component'
-        ).then((m) => m.CvcSubmitAssertionActivity),
+        import('./detail/kinds/submit-assertion/submit-assertion-activity.component').then(
+          (m) => m.CvcSubmitAssertionActivity
+        ),
       input: 'cvcSubmitAssertionActivity',
     },
     SubmitEvidenceItemActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/submit-evidence/submit-evidence-activity.component'
-        ).then((m) => m.CvcSubmitEvidenceActivity),
+        import('./detail/kinds/submit-evidence/submit-evidence-activity.component').then(
+          (m) => m.CvcSubmitEvidenceActivity
+        ),
       input: 'cvcSubmitEvidenceActivity',
     },
     SuggestRevisionSetActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/suggest-revisions/suggest-revisions-activity.component'
-        ).then((m) => m.CvcSuggestRevisionsActivity),
+        import('./detail/kinds/suggest-revisions/suggest-revisions-activity.component').then(
+          (m) => m.CvcSuggestRevisionsActivity
+        ),
       input: 'cvcSuggestRevisionSetActivity',
     },
     SuggestSourceActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/suggest-source/suggest-source-activity.component'
-        ).then((m) => m.CvcSuggestSourceActivity),
+        import('./detail/kinds/suggest-source/suggest-source-activity.component').then(
+          (m) => m.CvcSuggestSourceActivity
+        ),
       input: 'cvcSuggestSourceActivity',
     },
     UpdateSourceSuggestionStatusActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/update-source-suggestion/update-source-suggestion-activity.component'
-        ).then((m) => m.CvcUpdateSourceSuggestionActivity),
+        import('./detail/kinds/update-source-suggestion/update-source-suggestion-activity.component').then(
+          (m) => m.CvcUpdateSourceSuggestionActivity
+        ),
       input: 'cvcUpdateSourceSuggestionStatusActivity',
     },
     DeprecateComplexMolecularProfileActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/deprecate-molecular-profile/deprecate-mp-activity.component'
-        ).then((m) => m.CvcDeprecateMpActivity),
+        import('./detail/kinds/deprecate-molecular-profile/deprecate-mp-activity.component').then(
+          (m) => m.CvcDeprecateMpActivity
+        ),
       input: 'cvcDeprecateMpActivity',
     },
     DeprecateVariantActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/deprecate-variant/deprecate-variant-activity.component'
-        ).then((m) => m.CvcDeprecateVariantActivity),
+        import('./detail/kinds/deprecate-variant/deprecate-variant-activity.component').then(
+          (m) => m.CvcDeprecateVariantActivity
+        ),
       input: 'cvcDeprecateVariantActivity',
     },
     DeprecateFeatureActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/deprecate-feature/deprecate-feature-activity.component'
-        ).then((m) => m.CvcDeprecateFeatureActivity),
+        import('./detail/kinds/deprecate-feature/deprecate-feature-activity.component').then(
+          (m) => m.CvcDeprecateFeatureActivity
+        ),
       input: 'cvcDeprecateFeatureActivity',
     },
     RevokeApprovalActivity: {
       load: () =>
-        import(
-          '../activity-feed/feed-item-details/revoke-approval/revoke-approval-activity.component'
-        ).then((m) => m.CvcRevokeApprovalActivity),
+        import('./detail/kinds/revoke-approval/revoke-approval-activity.component').then(
+          (m) => m.CvcRevokeApprovalActivity
+        ),
       input: 'cvcRevokeApprovalActivity',
     },
   }
