@@ -76,6 +76,7 @@ import {
 } from './entity-table.types'
 import { CvcEnumOptionGroup, groupEnumOptions } from './enum-filter-options'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
+import { CvcEnumIconSelectComponent } from './filters/enum-icon-select.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
 import {
   CvcScrollEvent,
@@ -112,6 +113,56 @@ const LABEL_ICON_COLORS: Record<string, string> = {
 /** the filter-state key of a column's extraFilter (see CvcColumn.extraFilter) */
 function extraKey(key: string): string {
   return `${key}:extra`
+}
+
+/** the floor a drag-resize can shrink any column to; mirrors `[nzMinWidth]` */
+const MIN_COLUMN_PX = 40
+
+/** a visible column's identity + measured header width, as `resizeColumnWidths` input */
+export interface CvcMeasuredColumn {
+  key: string
+  resizable: boolean
+  /** currently rendered header-cell width; ≤0 means geometry is unmeasurable */
+  rendered: number
+}
+
+/**
+ * The boundary-transfer resize model: dragging a column's right edge moves
+ * the boundary it shares with the next resizable column, so space transfers
+ * between the two and the total width stays constant. Every column is
+ * returned frozen at its rendered width — the table stretches specified
+ * widths to fill its container, and only a sum-preserving write renders
+ * exactly as specified. Widening clamps at the neighbor's floor; with no
+ * resizable column to the right, only the dragged column changes (the
+ * stretch redistributes the difference). Returns null — caller falls back
+ * to a raw single-column write — when the key is unknown or any column is
+ * unmeasured (jsdom).
+ */
+export function resizeColumnWidths(
+  columns: ReadonlyArray<CvcMeasuredColumn>,
+  key: string,
+  emitted: number
+): ReadonlyMap<string, string> | null {
+  const at = columns.findIndex((column) => column.key === key)
+  if (at < 0) return null
+  if (columns.some((column) => !(column.rendered > 0))) return null
+  const dragged = columns[at]
+  const neighbor = columns.slice(at + 1).find((column) => column.resizable)
+  const widths = new Map(columns.map((column) => [column.key, column.rendered]))
+  let target = Math.max(MIN_COLUMN_PX, emitted)
+  if (neighbor) {
+    const delta = target - dragged.rendered
+    const applied =
+      delta > 0
+        ? Math.max(0, Math.min(delta, neighbor.rendered - MIN_COLUMN_PX))
+        : delta
+    target = dragged.rendered + applied
+    widths.set(neighbor.key, neighbor.rendered - applied)
+  }
+  widths.set(key, target)
+  return new Map(
+    [...widths].map(([colKey, width]) => [colKey, `${Math.round(width)}px`])
+  )
 }
 
 /** a CvcCellStyle resolved against its row; null when it yields nothing */
@@ -155,6 +206,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     CvcCollectionTagComponent,
     CvcCountTagCellComponent,
     CvcEnumFilterMenuComponent,
+    CvcEnumIconSelectComponent,
     CvcPipesModule,
     CvcTableFilterInputComponent,
     CvcTableScrollObserverDirective,
@@ -344,14 +396,81 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     })
   })
 
-  /** a header drag-resize landing (nzResizeEnd); session state, not config */
-  onColumnResize(key: string, width: number | undefined): void {
+  /**
+   * A header drag-resize landing (nzResizeEnd); session state, not config.
+   *
+   * Resizing is a boundary transfer: the drag moves the edge between the
+   * dragged column and its next resizable neighbor, so space shifts between
+   * the two and the total stays constant — see `resizeColumnWidths`. Every
+   * visible column is frozen at its currently rendered width in the same
+   * update, because the table stretches specified widths to fill its
+   * container (`min-width: 100%`): with the rendered sum preserved, no
+   * re-scaling occurs and both the dragged column's width and its dropped
+   * edge land exactly. Without measurable geometry (jsdom) the emitted
+   * width stores directly.
+   *
+   * The header cell also gets a one-shot click trap so the click a drag
+   * synthesizes never reaches ng-zorro's sort trigger on the same th
+   * (upstream: NG-ZORRO/ng-zorro-antd#7562). The cell is resolved from the
+   * host DOM by column key; `thEl` is a test seam.
+   */
+  onColumnResize(
+    key: string,
+    width: number | undefined,
+    thEl?: HTMLElement
+  ): void {
     if (!width) return
+    const th =
+      thEl ??
+      this.hostRef.nativeElement.querySelector<HTMLElement>(
+        `th[data-column="${CSS.escape(key)}"]`
+      ) ??
+      undefined
+    if (th) this.suppressNextHeaderClick(th)
+    const transferred = resizeColumnWidths(this.measuredColumns(th), key, width)
     this.widthOverrides.update((current) => {
       const next = new Map(current)
-      next.set(key, `${Math.round(width)}px`)
+      if (transferred) {
+        for (const [colKey, colWidth] of transferred) next.set(colKey, colWidth)
+      } else {
+        next.set(key, `${Math.round(width)}px`)
+      }
       return next
     })
+  }
+
+  /** the visible columns with their currently rendered header-cell widths
+   * (0 when unmeasurable, which `resizeColumnWidths` treats as no-geometry) */
+  private measuredColumns(th?: HTMLElement): CvcMeasuredColumn[] {
+    const row = th?.closest('tr')
+    return this.visibleColumns().map((column) => ({
+      key: column.key,
+      resizable: this.isResizable(column),
+      rendered:
+        row
+          ?.querySelector(`th[data-column="${CSS.escape(column.key)}"]`)
+          ?.getBoundingClientRect().width ?? 0,
+    }))
+  }
+
+  /**
+   * Ending a resize drag over the header cell synthesizes a click on it —
+   * ng-zorro's sort trigger, so an un-trapped resize also cycles the sort.
+   * A one-shot capture-phase listener eats that click before ng-zorro's
+   * bubble-phase handler; the click (if any — drops outside the th produce
+   * none) dispatches before timeouts run, so a 0ms removal disarms the trap
+   * before it could swallow a genuine later click.
+   */
+  private suppressNextHeaderClick(thEl: HTMLElement): void {
+    const suppress = (event: Event) => {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+    }
+    thEl.addEventListener('click', suppress, { capture: true, once: true })
+    setTimeout(
+      () => thEl.removeEventListener('click', suppress, { capture: true }),
+      0
+    )
   }
 
   readonly visibleColumns = computed(() =>
@@ -454,6 +573,20 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   sortOrderFor(column: CvcSpecColumn<TRow>): NzTableSortOrder {
     const sort = this.effectiveSort()
     return sort?.key === column.key ? sort.order : null
+  }
+
+  /**
+   * Icon-only enum-tag columns hold their configured width: widening one
+   * would only pad an icon until tags can disclose text labels when their
+   * column is wide enough (a planned width-aware tag-label feature), and
+   * the select checkbox column is structural. Every other column
+   * drag-resizes, unless its config sets `resizable` explicitly.
+   */
+  isResizable(column: CvcSpecColumn<TRow>): boolean {
+    return (
+      column.resizable ??
+      (column.cell.kind !== 'enum-tag' && column.cell.kind !== 'select')
+    )
   }
 
   // ------------------------------------------------------------ query state

@@ -21,11 +21,23 @@ the component and template should rarely need edits.
 
 ### Change a column's layout
 
-Users can drag-resize any column live: every header carries an
+Users can drag-resize columns live: resizable headers carry an
 `nz-resizable` right handle (`nzMinWidth` 40, preview line while
-dragging). Resizes are session state in the table's `widthOverrides` —
-the config's `width` stays the source of truth, and the settings
-popover's Reset Columns restores it along with visibility.
+dragging). A resize is a **boundary transfer**: the drag moves the edge
+the column shares with its next resizable neighbor, so space shifts
+between the two, the total stays constant, and the edge lands exactly at
+the drop point (`resizeColumnWidths` — every visible column is frozen at
+its rendered width in the same write, because the table stretches
+specified widths to fill its container and only a sum-preserving write
+renders exactly). Resizes are session state in the table's
+`widthOverrides` — the config's `width` stays the source of truth, and
+the settings popover's Reset Columns restores it along with visibility.
+
+Icon-only `enum-tag` columns and the select column are not resizable —
+widening one only pads its icon until tags can disclose labels at width.
+Mark other narrow fixed-tag columns (a compact `text-tag` category
+column, a single-icon custom cell) `resizable: false`; the flag also
+overrides the kind-based default in either direction.
 
 `width`, `align`, `fixed`, `hidden`, `tooltip`, `emptyValue` are plain column
 fields — edit them in the manager's `*.config.ts`. Two constraints:
@@ -68,6 +80,15 @@ false` drops the icon for enums without a civic set). Set
 `placeholder` as short as possible — the convention is `'Any'` — and size
 the column to the smallest px width that fits the header label and that
 prompt (90px fits 'Type'/'Role' + 'Any').
+
+Narrow attribute columns (icon-only `enum-tag` cells) instead set
+`control: 'icon-select'` — `cvc-enum-icon-select`, an always-visible
+select collapsed to a single glyph: an `All` prompt when clear, the
+standard icon + label option list open, and the selected value's civic
+icon (label in its tooltip) with ng-zorro's hover circle-x clear once
+set. No arrow — the prompt is the affordance. Enums without a civic icon
+set (assertions' AMP category) stay on the funnel: the collapsed state
+would have no glyph to show.
 
 A column may also declare `extraFilter` — a second, funnel-only enum filter
 rendered beside its primary filter control (the legacy managers'

@@ -104,6 +104,35 @@
   white-space: nowrap;
 }
 
+// A resize handle authored inside a sortable th gets wrapped by ng-zorro's
+// sort addon, and antd positions the title span — which would anchor the
+// absolutely-positioned handle ~14px shy of the column's true edge, buried
+// under the sort hit area. Neutralizing the wrappers re-anchors it to the
+// th itself (positioned by nz-resizable), so the handle sits on the real
+// column divider at full header height.
+th[nz-resizable] ::ng-deep {
+  .ant-table-column-sorters,
+  .ant-table-column-title {
+    position: static;
+  }
+}
+
+// Sort carets follow the column title instead of floating at the header
+// cell's far edge (antd's space-between default), keeping them visually
+// bound to the label and clear of the resize handle on the column divider.
+// A centered header keeps title + caret centered as a unit.
+th ::ng-deep {
+  .ant-table-column-sorters {
+    justify-content: flex-start;
+  }
+  .ant-table-column-title {
+    flex: none;
+  }
+}
+th.th-center ::ng-deep .ant-table-column-sorters {
+  justify-content: center;
+}
+
 // the checkbox in the select column sits too close to the table edge otherwise
 tr.data-row td:first-of-type {
   padding-left: 6px;

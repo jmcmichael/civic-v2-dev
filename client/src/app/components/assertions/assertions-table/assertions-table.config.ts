@@ -261,7 +261,7 @@ export function assertionsTableConfig(
       },
       {
         key: 'assertionType',
-        label: 'AT',
+        label: 'ATYP',
         tooltip: 'Assertion Type',
         width: '60px',
         align: 'center',
@@ -276,11 +276,12 @@ export function assertionsTableConfig(
           kind: 'enum',
           var: 'assertionType',
           options: ASSERTION_TYPE_OPTIONS,
+          control: 'icon-select',
         },
       },
       {
         key: 'assertionDirection',
-        label: 'AD',
+        label: 'ADIR',
         tooltip: 'Assertion Direction',
         width: '60px',
         align: 'center',
@@ -295,11 +296,12 @@ export function assertionsTableConfig(
           kind: 'enum',
           var: 'assertionDirection',
           options: enumFilterOptions(EvidenceDirection),
+          control: 'icon-select',
         },
       },
       {
         key: 'significance',
-        label: 'S',
+        label: 'ASIG',
         tooltip: 'Significance',
         width: '60px',
         align: 'center',
@@ -314,6 +316,7 @@ export function assertionsTableConfig(
           kind: 'enum',
           var: 'significance',
           options: SIGNIFICANCE_OPTIONS,
+          control: 'icon-select',
         },
       },
       {
@@ -321,6 +324,8 @@ export function assertionsTableConfig(
         label: 'CAT',
         tooltip: 'AMP/ASCO/CAP Category',
         width: '60px',
+        // a narrow fixed-tag column: widening only pads the compact tag
+        resizable: false,
         align: 'center',
         fixed: 'right',
         emptyValue: 'not-applicable',

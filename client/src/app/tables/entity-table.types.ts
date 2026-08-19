@@ -48,6 +48,14 @@ export interface CvcColumn<
    * not from this value.
    */
   width: string
+  /**
+   * Overrides the kind-based drag-resize default: icon-only `enum-tag`
+   * columns and the `select` column hold their configured width (widening
+   * one only pads its icon until tags can disclose text labels at width),
+   * everything else resizes. Set `false` on other narrow fixed-tag columns
+   * of the same shape — e.g. a compact `text-tag` category column.
+   */
+  resizable?: boolean
   /** `th`/`td` `nzAlign`; same union as ng-zorro's */
   align?: 'left' | 'center' | 'right'
   /**
@@ -475,12 +483,15 @@ export interface CvcEnumFilter<
   options: ReadonlyArray<CvcEnumOption<TValue>>
   /**
    * How the filter renders in the filter row. `'funnel'` (default):
-   * ng-zorro's `nz-filter-trigger` icon with a dropdown menu — for narrow
-   * icon columns (the evidence attribute columns). `'select'`: a full
-   * `nz-select` in the filter row, the way the legacy tables rendered their
-   * enum filters — for columns wide enough to show one (users' Role et al.).
+   * ng-zorro's `nz-filter-trigger` icon with a dropdown menu. `'select'`: a
+   * full `nz-select` in the filter row, the way the legacy tables rendered
+   * their enum filters — for columns wide enough to show one (users' Role
+   * et al.). `'icon-select'`: the narrow attribute columns' control — an
+   * always-visible select collapsed to a single glyph: an 'All' prompt when
+   * clear, the selected value's civic icon (label in a tooltip) plus
+   * ng-zorro's clear circle-x when set; see CvcEnumIconSelectComponent.
    */
-  control?: 'funnel' | 'select'
+  control?: 'funnel' | 'select' | 'icon-select'
   /** the select control's placeholder; unused by the funnel */
   placeholder?: string
   /**

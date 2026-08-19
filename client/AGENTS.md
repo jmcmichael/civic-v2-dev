@@ -40,7 +40,14 @@ Conventions every table config follows:
 - Enum filters: funnel icon by default (plain menu items: civic icon +
   label; options may declare a `group` for sectioned menus/selects);
   `control: 'select'` on columns wide enough, prompt `'Any'`, column sized
-  to fit label + prompt (~90px).
+  to fit label + prompt (~90px); `control: 'icon-select'` on icon-only
+  attribute columns — single-glyph select: 'All' prompt, selected icon +
+  hover circle-x clear, no arrow (needs a civic icon set; AMP stays funnel).
+- Attribute columns: 4-char labels (ATYP/ADIR/ASIG, ELVL/ETYP/EDIR/ESIG/
+  VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
+  `resizable: false` for CAT/DSC-shaped narrow tag columns). Column
+  resize elsewhere is a boundary transfer — edge lands at the drop point,
+  next resizable neighbor absorbs the delta.
 - `[height]`: explicit px | `'auto'` (viewport-fit minus measured layout
   padding — browse facades default to it) | omitted = flex-fill inside a
   height-bounded ancestor (form managers). Never reintroduce the legacy

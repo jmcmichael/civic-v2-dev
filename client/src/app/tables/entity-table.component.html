@@ -43,6 +43,8 @@
             nzBounds="window"
             nzPreview
             [nzMinWidth]="40"
+            [nzDisabled]="!isResizable(col)"
+            [class.th-center]="col.align === 'center'"
             (nzResizeEnd)="onColumnResize(col.key, $event.width)">
             <!-- whitespace-controlled: the label interpolation sits hard
                  against the @if block so no incidental space text node
@@ -75,7 +77,9 @@
                 }
               }{{ col.label }}</span
             >
-            <nz-resize-handle nzDirection="right" />
+            @if (isResizable(col)) {
+              <nz-resize-handle nzDirection="right" />
+            }
           </th>
         }
       </tr>
@@ -133,6 +137,15 @@
                             }
                           }
                         </nz-select>
+                      } @else if (filter.control === 'icon-select') {
+                        <!-- the attribute columns' always-visible glyph
+                           select: 'All' prompt, icon when set, circle-x
+                           clear — the legacy filter selects, icon-forward -->
+                        <cvc-enum-icon-select
+                          [options]="filter.options"
+                          [showIcons]="filter.showIcons ?? true"
+                          [selected]="filterValue(col.key)"
+                          (selectedChange)="onFilterChange(col, $event)" />
                       } @else {
                         <nz-filter-trigger
                           [nzActive]="filterValue(col.key) !== null"
