@@ -160,22 +160,14 @@ export function evidenceTableConfig(
           var: 'therapyName',
           placeholder: 'Filter Therapy Names',
         },
-      },
-      {
-        key: 'therapyInteractionType',
-        label: 'INT',
-        tooltip: 'Therapy Interaction Type',
-        width: '40px',
-        align: 'center',
-        emptyValue: 'not-applicable',
-        cell: {
-          kind: 'enum-tag',
-          value: (row) => row.therapyInteractionType,
-          tooltip: (row) => evidenceEnumDisplay(row.therapyInteractionType),
+        // the legacy INT column, folded in: interaction type filters from a
+        // funnel beside the therapy-name input (the value itself shows in
+        // evidence popovers)
+        extraFilter: {
+          kind: 'enum',
+          var: 'therapyInteractionType',
+          options: enumFilterOptions(TherapyInteraction),
         },
-        // no filter: unlike the manager's query, EvidenceBrowse declares no
-        // therapyInteractionType variable — a filter here cannot compile
-        sort: { column: EvidenceSortColumns.TherapyInteractionType },
       },
       {
         key: 'description',
