@@ -4581,8 +4581,13 @@ export type MolecularProfilesSort = {
 export enum MolecularProfilesSortColumns {
   AssertionCount = 'assertionCount',
   EvidenceItemCount = 'evidenceItemCount',
+  /** Sorts by the alphabetically first feature name among the profile's variants. */
+  FeatureName = 'featureName',
+  Id = 'id',
   MolecularProfileScore = 'molecularProfileScore',
-  VariantCount = 'variantCount'
+  VariantCount = 'variantCount',
+  /** Sorts by the alphabetically first variant name in the profile. */
+  VariantName = 'variantName'
 }
 
 export type Mutation = {
