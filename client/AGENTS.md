@@ -43,9 +43,9 @@ Conventions every table config follows:
   to fit label + prompt (~90px); `control: 'icon-select'` on icon-only
   attribute columns — single-glyph select: 'All' prompt, selected icon +
   hover circle-x clear, no arrow (needs a civic icon set; AMP stays funnel).
-- Attribute columns: 4-char labels (ATYP/ADIR/ASIG, ELVL/ETYP/EDIR/ESIG/
-  VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
-  `resizable: false` for CAT/DSC-shaped narrow tag columns). Column
+- Attribute columns: 4-char labels (ATYP/ADIR/ASIG/ACAT, ELVL/ETYP/EDIR/
+  ESIG/VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
+  `resizable: false` for ACAT/DSC-shaped narrow tag columns). Column
   resize elsewhere is a boundary transfer — edge lands at the drop point,
   next resizable neighbor absorbs the delta.
 - `[height]`: explicit px | `'auto'` (viewport-fit minus measured layout

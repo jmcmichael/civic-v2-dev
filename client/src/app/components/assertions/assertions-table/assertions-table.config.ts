@@ -321,7 +321,7 @@ export function assertionsTableConfig(
       },
       {
         key: 'ampLevel',
-        label: 'CAT',
+        label: 'ACAT',
         tooltip: 'AMP/ASCO/CAP Category',
         width: '60px',
         // a narrow fixed-tag column: widening only pads the compact tag
