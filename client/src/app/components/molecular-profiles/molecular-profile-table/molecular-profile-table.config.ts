@@ -2,7 +2,7 @@ import {
   Maybe,
   MolecularProfilesSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, formatCount, SORT_DESCEND_FIRST } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcMolecularProfileAliasesCellComponent } from './molecular-profile-table-aliases-cell.component'
 import { CvcMolecularProfileNameCellComponent } from './molecular-profile-table-name-cell.component'
@@ -177,8 +177,11 @@ export function molecularProfileTableConfig(
         fixed: 'right',
         align: 'right',
         cell: {
-          kind: 'text',
-          text: (row) => formatCount(row.molecularProfileScore),
+          // decimal-aligned: whole scores zero-fill to the loaded rows'
+          // precision (891 → 891.00 beside 406.25) under right alignment
+          kind: 'number',
+          value: (row) => row.molecularProfileScore,
+          decimalAlign: true,
         },
         sort: {
           column: MolecularProfilesSortColumns.MolecularProfileScore,

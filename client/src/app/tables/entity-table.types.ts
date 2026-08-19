@@ -155,9 +155,31 @@ export type CvcCellSpec<TRow> =
   | CvcEnumTagCell<TRow>
   | CvcTextTagCell<TRow>
   | CvcTextCell<TRow>
+  | CvcNumberCell<TRow>
   | CvcExternalLinkCell<TRow>
   | CvcCountTagCell<TRow>
   | CvcCustomCell<TRow>
+
+/**
+ * A numeric value the table formats itself (locale grouping, tabular
+ * figures) — unlike `text`, whose accessor delivers finished strings.
+ */
+export interface CvcNumberCell<TRow> {
+  kind: 'number'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
+  value: (row: TRow) => Maybe<number>
+  /**
+   * Align the column on the decimal point: every value renders with the
+   * highest fraction precision among the LOADED rows' values, whole
+   * numbers zero-filled to match (891 → '891.00' beside 406.25), in
+   * tabular figures so every digit — and so every separator — shares one
+   * width. Right-alignment completes the effect: pair with
+   * `align: 'right'`. Precision can only grow as pages load, so rows
+   * never reflow back.
+   */
+  decimalAlign?: boolean
+}
 
 /** row checkbox; the table owns the selection, the column just marks the slot */
 export interface CvcSelectCell {
@@ -500,6 +522,15 @@ export interface CvcEnumFilter<
    * ng-zorro's clear circle-x when set; see CvcEnumIconSelectComponent.
    */
   control?: 'funnel' | 'select' | 'icon-select'
+  /**
+   * The icon-select accepts several values at once (`nzMode="multiple"`),
+   * emitting a non-empty array (empty selections normalize to null). The
+   * filter's `var` must then name one of the server's plural, array-typed
+   * args (`assertionTypes` et al.), whose values OR together — the
+   * singular args reject list-typed variables. Funnel/select controls
+   * ignore this flag.
+   */
+  multiple?: boolean
   /** the select control's placeholder; unused by the funnel */
   placeholder?: string
   /**

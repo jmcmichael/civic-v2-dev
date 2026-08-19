@@ -525,6 +525,38 @@ describe('cvc-entity-table', () => {
     ).toBe(true)
   })
 
+  it('zero-fills decimal-aligned numbers to the loaded rows’ precision', async () => {
+    fixture.componentInstance.spec.set(buildSpec())
+    await settle()
+    const scoreCol = {
+      ...table.columns().find((c) => c.key === 'name')!,
+      key: 'score',
+      cell: {
+        kind: 'number' as const,
+        value: (r: Row) => [891, 406.25, 462.5][r.id - 1],
+        decimalAlign: true,
+      },
+    }
+    // the column's precision is its loaded rows' max fraction digits...
+    const withScore = {
+      ...buildSpec(),
+      columns: [...buildSpec().columns, scoreCol],
+    }
+    fixture.componentInstance.spec.set(withScore)
+    await settle()
+    expect(table.decimalPrecision().get('score')).toBe(2)
+    // ...and every value zero-fills to it, locale-grouped
+    expect(table.formatNumber(scoreCol, 891)).toBe('891.00')
+    expect(table.formatNumber(scoreCol, 406.25)).toBe('406.25')
+    // a non-aligned number cell formats freely
+    expect(
+      table.formatNumber(
+        { ...scoreCol, cell: { kind: 'number', value: () => 1 } },
+        1234.5
+      )
+    ).toBe('1,234.5')
+  })
+
   it('renders no handle where no boundary can transfer — the table edges stay fixed', async () => {
     fixture.componentInstance.spec.set(buildSpec())
     await settle()

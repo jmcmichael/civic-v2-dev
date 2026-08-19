@@ -2,6 +2,28 @@
   font-weight: bold;
 }
 
+// the collection tag's chip metrics (collection-tag.component.less) so a
+// plain-string overflow and an entity overflow read as one vocabulary
+.overflow-tag {
+  margin: 0;
+  padding: 0;
+  margin-inline-end: 4px;
+  span {
+    display: inline-block;
+  }
+  .plus-sign {
+    margin: -3px 0;
+    padding: 3px 3px 3px 4px;
+    line-height: 1;
+  }
+  .overflow-count {
+    margin: -3px 0;
+    margin-left: -2px;
+    padding: 3px 4px 3px 0;
+    line-height: 1;
+  }
+}
+
 .popover-tag-list {
   max-width: 600px;
 }

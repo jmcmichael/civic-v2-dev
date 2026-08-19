@@ -160,13 +160,14 @@ describe('evidenceTableConfig', () => {
       ['disease', 'diseaseName'],
       ['therapies', 'therapyName'],
       ['description', 'description'],
-      ['evidenceLevel', 'evidenceLevel'],
-      ['evidenceType', 'evidenceType'],
-      ['evidenceDirection', 'evidenceDirection'],
-      ['significance', 'significance'],
-      ['variantOrigin', 'variantOrigin'],
+      // the attribute filters are multi-selects on the plural server args
+      ['evidenceLevel', 'evidenceLevels'],
+      ['evidenceType', 'evidenceTypes'],
+      ['evidenceDirection', 'evidenceDirections'],
+      ['significance', 'significances'],
+      ['variantOrigin', 'variantOrigins'],
       // the browse query's own name for the manager's `rating`
-      ['evidenceRating', 'evidenceRating'],
+      ['evidenceRating', 'evidenceRatings'],
     ])
   })
 

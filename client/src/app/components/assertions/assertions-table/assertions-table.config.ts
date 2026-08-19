@@ -279,9 +279,10 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.AssertionType },
         filter: {
           kind: 'enum',
-          var: 'assertionType',
+          var: 'assertionTypes',
           options: ASSERTION_TYPE_OPTIONS,
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -299,9 +300,10 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.AssertionDirection },
         filter: {
           kind: 'enum',
-          var: 'assertionDirection',
+          var: 'assertionDirections',
           options: enumFilterOptions(EvidenceDirection),
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -319,9 +321,10 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.Significance },
         filter: {
           kind: 'enum',
-          var: 'significance',
+          var: 'significances',
           options: SIGNIFICANCE_OPTIONS,
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -348,12 +351,13 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.AmpLevel },
         filter: {
           kind: 'enum',
-          var: 'ampLevel',
+          var: 'ampLevels',
           options: AMP_LEVEL_OPTIONS,
           // AMP tiers have no civic-* icon set: the icon-select collapses
           // to each option's compact shortLabel instead
           showIcons: false,
           control: 'icon-select',
+          multiple: true,
         },
       },
       {

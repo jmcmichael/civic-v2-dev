@@ -42,6 +42,13 @@ export class CvcCollectionTagComponent {
    * callers that opt in.
    */
   readonly maxIcons = input<number>(0)
+  /**
+   * Suppress the count-mode entity icon — for an overflow chip appended to
+   * visible tags of the same entity type, where repeating their icon says
+   * nothing (the browse tables' entity-column overflows). Icon-stack mode
+   * (`maxIcons`) is unaffected: its icons ARE the content.
+   */
+  readonly showIcon = input<boolean>(true)
   readonly emphasize = input<string | undefined>(undefined)
   readonly popover = input<boolean | undefined>(undefined)
 

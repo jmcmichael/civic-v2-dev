@@ -54,6 +54,16 @@ fields — edit them in the manager's `*.config.ts`. Two constraints:
 - Never wrap the body's `nz-virtual-scroll` template in `<tbody>` (see
   troubleshooting §11 — it silently zeroes every pinned offset).
 
+### Number columns
+
+`kind: 'number'` delivers the raw value and lets the table format it
+(locale grouping, tabular figures). `decimalAlign: true` aligns the
+column on the decimal point: every value renders at the highest fraction
+precision among the loaded rows — whole numbers zero-fill (891 →
+'891.00' beside 406.25) — so with `align: 'right'` the separators stack.
+Precision only grows as pages load; rows never reflow back. MP's Score
+is the reference use.
+
 ### Style a column
 
 `styles` on a column carries inline styles for its three rows — `header`
@@ -93,6 +103,16 @@ affordance. Enums without a civic icon set (`showIcons: false`) collapse
 to each option's `shortLabel` instead: assertions' AMP category shows
 'IA' the way its cells do, with 'Tier I - Level A' in the option list
 and tooltip.
+
+An icon-select may declare `multiple: true`: selections collapse to bare
+glyphs side by side (three, then `+N`), deselection happens in the
+option list, and the circle-x clears the set. Empty selections emit
+null, never `[]`. The filter's `var` must then name one of the server's
+PLURAL array args (`assertionTypes`, `evidenceLevels`, …) whose values
+OR together — the singular args reject list-typed variables, and both
+forms must never be sent together (they AND). Settings-seeded values
+pass through whole for multi filters; a scalar seed becomes a one-value
+array (the assertions facade's URL params).
 
 A column may also declare `extraFilter` — a second, funnel-only enum filter
 rendered beside its primary filter control (the legacy managers'

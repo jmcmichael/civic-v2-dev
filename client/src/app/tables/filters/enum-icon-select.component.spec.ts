@@ -104,4 +104,42 @@ describe('cvc-enum-icon-select', () => {
     const el = await mount('SUPPORTS')
     expect(el.querySelector('nz-select-arrow')).toBeNull()
   })
+
+  describe('multiple mode', () => {
+    async function mountMulti(
+      selected: string[] | null = null
+    ): Promise<HTMLElement> {
+      fixture.componentRef.setInput('options', OPTIONS)
+      fixture.componentRef.setInput('selected', selected)
+      fixture.componentRef.setInput('multiple', true)
+      fixture.detectChanges()
+      await fixture.whenStable()
+      fixture.detectChanges()
+      return fixture.nativeElement as HTMLElement
+    }
+
+    it('renders each selection through the glyph template', async () => {
+      const el = await mountMulti(['SUPPORTS', 'DOES_NOT_SUPPORT'])
+      expect(el.querySelector('.ant-select-multiple')).toBeTruthy()
+      expect(
+        el.querySelectorAll('.ant-select-selection-item').length
+      ).toBeGreaterThanOrEqual(2)
+    })
+
+    it('emits the array, and null for an emptied selection — never []', async () => {
+      await mountMulti(['SUPPORTS'])
+      const emitted = vi.fn()
+      fixture.componentInstance.selectedChange.subscribe(emitted)
+      const select = fixture.debugElement.query(By.directive(NzSelectComponent))
+
+      select.triggerEventHandler('ngModelChange', [
+        'SUPPORTS',
+        'DOES_NOT_SUPPORT',
+      ])
+      expect(emitted).toHaveBeenLastCalledWith(['SUPPORTS', 'DOES_NOT_SUPPORT'])
+
+      select.triggerEventHandler('ngModelChange', [])
+      expect(emitted).toHaveBeenLastCalledWith(null)
+    })
+  })
 })

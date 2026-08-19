@@ -43,7 +43,13 @@ Conventions every table config follows:
   to fit label + prompt (~90px); `control: 'icon-select'` on icon-only
   attribute columns — single-glyph select: 'All' prompt, selected icon +
   persistent circle-x clear, no arrow; iconless enums collapse to
-  `shortLabel` (AMP's 'IA').
+  `shortLabel` (AMP's 'IA'); `multiple: true` = bare-glyph multi (3 then
+  +N) on the server's PLURAL array args (values OR; never send singular
+  and plural together).
+- Count cells: collection-tag chip vocabulary ([count][icon], no plus),
+  zero renders as a bare '0'; entity-column overflow chips drop the icon
+  (same-type tags precede them); `kind: 'number'` + `decimalAlign` for
+  decimal-point-aligned numeric columns (MP Score).
 - Attribute columns: 4-char labels (ATYP/ADIR/ASIG/ACAT, ELVL/ETYP/EDIR/
   ESIG/VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
   `resizable: false` for ACAT/DSC-shaped narrow tag columns). Column

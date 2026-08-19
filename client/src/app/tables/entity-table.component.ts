@@ -115,6 +115,15 @@ function extraKey(key: string): string {
   return `${key}:extra`
 }
 
+/** fraction digits of a number's plain decimal rendering, capped at 4 —
+ * float artifacts past that are noise, not precision */
+function fractionDigits(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  const rendered = String(value)
+  const dot = rendered.indexOf('.')
+  return dot < 0 ? 0 : Math.min(rendered.length - dot - 1, 4)
+}
+
 /** the floor a drag-resize can shrink any column to; mirrors `[nzMinWidth]` */
 const MIN_COLUMN_PX = 40
 
@@ -305,7 +314,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
   /** five glyphs for a count column's stacked header icon */
-  protected readonly iconStack = [0, 1, 2, 3, 4]
+  protected readonly iconStack = [0, 1, 2]
 
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
@@ -476,6 +485,45 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   readonly visibleColumns = computed(() =>
     this.columns().filter((column) => !column.hidden)
   )
+
+  /**
+   * Per-column max fraction digits across the loaded rows, for
+   * decimal-aligned number cells (CvcNumberCell.decimalAlign). Loading
+   * more pages can only raise a column's precision, so settled rows never
+   * reflow back to fewer digits.
+   */
+  readonly decimalPrecision = computed<ReadonlyMap<string, number>>(() => {
+    const map = new Map<string, number>()
+    const rows = this.rows()
+    for (const column of this.visibleColumns()) {
+      const cell = column.cell
+      if (cell.kind !== 'number' || !cell.decimalAlign) continue
+      let precision = 0
+      for (const row of rows) {
+        const value = cell.value(row)
+        if (value === null || value === undefined) continue
+        precision = Math.max(precision, fractionDigits(value))
+      }
+      map.set(column.key, precision)
+    }
+    return map
+  })
+
+  /** locale-grouped number; decimal-aligned columns zero-fill every value
+   * to the column's shared precision (891 → '891.00' beside 406.25) */
+  formatNumber(column: CvcSpecColumn<TRow>, value: number): string {
+    const cell = column.cell
+    const digits =
+      cell.kind === 'number' && cell.decimalAlign
+        ? (this.decimalPrecision().get(column.key) ?? 0)
+        : undefined
+    return digits === undefined
+      ? value.toLocaleString()
+      : value.toLocaleString(undefined, {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits,
+        })
+  }
 
   /**
    * Whether the filter row renders at all. A table whose visible columns
@@ -1078,12 +1126,17 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       const value = values.get(column.key)
       if (filter && value !== null && value !== undefined && value !== '') {
         if (filter.kind === 'enum') {
-          const option = filter.options.find((o) => o.value === value)
+          // a multi filter holds an array; each value reads through its
+          // option label and the row joins them (values OR on the wire)
+          const labelFor = (v: unknown) =>
+            filter.options.find((o) => o.value === v)?.label ?? String(v)
           rows.push({
             key: column.key,
             field: column.tooltip || column.label,
             comparison: 'is',
-            display: option?.label ?? String(value),
+            display: Array.isArray(value)
+              ? value.map(labelFor).join(', ')
+              : labelFor(value),
           })
         } else {
           rows.push({
@@ -1141,6 +1194,16 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
           const column = columns.find((c) => c.key === change.key)
           if (!column?.filter) continue
 
+          // a multi enum filter's state is an array — seed it whole (a
+          // scalar becomes a one-value array); single-valued filters
+          // unwrap a one-value array the way URL params arrive
+          if (column.filter.kind === 'enum' && column.filter.multiple) {
+            const values = (
+              Array.isArray(change.value) ? change.value : [change.value]
+            ).filter((v) => v !== null && v !== undefined)
+            next.set(column.key, values.length ? values : null)
+            continue
+          }
           const value = Array.isArray(change.value)
             ? change.value[0]
             : change.value

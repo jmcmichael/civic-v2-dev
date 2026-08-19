@@ -54,32 +54,42 @@ const POPOVER_PAGE = 10
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nz-tag
-      class="count-tag"
-      [class.has-popover]="popoverEnabled()"
-      nz-popover
-      #popover="nzPopover"
-      [nzPopoverContent]="
-        popoverEnabled() && !suspended() ? content : undefined
-      "
-      nzPopoverPlacement="left"
-      nzPopoverTrigger="hover"
-      (nzPopoverVisibleChange)="onVisibleChange($event)">
+    <!-- a zero count is an absence, not a collection: no chip, no icon -->
+    @if ((count() ?? 0) === 0) {
       <span
-        class="entity-count"
+        class="zero-count"
         nz-typography
-        nzType="secondary">
-        <strong>{{ display() }}</strong>
-      </span>
-      @if (icon(); as glyph) {
+        nzType="secondary"
+        >0</span
+      >
+    } @else {
+      <nz-tag
+        class="count-tag"
+        [class.has-popover]="popoverEnabled()"
+        nz-popover
+        #popover="nzPopover"
+        [nzPopoverContent]="
+          popoverEnabled() && !suspended() ? content : undefined
+        "
+        nzPopoverPlacement="left"
+        nzPopoverTrigger="hover"
+        (nzPopoverVisibleChange)="onVisibleChange($event)">
         <span
-          class="entity-icon"
-          nz-icon
-          [nzType]="glyph"
-          nzTheme="twotone"
-          [nzTwotoneColor]="iconColor()"></span>
-      }
-    </nz-tag>
+          class="entity-count"
+          nz-typography
+          nzType="secondary">
+          <strong>{{ display() }}</strong>
+        </span>
+        @if (icon(); as glyph) {
+          <span
+            class="entity-icon"
+            nz-icon
+            [nzType]="glyph"
+            nzTheme="twotone"
+            [nzTwotoneColor]="iconColor()"></span>
+        }
+      </nz-tag>
+    }
 
     <ng-template #content>
       <div
@@ -141,6 +151,11 @@ const POPOVER_PAGE = 10
     .count-tag .entity-icon {
       margin: -3px 1px -4px -1px;
       padding: 3px 3px 3px 0;
+    }
+    .zero-count {
+      display: inline-block;
+      line-height: 20px;
+      vertical-align: top;
     }
     .count-tag.has-popover {
       cursor: help;

@@ -2,6 +2,9 @@
 // padding, nowrap header and data cells, and the filter row's tighter padding.
 // Shared rather than copied, so the two tables cannot drift apart on them.
 @import 'themes/overrides/card-table.overrides.less';
+// variables only (reference emits no rules): the icon-stack ring matches
+// the live theme's th background rather than a hardcoded copy of it
+@import (reference) 'ng-zorro-antd/style/themes/compact.less';
 
 // Sizing is CSS, not JavaScript.
 //
@@ -110,6 +113,13 @@
   white-space: nowrap;
 }
 
+// tabular figures give every digit one width, so a decimal-aligned number
+// column's zero-filled values line their separators up under right
+// alignment (see CvcNumberCell.decimalAlign)
+.number-cell.decimal-aligned {
+  font-variant-numeric: tabular-nums;
+}
+
 // A resize handle authored inside a sortable th gets wrapped by ng-zorro's
 // sort addon, and antd positions the title span — which would anchor the
 // absolutely-positioned handle ~14px shy of the column's true edge, buried
@@ -173,21 +183,21 @@ tr.data-row td:first-of-type {
   margin-right: 4px;
 }
 
-// count-column headers: five entity glyphs slid behind one another,
-// avatar-group style — each on a white disc with a 1px white ring so the
-// overlaps read as separate coins
+// count-column headers: three entity glyphs slid behind one another,
+// avatar-group style — each on a disc with a 1px ring in the header row's
+// own background (@table-header-bg) so the overlaps read as separate coins
 .header-icon-stack {
   display: inline-flex;
 
   .stacked-icon {
-    background: #fff;
+    background: @table-header-bg;
     border-radius: 50%;
-    box-shadow: 0 0 0 1px #fff;
+    box-shadow: 0 0 0 1px @table-header-bg;
   }
 
   .stacked-icon + .stacked-icon {
-    // glyphs render at 12px (1em); -8px leaves a ~4px visible step
-    margin-left: -8px;
+    // glyphs render at 12px (1em); -6px leaves a ~6px visible step
+    margin-left: -6px;
   }
 }
 

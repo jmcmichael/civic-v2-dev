@@ -255,10 +255,12 @@ describe('molecularProfileTableConfig', () => {
       expect(therapies.ref(ROW)).toEqual([{ __typename: 'Therapy', id: 9 }])
     })
 
-    it('renders the score locale-grouped and the counts as count-tag cells', () => {
-      expect(specCell(spec, 'molecularProfileScore', 'text').text(ROW)).toBe(
-        '125.5'
-      )
+    it('renders the score as a decimal-aligned number and the counts as count-tag cells', () => {
+      // a number cell: the raw value; the table formats it (locale
+      // grouping + the column's shared decimal precision)
+      const score = specCell(spec, 'molecularProfileScore', 'number')
+      expect(score.value(ROW)).toBe(125.5)
+      expect(score.decimalAlign).toBe(true)
       // count-tag cells carry the raw number; the cell formats it
       expect(specCell(spec, 'evidenceItemCount', 'count-tag').count(ROW)).toBe(
         1240

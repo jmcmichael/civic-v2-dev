@@ -34,6 +34,12 @@ import { groupEnumOptions } from '../enum-filter-options'
  * `shortLabel` instead (the AMP category's 'IA', as its cells render),
  * falling back to the full label.
  *
+ * `multiple` accepts several values at once (they OR on the wire — the
+ * filter's var must be a server plural arg). Selections collapse to bare
+ * glyphs side by side, capped at three with a `+N` overflow; deselection
+ * happens in the option list, and the circle-x clears the whole set.
+ * Empty selections emit null, never [].
+ *
  * Option loops track by index, not value: a grouped enum may list the same
  * value under several headings (significance's NA).
  */
@@ -63,17 +69,43 @@ import { groupEnumOptions } from '../enum-filter-options'
     :host ::ng-deep .ant-select-clear {
       opacity: 1;
     }
+    /* Multiple mode: selections render as bare glyphs side by side, not
+       antd's tag chips — chip chrome plus a per-chip remove doubles the
+       footprint and wraps the 29px filter row. Deselection lives in the
+       option list; the circle-x clears the whole set. */
+    :host ::ng-deep .ant-select-multiple .ant-select-selection-item {
+      background: none;
+      border: 0;
+      padding: 0;
+      margin: 0 1px;
+      height: auto;
+      line-height: inherit;
+    }
+    :host ::ng-deep .ant-select-multiple .ant-select-selection-item-remove {
+      display: none;
+    }
+    :host ::ng-deep .ant-select-multiple .ant-select-selector {
+      flex-wrap: nowrap;
+      max-height: 24px;
+      overflow: hidden;
+    }
+    .overflow-count {
+      font-size: 11px;
+    }
   `,
   template: `
     <nz-select
       nzSize="small"
       nzAllowClear
       nzPlaceHolder="All"
+      [nzMode]="multiple() ? 'multiple' : 'default'"
       [nzShowArrow]="false"
       [nzDropdownMatchSelectWidth]="false"
       [nzCustomTemplate]="selectedTpl"
+      [nzMaxTagCount]="3"
+      [nzMaxTagPlaceholder]="maxTagTpl"
       [ngModel]="selected()"
-      (ngModelChange)="selectedChange.emit($event ?? null)">
+      (ngModelChange)="onModelChange($event)">
       @for (group of groups(); track $index) {
         @if (group.title) {
           <nz-option-group [nzLabel]="group.title">
@@ -127,6 +159,12 @@ import { groupEnumOptions } from '../enum-filter-options'
         >
       }
     </ng-template>
+
+    <ng-template
+      #maxTagTpl
+      let-omitted>
+      <span class="overflow-count">+{{ omitted.length }}</span>
+    </ng-template>
   `,
 })
 export class CvcEnumIconSelectComponent {
@@ -134,8 +172,20 @@ export class CvcEnumIconSelectComponent {
   readonly selected = input<unknown>(null)
   /** false for enums with no civic-* icon set; see CvcEnumFilter.showIcons */
   readonly showIcons = input<boolean>(true)
+  /** accept several values at once — see CvcEnumFilter.multiple */
+  readonly multiple = input<boolean>(false)
 
   readonly selectedChange = output<unknown>()
+
+  /** an empty selection — cleared multi array or cleared single — is null,
+   * the filter map's cleared state, never [] or undefined */
+  protected onModelChange(value: unknown): void {
+    if (Array.isArray(value)) {
+      this.selectedChange.emit(value.length ? value : null)
+    } else {
+      this.selectedChange.emit(value ?? null)
+    }
+  }
 
   protected readonly groups = computed(() => groupEnumOptions(this.options()))
 

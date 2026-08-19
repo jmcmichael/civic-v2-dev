@@ -5747,9 +5747,12 @@ export type QueryAssertionArgs = {
 export type QueryAssertionsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   ampLevel?: InputMaybe<AmpLevel>;
+  ampLevels?: InputMaybe<Array<AmpLevel>>;
   approvingOrganizations?: InputMaybe<OrganizationFilter>;
   assertionDirection?: InputMaybe<EvidenceDirection>;
+  assertionDirections?: InputMaybe<Array<EvidenceDirection>>;
   assertionType?: InputMaybe<EvidenceType>;
+  assertionTypes?: InputMaybe<Array<EvidenceType>>;
   before?: InputMaybe<Scalars['String']['input']>;
   diseaseId?: InputMaybe<Scalars['Int']['input']>;
   diseaseName?: InputMaybe<Scalars['String']['input']>;
@@ -5763,11 +5766,13 @@ export type QueryAssertionsArgs = {
   organization?: InputMaybe<OrganizationFilter>;
   phenotypeId?: InputMaybe<Scalars['Int']['input']>;
   significance?: InputMaybe<AssertionSignificance>;
+  significances?: InputMaybe<Array<AssertionSignificance>>;
   sortBy?: InputMaybe<AssertionSort>;
   status?: InputMaybe<EvidenceStatusFilter>;
   summary?: InputMaybe<Scalars['String']['input']>;
   therapyId?: InputMaybe<Scalars['Int']['input']>;
   therapyInteractionType?: InputMaybe<TherapyInteraction>;
+  therapyInteractionTypes?: InputMaybe<Array<TherapyInteraction>>;
   therapyName?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['Int']['input']>;
   variantId?: InputMaybe<Scalars['Int']['input']>;
@@ -6053,9 +6058,13 @@ export type QueryEvidenceItemsArgs = {
   diseaseId?: InputMaybe<Scalars['Int']['input']>;
   diseaseName?: InputMaybe<Scalars['String']['input']>;
   evidenceDirection?: InputMaybe<EvidenceDirection>;
+  evidenceDirections?: InputMaybe<Array<EvidenceDirection>>;
   evidenceLevel?: InputMaybe<EvidenceLevel>;
+  evidenceLevels?: InputMaybe<Array<EvidenceLevel>>;
   evidenceRating?: InputMaybe<Scalars['Int']['input']>;
+  evidenceRatings?: InputMaybe<Array<Scalars['Int']['input']>>;
   evidenceType?: InputMaybe<EvidenceType>;
+  evidenceTypes?: InputMaybe<Array<EvidenceType>>;
   first?: InputMaybe<Scalars['Int']['input']>;
   id?: InputMaybe<Scalars['Int']['input']>;
   ids?: InputMaybe<Array<Scalars['Int']['input']>>;
@@ -6065,15 +6074,18 @@ export type QueryEvidenceItemsArgs = {
   organization?: InputMaybe<OrganizationFilter>;
   phenotypeId?: InputMaybe<Scalars['Int']['input']>;
   significance?: InputMaybe<EvidenceSignificance>;
+  significances?: InputMaybe<Array<EvidenceSignificance>>;
   sortBy?: InputMaybe<EvidenceSort>;
   sourceId?: InputMaybe<Scalars['Int']['input']>;
   status?: InputMaybe<EvidenceStatusFilter>;
   therapyId?: InputMaybe<Scalars['Int']['input']>;
   therapyInteractionType?: InputMaybe<TherapyInteraction>;
+  therapyInteractionTypes?: InputMaybe<Array<TherapyInteraction>>;
   therapyName?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['Int']['input']>;
   variantId?: InputMaybe<Scalars['Int']['input']>;
   variantOrigin?: InputMaybe<VariantOrigin>;
+  variantOrigins?: InputMaybe<Array<VariantOrigin>>;
 };
 
 

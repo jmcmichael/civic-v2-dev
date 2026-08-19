@@ -144,6 +144,7 @@
                         <cvc-enum-icon-select
                           [options]="filter.options"
                           [showIcons]="filter.showIcons ?? true"
+                          [multiple]="filter.multiple ?? false"
                           [selected]="filterValue(col.key)"
                           (selectedChange)="onFilterChange(col, $event)" />
                       } @else {
@@ -261,8 +262,11 @@
                       [fullWidth]="cell.fullWidth ?? false"
                       [truncate]="cell.truncateLabel" />
                     @if (cell.maxTags && list.length > cell.maxTags) {
+                      <!-- appended to same-type tags: repeating their
+                           entity icon says nothing, so just the +N -->
                       <cvc-collection-tag
                         [refs]="list.slice(cell.maxTags)"
+                        [showIcon]="false"
                         [emphasize]="textFilterValue(col.key)"
                         [popover]="!isScrolling()" />
                     }
@@ -364,6 +368,20 @@
                     col.labelIcon ? labelIconColor(col.labelIcon) : undefined
                   "
                   [suspended]="isScrolling()" />
+              }
+
+              @case ('number') {
+                @let num = cell.value(row);
+                @if (num !== null && num !== undefined) {
+                  <span
+                    class="number-cell"
+                    [class.decimal-aligned]="cell.decimalAlign"
+                    >{{ formatNumber(col, num) }}</span
+                  >
+                } @else {
+                  <cvc-empty-value
+                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
+                }
               }
 
               @case ('text') {

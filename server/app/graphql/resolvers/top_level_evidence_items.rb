@@ -67,22 +67,43 @@ class Resolvers::TopLevelEvidenceItems < GraphQL::Schema::Resolver
   option(:evidence_level, type: Types::EvidenceLevelType, description: "Filtering on the evidence level.") do |scope, value|
     scope.where(evidence_level: value)
   end
+  option(:evidence_levels, type: [ Types::EvidenceLevelType ], description: "Filtering on evidence level; values are ORed. Use instead of (not alongside) evidenceLevel.") do |scope, value|
+    scope.where(evidence_level: value)
+  end
   option(:evidence_type, type: Types::EvidenceTypeType, description: "Filtering on the evidence type.") do |scope, value|
+    scope.where(evidence_type: value)
+  end
+  option(:evidence_types, type: [ Types::EvidenceTypeType ], description: "Filtering on evidence type; values are ORed. Use instead of (not alongside) evidenceType.") do |scope, value|
     scope.where(evidence_type: value)
   end
   option(:evidence_direction, type: Types::EvidenceDirectionType, description: "Filtering on the evidence direction.") do |scope, value|
     scope.where(evidence_direction: value)
   end
+  option(:evidence_directions, type: [ Types::EvidenceDirectionType ], description: "Filtering on evidence direction; values are ORed. Use instead of (not alongside) evidenceDirection.") do |scope, value|
+    scope.where(evidence_direction: value)
+  end
   option(:significance, type: Types::EvidenceSignificanceType, description: "Filtering on the evidence significance.") do |scope, value|
+    scope.where(significance: value)
+  end
+  option(:significances, type: [ Types::EvidenceSignificanceType ], description: "Filtering on evidence significance; values are ORed. Use instead of (not alongside) significance.") do |scope, value|
     scope.where(significance: value)
   end
   option(:variant_origin, type: Types::VariantOriginType, description: "Filtering on the evidence variant origin.") do |scope, value|
     scope.where(variant_origin: value)
   end
+  option(:variant_origins, type: [ Types::VariantOriginType ], description: "Filtering on evidence variant origin; values are ORed. Use instead of (not alongside) variantOrigin.") do |scope, value|
+    scope.where(variant_origin: value)
+  end
   option(:therapy_interaction_type, type: Types::TherapyInteractionType, description: "Filtering on how an evidence item's multiple therapies interact.") do |scope, value|
     scope.where(therapy_interaction_type: value)
   end
+  option(:therapy_interaction_types, type: [ Types::TherapyInteractionType ], description: "Filtering on how an evidence item's multiple therapies interact; values are ORed. Use instead of (not alongside) therapyInteractionType.") do |scope, value|
+    scope.where(therapy_interaction_type: value)
+  end
   option(:evidence_rating, type: GraphQL::Types::Int, description: "Filtering on the evidence rating. Valid values: 1, 2, 3, 4, 5") do |scope, value|
+    scope.where(rating: value)
+  end
+  option(:evidence_ratings, type: [ GraphQL::Types::Int ], description: "Filtering on evidence rating; values are ORed. Valid values: 1, 2, 3, 4, 5. Use instead of (not alongside) evidenceRating.") do |scope, value|
     scope.where(rating: value)
   end
   option(:status, type: Types::EvidenceStatusFilterType, description: "Filtering on the evidence status.") do |scope, value|

@@ -209,9 +209,10 @@ export function evidenceTableConfig(
         sort: { column: EvidenceSortColumns.EvidenceLevel },
         filter: {
           kind: 'enum',
-          var: 'evidenceLevel',
+          var: 'evidenceLevels',
           options: enumFilterOptions(EvidenceLevel),
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -229,9 +230,10 @@ export function evidenceTableConfig(
         sort: { column: EvidenceSortColumns.EvidenceType },
         filter: {
           kind: 'enum',
-          var: 'evidenceType',
+          var: 'evidenceTypes',
           options: enumFilterOptions(EvidenceType),
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -249,9 +251,10 @@ export function evidenceTableConfig(
         sort: { column: EvidenceSortColumns.EvidenceDirection },
         filter: {
           kind: 'enum',
-          var: 'evidenceDirection',
+          var: 'evidenceDirections',
           options: enumFilterOptions(EvidenceDirection),
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -269,9 +272,10 @@ export function evidenceTableConfig(
         sort: { column: EvidenceSortColumns.Significance },
         filter: {
           kind: 'enum',
-          var: 'significance',
+          var: 'significances',
           options: enumFilterOptions(EvidenceSignificance),
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -289,9 +293,10 @@ export function evidenceTableConfig(
         sort: { column: EvidenceSortColumns.VariantOrigin },
         filter: {
           kind: 'enum',
-          var: 'variantOrigin',
+          var: 'variantOrigins',
           options: enumFilterOptions(VariantOrigin),
           control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -316,9 +321,10 @@ export function evidenceTableConfig(
           // the browse query names this `evidenceRating`; the manager's
           // otherwise-identical column filters its query's `rating`
           kind: 'enum',
-          var: 'evidenceRating',
+          var: 'evidenceRatings',
           options: RATING_OPTIONS,
           control: 'icon-select',
+          multiple: true,
         },
       },
     ],

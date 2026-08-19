@@ -202,10 +202,11 @@ describe('assertionsTableConfig', () => {
       ['disease', 'diseaseName'],
       ['therapies', 'therapyName'],
       ['summary', 'summary'],
-      ['assertionType', 'assertionType'],
-      ['assertionDirection', 'assertionDirection'],
-      ['significance', 'significance'],
-      ['ampLevel', 'ampLevel'],
+      // the attribute filters are multi-selects on the plural server args
+      ['assertionType', 'assertionTypes'],
+      ['assertionDirection', 'assertionDirections'],
+      ['significance', 'significances'],
+      ['ampLevel', 'ampLevels'],
     ])
   })
 
@@ -411,10 +412,12 @@ describe('cvc-assertions-table facade', () => {
     })
     await settleTable(fixture)
 
+    // singular URL params (the producer's link contract) seed one-value
+    // arrays on the plural multi-select vars
     expect(requests().at(-1)).toMatchObject({
-      assertionType: EvidenceType.Predictive,
-      assertionDirection: 'SUPPORTS',
-      significance: AssertionSignificance.Resistance,
+      assertionTypes: [EvidenceType.Predictive],
+      assertionDirections: ['SUPPORTS'],
+      significances: [AssertionSignificance.Resistance],
       molecularProfileName: 'BRAF V600E',
       diseaseName: 'Melanoma',
     })
