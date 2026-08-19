@@ -96,6 +96,12 @@
     cdk-virtual-scroll-viewport {
       flex: 1 1 auto;
       min-height: 0;
+      // No elastic overscroll: the body is the only real horizontal
+      // scroller — the header is scrollLeft-synced, which clamps at the
+      // edges — so the platform rubber-band would shear the body rows
+      // past a header that cannot follow. Suppressing the bounce keeps
+      // the two in step at the scroll extremes.
+      overscroll-behavior-x: none;
     }
   }
 }
