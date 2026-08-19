@@ -7,11 +7,11 @@ query EvidenceManager(
   $therapyName: String
   $id: Int
   $description: String
-  $evidenceLevel: EvidenceLevel
-  $evidenceDirection: EvidenceDirection
-  $significance: EvidenceSignificance
-  $evidenceType: EvidenceType
-  $rating: Int
+  $evidenceLevels: [EvidenceLevel!]
+  $evidenceDirections: [EvidenceDirection!]
+  $significances: [EvidenceSignificance!]
+  $evidenceTypes: [EvidenceType!]
+  $evidenceRatings: [Int!]
   $variantOrigin: VariantOrigin
   $variantId: Int
   $molecularProfileId: Int
@@ -22,7 +22,7 @@ query EvidenceManager(
   $phenotypeId: Int
   $diseaseId: Int
   $therapyId: Int
-  $therapyInteractionType: TherapyInteraction
+  $therapyInteractionTypes: [TherapyInteraction!]
   $sourceId: Int
   $clinicalTrialId: Int
   $molecularProfileName: String
@@ -37,21 +37,21 @@ query EvidenceManager(
     therapyName: $therapyName
     id: $id
     description: $description
-    evidenceLevel: $evidenceLevel
-    evidenceDirection: $evidenceDirection
-    significance: $significance
-    evidenceType: $evidenceType
-    evidenceRating: $rating
+    evidenceLevels: $evidenceLevels
+    evidenceDirections: $evidenceDirections
+    significances: $significances
+    evidenceTypes: $evidenceTypes
+    evidenceRatings: $evidenceRatings
     variantOrigin: $variantOrigin
     variantId: $variantId
     molecularProfileId: $molecularProfileId
     assertionId: $assertionId
-    organization: {ids: $organizationId}
+    organization: { ids: $organizationId }
     userId: $userId
     phenotypeId: $phenotypeId
     diseaseId: $diseaseId
     therapyId: $therapyId
-    therapyInteractionType: $therapyInteractionType
+    therapyInteractionTypes: $therapyInteractionTypes
     sourceId: $sourceId
     clinicalTrialId: $clinicalTrialId
     molecularProfileName: $molecularProfileName

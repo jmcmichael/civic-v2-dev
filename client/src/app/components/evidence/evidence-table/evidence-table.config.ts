@@ -318,8 +318,8 @@ export function evidenceTableConfig(
           directions: SORT_DESCEND_FIRST,
         },
         filter: {
-          // the browse query names this `evidenceRating`; the manager's
-          // otherwise-identical column filters its query's `rating`
+          // the column key is singular, the variable plural — the query
+          // declares `$evidenceRatings`, not `$evidenceRating`
           kind: 'enum',
           var: 'evidenceRatings',
           options: RATING_OPTIONS,

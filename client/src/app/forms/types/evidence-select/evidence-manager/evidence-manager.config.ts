@@ -30,6 +30,11 @@ const RATING_OPTIONS = [1, 2, 3, 4, 5].map((stars) => ({
  * `evidence-manager.config.spec.ts` additionally pins that every filter
  * variable is declared *and* reaches a field.
  *
+ * The six enum columns filter through icon-selects on plural (ORed) query
+ * variables, matching the evidence browse table column for column: a curator
+ * moving between the browse table and this manager meets the same control
+ * with the same vocabulary.
+ *
  * No `seed` on any entity-tag column: `evidenceItems` returns real
  * `EvidenceItem`s and the query spreads the `Linkable*` fragments, so every
  * entity here normalises into the cache on its own. Seeding is a `Browse*`
@@ -156,8 +161,10 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         sort: { column: EvidenceSortColumns.TherapyInteractionType },
         filter: {
           kind: 'enum',
-          var: 'therapyInteractionType',
+          var: 'therapyInteractionTypes',
           options: enumFilterOptions(TherapyInteraction),
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -190,8 +197,10 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         sort: { column: EvidenceSortColumns.EvidenceType },
         filter: {
           kind: 'enum',
-          var: 'evidenceType',
+          var: 'evidenceTypes',
           options: enumFilterOptions(EvidenceType),
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -209,8 +218,10 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         sort: { column: EvidenceSortColumns.EvidenceLevel },
         filter: {
           kind: 'enum',
-          var: 'evidenceLevel',
+          var: 'evidenceLevels',
           options: enumFilterOptions(EvidenceLevel),
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -228,8 +239,10 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         sort: { column: EvidenceSortColumns.EvidenceDirection },
         filter: {
           kind: 'enum',
-          var: 'evidenceDirection',
+          var: 'evidenceDirections',
           options: enumFilterOptions(EvidenceDirection),
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -247,8 +260,10 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         sort: { column: EvidenceSortColumns.Significance },
         filter: {
           kind: 'enum',
-          var: 'significance',
+          var: 'significances',
           options: enumFilterOptions(EvidenceSignificance),
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
@@ -267,11 +282,11 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
         sort: { column: EvidenceSortColumns.EvidenceRating },
         filter: {
-          // the column key and the query variable genuinely differ here: the
-          // query declares `$rating`, not `$evidenceRating`
           kind: 'enum',
-          var: 'rating',
+          var: 'evidenceRatings',
           options: RATING_OPTIONS,
+          control: 'icon-select',
+          multiple: true,
         },
       },
     ],
