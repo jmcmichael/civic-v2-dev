@@ -315,8 +315,18 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
-  /** five glyphs for a count column's stacked header icon */
+  /** three glyphs for a count column's stacked header icon */
   protected readonly iconStack = [0, 1, 2]
+
+  /**
+   * One stable object per bodyHeight value: an inline `{ x, y }` literal in
+   * the template is a fresh object every CD pass, and NzTableComponent
+   * usesOnChanges — each new identity re-ran its scroll plumbing.
+   */
+  protected readonly scrollConfig = computed(() => ({
+    x: '800px',
+    y: this.bodyHeight(),
+  }))
 
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
