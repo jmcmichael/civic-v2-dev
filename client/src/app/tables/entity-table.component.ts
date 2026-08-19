@@ -589,6 +589,21 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     )
   }
 
+  /**
+   * Whether the column's header renders a resize handle: resizing is a
+   * boundary transfer, so a handle needs a resizable partner somewhere to
+   * the column's right. The rightmost resizable column therefore has no
+   * handle — its right edge is the table's own edge, and dragging it could
+   * only change the total width (shrinking the sum below the container and
+   * re-stretching every column). The table's outer edges stay fixed.
+   */
+  hasResizeHandle(column: CvcSpecColumn<TRow>): boolean {
+    if (!this.isResizable(column)) return false
+    const visible = this.visibleColumns()
+    const at = visible.findIndex((c) => c.key === column.key)
+    return visible.slice(at + 1).some((c) => this.isResizable(c))
+  }
+
   // ------------------------------------------------------------ query state
 
   readonly queryVars = computed<Record<string, unknown>>(() => {

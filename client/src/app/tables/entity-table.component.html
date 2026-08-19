@@ -43,7 +43,7 @@
             nzBounds="window"
             nzPreview
             [nzMinWidth]="40"
-            [nzDisabled]="!isResizable(col)"
+            [nzDisabled]="!hasResizeHandle(col)"
             [class.th-center]="col.align === 'center'"
             (nzResizeEnd)="onColumnResize(col.key, $event.width)">
             <!-- whitespace-controlled: the label interpolation sits hard
@@ -77,7 +77,7 @@
                 }
               }{{ col.label }}</span
             >
-            @if (isResizable(col)) {
+            @if (hasResizeHandle(col)) {
               <nz-resize-handle nzDirection="right" />
             }
           </th>

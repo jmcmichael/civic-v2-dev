@@ -48,7 +48,8 @@ Conventions every table config follows:
   ESIG/VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
   `resizable: false` for ACAT/DSC-shaped narrow tag columns). Column
   resize elsewhere is a boundary transfer — edge lands at the drop point,
-  next resizable neighbor absorbs the delta.
+  next resizable neighbor absorbs the delta; the rightmost resizable
+  column has no handle (table edges stay fixed).
 - `[height]`: explicit px | `'auto'` (viewport-fit minus measured layout
   padding — browse facades default to it) | omitted = flex-fill inside a
   height-bounded ancestor (form managers). Never reintroduce the legacy

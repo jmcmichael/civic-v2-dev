@@ -113,6 +113,10 @@ const POPOVER_PAGE = 10
       padding: 0 4px;
       margin-inline-end: 0;
       text-align: left;
+      /* a boundary transfer can squeeze the column to the 40px floor;
+         the count clips rather than wrapping under the icon */
+      white-space: nowrap;
+      overflow: hidden;
     }
     .count-tag-icon {
       /* keep the glyph inside the tag's 20px line box: its own line box

@@ -525,6 +525,20 @@ describe('cvc-entity-table', () => {
     ).toBe(true)
   })
 
+  it('renders no handle where no boundary can transfer — the table edges stay fixed', async () => {
+    fixture.componentInstance.spec.set(buildSpec())
+    await settle()
+    const col = (key: string) => table.columns().find((c) => c.key === key)!
+
+    // name has a resizable partner to its right (rating) — handle
+    expect(table.hasResizeHandle(col('name'))).toBe(true)
+    // rating is the rightmost resizable column: dragging its right edge
+    // could only change the total width — no handle
+    expect(table.hasResizeHandle(col('rating'))).toBe(false)
+    // non-resizable columns never get one
+    expect(table.hasResizeHandle(col('selected'))).toBe(false)
+  })
+
   it('cycles descend-first when the column declares it', () => {
     fixture.componentInstance.spec.set(buildSpec({ descendFirstRating: true }))
     fixture.detectChanges()

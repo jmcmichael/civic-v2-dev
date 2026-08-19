@@ -29,7 +29,9 @@ between the two, the total stays constant, and the edge lands exactly at
 the drop point (`resizeColumnWidths` — every visible column is frozen at
 its rendered width in the same write, because the table stretches
 specified widths to fill its container and only a sum-preserving write
-renders exactly). Resizes are session state in the table's
+renders exactly). A handle renders only where a boundary can transfer:
+the rightmost resizable column has none — its right edge is the
+table's own edge, which stays fixed. Resizes are session state in the table's
 `widthOverrides` — the config's `width` stays the source of truth, and
 the settings popover's Reset Columns restores it along with visibility.
 
