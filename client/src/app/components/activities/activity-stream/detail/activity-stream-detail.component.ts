@@ -2,6 +2,7 @@ import { NgComponentOutlet } from '@angular/common'
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   Injector,
   Type,
   afterNextRender,
@@ -10,9 +11,7 @@ import {
   inject,
   signal,
 } from '@angular/core'
-import { toSignal } from '@angular/core/rxjs-interop'
-import { ActivityFeedItemFragment } from '@app/components/activities/activity-stream/detail/activity-stream-detail.query.gql.generated'
-import { ActivityFeedItemGQL } from '@app/components/activities/activity-stream/detail/activity-stream-detail.query.gql.generated'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { CvcStreamItemContext } from '@app/streams/entity-stream.types'
 import { CvcStreamState } from '@app/streams/stream-state'
@@ -24,13 +23,20 @@ import { ACTIVITY_DETAIL_REGISTRY } from '../activity-detail.registry'
 import { ActivityStreamNode } from '../activity-stream.types'
 
 /**
- * The expanded-item detail host: fetches the activity's detail data by id,
- * lazily imports the kind's renderer from `ACTIVITY_DETAIL_REGISTRY`, and
- * renders it with the fetched activity bound to the renderer's own input.
+ * The expanded-item detail host: lazily imports the kind's renderer AND its
+ * per-id query from `ACTIVITY_DETAIL_REGISTRY`, fetches the activity through
+ * that query, and renders the component with the result bound to its input.
  *
  * This is what every expandable kind's `detail.load` resolves — one host,
- * whose registry lookups keep each renderer (and its imports) in a lazy
- * chunk of its own, fetched the first time that kind expands.
+ * whose registry lookups keep each renderer, its query document and its
+ * fragment in a lazy chunk of its own, fetched the first time that kind
+ * expands.
+ *
+ * The query cannot be injected up front, because which query to run is only
+ * known once the kind's chunk has loaded. So the fetch starts inside the
+ * load callback rather than in a field initializer, and `activity` is a
+ * plain signal fed by that subscription instead of a `toSignal` of a
+ * statically-injected service.
  */
 @Component({
   selector: 'cvc-activity-stream-detail',
@@ -63,28 +69,16 @@ import { ActivityStreamNode } from '../activity-stream.types'
 export class CvcActivityStreamDetail {
   private readonly context =
     injectContext<CvcStreamItemContext<ActivityStreamNode>>()
-  private readonly gql = inject(ActivityFeedItemGQL)
   private readonly streamState = inject(CvcStreamState)
   private readonly injector = inject(Injector)
+  private readonly destroyRef = inject(DestroyRef)
 
   protected readonly entry =
     ACTIVITY_DETAIL_REGISTRY[this.context.item.__typename]
 
-  /** the activity with its detail fields, fetched by id on instantiation */
-  protected readonly activity: ReturnType<
-    typeof toSignal<Maybe<ActivityFeedItemFragment>, undefined>
-  > = toSignal(
-    this.gql
-      .watch({
-        variables: { id: this.context.item.id, requestDetails: true },
-      })
-      .valueChanges.pipe(
-        onlyCompleteData(),
-        map(({ data }) => data.activity),
-        filter((activity) => activity != null)
-      ),
-    { initialValue: undefined }
-  )
+  /** the activity with this kind's detail fields, fetched by id */
+  private readonly fetched = signal<unknown>(undefined)
+  protected readonly activity = this.fetched.asReadonly()
 
   private readonly loadedRenderer = signal<Maybe<Type<unknown>>>(undefined)
   protected readonly renderer = this.loadedRenderer.asReadonly()
@@ -94,8 +88,18 @@ export class CvcActivityStreamDetail {
   }))
 
   constructor() {
-    void this.entry?.load().then((component) => {
+    void this.entry?.load().then(({ component, query }) => {
       this.loadedRenderer.set(component)
+      this.injector
+        .get(query)
+        .watch({ variables: { id: this.context.item.id } })
+        .valueChanges.pipe(
+          onlyCompleteData(),
+          map(({ data }) => (data as { activity?: unknown }).activity),
+          filter((activity) => activity != null),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe((activity) => this.fetched.set(activity))
     })
 
     // the region's height changes when the renderer replaces the skeleton;

@@ -1,3 +1,9 @@
+query CommentActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...CommentActivityDetail
+  }
+}
+
 fragment CommentActivityDetail on CommentActivity {
   comment {
     deleted

@@ -1,3 +1,9 @@
+query SuggestRevisionSetActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...SuggestRevisionSetActivityDetail
+  }
+}
+
 fragment SuggestRevisionSetActivityDetail on SuggestRevisionSetActivity {
   parsedNote {
     ...parsedCommentFragment

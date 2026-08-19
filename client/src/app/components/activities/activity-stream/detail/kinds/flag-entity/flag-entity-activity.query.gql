@@ -1,3 +1,9 @@
+query FlagEntityActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...FlagEntityActivityDetail
+  }
+}
+
 fragment FlagEntityActivityDetail on FlagEntityActivity {
   ...ActivityFeedItemBase
   ...ActivityFeedItemEvents

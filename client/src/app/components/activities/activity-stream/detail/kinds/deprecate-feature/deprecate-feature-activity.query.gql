@@ -1,3 +1,9 @@
+query DeprecateFeatureActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...DeprecateFeatureActivityDetail
+  }
+}
+
 fragment DeprecateFeatureActivityDetail on DeprecateFeatureActivity {
   parsedNote {
     ...parsedCommentFragment

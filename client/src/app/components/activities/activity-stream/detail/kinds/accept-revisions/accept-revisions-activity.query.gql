@@ -1,3 +1,9 @@
+query AcceptRevisionsActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...AcceptRevisionsActivityDetail
+  }
+}
+
 fragment AcceptRevisionsActivityDetail on AcceptRevisionsActivity {
   parsedNote {
     ...parsedCommentFragment

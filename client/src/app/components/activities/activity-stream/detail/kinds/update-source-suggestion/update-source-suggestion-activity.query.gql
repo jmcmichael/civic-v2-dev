@@ -1,3 +1,9 @@
+query UpdateSourceSuggestionStatusActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...UpdateSourceSuggestionStatusActivityDetail
+  }
+}
+
 fragment UpdateSourceSuggestionStatusActivityDetail on UpdateSourceSuggestionStatusActivity {
   parsedNote {
     ...parsedCommentFragment

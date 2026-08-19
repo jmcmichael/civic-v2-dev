@@ -1,3 +1,9 @@
+query RevokeApprovalActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...RevokeApprovalActivityDetail
+  }
+}
+
 fragment RevokeApprovalActivityDetail on RevokeApprovalActivity {
   ...ActivityFeedItemBase
   ...ActivityFeedItemEvents

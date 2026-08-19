@@ -1,3 +1,9 @@
+query ModerateEvidenceItemActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...ModerateEvidenceItemActivityDetail
+  }
+}
+
 fragment ModerateEvidenceItemActivityDetail on ModerateEvidenceItemActivity {
   ...ActivityFeedItemBase
   ...ActivityFeedItemEvents

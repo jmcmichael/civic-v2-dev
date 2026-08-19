@@ -1,3 +1,9 @@
+query DeprecateComplexMolecularProfileActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...DeprecateComplexMolecularProfileActivityDetail
+  }
+}
+
 fragment DeprecateComplexMolecularProfileActivityDetail on DeprecateComplexMolecularProfileActivity {
   parsedNote {
     ...parsedCommentFragment

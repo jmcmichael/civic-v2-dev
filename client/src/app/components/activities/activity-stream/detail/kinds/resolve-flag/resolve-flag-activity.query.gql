@@ -1,3 +1,9 @@
+query ResolveFlagActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...ResolveFlagActivityDetail
+  }
+}
+
 fragment ResolveFlagActivityDetail on ResolveFlagActivity {
   ...ActivityFeedItemBase
   ...ActivityFeedItemEvents

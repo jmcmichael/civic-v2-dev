@@ -1,3 +1,9 @@
+query SuggestSourceActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...SuggestSourceActivityDetail
+  }
+}
+
 fragment SuggestSourceActivityDetail on SuggestSourceActivity {
   parsedNote {
     ...parsedCommentFragment
