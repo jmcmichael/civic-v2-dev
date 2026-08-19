@@ -102,31 +102,38 @@ const POPOVER_PAGE = 10
   styles: `
     :host {
       display: block;
+      /* the tag is the host's only content, and overflow-hidden moves an
+         inline-block's baseline to its bottom margin edge — a live line
+         box would add descender space under the tag, growing the 28px
+         virtual rows. No line box, no gap. */
+      line-height: 0;
     }
     .count-tag {
       /* inline-block, not flex: a flex tag synthesizes its own baseline
          and sits ~1px off the row's inline-block tags (the full-width tag
-         lesson); the count floats right instead */
+         lesson) */
       width: 100%;
       /* ant's default 0 7px reads chunky beside the row's trimmed entity
          tags; match their density */
       padding: 0 4px;
       margin-inline-end: 0;
-      text-align: left;
+      /* icon + count render as one centered cluster with a fixed gap —
+         sized for three digits at the 55px convention. The count must
+         never float right: a wide count outgrew the column and the float
+         dropped below the icon, doubling the row height. */
+      text-align: center;
       /* a boundary transfer can squeeze the column to the 40px floor;
          the count clips rather than wrapping under the icon */
       white-space: nowrap;
       overflow: hidden;
+      vertical-align: top;
     }
     .count-tag-icon {
       /* keep the glyph inside the tag's 20px line box: its own line box
          collapsed, nudged to the text's optical center */
-      margin-right: 2px;
+      margin-right: 3px;
       line-height: 0;
       vertical-align: -0.175em;
-    }
-    .count-tag-count {
-      float: right;
     }
     .count-tag.has-popover {
       cursor: help;
