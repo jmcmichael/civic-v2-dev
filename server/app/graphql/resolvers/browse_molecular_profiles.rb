@@ -7,6 +7,27 @@ class Resolvers::BrowseMolecularProfiles < GraphQL::Schema::Resolver
 
   type Types::BrowseTables::BrowseMolecularProfileType.connection_type, null: false
 
+  # Ordering by the least aggregated name per row, written out per direction
+  # instead of interpolated. `Arel.sql` marks a string as trusted SQL, so
+  # splicing anything into one is a Brakeman SQL-injection finding even when
+  # the spliced value is pinned to two literals a line earlier — and a
+  # suppression would have to be re-justified every time this is read. Four
+  # constants are cheaper than that, and there is nothing left to trust.
+  MIN_NAME_SORTS = {
+    [ "features", "ASC" ] => Arel.sql(
+      "(SELECT MIN(elem->>'name') FROM json_array_elements(features) elem) ASC, id ASC"
+    ),
+    [ "features", "DESC" ] => Arel.sql(
+      "(SELECT MIN(elem->>'name') FROM json_array_elements(features) elem) DESC, id ASC"
+    ),
+    [ "variants", "ASC" ] => Arel.sql(
+      "(SELECT MIN(elem->>'name') FROM json_array_elements(variants) elem) ASC, id ASC"
+    ),
+    [ "variants", "DESC" ] => Arel.sql(
+      "(SELECT MIN(elem->>'name') FROM json_array_elements(variants) elem) DESC, id ASC"
+    ),
+  }.freeze
+
   scope do
     MaterializedViews::MolecularProfileBrowseTableRow
       .all
@@ -69,9 +90,11 @@ class Resolvers::BrowseMolecularProfiles < GraphQL::Schema::Resolver
     # The alphabetical keys are the aggregated features'/variants' REAL
     # names: the least name per row (the json aggregates order by id).
     when "featureName"
-      scope.reorder Arel.sql("(SELECT MIN(elem->>'name') FROM json_array_elements(features) elem) #{direction}, id ASC")
+      # fetch, not [] — an unknown key must raise rather than quietly return
+      # nil and drop the ordering the caller asked for
+      scope.reorder MIN_NAME_SORTS.fetch([ "features", direction ])
     when "variantName"
-      scope.reorder Arel.sql("(SELECT MIN(elem->>'name') FROM json_array_elements(variants) elem) #{direction}, id ASC")
+      scope.reorder MIN_NAME_SORTS.fetch([ "variants", direction ])
     end
   end
 end
