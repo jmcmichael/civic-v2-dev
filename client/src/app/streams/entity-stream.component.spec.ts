@@ -146,6 +146,7 @@ describe('CvcEntityStreamComponent (button mode)', () => {
     expect(watch).toHaveBeenCalledTimes(1)
     expect(watch).toHaveBeenCalledWith({
       variables: { first: 3, mode: 'TEST' },
+      notifyOnNetworkStatusChange: false,
     })
   })
 
@@ -176,7 +177,12 @@ describe('CvcEntityStreamComponent (button mode)', () => {
 
   it('renders an item per edge, with identity and kind test hooks', async () => {
     await mount(makeSpec())
-    ref.emit(connection([{ id: 1, name: 'first' }, { id: 2, name: 'second' }]))
+    ref.emit(
+      connection([
+        { id: 1, name: 'first' },
+        { id: 2, name: 'second' },
+      ])
+    )
 
     await vi.waitFor(() => {
       const items = (fixture.nativeElement as HTMLElement).querySelectorAll(
@@ -191,9 +197,7 @@ describe('CvcEntityStreamComponent (button mode)', () => {
       )
       expect(item?.getAttribute('data-item-kind')).toBe('row')
       expect(item?.textContent).toContain('first')
-      expect(text('[data-testid="stream-counts"]')).toContain(
-        '2 of 100 loaded'
-      )
+      expect(text('[data-testid="stream-counts"]')).toContain('2 of 100 loaded')
     })
   })
 
@@ -230,7 +234,12 @@ describe('CvcEntityStreamComponent (button mode)', () => {
         },
       })
     )
-    ref.emit(connection([{ id: 1, name: 'first' }, { id: 2, name: 'second' }]))
+    ref.emit(
+      connection([
+        { id: 1, name: 'first' },
+        { id: 2, name: 'second' },
+      ])
+    )
 
     await vi.waitFor(() =>
       expect(
