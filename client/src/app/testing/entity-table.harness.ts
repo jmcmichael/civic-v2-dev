@@ -571,7 +571,16 @@ export function describeEntityTableContract<TRow extends { id: number }>(
   })
 }
 
-/** what a spec types into this column's filter */
+/**
+ * What a spec types into this column's filter.
+ *
+ * A `multiple` enum filter samples a one-value ARRAY, not the bare value. Its
+ * `var` names a plural, array-typed server arg, and its control emits arrays —
+ * so a scalar sample would drive an `nz-select` in `nzMode="multiple"` (which
+ * throws `listOfSelectedValue.filter is not a function` from inside an rxjs
+ * subscriber, i.e. outside the test's call stack, leaving every assertion green
+ * while the runner exits 1) and would then pin the wrong wire shape.
+ */
 function filterInput(
   column: CvcSpecColumn<any>,
   overrides: Record<string, string> | undefined,
@@ -581,7 +590,10 @@ function filterInput(
   if (override !== undefined) return override
   const filter = column.filter!
   if (filter.kind === 'numeric') return 1
-  if (filter.kind === 'enum') return filter.options[0]?.value ?? null
+  if (filter.kind === 'enum') {
+    const value = filter.options[0]?.value ?? null
+    return filter.multiple && value !== null ? [value] : value
+  }
   return text
 }
 
