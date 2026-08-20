@@ -15,6 +15,7 @@
  * Developer docs live in ./docs: 01-architecture.md (incl. the column-model
  * → ng-zorro mapping), 02-authoring-guide.md, 03-troubleshooting.md.
  */
+export { CVC_ATTRIBUTE_COLUMNS } from './attribute-columns'
 export { CvcColumnFilterExtraDirective } from './column-filter-extra.directive'
 export { CVC_COUNT_ENTITY_RESOLVER } from './count-entity-resolver'
 export type {

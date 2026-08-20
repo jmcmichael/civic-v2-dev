@@ -13,6 +13,7 @@ import {
   TherapyInteraction,
 } from '@app/generated/civic.apollo.types'
 import {
+  CVC_ATTRIBUTE_COLUMNS,
   CvcEnumOption,
   entityTableConfig,
   enumFilterOptions,
@@ -265,11 +266,7 @@ export function assertionsTableConfig(
         },
       },
       {
-        key: 'assertionType',
-        label: 'ATYP',
-        tooltip: 'Assertion Type',
-        width: '60px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Assertion.assertionType,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -286,11 +283,7 @@ export function assertionsTableConfig(
         },
       },
       {
-        key: 'assertionDirection',
-        label: 'ADIR',
-        tooltip: 'Assertion Direction',
-        width: '60px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Assertion.assertionDirection,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -307,11 +300,7 @@ export function assertionsTableConfig(
         },
       },
       {
-        key: 'significance',
-        label: 'ASIG',
-        tooltip: 'Significance',
-        width: '60px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Assertion.significance,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -328,13 +317,9 @@ export function assertionsTableConfig(
         },
       },
       {
-        key: 'ampLevel',
-        label: 'ACAT',
-        tooltip: 'AMP/ASCO/CAP Category',
-        width: '60px',
+        ...CVC_ATTRIBUTE_COLUMNS.Assertion.ampLevel,
         // a narrow fixed-tag column: widening only pads the compact tag
         resizable: false,
-        align: 'center',
         fixed: 'right',
         emptyValue: 'not-applicable',
         cell: {
