@@ -4,18 +4,13 @@ import { isTaggableTypename, tagSpecFor } from './entity-tag-specs'
 import { LinkableEntity } from './entity-tag.types'
 
 /**
- * Reads an already-cached entity by typename and id, using the same
- * Linkable* fragment CvcTag renders from.
+ * Reads an already-cached entity by typename and id, using the registered
+ * Linkable* fragment — the same one CvcTag renders from, so the read cannot
+ * drift from what the tag actually caches. (The managers use this to resolve
+ * the entity ids a form hands them into the names their columns filter by.)
  *
- * The evidence and variant managers filter their entity columns by NAME
- * rather than id, so they resolve the ids a form hands them into names. Both
- * did it by interpolating a fragment document at runtime —
- * `fragment Linkable${typename}Entity on ${typename} { id name link }` —
- * which codegen cannot see, and which hand-repeated a field list that could
- * silently drift from the real fragment. This reads the registered one.
- *
- * Returns undefined when the entity is not in the cache; callers decide
- * whether that is worth reporting.
+ * @returns the cached entity, or undefined when it is not in the cache;
+ *   callers decide whether that is worth reporting
  */
 export function readCachedEntity(
   apollo: Apollo,

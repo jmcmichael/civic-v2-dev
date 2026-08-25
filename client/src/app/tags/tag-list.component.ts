@@ -3,8 +3,9 @@ import { CvcTagComponent } from './entity-tag.component'
 import { EntityTagRef } from './entity-tag-specs'
 
 /**
- * Renders a row of entity tags that wraps cleanly; CvcTag renders from a
- * `{ __typename, id }` ref alone, so no template indirection is needed.
+ * Renders a row of entity tags that wraps cleanly. Takes bare
+ * `EntityTagRef`s — no TemplateRef, no config object — since CvcTag renders
+ * from a `{ __typename, id }` ref alone.
  */
 @Component({
   selector: 'cvc-tag-list',

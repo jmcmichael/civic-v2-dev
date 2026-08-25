@@ -48,9 +48,9 @@ export class CvcSelectMessagesComponent {
 export class CvcSelectAddFormComponent {}
 
 /**
- * Renders option metadata with the typeahead query emphasized as segment
- * spans, so no RegExp is built from user input and nothing passes through
- * bypassSecurityTrustHtml.
+ * Renders option metadata with the typeahead query emphasized, as segment
+ * spans — deliberately not a RegExp over user input (throws on unbalanced
+ * brackets) and never through bypassSecurityTrustHtml.
  */
 @Component({
   selector: 'cvc-highlight',

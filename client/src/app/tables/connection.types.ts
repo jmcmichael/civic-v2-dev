@@ -7,8 +7,6 @@ import { Maybe, PageInfo } from '@app/generated/civic.apollo.types'
  * Only `__typename` is dropped, because a query that does not select it still
  * produces a usable cursor. Everything else follows the schema: if `PageInfo`
  * gains or loses a field, this follows without anyone remembering to edit it.
- * The hand-written version that used to live here had already drifted into a
- * cast at the one place the two met.
  */
 export type CvcPageInfo = Omit<PageInfo, '__typename'>
 

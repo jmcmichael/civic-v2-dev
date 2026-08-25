@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core'
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzTagModule } from 'ng-zorro-antd/tag'
@@ -10,8 +15,8 @@ import { CvcTagListComponent } from './tag-list.component'
  * A single "+N" tag standing in for a list too long to render, expanding to
  * the full list on hover.
  *
- * Icons and colours come from each ref's tag spec, so the collection and the
- * tags it summarises cannot disagree.
+ * Icons and colours come from each ref's tag spec — the same source CvcTag
+ * reads — so the collection and the tags it summarises cannot disagree.
  */
 @Component({
   selector: 'cvc-collection-tag',

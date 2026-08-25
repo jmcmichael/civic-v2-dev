@@ -74,8 +74,7 @@ export interface CvcFeatureSelectFieldProps extends CvcEntitySelectFieldProps {
 // NOTE: any multi-select field must have the string 'multi' in its type name,
 // as UI logic (currently in base-field) depends on its presence to differentiate
 // field types in some expressions
-export interface CvcFeatureSelectFieldConfig
-  extends FormlyFieldConfig<CvcFeatureSelectFieldProps> {
+export interface CvcFeatureSelectFieldConfig extends FormlyFieldConfig<CvcFeatureSelectFieldProps> {
   type: 'feature-select' | 'feature-multi-select' | Type<CvcFeatureSelectField>
 }
 
@@ -105,8 +104,8 @@ const CREATEABLE_FEATURE_TYPES = new Set<string>(
  *
  * The typeahead always returns `__typename: 'Feature'` — the
  * Gene/Factor/Fusion/Region union sits one level down in `featureInstance`
- * and is metadata, not the tag's identity. So the tag typename is the static
- * string.
+ * and is metadata, not the tag's identity — so the tag typename is the
+ * static string; this field is not actually polymorphic.
  */
 @Component({
   selector: 'cvc-feature-select',
@@ -205,7 +204,9 @@ export class CvcFeatureSelectField extends CvcEntitySelectFieldBase<
 
   private applyFeatureType(featureType: Maybe<FeatureInstanceTypes>): void {
     this.param.set(featureType)
-    this.paramName.set(featureType ? FEATURE_TYPE_LABELS[featureType] : undefined)
+    this.paramName.set(
+      featureType ? FEATURE_TYPE_LABELS[featureType] : undefined
+    )
     // a Region is always worth offering to build, match or no match
     this.props.alwaysShowCreate = featureType === FeatureInstanceTypes.Region
     this.props.featureTypeCallback?.(featureType)
@@ -256,7 +257,8 @@ export class CvcFeatureSelectField extends CvcEntitySelectFieldBase<
   /**
    * Both builders are modal-only components that report their result by
    * destroying the modal with it. Dismissing the modal any other way (the
-   * close icon, ESC, the mask) resolves with nothing.
+   * close icon, ESC, the mask) resolves with nothing, so the result must be
+   * guarded before dereferencing.
    */
   private openBuilder<T>(content: Type<T>, title: string): void {
     const modal = this.modal.create<

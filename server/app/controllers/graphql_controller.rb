@@ -4,18 +4,11 @@ class GraphqlController < ApplicationController
   # An uncapped multiplex endpoint lets a single request ask for an unbounded
   # number of operations, which is a cheap denial-of-service.
   #
-  # Anchored to default_max_page_size rather than picked: this schema already
-  # serves 100 nodes with all their nested fields in a single browse-table
-  # request, as a routine default. A batched tag lookup resolves one entity and
-  # about six scalar fields, so 100 of them is a fraction of the work the server
-  # already does on an ordinary page load. If 100 rows is safe, 100 tag lookups
-  # is safe, and the same number keeps the two limits reasoned about together.
-  #
-  # For scale: the heaviest form in the app is an assertion revise, which fires
-  # one tag lookup per selected entity. Across 200 of 203 assertions the worst
-  # case is 25 (AID42: 7 evidence items, 11 phenotypes, 5 ACMG codes, 2 singles),
-  # p99 22, median 7. Evidence revise is far lighter, around 8. The client's
-  # batchMax is 25, so a well-behaved client never approaches this cap.
+  # Anchored to default_max_page_size rather than picked: if serving 100 nodes
+  # with nested fields in one browse-table request is safe, 100 one-entity tag
+  # lookups is safe, and the same number keeps the two limits reasoned about
+  # together. The client's batchMax is 25, so a well-behaved client never
+  # approaches this cap.
   #
   # This bounds operation COUNT, not cost: the schema sets no max_complexity
   # and no max_depth, so a complexity limit is the real control and wants
@@ -67,8 +60,9 @@ class GraphqlController < ApplicationController
         query: query[:query],
         variables: prepare_variables(query[:variables]),
         operation_name: query[:operationName],
-        # a fresh context per operation: they are unrelated queries that happen
-        # to share a transport, and must not share per-query bookkeeping
+        # a fresh context hash per operation. The inputs (current_user, request,
+        # trace mode) are shared; what must not be shared is the hash itself,
+        # since graphql-ruby writes per-query bookkeeping into it.
         context: graphql_context,
       }
     end

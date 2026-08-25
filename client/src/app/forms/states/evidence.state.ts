@@ -81,8 +81,8 @@ class EvidenceState extends BaseState {
       comment: signal<Maybe<string>>(undefined),
     }
 
-    // everything below is derived from the chosen evidence type as `computed`,
-    // so there is no push, no ordering, and no way for two writers to disagree
+    // Everything below derives from the chosen evidence type via `computed`:
+    // no push, no ordering, and no way for two writers to disagree.
     const entityType = this.fields.evidenceType
     const forType = <T>(f: (et: EvidenceType) => T, fallback: T): Signal<T> =>
       computed(() => {
@@ -100,7 +100,10 @@ class EvidenceState extends BaseState {
     this.requires = {
       requiresDisease: forType((et) => this.requiresDisease(et), false),
       requiresTherapy: forType((et) => this.requiresTherapy(et), false),
-      requiresClingenCodes: forType((et) => this.requiresClingenCodes(et), false),
+      requiresClingenCodes: forType(
+        (et) => this.requiresClingenCodes(et),
+        false
+      ),
       requiresAcmgCodes: forType((et) => this.requiresAcmgCodes(et), false),
       requiresAmpLevel: forType((et) => this.requiresAmpLevel(et), false),
       allowsFdaApproval: forType((et) => this.allowsFdaApproval(et), false),

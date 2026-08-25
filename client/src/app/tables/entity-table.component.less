@@ -7,13 +7,9 @@
 //
 // `nzScroll.y` is not a measurement API — ng-zorro writes it straight onto the
 // virtual-scroll viewport's `style.height`, so it accepts any CSS length,
-// including `100%`. The three directives that used to compute that number
-// (`cvcAutoHeightCard`, `cvcAutoHeightTable`, and a one-shot
-// `checkViewportSize()`) were racing on independent schedules to derive
-// something CSS can state directly; `cvcAutoHeightTable` had no ResizeObserver
-// at all, so when it lost that race the wrong height stuck until a window
-// resize. The min-heights sprinkled on some browse tables exist to make the
-// losing case survivable.
+// including `100%`. Do not reintroduce the auto-height directives the browse
+// tables still use: they derive this number in JS on racing schedules, and a
+// lost race sticks until a window resize.
 //
 // `min-height: 0` is the load-bearing declaration. A flex item will not shrink
 // below its content height without it, which is exactly the overlarge-table
@@ -64,8 +60,7 @@
 // observer immediately asks for a second page.
 //
 // Making the whole chain a flex column carries the height through to the one
-// element that needs it. This is the caveat 01-virtual-scroll-sizing.md flagged
-// as unproven; it is now proven, and it needs these five rules.
+// element that needs it; every one of these five rules is required.
 .cvc-entity-table__body {
   flex: 1 1 auto;
   min-height: 0;
@@ -110,7 +105,6 @@
 }
 
 // the checkbox in the select column sits too close to the table edge otherwise
-// — carried from the identical rule in both managers' stylesheets
 tr.data-row td:first-of-type {
   padding-left: 6px;
 }

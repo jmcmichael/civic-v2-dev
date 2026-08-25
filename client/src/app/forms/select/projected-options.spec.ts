@@ -6,7 +6,7 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { NzSelectComponent, NzSelectModule } from 'ng-zorro-antd/select'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
-// why the select chrome is an attribute directive rather than a wrapper:
+// Characterisation of the constraint that shapes every select template:
 //
 // nz-select's @ContentChildren(NzOptionComponent) binds at TEMPLATE
 // DECLARATION, not DOM projection — <nz-option> elements re-projected through
@@ -16,9 +16,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 // in the field template, with <nz-option> declared directly inside
 // <nz-select> in that same template.
 //
-// The tests below characterize the direct declaration shape every field
-// uses: dynamic @for over a signal, nzCustomContent option bodies
-// with closure context, nzServerSearch, and nzCustomTemplate selected items.
+// The tests below characterize the DIRECT declaration shape every field
+// uses: dynamic @for over a signal, nzCustomContent option bodies with
+// closure context, nzServerSearch, and nzCustomTemplate selected items.
 
 @Component({
   standalone: true,
@@ -39,7 +39,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
         </nz-option>
       }
     </nz-select>
-    <ng-template #selectedTpl let-selected>
+    <ng-template
+      #selectedTpl
+      let-selected>
       <span class="sel-custom">SEL:{{ selected.nzValue }}</span>
     </ng-template>
   `,
@@ -67,7 +69,9 @@ class WrapperComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <test-select-wrapper>
-      <nz-option [nzValue]="1" nzLabel="Alpha" />
+      <nz-option
+        [nzValue]="1"
+        nzLabel="Alpha" />
     </test-select-wrapper>
   `,
 })

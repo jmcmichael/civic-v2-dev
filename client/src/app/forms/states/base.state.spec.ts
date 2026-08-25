@@ -5,9 +5,9 @@ import { EvidenceState } from './evidence.state'
 
 /**
  * The field specs all build their own form-state doubles, so none of them can
- * see a change to the real state. These cover the state itself: as signals
- * there is nothing to replay, and the derived values are `computed`, so they
- * cannot disagree with the field they come from.
+ * see a change to the real state. These cover the state itself: the derived
+ * values are `computed` from the field signals, so they cannot disagree with
+ * the field they come from, and a late reader always sees the current value.
  */
 describe('EvidenceState', () => {
   it('derives nothing until an evidence type is chosen', () => {

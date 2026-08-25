@@ -57,8 +57,11 @@ export interface SelectFieldHarnessConfig {
   key: string
   /** answers each GraphQL operation; throw for anything unexpected */
   respond: (op: MockGraphqlOperation) => Record<string, any>
+  /** overrides merged into the field's FormlyFieldConfig */
   field?: Partial<FormlyFieldConfig>
+  /** initial form model, e.g. `{ diseaseId: 42 }` to prepopulate */
   model?: Record<string, any>
+  /** the form state instance fields read via `options.formState` */
   formState?: any
 }
 
@@ -201,8 +204,8 @@ export interface EntitySelectContractConfig<TField> {
   minSearchStrLength?: number
   /**
    * Form state a field needs before it will work at all — variant-select is
-   * disabled until featureId$ has a value. A factory, so each test gets its
-   * own subjects, and merged with (not replaced by) the state the contract
+   * disabled until featureId has a value. A factory, so each test gets its
+   * own signals, and merged with (not replaced by) the state the contract
    * supplies itself.
    */
   formState?: () => Record<string, any>

@@ -19,14 +19,14 @@ export type CvcEnumSelectValue<E extends string> = Maybe<E | E[]>
 const FIRST_RUN = Symbol('first run')
 
 /**
- * Base for the ten fields that select from a fixed enum rather than searching
- * the API. Replaces the EnumSelectField mixin, whose whole job was turning a
- * `QueryList<TemplateRef>` of option templates into `NzSelectOptionInterface[]`
- * with TemplateRef labels — a dance forced by rendering through the
- * `cvc-enum-select` wrapper. Field templates now declare `<nz-option
- * nzCustomContent>` directly inside their own `<nz-select>`, so the options are
- * ordinary template content and the ViewChildren/detectChanges machinery goes
- * away with the wrapper.
+ * Base for fields that select from a fixed enum rather than searching the
+ * API. Field templates declare `<nz-option nzCustomContent>` directly inside
+ * their own `<nz-select>` — nz-select binds options via `@ContentChildren` at
+ * template declaration, so they cannot be projected through a wrapper (see
+ * projected-options.spec.ts).
+ *
+ * @template E the enum's string type
+ * @template P the field's props interface, extending `CvcEnumSelectFieldProps`
  */
 @Directive()
 export abstract class CvcEnumSelectFieldBase<
@@ -81,9 +81,8 @@ export abstract class CvcEnumSelectFieldBase<
    *
    * **The first run never clears.** Arriving at an initial value is not a
    * change — on a revise or clone form that value is the prepopulated one, and
-   * clearing it would wipe what the form had just loaded. Comparing against the
-   * previous value needs no knowledge of the form mode; a test fails if the
-   * guard is removed.
+   * clearing it would wipe what the form had just loaded. There is a test
+   * that fails if the guard is removed.
    */
   protected connectEntityTypeGate<T = EntityType>(): Signal<Maybe<T>> {
     const state = this.state

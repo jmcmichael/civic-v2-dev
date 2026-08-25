@@ -3,8 +3,12 @@ import { TaggableTypename } from './entity-tag-specs'
 
 /**
  * Lazy popover registry: typename → dynamic import + input mapping. Popover
- * code loads over the network only when a tag's popover first opens. Gene
- * has no popover component and is omitted until one exists.
+ * code loads over the network only when a tag's popover first opens, keeping
+ * it out of the form chunks.
+ *
+ * Gene is deliberately absent: no gene popover component exists, and
+ * registering a typename without one renders an empty shell. Add the entry
+ * when the component does exist.
  */
 export interface TagPopoverLoader {
   readonly load: () => Promise<Type<unknown>>
@@ -14,84 +18,83 @@ export interface TagPopoverLoader {
 
 const variantPopover: TagPopoverLoader = {
   load: () =>
-    import(
-      '@app/components/variants/variant-popover/variant-popover.component'
-    ).then((m) => m.CvcVariantPopoverComponent),
+    import('@app/components/variants/variant-popover/variant-popover.component').then(
+      (m) => m.CvcVariantPopoverComponent
+    ),
   inputs: (id) => ({ variantId: id }),
 }
 
-export const TAG_POPOVERS: Partial<
-  Record<TaggableTypename, TagPopoverLoader>
-> = {
-  Assertion: {
-    load: () =>
-      import(
-        '@app/components/assertions/assertions-popover/assertion-popover.component'
-      ).then((m) => m.CvcAssertionPopoverComponent),
-    inputs: (id) => ({ assertionId: id }),
-  },
-  Disease: {
-    load: () =>
-      import(
-        '@app/components/diseases/disease-popover/disease-popover.component'
-      ).then((m) => m.CvcDiseasePopoverComponent),
-    inputs: (id) => ({ diseaseId: id }),
-  },
-  EvidenceItem: {
-    load: () =>
-      import(
-        '@app/components/evidence/evidence-popover/evidence-popover.component'
-      ).then((m) => m.CvcEvidencePopoverComponent),
-    inputs: (id) => ({ evidenceId: id }),
-  },
-  Feature: {
-    load: () =>
-      import(
-        '@app/components/features/feature-popover/feature-popover.component'
-      ).then((m) => m.CvcFeaturePopoverComponent),
-    inputs: (id) => ({ featureId: id }),
-  },
-  MolecularProfile: {
-    load: () =>
-      import(
-        '@app/components/molecular-profiles/molecular-profile-popover/molecular-profile-popover.component'
-      ).then((m) => m.CvcMolecularProfilePopoverComponent),
-    inputs: (id) => ({ molecularProfileId: id }),
-  },
-  Phenotype: {
-    load: () =>
-      import(
-        '@app/components/phenotypes/phenotype-popover/phenotype-popover.component'
-      ).then((m) => m.CvcPhenotypePopoverComponent),
-    inputs: (id) => ({ phenotypeId: id }),
-  },
-  Source: {
-    load: () =>
-      import(
-        '@app/components/sources/source-popover/source-popover.component'
-      ).then((m) => m.CvcSourcePopoverComponent),
-    inputs: (id) => ({ sourceId: id }),
-  },
-  Therapy: {
-    load: () =>
-      import(
-        '@app/components/therapies/cvc-therapy-popover/cvc-therapy-popover.component'
-      ).then((m) => m.CvcTherapyPopoverComponent),
-    inputs: (id) => ({ therapyId: id }),
-  },
-  VariantType: {
-    load: () =>
-      import(
-        '@app/components/variant-types/variant-type-popover/variant-type-popover.component'
-      ).then((m) => m.CvcVariantTypePopoverComponent),
-    inputs: (id) => ({ variantTypeId: id }),
-  },
-  Variant: variantPopover,
-  GeneVariant: variantPopover,
-  FactorVariant: variantPopover,
-  FusionVariant: variantPopover,
-  RegionVariant: variantPopover,
-}
+export const TAG_POPOVERS: Partial<Record<TaggableTypename, TagPopoverLoader>> =
+  {
+    Assertion: {
+      load: () =>
+        import('@app/components/assertions/assertions-popover/assertion-popover.component').then(
+          (m) => m.CvcAssertionPopoverComponent
+        ),
+      inputs: (id) => ({ assertionId: id }),
+    },
+    Disease: {
+      load: () =>
+        import('@app/components/diseases/disease-popover/disease-popover.component').then(
+          (m) => m.CvcDiseasePopoverComponent
+        ),
+      inputs: (id) => ({ diseaseId: id }),
+    },
+    EvidenceItem: {
+      load: () =>
+        import('@app/components/evidence/evidence-popover/evidence-popover.component').then(
+          (m) => m.CvcEvidencePopoverComponent
+        ),
+      inputs: (id) => ({ evidenceId: id }),
+    },
+    Feature: {
+      load: () =>
+        import('@app/components/features/feature-popover/feature-popover.component').then(
+          (m) => m.CvcFeaturePopoverComponent
+        ),
+      inputs: (id) => ({ featureId: id }),
+    },
+    MolecularProfile: {
+      load: () =>
+        import('@app/components/molecular-profiles/molecular-profile-popover/molecular-profile-popover.component').then(
+          (m) => m.CvcMolecularProfilePopoverComponent
+        ),
+      inputs: (id) => ({ molecularProfileId: id }),
+    },
+    Phenotype: {
+      load: () =>
+        import('@app/components/phenotypes/phenotype-popover/phenotype-popover.component').then(
+          (m) => m.CvcPhenotypePopoverComponent
+        ),
+      inputs: (id) => ({ phenotypeId: id }),
+    },
+    Source: {
+      load: () =>
+        import('@app/components/sources/source-popover/source-popover.component').then(
+          (m) => m.CvcSourcePopoverComponent
+        ),
+      inputs: (id) => ({ sourceId: id }),
+    },
+    Therapy: {
+      load: () =>
+        import('@app/components/therapies/cvc-therapy-popover/cvc-therapy-popover.component').then(
+          (m) => m.CvcTherapyPopoverComponent
+        ),
+      inputs: (id) => ({ therapyId: id }),
+    },
+    VariantType: {
+      load: () =>
+        import('@app/components/variant-types/variant-type-popover/variant-type-popover.component').then(
+          (m) => m.CvcVariantTypePopoverComponent
+        ),
+      inputs: (id) => ({ variantTypeId: id }),
+    },
+    Variant: variantPopover,
+    GeneVariant: variantPopover,
+    FactorVariant: variantPopover,
+    FusionVariant: variantPopover,
+    RegionVariant: variantPopover,
+  }
 
 export function hasTagPopover(typename: TaggableTypename): boolean {
   return typename in TAG_POPOVERS

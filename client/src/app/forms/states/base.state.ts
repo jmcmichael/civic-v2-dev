@@ -75,12 +75,15 @@ export interface IEntityState {
 }
 
 /**
- * Form state as signals. A signal has a current value rather than a stream of
- * events, so a field reading a sibling's value during population sees the
- * current value, never a replayed initial `undefined` that looks like a user
- * clearing the field. Effects flush at the end of a change-detection cycle, by
- * which point every field's ngOnInit has published, and a field created later
- * reads the current value whenever it reads.
+ * Shared form state, as signals.
+ *
+ * `fields` are written by the fields themselves (`connectStateField`);
+ * `enums` and `requires` are `computed` from them. There is deliberately no
+ * readiness barrier: a signal has a current value rather than a stream of
+ * events, so there is nothing to replay and misread, and effects flush at the
+ * end of a change-detection cycle — by which point every field's ngOnInit has
+ * published. A field created later still reads the truth whenever it reads.
+ * (`base.state.spec.ts` pins these semantics.)
  */
 class BaseState implements IEntityState {
   formLayout: NzFormLayoutType = 'vertical'

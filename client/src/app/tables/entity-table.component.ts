@@ -13,13 +13,8 @@ import {
   TemplateRef,
   untracked,
 } from '@angular/core'
-import {
-  takeUntilDestroyed,
-  toObservable,
-  toSignal,
-} from '@angular/core/rxjs-interop'
+import { toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
-import { CombinedGraphQLErrors, type ErrorLike } from '@apollo/client'
 import { Maybe, SortDirection } from '@app/generated/civic.apollo.types'
 import { CvcAttributeTagModule } from '@app/forms/components/attribute-tag/attribute-tag.module'
 import { CvcEmptyValueModule } from '@app/forms/components/empty-value/empty-value.module'
@@ -32,8 +27,7 @@ import {
   readCachedEntityName,
   writeCachedEntity,
 } from '@app/tags'
-import { Apollo, QueryRef } from 'apollo-angular'
-import type { GraphQLFormattedError } from 'graphql'
+import { Apollo } from 'apollo-angular'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzCardModule } from 'ng-zorro-antd/card'
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
@@ -55,6 +49,7 @@ import {
   displayedCount,
 } from './connection.types'
 import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
+import { CvcEntityTableQuery } from './entity-table-query'
 import {
   CvcEntityTagCell,
   CvcSortState,
@@ -63,6 +58,7 @@ import {
 } from './entity-table.types'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
+import { resolveStickyOffsets } from './sticky-offsets'
 import {
   CvcScrollEvent,
   CvcScrollFetch,
@@ -70,71 +66,29 @@ import {
 } from './table-scroll.directive'
 
 /**
- * Quiet period before a filter or sort change becomes a query.
- *
- * The managers used 50 ms, which is under a fast typist's inter-key interval and
- * so issued roughly one query per keystroke. This matches the select typeahead's
- * 300 ms. It also has to be long enough to collapse a filter reset, which emits
- * one change per column.
+ * Quiet period before a filter or sort change becomes a query. Matches the
+ * select typeahead's 300 ms — anything under a fast typist's inter-key
+ * interval issues roughly one query per keystroke — and it must be long
+ * enough to collapse a filter reset, which emits one change per column.
  */
 const QUERY_DEBOUNCE_MS = 300
 
-/** what a request error looks like once split out of Apollo's ErrorLike */
-export interface CvcTableRequestError {
-  network?: ErrorLike
-  query?: ReadonlyArray<GraphQLFormattedError>
-}
-
-/** a pinned column's resolved position, and whether it carries the edge shadow */
-interface CvcStickyOffset {
-  left?: string
-  right?: string
-  lastLeft: boolean
-  firstRight: boolean
-}
-
 /**
- * A column's declared width in pixels. Widths are `nzWidth` strings, documented
- * as px on `CvcColumn`; anything else yields 0 rather than NaN, which would
- * poison every offset after it.
- */
-function pxWidth(width: string): number {
-  const parsed = Number.parseFloat(width)
-  return Number.isFinite(parsed) ? parsed : 0
-}
-
-/**
- * One configurable, virtual-scrolled entity table.
+ * One configurable, virtual-scrolled entity table, driven entirely by an
+ * `EntityTableSpec` (see `entityTableConfig`).
  *
- * Replaces the two copies of ~2,150 lines that were `variant-manager` and
- * `evidence-manager`. Those differed by a row-shaping block, a
- * markForCheck/detectChanges, and their type names; everything hard — the query
- * pipeline, error re-derivation, column preferences, filter injection — was
- * duplicated verbatim, and so were its defects.
+ * The component owns columns, filters, sort, selection and scroll state, and
+ * turns them into one debounced variables signal. Everything downstream of
+ * those variables — the QueryRef, the response and its errors — belongs to
+ * `CvcEntityTableQuery`; pinned-column positions are computed by
+ * `resolveStickyOffsets`.
  *
- * ## The query pipeline, and what must not change about it
+ * Filter values live in one signal map that both the query variables and the
+ * filter inputs read, so reset clears a single source and the two cannot
+ * disagree.
  *
- * One `QueryRef`, created lazily on the first variables emission and never
- * re-created. Refetch and fetchMore go through the same guarded path so they
- * cannot race: a refetch replaces the variable set, a fetchMore appends a page,
- * and Apollo's `relayStylePagination` policy — not this component — accumulates
- * the rows.
- *
- * Errors are re-derived by hand because `valueChanges` does not surface errors
- * raised by imperative `refetch`/`fetchMore` calls
- * (apollographql/apollo-client#6857), so each promise's result is inspected too.
- *
- * ## Deliberate departures from the originals
- *
- * - `first` is sent. The managers omitted it and silently took the server's
- *   default page size.
- * - `loading` starts true, so the first paint is a spinner rather than an empty
- *   table.
- * - Selection is a `Set` derived from the ids, so toggling a checkbox no longer
- *   rebuilds every row object.
- * - Reset clears one signal per filter, which is what makes the query and the
- *   filter inputs agree — they could not in the originals, where a filter's
- *   value lived in a mutated config object that nothing re-emitted.
+ * @template TRow the row/node type. `id: number` is required because
+ *   selection (`selectedIds`, `isSelected`) and row tracking key on it.
  */
 @Component({
   selector: 'cvc-entity-table',
@@ -218,54 +172,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   )
 
   /**
-   * Where each pinned column sits, as a CSS length, plus which one carries the
-   * edge shadow.
-   *
-   * ng-zorro can derive this itself — `nzLeft="true"` makes `NzTrDirective`
-   * measure the preceding columns and push an offset back into each cell — but
-   * that coordination does not reach these cells: every pinned column resolved
-   * to `left: 0` and stacked on top of the next, so the select column sat over
-   * the first data column. `ant-table-cell-fix-left-last` never appeared
-   * either, and that class is pure list logic with no measurement in it, which
-   * is what rules out a width problem. `NzCellFixedDirective.ngOnChanges` also
-   * resets that flag on every input change, so the result depends on an
-   * ordering we do not control.
-   *
-   * Every width is a declared px value in the column config, so the offsets are
-   * simple arithmetic. Computing them here is exact, needs no measurement pass,
-   * and cannot be undone by a later change-detection cycle. `nzLeft` accepts a
-   * CSS length as well as a boolean; a string turns ng-zorro's own auto-offset
-   * off (`isAutoLeft` is only true for `''` or `true`), which is what we want.
+   * Where each pinned column sits, and which one carries the edge shadow.
+   * Computed rather than delegated to ng-zorro's auto-offset mode, for the
+   * reasons documented on `resolveStickyOffsets`.
    */
-  private readonly stickyOffsets = computed(() => {
-    const columns = this.visibleColumns()
-    const offsets = new Map<string, CvcStickyOffset>()
-
-    let left = 0
-    const pinnedLeft = columns.filter((c) => c.fixed === 'left')
-    for (const column of pinnedLeft) {
-      offsets.set(column.key, {
-        left: `${left}px`,
-        lastLeft: column === pinnedLeft[pinnedLeft.length - 1],
-        firstRight: false,
-      })
-      left += pxWidth(column.width)
-    }
-
-    let right = 0
-    const pinnedRight = columns.filter((c) => c.fixed === 'right')
-    // right-pinned columns accumulate from the right-hand edge inward
-    for (const column of [...pinnedRight].reverse()) {
-      offsets.set(column.key, {
-        right: `${right}px`,
-        lastLeft: false,
-        firstRight: column === pinnedRight[0],
-      })
-      right += pxWidth(column.width)
-    }
-
-    return offsets
-  })
+  private readonly stickyOffsets = computed(() =>
+    resolveStickyOffsets(this.visibleColumns())
+  )
 
   /** `nzLeft` for a column: a CSS length when pinned left, else false */
   stickyLeft(column: CvcSpecColumn<TRow>): string | false {
@@ -286,7 +199,12 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     return this.stickyOffsets().get(column.key)?.firstRight ?? false
   }
 
-  /** `tooltip || label`, matching what the preferences panel has always shown */
+  /**
+   * `tooltip || label`, matching what the preferences panel has always shown.
+   * The shape is ng-zorro 22's `NzCheckboxOption` (`{ label, value }`) for
+   * `nz-checkbox-group [nzOptions]`; checked values ride `ngModel`
+   * separately under the v22 API split.
+   */
   readonly columnPrefs = computed(() =>
     this.columns()
       .filter((column) => !column.omitFromPrefs)
@@ -314,8 +232,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * Three states, not two. `undefined` means untouched, so a column's
    * configured `sort.default` applies; `{ key, order: null }` means the user
    * cycled a sorter back off, which is a different thing and must not spring
-   * back to the default. The managers got the distinction for free from a
-   * BehaviorSubject seeded with the default — a signal has to state it.
+   * back to the default.
    */
   private readonly sortState = signal<Maybe<CvcSortState>>(undefined)
 
@@ -353,9 +270,8 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     if (sort?.order) {
       const column = spec.columns.find((c) => c.key === sort.key)
       if (column?.sort) {
-        // SortDirection is generated from the schema; the string literals it
-        // replaces were the same values, but nothing tied them to the enum the
-        // server actually declares
+        // SortDirection is generated from the schema, so the direction values
+        // stay tied to the enum the server declares
         vars[spec.sortVar] = {
           column: column.sort.column,
           direction:
@@ -381,20 +297,23 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     return vars
   })
 
-  private queryRef?: QueryRef<unknown, Record<string, unknown>>
-  private requestedCursor?: string
+  /**
+   * The QueryRef and everything derived from a response. Constructed here, and
+   * not injected, because it needs the spec — a component input — and because a
+   * landed refetch has to move this component's scroll position.
+   */
+  private readonly query = new CvcEntityTableQuery({
+    query: () => this.spec().query,
+    destroyRef: this.destroyRef,
+    onRefetch: () => this.scrollToIndex.set(0),
+  })
 
-  private readonly result =
-    signal<Maybe<{ data: unknown; loading: boolean }>>(undefined)
-  private readonly fetchingMore = signal(false)
-  readonly requestError = signal<Maybe<CvcTableRequestError>>(undefined)
-
-  /** true until the first response, so the first paint is not a blank table */
-  readonly loading = computed(() => this.result()?.loading ?? true)
-  readonly isFetchingMore = computed(() => this.fetchingMore())
+  readonly loading = this.query.loading
+  readonly isFetchingMore = this.query.isFetchingMore
+  readonly requestError = this.query.requestError
 
   readonly connection = computed(() =>
-    this.spec().connection(this.result()?.data)
+    this.spec().connection(this.query.data())
   )
   readonly rows = computed(() => connectionNodes(this.connection()))
   // no cast: CvcPageInfo is the generated PageInfo minus __typename, which is
@@ -439,7 +358,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     effect(() => {
       const vars = debouncedVars()
       if (!vars) return
-      untracked(() => this.runQuery(vars))
+      untracked(() => this.query.run(vars))
     })
 
     effect(() => {
@@ -457,53 +376,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
   // --------------------------------------------------------- query pipeline
 
-  private runQuery(vars: Record<string, unknown>): void {
-    this.requestError.set(undefined)
-    this.fetchingMore.set(false)
-
-    if (!this.queryRef) {
-      // `{ variables }`, not positional — see CvcTableQuery. The three
-      // apollo-angular entry points this class uses do not agree with one
-      // another, and getting this one wrong costs no compile error and no test
-      // failure, only a query with no variables.
-      this.queryRef = this.spec().query.watch({ variables: vars }) as QueryRef<
-        unknown,
-        Record<string, unknown>
-      >
-      this.queryRef.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (value) => {
-            this.result.set(value)
-            if (value.error) this.requestError.set(splitError(value.error))
-          },
-          error: (error: ErrorLike) => this.requestError.set(splitError(error)),
-        })
-      return
-    }
-
-    // a new variable set invalidates any cursor already asked for
-    this.requestedCursor = undefined
-    this.queryRef
-      .refetch(vars)
-      .then((value) => {
-        if (value.error) this.requestError.set(splitError(value.error))
-        this.scrollToIndex.set(0)
-      })
-      .catch((error: ErrorLike) => this.requestError.set(splitError(error)))
-  }
-
+  /**
+   * Handles a scroll-observer page request. The directive reports that the
+   * viewport wants another page; the store decides whether that cursor is
+   * still worth asking for.
+   */
   onFetchRequest(fetch: CvcScrollFetch): void {
-    if (!this.queryRef || fetch.after === this.requestedCursor) return
-    this.requestedCursor = fetch.after
-    this.fetchingMore.set(true)
-    this.queryRef
-      .fetchMore({ variables: { ...this.queryVars(), ...fetch } })
-      .then((value) => {
-        if (value.error) this.requestError.set(splitError(value.error))
-      })
-      .catch((error: ErrorLike) => this.requestError.set(splitError(error)))
-      .finally(() => this.fetchingMore.set(false))
+    this.query.fetchMore(fetch, this.queryVars())
   }
 
   onScrollPhase(phase: CvcScrollEvent): void {
@@ -552,11 +431,10 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * render `cvc-empty-value` instead.
    *
    * `labelSegments` is the same helper `cvc-tag` highlights with: plain
-   * case-insensitive string matching. The `highlightTypeahead` pipe it replaces
-   * built a `RegExp` out of raw filter input — so an unbalanced bracket typed
-   * into a filter box threw — and returned its result through
-   * `bypassSecurityTrustHtml`, which
-   * rendered server-supplied names as unescaped markup.
+   * case-insensitive string matching — deliberately not a `RegExp` built from
+   * raw filter input (an unbalanced bracket would throw), and never through
+   * `bypassSecurityTrustHtml` (server-supplied names must not render as
+   * markup).
    */
   textSegments(column: CvcSpecColumn<TRow>, row: TRow): LabelSegment[] {
     const cell = column.cell
@@ -577,9 +455,9 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
-   * Virtual scroll needs a stable identity per row. The managers tracked by
-   * index, which recycles a row's DOM into a different record when a refetch
-   * reorders the list — visible as a tag briefly showing the wrong entity.
+   * Virtual scroll needs a stable identity per row: tracking by index
+   * recycles a row's DOM into a different record when a refetch reorders the
+   * list — visible as a tag briefly showing the wrong entity.
    */
   readonly trackById = (_index: number, row: TRow): number => row.id
 
@@ -605,15 +483,10 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /**
    * Clears every filter and returns sort to its configured default.
    *
-   * One assignment, because a filter's value has one home. In the managers the
-   * query cleared but the input boxes did not, since their value lived in a
-   * mutated `col.filter.options[0].value` that nothing re-emitted — the reset
-   * button read as inert. Column visibility is deliberately untouched, matching
-   * the original.
-   *
-   * Sort returns to `undefined`, i.e. to the configured default rather than to
-   * no sort at all — which is what the managers' reset did, by pushing
-   * `c.sort.default ?? null` into every sort stream.
+   * One assignment, because a filter's value has one home — which is what
+   * keeps the query and the filter inputs in agreement. Column visibility is
+   * deliberately untouched, and sort returns to `undefined`: the configured
+   * default, not "no sort at all".
    */
   onResetFilters(): void {
     this.filterValues.set(new Map())
@@ -692,16 +565,5 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
         return next
       })
     }
-  }
-}
-
-/**
- * Splits Apollo 4's single `ErrorLike` into the GraphQL errors and the transport
- * error, so the toolbar can label them differently.
- */
-function splitError(error: ErrorLike): CvcTableRequestError {
-  return {
-    query: CombinedGraphQLErrors.is(error) ? error.errors : undefined,
-    network: CombinedGraphQLErrors.is(error) ? undefined : error,
   }
 }

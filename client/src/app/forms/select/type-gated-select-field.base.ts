@@ -1,9 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Directive,
-  effect,
-  inject,
-} from '@angular/core'
+import { ChangeDetectorRef, Directive, effect, inject } from '@angular/core'
 import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { EntityType } from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
@@ -30,13 +25,14 @@ export interface CvcTypeGateConfig {
 }
 
 /**
- * An entity-select whose enabled/required state is driven by the form's entity
- * type. Four fields share this behavior (disease, therapy, acmg-code,
- * clingen-code); each supplies only its `requires` subject key and its
- * "excluded" wording.
+ * An entity-select whose enabled/required state is driven by the form's
+ * entity type (disease, therapy, acmg-code, clingen-code). A field supplies
+ * only its `requires` state key and its "excluded" wording; subclasses that
+ * need extra reactions to the gate override `onTypeGateApplied`.
  *
- * Subclasses that need extra reactions to the gate override
- * `onTypeGateApplied`.
+ * @template TResult the typeahead result fragment type
+ * @template TParam the extra typeahead parameter's type; `void` when none
+ * @template P the field's props, extending `CvcTypeGatedSelectFieldProps`
  */
 @Directive()
 export abstract class CvcTypeGatedSelectFieldBase<
@@ -54,11 +50,10 @@ export abstract class CvcTypeGatedSelectFieldBase<
   }
 
   /**
-   * No readiness barrier here any more. The gate reads signals, and effects
-   * flush at the end of a change-detection cycle — by which point every sibling
-   * field's ngOnInit has published its value into the state. So the first run
-   * already sees the populated form, which is the only thing `formReady$` was
-   * protecting against.
+   * The gate reads signals, and effects flush at the end of a
+   * change-detection cycle — by which point every sibling field's ngOnInit
+   * has published its value into the state — so the first run already sees
+   * the populated form and needs no readiness barrier.
    */
   private connectTypeGate(): void {
     const state = this.state
@@ -147,7 +142,18 @@ export abstract class CvcTypeGatedSelectFieldBase<
     this.cdr.markForCheck()
   }
 
-  /** hook for field-specific reactions; runs before the view is marked dirty */
+  /**
+   * Hook for field-specific reactions to the gate, called after
+   * `applyStateUpdates` has already written `props.description`,
+   * `props.extraType`, `required` and `disabled` — an override runs last and
+   * wins, so one that manages its own description should read/snapshot what
+   * the gate wrote before overwriting it (see clingen-code-select for the
+   * worked example). Runs before the view is marked dirty, so overrides need
+   * no `markForCheck` of their own.
+   *
+   * @param _isRequired whether the chosen entity type requires this field
+   * @param _entityType the chosen entity type, or undefined while none is
+   */
   protected onTypeGateApplied(
     _isRequired: boolean,
     _entityType: Maybe<EntityType>

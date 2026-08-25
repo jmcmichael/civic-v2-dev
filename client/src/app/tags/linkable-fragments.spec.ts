@@ -9,9 +9,9 @@ import {
   LinkableVariantFragmentDoc,
 } from './linkable.fragments.gql.generated'
 
-// pins that Apollo.watchFragment resolves interface
-// fragments for concrete typenames via possibleTypes, reacts to later cache
-// writes, and reports cache misses as incomplete results.
+// Verifies Apollo.watchFragment resolves interface fragments for concrete
+// typenames via possibleTypes, reacts to later cache writes, and reports
+// cache misses as incomplete results — the contract CvcTag renders on.
 describe('watchFragment over Linkable* fragments', () => {
   function setup(seed?: Parameters<typeof provideSeededApollo>[0]) {
     TestBed.configureTestingModule({ providers: [provideSeededApollo(seed)] })
@@ -62,7 +62,10 @@ describe('watchFragment over Linkable* fragments', () => {
       })
     )
     expect(result.complete).toBe(true)
-    expect(result.data).toMatchObject({ __typename: 'GeneVariant', name: 'V600E' })
+    expect(result.data).toMatchObject({
+      __typename: 'GeneVariant',
+      name: 'V600E',
+    })
   })
 
   it('reports a cache miss as incomplete rather than erroring', async () => {

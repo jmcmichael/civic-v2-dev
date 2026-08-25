@@ -86,8 +86,7 @@ export interface CvcVariantSelectFieldProps extends CvcEntitySelectFieldProps {
 // NOTE: any multi-select field must have the string 'multi' in its type name,
 // as UI logic (currently in base-field) depends on its presence to differentiate
 // field types in some expressions
-export interface CvcVariantSelectFieldConfig
-  extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
+export interface CvcVariantSelectFieldConfig extends FormlyFieldConfig<CvcVariantSelectFieldProps> {
   type: 'variant-select' | 'variant-multi-select' | Type<CvcVariantSelectField>
 }
 
@@ -95,8 +94,9 @@ export interface CvcVariantSelectFieldConfig
 const MIN_ADD_NAME_LENGTH = 3
 
 /**
- * What a builder modal resolves with. Distinct from the *ModalData types,
- * which describe what is passed *in* via nzData.
+ * What a builder modal resolves with. Deliberately distinct from the
+ * *ModalData types, which describe what is passed *in* via nzData — the
+ * result needs its own type or it is effectively untyped.
  */
 interface VariantBuilderResult {
   variantId?: number
@@ -172,9 +172,8 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
   })
 
   /** the Feature this field is scoped to, once its name has been fetched */
-  private readonly selectedFeature = signal<
-    Maybe<FeatureSelectTypeaheadFieldsFragment>
-  >(undefined)
+  private readonly selectedFeature =
+    signal<Maybe<FeatureSelectTypeaheadFieldsFragment>>(undefined)
 
   protected readonly showManager = signal(false)
 
@@ -248,7 +247,11 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
   }
 
   protected createFusionVariantModal(): void {
-    this.openBuilder(CvcFusionVariantSelectForm, 'Add New Fusion Variant', '60%')
+    this.openBuilder(
+      CvcFusionVariantSelectForm,
+      'Add New Fusion Variant',
+      '60%'
+    )
   }
 
   protected createRegionVariantModal(): void {
@@ -262,13 +265,9 @@ export class CvcVariantSelectField extends CvcEntitySelectFieldBase<
   /**
    * Both builders report their result by destroying the modal with it.
    * Dismissing one any other way (the close icon, ESC, the mask) resolves
-   * with nothing.
+   * with nothing, so the result must be guarded before dereferencing.
    */
-  private openBuilder<T>(
-    content: Type<T>,
-    title: string,
-    width: string
-  ): void {
+  private openBuilder<T>(content: Type<T>, title: string, width: string): void {
     const modal = this.modal.create<
       T,
       FusionVariantSelectModalData | RegionVariantSelectModalData

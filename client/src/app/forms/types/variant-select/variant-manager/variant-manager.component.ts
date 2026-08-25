@@ -12,16 +12,14 @@ import { variantManagerConfig } from './variant-manager.config'
 import { VariantManagerGQL } from './variant-manager.query.gql.generated'
 
 /**
- * The variant selection table, as a facade over `cvc-entity-table`.
+ * The variant selection table, as a facade over `cvc-entity-table`: the
+ * field-facing inputs and the table config. The query pipeline, column
+ * preferences, filters, sort, virtual scroll and error handling live once in
+ * the table, shared with the evidence manager.
  *
- * What remains of a 631-line component: the field-facing inputs and the table
- * config. The query pipeline, column preferences, filters, sort, virtual
- * scroll and error handling now live once in the table rather than twice
- * across this and the evidence manager.
- *
- * The I/O is deliberately unchanged — `variant-select.type.html` binds
- * `[cvcSelectedIds]` and `(cvcSelectedIdsChange)` and needs no edit. Neither
- * name is aliased: a `model()` called `cvcSelectedIds` emits
+ * `variant-select.type.html` binds `[cvcSelectedIds]` and
+ * `(cvcSelectedIdsChange)`; that contract is pinned by the field's specs.
+ * Neither name is aliased: a `model()` called `cvcSelectedIds` emits
  * `cvcSelectedIdsChange` of its own accord, which is also what
  * `@angular-eslint/no-output-rename` requires.
  */
@@ -52,11 +50,9 @@ export class CvcVariantManagerComponent {
    * Filters and column visibility pushed in by a sibling form field.
    *
    * Nothing binds this today — `variant-select.type.html` passes only the two
-   * selection bindings — but the input stays, because the evidence manager's
-   * field does bind it and the behaviour it drives is now generic to the
-   * table. The sixty lines of filter-injection machinery that used to sit
-   * behind it went with the old component; this forwards to the one
-   * implementation.
+   * selection bindings — but the input stays: the evidence manager's field
+   * binds its counterpart, and the behaviour it drives is generic to the
+   * table.
    */
   readonly cvcTableSettings = input<Maybe<CvcTableSettings>>(undefined)
 

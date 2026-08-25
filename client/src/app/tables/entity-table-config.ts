@@ -1,5 +1,5 @@
-// QueryData/QueryVars are imported from the file rather than the forms/select
-// barrel, which does not re-export them
+// Deep import: the forms/select barrel does not re-export QueryData/QueryVars,
+// and duplicating them here would let the two copies drift.
 import {
   AnyQuery,
   QueryData,
@@ -20,55 +20,53 @@ import { CvcColumn } from './entity-table.types'
  *
  * `watch` takes an **options object**, not variables. The three sibling APIs
  * disagree and it is worth stating once: `refetch(vars)` is positional,
- * `fetchMore({ variables })` and `watch({ variables })` are not. Declaring this
- * as `watch(variables?: TVars)` — as an earlier draft did — compiles perfectly
- * and silently sends no variables at all, because every key of a variables
- * object is simply an unrecognised option. The table then gets the server's
- * default page size instead of its own.
+ * `fetchMore({ variables })` and `watch({ variables })` are not. Declaring
+ * this as `watch(variables?: TVars)` compiles perfectly and silently sends no
+ * variables at all, because every key of a variables object is simply an
+ * unrecognised option.
  */
 export interface CvcTableQuery<TData, TVars extends OperationVariables> {
   watch(options?: { variables?: TVars }): QueryRef<TData, TVars>
 }
 
 /**
- * Everything a table needs beyond its template.
+ * A table config's members, parameterised by the query types they depend on.
  *
- * Follows `entitySelectConfig` (forms/select/entity-select-config.ts:93): infer
- * every query type from the arguments, type-check the literal, then erase the
- * type parameters so the component carries only its row type. That erasure is
- * the whole point — the previous attempt at a generic table foundered on type
- * parameters that had to be spelled out at every use.
+ * `EntityTableConfig` binds these to a generated query service and
+ * `EntityTableSpec` erases them again. Declaring each member once here is what
+ * stops an addition to the config from being forgotten in the shape the
+ * component actually reads.
+ *
+ * @template TData the query's result type
+ * @template TVars the query's variables type
+ * @template TNode the row type
+ * @template TSortColumn the query's generated `*SortColumns` enum
  */
-export interface EntityTableConfig<
-  TQuery extends AnyQuery,
-  TNode,
-  TSortColumn extends string,
-> {
+interface EntityTableShape<TData, TVars, TNode, TSortColumn extends string> {
   /** shown in the card header; omit for an untitled table */
   title?: string
-  /** the generated *GQL service; TData and TVars are inferred from it */
-  query: TQuery
-  /** picks the connection out of the query result */
-  connection: (data: Maybe<QueryData<TQuery>>) => Maybe<CvcConnection<TNode>>
+  /**
+   * Picks the connection out of the query result.
+   *
+   * A method rather than a function-typed property, which is what lets
+   * `entityTableConfig` erase `TData` by assignment: method parameters are
+   * compared bivariantly, so a config's concrete result type still satisfies
+   * the spec's `unknown`. The return type — the half that carries `TNode` — is
+   * checked either way.
+   */
+  connection(data: Maybe<TData>): Maybe<CvcConnection<TNode>>
   /** rendered left-to-right in array order */
-  columns: CvcColumn<TNode, QueryVars<TQuery>, TSortColumn>[]
+  columns: CvcColumn<TNode, TVars, TSortColumn>[]
   /**
    * The query variable carrying the sort, typed against the query's own
-   * variables and defaulting to `sortBy`.
-   *
-   * The name used to be hardcoded, which is exactly the shape of the bug
-   * `filter.var` exists to prevent: the evidence rating filter named
-   * `evidenceRating` where the query declares `$rating`, so it set a variable
-   * nothing read and filtered nothing, silently. A sort variable spelled wrong
-   * fails the same way.
+   * variables and defaulting to `sortBy` — a misspelled sort variable would
+   * otherwise be sent and silently ignored, exactly like an unmapped filter.
    */
-  sortVar?: keyof QueryVars<TQuery> & string
+  sortVar?: keyof TVars & string
   /**
-   * Rows per page, for the first query as well as subsequent ones.
-   *
-   * Both managers omit `first` on the initial and refetched queries and set it
-   * only when paging, so page one silently takes the server's
-   * `default_max_page_size` of 100 while every later page is 50.
+   * Rows per page, sent as `first` on the initial query as well as subsequent
+   * ones — one value, so page one cannot silently take the server's
+   * `default_max_page_size` (100) while later pages take another.
    */
   pageSize?: number
   /**
@@ -76,25 +74,45 @@ export interface EntityTableConfig<
    * `diseaseId`, an embedded table's `sourceId`. User filters are merged over
    * these, so a column filter cannot silently widen the table's scope.
    */
-  scope?: Partial<QueryVars<TQuery>>
-  /**
-   * Called with each page of rows as it arrives, to project entities the query
-   * denormalised back into the cache.
-   *
-   * `cvc-tag` renders from the Apollo cache alone, keyed `__typename:id`. A
-   * `Browse*` row flattens its entities into scalar columns — `BrowseVariant`
-   * carries `featureId`/`featureName`/`featureLink` rather than a `feature`
-   * object — so it normalises to `BrowseVariant:<id>` and no `Variant:<id>` or
-   * `Feature:<id>` entry is ever written. Tags for those columns then render as
-   * `#<id>` skeletons even though the names are in the response.
-   *
-   * Use `writeCachedEntity` here; it satisfies the right fragment and refuses
-   * to overwrite an entity a real query already cached. Nothing else belongs in
-   * this hook — it runs on every page, and it is not a place for state the
-   * table should own.
-   */
-  seedCache?: (rows: ReadonlyArray<TNode>) => void
+  scope?: Partial<TVars>
 }
+
+/**
+ * Everything a table needs beyond its template.
+ *
+ * Follows `entitySelectConfig` (forms/select/entity-select-config.ts): infer
+ * every query type from the arguments, type-check the literal, then erase the
+ * type parameters so the component carries only its row type and no host ever
+ * spells out a type argument.
+ *
+ * @template TQuery the generated apollo-angular query service class
+ * @template TNode the row type, inferred from `connection`'s return
+ * @template TSortColumn the query's generated `*SortColumns` enum, inferred
+ *   from the sort members the columns use
+ */
+export interface EntityTableConfig<
+  TQuery extends AnyQuery,
+  TNode,
+  TSortColumn extends string,
+> extends EntityTableShape<
+  QueryData<TQuery>,
+  QueryVars<TQuery>,
+  TNode,
+  TSortColumn
+> {
+  /** the generated *GQL service; TData and TVars are inferred from it */
+  query: TQuery
+}
+
+/**
+ * The config's shape once `entityTableConfig` has erased its query types.
+ *
+ * `TVars` erases to `any`, not to a record type. `keyof TVars` puts a column's
+ * filter variable in a contravariant position, and nothing but `any` lets a
+ * column bound to a real query assign to an erased one. It reaches no value:
+ * every member it feeds — `sortVar`, a filter's `var` — resolves to `string`.
+ */
+type ErasedTableShape<TNode> = EntityTableShape<unknown, any, TNode, string>
 
 /**
  * A column as it appears once `entityTableConfig` has erased the query types.
@@ -103,18 +121,22 @@ export interface EntityTableConfig<
  * is what a column looks like before a config binds it to a query. Anything
  * reading columns *off a spec* wants this shape.
  */
-export type CvcSpecColumn<TNode> = CvcColumn<
-  TNode,
-  Record<string, unknown>,
-  string
->
+export type CvcSpecColumn<TNode> = ErasedTableShape<TNode>['columns'][number]
 
-/** An EntityTableConfig with its query type parameters erased. */
-export interface EntityTableSpec<TNode> {
-  title?: string
+/**
+ * An EntityTableConfig with its query type parameters erased and the factory's
+ * defaults filled in — what `CvcEntityTableComponent` reads.
+ *
+ * Inherits its members from `EntityTableShape` rather than re-declaring them,
+ * so a member added to the config cannot go missing here; the three it
+ * redeclares are exactly the ones the factory supplies a default for.
+ *
+ * Only `entityTableConfig` should produce one: the factory type-checks the
+ * literal before erasing, so a hand-built spec bypasses every check the config
+ * surface exists to make.
+ */
+export interface EntityTableSpec<TNode> extends ErasedTableShape<TNode> {
   query: CvcTableQuery<unknown, Record<string, unknown>>
-  connection: (data: unknown) => Maybe<CvcConnection<TNode>>
-  columns: CvcColumn<TNode, Record<string, unknown>, string>[]
   pageSize: number
   scope: Record<string, unknown>
   sortVar: string
@@ -131,6 +153,10 @@ export const DEFAULT_PAGE_SIZE = 50
  * types. Inference does the work: `TNode` comes from `connection`'s return,
  * `TSortColumn` from the sort members the columns actually use, and the filter
  * `var` of every column is checked against that query's real variables.
+ *
+ * @param config the table's config literal; see `EntityTableConfig`
+ * @returns the same config with defaults applied and query types erased
+ * @throws in dev mode when two columns share a `key` (see `assertUniqueKeys`)
  */
 export function entityTableConfig<
   TQuery extends AnyQuery,
@@ -142,19 +168,28 @@ export function entityTableConfig<
   assertUniqueKeys(config.columns)
   return {
     ...config,
+    // The two members no assignment can express. `query`: apollo-angular's
+    // QueryRef is invariant in both of its parameters, so a generated service
+    // is not assignable to the erased query surface however it is spelled.
+    // `scope`: a generic variables type has no implicit index signature, so
+    // Partial<TVars> does not reach Record<string, unknown>. Everything else —
+    // the columns, `connection`'s row type, both remaining defaults — is
+    // still checked.
+    query: config.query as unknown as CvcTableQuery<
+      unknown,
+      Record<string, unknown>
+    >,
     pageSize: config.pageSize ?? DEFAULT_PAGE_SIZE,
     scope: (config.scope ?? {}) as Record<string, unknown>,
     sortVar: config.sortVar ?? DEFAULT_SORT_VAR,
-  } as unknown as EntityTableSpec<TNode>
+  }
 }
 
 /**
  * Column keys address a column in preferences, filters, sticky offsets and the
  * `data-column` test hook — every one of them a `Map` or a lookup by key, and
  * `@for` tracks by it. A duplicate is therefore a silent aliasing bug rather
- * than a rendering one, and the evidence manager shipped with two columns keyed
- * `id`: a hidden one that rendered nothing, and the visible EID column. It
- * survived only because the hidden one never reached `visibleColumns`.
+ * than a rendering one.
  *
  * Dev-mode only: this is a config authoring mistake, not a runtime condition,
  * and the check costs nothing to skip in production.

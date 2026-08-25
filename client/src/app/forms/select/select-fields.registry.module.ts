@@ -24,13 +24,17 @@ import { CvcVariantSelectField } from '@app/forms/types/variant-select/variant-s
 import { CvcVariantTypeSelectField } from '@app/forms/types/variant-type-select/variant-type-select.type'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 
-/**
- * The single FormlyModule.forChild registration for migrated select fields.
- * Imported by types/form-types.module.ts; each field's old per-type NgModule is
- * removed from that module in the same commit, so no type name is ever bound to
- * two components. Never re-provide FormlyConfig via forRoot in a lazy injector —
- * it silently breaks FieldArrayType.onPopulate (see forms.module.ts).
- */
+// This module is the single FormlyModule.forChild registration for the
+// select fields, imported by types/form-types.module.ts. A type name must
+// never be bound to two components, so register a field here only when no
+// other module registers it. Never re-provide FormlyConfig via forRoot in a
+// lazy injector — it silently breaks FieldArrayType.onPopulate (see
+// forms.module.ts).
+//
+// Naming invariant: any field used in multi-select mode must have the string
+// 'multi' in its registered type name — the form-field wrapper keys layout on
+// it.
+
 /**
  * The enum selects, which pick from a fixed schema enum or a form-state list
  * rather than searching the API. None of them is used in multi-select mode

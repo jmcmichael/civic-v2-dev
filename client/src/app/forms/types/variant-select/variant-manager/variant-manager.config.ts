@@ -5,39 +5,28 @@ import { VariantManagerGQL } from './variant-manager.query.gql.generated'
 /**
  * The variant manager's table, as configuration.
  *
- * Replaces `VariantManagerConfig` — a class that built a column array, then
- * walked it attaching a `BehaviorSubject` to every sort and filter, and
- * published two arrays of streams for the component to `combineLatest`. The
- * column array is all that is left; the streams were the mechanism by which a
- * filter's value lived in a mutated config object, which is why resetting the
- * table never cleared its own inputs.
+ * `filter.var` and `sort.column` are checked against the query's generated
+ * types, so a filter or sorter cannot silently name a variable or column the
+ * query does not have — `variant-manager.config.spec.ts` additionally pins
+ * that every filter variable is declared *and* reaches a field.
  *
- * Three lookup tables also go, replaced by fields the compiler checks:
+ * `aliases` deliberately declares no sort: `VariantsSortColumns` has no alias
+ * member, so the column is not sortable and cannot claim to be (a sorter
+ * sending `sortBy: { column: undefined }` fails the whole query).
  *
- * - `columnKeyToSortColumnMap` -> `sort.column`, typed `VariantsSortColumns`
- * - `columnKeyToQueryVariableMap` -> `filter.var`, typed `keyof` this query's
- *   variables
- * - `omittedFromPrefs` -> the per-column `omitFromPrefs` flag
- *
- * That retypes one live bug out of existence: `aliases` declared `sort: {}`
- * with no entry in the sort map, so clicking its sorter sent
- * `sortBy: { column: undefined }` against a non-null `VariantsSort.column` and
- * failed the whole query. There is no alias member in `VariantsSortColumns` —
- * the column is not sortable, and now cannot claim to be.
+ * Rows are `BrowseVariant`s, which flatten their entities into scalar columns,
+ * so the entity-tag columns declare `seed` projections — see
+ * `CvcEntityTagCell.seed`.
  */
 export function variantManagerConfig(query: VariantManagerGQL) {
   return entityTableConfig({
     title: 'Use checkboxes to select or deselect Variants',
     query,
-    // the managers sent no `first` at all, so the first page silently took the
-    // server's default of 100 while every page after it was 50
     pageSize: 50,
     connection: (data) => data?.browseVariants,
     columns: [
       {
-        // no label: the header is 25px wide, so any text is clipped to a
-        // fragment. The old config said 'Select' and never rendered it — the
-        // select column had its own <th> branch with no label at all.
+        // no label: the header is 25px wide, so any text is clipped
         key: 'selected',
         label: '',
         width: '25px',
@@ -51,9 +40,8 @@ export function variantManagerConfig(query: VariantManagerGQL) {
         label: 'Variant',
         width: '215px',
         fixed: 'left',
-        // identity only: cvc-tag renders from the Apollo cache, so the name and
-        // link the old row projection carried here were never read. `seed`
-        // below writes Variant:<id> so the tag can resolve it.
+        // ref is identity only — cvc-tag renders from the Apollo cache; the
+        // `seed` below writes Variant:<id> so the tag can resolve it
         cell: {
           kind: 'entity-tag',
           ref: (row) => ({ __typename: 'Variant' as const, id: row.id }),
@@ -84,7 +72,7 @@ export function variantManagerConfig(query: VariantManagerGQL) {
           text: (row) => row.aliases.map((alias) => alias.name),
           highlight: true,
         },
-        // no VariantsSortColumns member exists for aliases; see the class note
+        // no VariantsSortColumns member exists for aliases; see the doc above
         filter: {
           kind: 'text',
           var: 'variantAlias',

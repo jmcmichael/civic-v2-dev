@@ -10,32 +10,50 @@ import {
 import { NzTableSortOrder } from 'ng-zorro-antd/table'
 
 /**
- * The column model.
+ * The column model: one flat column type for every column.
  *
- * Replaces the managers' six-member discriminated union of column types, whose
- * own author noted (variant-manager.types.ts:335) that it never removed the need
- * for guard predicates. The cost of that design was structural: because each
- * union member was a whole column, every column type needed its own `guardType`
- * branch in each of the header, filter and cell sections, and the same
- * width/align/fixed bindings were rewritten in twelve near-identical th/td
- * blocks.
+ * The discriminant covers only the cell's *contents* (`cell.kind`). Everything
+ * to do with layout lives on the column itself, so one `<th>` and one `<td>`
+ * serve every column and the union is narrowed once, at the point it actually
+ * varies.
  *
- * Here the discriminant covers only the cell's *contents*. Everything to do with
- * layout lives on the column itself, so one `<th>` and one `<td>` serve every
- * column and the union is narrowed once, at the point it actually varies.
+ * Layout members are typed facades over nz-table's per-cell directive inputs
+ * (`key` → `nzColumnKey`, `width` → `nzWidth`, `align` → `nzAlign`, `fixed` →
+ * `nzLeft`/`nzRight`, sort → `nzSortOrder`/`nzSortFn`); the component applies
+ * them in its single `<th>`/`<td>`. See docs/01-architecture.md for the full
+ * mapping table.
+ *
+ * @template TRow row/node type the table renders; must satisfy the host
+ *   component's `{ id: number }` constraint
+ * @template TVars the query's generated variables type; checked by
+ *   `filter.var`
+ * @template TSortColumn the generated `*SortColumns` enum; checked by
+ *   `sort.column`
  */
 export interface CvcColumn<
   TRow,
   TVars = unknown,
   TSortColumn extends string = string,
 > {
-  /** stable identity: addresses the column in prefs, filters and data-column */
+  /**
+   * Stable identity: addresses the column in prefs, filters, `data-column`
+   * test hooks, and ng-zorro's `nzColumnKey`.
+   */
   key: string
   label: string
-  /** passed to th[nzWidth]; use px, e.g. '215px' */
+  /**
+   * Passed to `th[nzWidth]`; use px, e.g. '215px' — sticky offsets for
+   * pinned columns are computed arithmetically from these.
+   */
   width: string
+  /** `th`/`td` `nzAlign`; same union as ng-zorro's */
   align?: 'left' | 'center' | 'right'
-  /** pins the column while the table scrolls horizontally */
+  /**
+   * Pins the column while the table scrolls horizontally. Rendered as a
+   * computed CSS length on `nzLeft`/`nzRight` (`NzCellFixedDirective`) —
+   * deliberately never the boolean auto-measure mode; see
+   * `CvcEntityTableComponent.stickyOffsets`.
+   */
   fixed?: 'left' | 'right'
   /** initial visibility; the preferences panel toggles it thereafter */
   hidden?: boolean
@@ -45,16 +63,9 @@ export interface CvcColumn<
   omitFromPrefs?: boolean
   /**
    * Rendered when the cell accessor yields nothing. Defaults to
-   * `DEFAULT_EMPTY_VALUE` for every cell kind.
-   *
-   * The template used to default per kind — 'not-applicable' for entity tags,
-   * 'unspecified' elsewhere — so a column's empty rendering could not be read
-   * off its config. One default, overridden per column where the distinction is
-   * real (an evidence item with no therapy interaction is not-applicable; one
-   * with no description is unspecified).
-   *
-   * The set of categories is itself unsettled — see
-   * agent-artifacts/entity-mgr-table-refactor/empty-value-audit.md.
+   * `DEFAULT_EMPTY_VALUE`; override per column where the distinction is real
+   * (an evidence item with no therapy interaction is not-applicable; one with
+   * no description is unspecified).
    */
   emptyValue?: CvcEmptyValueCategory
   cell: CvcCellSpec<TRow>
@@ -65,8 +76,8 @@ export interface CvcColumn<
 /**
  * What to draw inside a cell.
  *
- * Every variant reads its data through an accessor rather than by indexing
- * `row[col.key]`, and the accessor is checked against `TRow`.
+ * Every variant reads its data through an accessor checked against `TRow`,
+ * never by indexing `row[col.key]` — a column's data need not share its key.
  *
  * An `<ng-template cvcCell="key">` in the host overrides whatever is declared
  * here, for the cases no built-in kind covers.
@@ -85,12 +96,10 @@ export interface CvcSelectCell {
 }
 
 /**
- * one or more `cvc-tag`s, overflowing into a `cvc-collection-tag`
+ * One or more `cvc-tag`s, overflowing into a `cvc-collection-tag`.
  *
- * There is deliberately no `showStatus`. Both manager configs set one and both
- * types files declared one, but no template ever read it — `cvc-tag` applies its
- * deprecated/flagged/status classes from the cached entity unconditionally. It
- * was dead config in the originals; it is not carried forward.
+ * There is deliberately no `showStatus` toggle: `cvc-tag` applies its
+ * deprecated/flagged/status classes from the cached entity unconditionally.
  */
 export interface CvcEntityTagCell<TRow> {
   kind: 'entity-tag'
@@ -127,11 +136,9 @@ export interface CvcEntityTagCell<TRow> {
 /**
  * `cvc-attribute-tag` for a generated enum value.
  *
- * There is deliberately no `showLabel` or `showIcon`, for the same reason
- * `CvcEntityTagCell` has no `showStatus`: both managers' configs declared them
- * and neither template ever bound them. `cvcContext="compact"` — which every
- * one of these cells uses — sets `cvcShowLabel = false` in the tag's own
- * ngOnChanges regardless, so binding them would not have worked either.
+ * There is deliberately no `showLabel` or `showIcon`: every one of these cells
+ * uses `cvcContext="compact"`, which sets `cvcShowLabel = false` in the tag's
+ * own ngOnChanges, so such bindings would have no effect.
  */
 export interface CvcEnumTagCell<TRow> {
   kind: 'enum-tag'
@@ -174,17 +181,28 @@ export interface CvcCustomCell {
 /**
  * Server-side sort for a column.
  *
- * `column` is the generated `*SortColumns` member, which closes the `any` in
- * `core/utilities/datatable-helpers.ts:13` — whose comment concedes "using `any`
- * here because the zorro table erases the type you pass into it". The table
- * carries the enum as a type parameter, so a wrong member is a compile error.
+ * `column` is a member of the query's generated `*SortColumns` enum, carried
+ * as a type parameter so a wrong member is a compile error (the zorro table's
+ * own `nzColumnKey` path erases this type entirely). Sort *order* speaks
+ * ng-zorro's vocabulary — `NzTableSortOrder` is `'ascend' | 'descend' | null`
+ * — and is translated to the generated `SortDirection` only at the query
+ * boundary.
  */
 export interface CvcColumnSort<TSortColumn extends string> {
   column: TSortColumn
+  /** initial sort, as `th[nzSortOrder]` */
   default?: NzTableSortOrder
+  /** render the column without a sorter (`nzShowSort` false) */
   disabled?: boolean
 }
 
+/**
+ * A column's filter control, rendered in a second `thead` row (ant's
+ * filter-row idiom). Text/numeric kinds render `nz-input`/`nz-input-number`
+ * boxes; the enum kind renders ng-zorro's `nz-filter-trigger` funnel with a
+ * dropdown menu — deliberately not `th[nzFilters]`, whose option values are
+ * untyped (see `CvcEnumOption`).
+ */
 export type CvcColumnFilter<TVars> =
   | CvcTextFilter<TVars>
   | CvcNumericFilter<TVars>
@@ -194,8 +212,9 @@ interface CvcFilterBase<TVars> {
   /**
    * The query variable this filter sets.
    *
-   * Typed against the query's own variables, so a filter naming a variable the
-   * query does not declare fails to compile instead of filtering nothing.
+   * Typed against the query's own variables so a filter cannot name one the
+   * query does not declare — an undeclared variable is silently ignored by the
+   * server, producing a filter control that filters nothing.
    */
   var: keyof TVars & string
 }
@@ -226,9 +245,9 @@ export interface CvcNumericFilter<TVars> extends CvcFilterBase<TVars> {
  * than bare strings — the filter cannot offer a value the schema does not have.
  * It defaults to `string | number` because not every enum column filters on a
  * schema enum: evidence ratings are the numbers 1-5.
- * Replaces ng-zorro's `NzTableFilterList`, which typed `value` as `any` and put
- * a vendor shape in the config surface; the component maps to it at the
- * boundary instead.
+ *
+ * Deliberately not ng-zorro's `NzTableFilterList`, which types `value` as
+ * `any`; the component maps to the vendor shape at the boundary.
  */
 export interface CvcEnumOption<TValue = string | number> {
   label: string
@@ -246,13 +265,20 @@ export interface CvcEnumFilter<
 /** a column's current filter value, keyed by column */
 export type CvcFilterState = Readonly<Record<string, unknown>>
 
-/** the active sort, or none */
+/** the active sort, or none; `order` is ng-zorro's three-valued sort union */
 export interface CvcSortState {
   key: string
   order: NzTableSortOrder
 }
 
-/** externally-driven column filter, e.g. from a sibling form field */
+/**
+ * Externally-driven column filter, e.g. from a sibling form field.
+ *
+ * `value` is what the column's query variable should receive — except for a
+ * text filter declaring `entityTypename`, where the host passes an entity
+ * **id** and the table resolves it to a display name via the Apollo cache
+ * before it reaches the query.
+ */
 export interface CvcFilterChange {
   key: string
   value: unknown
@@ -266,10 +292,8 @@ export interface CvcColumnPref {
 
 /**
  * What a column renders when its accessor yields nothing, absent an override.
- *
- * One value for every cell kind. The template used to pick per kind, which made
- * a column's empty rendering unreadable from its config and forced the variant
- * manager to override it on all five columns.
+ * One value for every cell kind, so a column's empty rendering can be read
+ * off its config.
  */
 export const DEFAULT_EMPTY_VALUE: CvcEmptyValueCategory = 'unspecified'
 
