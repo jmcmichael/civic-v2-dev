@@ -74,6 +74,11 @@ export function molecularProfileTableConfig(
             CvcMolecularProfileNameCellComponent
           ),
         },
+        // featureName, not a display-name sort: the browse view's name
+        // column stores the tokenized form (#VID…), so the server's
+        // alphabetical key is the profile's first feature name — which
+        // display names lead with anyway
+        sort: { column: MolecularProfilesSortColumns.FeatureName },
         filter: {
           kind: 'text',
           var: 'molecularProfileName',
@@ -106,6 +111,7 @@ export function molecularProfileTableConfig(
             CvcMolecularProfileVariantsCellComponent
           ),
         },
+        sort: { column: MolecularProfilesSortColumns.VariantName },
         filter: {
           kind: 'text',
           var: 'variantName',

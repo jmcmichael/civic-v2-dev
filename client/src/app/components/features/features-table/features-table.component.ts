@@ -39,7 +39,7 @@ import { BrowseFeaturesGQL } from './features-table.query.gql.generated'
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="features" />
     </cvc-entity-table>

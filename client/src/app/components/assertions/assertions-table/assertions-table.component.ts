@@ -93,11 +93,10 @@ const FILTER_PARAMS: ReadonlyArray<
       [hostFilters]="scopeFilterRows()"
       (hostFilterRemove)="onScopeFilterRemove($event)"
       (hostFiltersCleared)="onScopeFiltersCleared()">
-      <span cvcTableToolbarExtra>
-        <cvc-table-downloader
-          [vars]="table.queryVars()"
-          tableName="assertions" />
-      </span>
+      <cvc-table-downloader
+        cvcTableCtrlButton
+        [vars]="table.queryVars()"
+        tableName="assertions" />
       <!-- the status/subgroups scope menu lives beside the AID filter box,
            in the id column's filter cell -->
       <ng-template cvcColumnFilterExtra="id">

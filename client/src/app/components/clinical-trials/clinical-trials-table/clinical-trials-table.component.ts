@@ -36,7 +36,7 @@ import { ClinicalTrialsBrowseGQL } from './clinical-trials-table.query.gql.gener
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="clinical_trials" />
     </cvc-entity-table>

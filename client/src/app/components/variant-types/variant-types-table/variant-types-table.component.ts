@@ -38,7 +38,7 @@ import { VariantTypesBrowseGQL } from './variant-types-table.query.gql.generated
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="variant_types" />
     </cvc-entity-table>

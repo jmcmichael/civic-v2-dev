@@ -36,7 +36,7 @@ import { BrowseVariantGroupsGQL } from './variant-groups-table.query.gql.generat
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="variant_groups" />
     </cvc-entity-table>

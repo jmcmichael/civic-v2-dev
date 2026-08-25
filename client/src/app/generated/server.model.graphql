@@ -7834,8 +7834,19 @@ input MolecularProfilesSort {
 enum MolecularProfilesSortColumns {
   assertionCount
   evidenceItemCount
+
+  """
+  Sorts by the alphabetically first feature name among the profile's variants.
+  """
+  featureName
+  id
   molecularProfileScore
   variantCount
+
+  """
+  Sorts by the alphabetically first variant name in the profile.
+  """
+  variantName
 }
 
 type Mutation {

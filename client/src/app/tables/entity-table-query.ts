@@ -79,10 +79,13 @@ export class CvcEntityTableQuery {
   /**
    * True until the first response, so the first paint is not a blank table.
    *
-   * Deliberately NOT true during a refetch: `valueChanges` only re-emits
-   * loading states under `notifyOnNetworkStatusChange`, and the chosen UX is
-   * to keep the previous rows visible without a flicker while a filter/sort
-   * change is in flight — the debounced pipeline keeps that window short.
+   * Deliberately NOT true during a refetch: the chosen UX keeps the
+   * previous rows visible without a flicker while a filter/sort change is
+   * in flight — the debounced pipeline keeps that window short. The app's
+   * global watchQuery defaults set `notifyOnNetworkStatusChange: true`,
+   * which would re-emit `loading` on every refetch and flash the spinner
+   * over the old rows, so the store's own `watch` opts back out of
+   * network-status emissions explicitly.
    */
   readonly loading = computed(() => this.result()?.loading ?? true)
 
@@ -108,9 +111,11 @@ export class CvcEntityTableQuery {
       // guards hold it: CvcTableQuery types `watch` as options-only, and the
       // "puts those variables on the wire" spec fails if variables ever stop
       // reaching the link.
-      this.queryRef = this.options
-        .query()
-        .watch({ variables: vars }) as QueryRef<unknown, CvcTableVars>
+      this.queryRef = this.options.query().watch({
+        variables: vars,
+        // see loading(): refetches must not re-emit loading states
+        notifyOnNetworkStatusChange: false,
+      }) as QueryRef<unknown, CvcTableVars>
       this.queryRef.valueChanges
         .pipe(takeUntilDestroyed(this.options.destroyRef))
         .subscribe({

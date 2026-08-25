@@ -271,6 +271,37 @@ access to the component) — same suspend rule applies.
   never run `generate-apollo:full` (needs the Rails server; schema dumps are
   run manually).
 
+## 16. Row height inflation from cell content
+
+The 28px virtual rows grow (e.g. to 35px) wherever some cell's content
+adds vertical space the row math didn't plan for. The subtle culprit:
+`overflow: hidden` (or any overflow ≠ visible) on an INLINE-BLOCK cell
+element moves its baseline to its bottom margin edge, so the host's live
+line box opens descender space UNDER the element — ~6px at the default
+font. Fix at the cell host: `line-height: 0` (no line box, no gap) plus
+`vertical-align: top` on the inline-block. Diagnose by measuring
+`getBoundingClientRect().height` down the chain (td → cell host → inner
+element) — the level where the height jumps is the level with the live
+line box. The count-tag cell is the reference implementation.
+
+## 17. Toolbar projection traps
+
+Two Angular/ng-zorro mechanics meet in the header action bar
+(`cvc-entity-table-header-ctrls`) and will bite any similar refactor:
+
+- **Re-projected content vanishes.** Forwarding host content through an
+  intermediate component (`<child><ng-content select="[slot]" /></child>`)
+  drops the content unless the intermediate `ng-content` re-declares the
+  selector with `ngProjectAs="[slot]"` — the child's own `select` cannot
+  match a bare forwarded `ng-content` node.
+- **Projected buttons ignore the compact group.** `nz-space-compact`
+  distributes its item classes and its `nzSize` by DI, and element
+  injectors follow the LOGICAL tree (the declaration site — the facade),
+  not the projection site — so a projected button never receives them.
+  The bar CSS-joins projected buttons (`display: contents` on the
+  wrapper + corner/border collapse) and sets `nzSize` on the group
+  element, which also overrides the native buttons' own size inputs.
+
 ## Live-probing the table in a real browser
 
 The method that root-caused §11, kept here because it generalises to any

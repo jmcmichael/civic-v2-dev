@@ -43,11 +43,10 @@ import { BrowseSourceSuggestionsGQL } from './source-suggestions-table.query.gql
       [settings]="defaultSettings"
       [titleTemplate]="cvcTitleTemplate()"
       [height]="height()">
-      <span cvcTableToolbarExtra>
-        <cvc-table-downloader
-          [vars]="table.queryVars()"
-          tableName="source_suggestions" />
-      </span>
+      <cvc-table-downloader
+        cvcTableCtrlButton
+        [vars]="table.queryVars()"
+        tableName="source_suggestions" />
     </cvc-entity-table>
   `,
 })

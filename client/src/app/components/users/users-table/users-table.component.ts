@@ -44,7 +44,7 @@ import { UsersBrowseGQL } from './users-table.query.gql.generated'
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="users" />
     </cvc-entity-table>

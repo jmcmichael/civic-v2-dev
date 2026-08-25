@@ -205,17 +205,24 @@ describe('molecularProfileTableConfig', () => {
     ])
   })
 
-  it('offers a sorter only where the legacy table did', () => {
+  it('offers a sorter wherever the server has a key for the column', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)
     ).toEqual([
+      // the browse view's name column is tokenized (#VID…), so Name
+      // sorts by the server's alphabetical key: the first feature name —
+      // which display names lead with anyway
+      MolecularProfilesSortColumns.FeatureName,
+      MolecularProfilesSortColumns.VariantName,
       MolecularProfilesSortColumns.MolecularProfileScore,
       MolecularProfilesSortColumns.EvidenceItemCount,
       MolecularProfilesSortColumns.AssertionCount,
       MolecularProfilesSortColumns.VariantCount,
     ])
-    expect(column('name').sort).toBeUndefined()
+    // multi-valued per row: no scalar sort key exists for these
+    expect(column('aliases').sort).toBeUndefined()
     expect(column('diseases').sort).toBeUndefined()
+    expect(column('therapies').sort).toBeUndefined()
   })
 
   it('opens with no default sort, unlike every other migrated table', () => {
