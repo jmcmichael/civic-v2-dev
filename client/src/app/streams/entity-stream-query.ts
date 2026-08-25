@@ -147,9 +147,18 @@ export class CvcEntityStreamQuery {
     if (!this.queryRef) {
       // `{ variables }`, not positional — see CvcStreamQueryService: a
       // positional call would run yet silently send no variables.
-      this.queryRef = this.options
-        .query()
-        .watch({ variables: vars }) as QueryRef<unknown, CvcStreamVars>
+      this.queryRef = this.options.query().watch({
+        variables: vars,
+        // The app's global watchQuery defaults set
+        // `notifyOnNetworkStatusChange: true`, so every refetch re-emits
+        // loading states through `valueChanges`. This store's UX does not
+        // read them — `refetching`/`fetchingMore` are its own signals — but
+        // `getRange` and `settleAppend` both observe the result stream, and
+        // extra emissions are extra work and extra timing to reason about.
+        // The table store opted out for the same reason after a global
+        // default flip flashed its spinner over live rows.
+        notifyOnNetworkStatusChange: false,
+      }) as QueryRef<unknown, CvcStreamVars>
       this.queryRef.valueChanges
         .pipe(takeUntilDestroyed(this.options.destroyRef))
         .subscribe({

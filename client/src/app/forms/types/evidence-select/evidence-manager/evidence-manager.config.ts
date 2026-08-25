@@ -7,7 +7,11 @@ import {
   EvidenceType,
   TherapyInteraction,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, enumFilterOptions } from '@app/tables'
+import {
+  CVC_ATTRIBUTE_COLUMNS,
+  entityTableConfig,
+  enumFilterOptions,
+} from '@app/tables'
 import { EvidenceManagerGQL } from './evidence-manager.query.gql.generated'
 
 /** an EID typed with or without its prefix; anything else matches nothing */
@@ -145,11 +149,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
       },
       {
-        key: 'therapyInteractionType',
-        label: 'INT',
-        tooltip: 'Therapy Interaction Type',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.therapyInteractionType,
         // an evidence item with one therapy cannot have an interaction type, so
         // its absence is a property of the record rather than missing curation
         emptyValue: 'not-applicable',
@@ -168,11 +168,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
       },
       {
-        key: 'description',
-        label: 'DSC',
-        tooltip: 'Evidence Description',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.description,
         fixed: 'right',
         cell: { kind: 'text-tag', text: (row) => row.description },
         sort: { column: EvidenceSortColumns.Description },
@@ -183,11 +179,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
       },
       {
-        key: 'evidenceType',
-        label: 'ET',
-        tooltip: 'Evidence Type',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceType,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -204,11 +196,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
       },
       {
-        key: 'evidenceLevel',
-        label: 'EL',
-        tooltip: 'Evidence Level',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceLevel,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -225,11 +213,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
       },
       {
-        key: 'evidenceDirection',
-        label: 'ED',
-        tooltip: 'Evidence Direction',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceDirection,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -246,11 +230,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
       },
       {
-        key: 'significance',
-        label: 'SI',
-        tooltip: 'Significance',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.significance,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -267,11 +247,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
       },
       {
-        key: 'evidenceRating',
-        label: 'ER',
-        tooltip: 'Evidence Rating',
-        width: '45px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceRating,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',

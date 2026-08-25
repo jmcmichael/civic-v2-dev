@@ -13,6 +13,7 @@ import {
   effect,
   inject,
   input,
+  isDevMode,
   model,
   output,
   signal,
@@ -1027,11 +1028,47 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   // ------------------------------------------------------------ user input
 
   onFilterChange(column: CvcSpecColumn<TRow>, value: unknown): void {
+    const normalized = this.normalizeFilterValue(column, value)
     this.filterValues.update((current) => {
       const next = new Map(current)
-      next.set(column.key, value)
+      next.set(column.key, normalized)
       return next
     })
+  }
+
+  /**
+   * A `multiple` enum filter's state is an array or null, never a bare value.
+   *
+   * Its `var` names a plural, array-typed server arg and its control is an
+   * `nz-select` in `nzMode="multiple"`, which calls `.filter()` on whatever it
+   * is given — so a scalar throws from inside an rxjs subscriber, *outside* the
+   * caller's stack, where it is easy to miss entirely. Rather than let a
+   * caller's shape mistake become that, a scalar is widened to a one-value
+   * filter and reported in dev. Empty selections normalize to null, which is
+   * what "cleared" means everywhere else here.
+   */
+  private normalizeFilterValue(
+    column: CvcSpecColumn<TRow>,
+    value: unknown
+  ): unknown {
+    const filter = column.filter
+    if (filter?.kind !== 'enum' || !filter.multiple) return value
+    if (value === null || value === undefined) return null
+
+    if (!Array.isArray(value)) {
+      if (isDevMode()) {
+        console.warn(
+          `cvc-entity-table: column '${column.key}' filters the plural arg ` +
+            `'${String(filter.var)}' and expects an array, but received ` +
+            `${JSON.stringify(value)}. Widened to a one-value filter — pass ` +
+            `an array to silence this.`
+        )
+      }
+      return [value]
+    }
+
+    const values = value.filter((v) => v !== null && v !== undefined)
+    return values.length ? values : null
   }
 
   /**
@@ -1206,14 +1243,15 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
           const column = columns.find((c) => c.key === change.key)
           if (!column?.filter) continue
 
-          // a multi enum filter's state is an array — seed it whole (a
-          // scalar becomes a one-value array); single-valued filters
-          // unwrap a one-value array the way URL params arrive
+          // a multi enum filter's state is an array — seed it whole, through
+          // the same rule user input takes (a scalar widens to a one-value
+          // array, and says so in dev); single-valued filters unwrap a
+          // one-value array the way URL params arrive
           if (column.filter.kind === 'enum' && column.filter.multiple) {
-            const values = (
-              Array.isArray(change.value) ? change.value : [change.value]
-            ).filter((v) => v !== null && v !== undefined)
-            next.set(column.key, values.length ? values : null)
+            next.set(
+              column.key,
+              this.normalizeFilterValue(column, change.value)
+            )
             continue
           }
           const value = Array.isArray(change.value)

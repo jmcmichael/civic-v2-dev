@@ -23,6 +23,7 @@ import {
   FieldHarnessCore,
   fieldHarnessCore,
   statePublicationProbe,
+  withOwnStateSlot,
 } from './field-harness-core'
 import { createFieldTestHost } from './formly-test.host'
 
@@ -70,7 +71,7 @@ export async function createSelectFieldHarness(
       ...config.field,
     },
     model: config.model ?? {},
-    formState: config.formState,
+    formState: withOwnStateSlot(config.key, config.formState),
     // civicIcons covers the civic-* set; ant's own icons are registered
     // individually, since IconsProviderModule ships only four of them. An
     // unregistered icon throws *outside* the test's call stack, so it leaves

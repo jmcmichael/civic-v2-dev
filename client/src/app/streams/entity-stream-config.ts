@@ -28,7 +28,11 @@ export interface CvcStreamQueryService<
   TData,
   TVars extends OperationVariables,
 > {
-  watch(options?: { variables?: TVars }): QueryRef<TData, TVars>
+  watch(options?: {
+    variables?: TVars
+    /** see CvcEntityStreamQuery.run — refetches must not re-emit loading */
+    notifyOnNetworkStatusChange?: boolean
+  }): QueryRef<TData, TVars>
 }
 
 /**
@@ -90,8 +94,10 @@ interface EntityStreamShape<TData, TVars, TItem> {
  * @template TQuery the generated apollo-angular query service class
  * @template TItem the item type, inferred from `connection`'s return
  */
-export interface EntityStreamConfig<TQuery extends AnyQuery, TItem>
-  extends EntityStreamShape<QueryData<TQuery>, QueryVars<TQuery>, TItem> {
+export interface EntityStreamConfig<
+  TQuery extends AnyQuery,
+  TItem,
+> extends EntityStreamShape<QueryData<TQuery>, QueryVars<TQuery>, TItem> {
   /** the generated *GQL service; TData and TVars are inferred from it */
   query: TQuery
 }

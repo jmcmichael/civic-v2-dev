@@ -10,6 +10,17 @@ import { CvcStreamScrollState } from './stream-scroll-state'
  * `datasource` and `routines` in its template and calls `reload`/`check`;
  * nothing else about the engine's library reaches the rest of the streams
  * code, so a different engine is a new factory behind the same interface.
+ *
+ * **The scroll listener below runs outside the Angular zone, and that is
+ * upstream's doing, not ours.** ngx-ui-scroll constructs its entire `Workflow`
+ * inside `ngZone.runOutsideAngular(...)`, and `Workflow.init()` reaches
+ * `Routines.onScroll()` from there — so the handler we attach inherits that
+ * context and its signal writes schedule change detection only when a value
+ * actually changes. Nothing here declares that intent, which is why it is
+ * written down: the guarantee is an undocumented implementation detail of the
+ * installed version (4.2.0, verified by reading its fesm source). If a future
+ * upgrade moves construction back into the zone, every scroll event starts
+ * costing an app-wide CD pass, and nothing in this file will look different.
  */
 
 /** the engine's library-agnostic surface */
@@ -86,19 +97,28 @@ export function createVscrollEngine<TItem>(
    */
   const routines = class extends Routines {
     override onScroll(handler: EventListener): () => void {
-      this.viewport.addEventListener('scroll', () => {
+      const report = () =>
         state.reportScroll(
           super.getScrollPosition(),
           super.getScrollerSize(),
           super.getViewportSize()
         )
-      })
+      this.viewport.addEventListener('scroll', report)
       state.reportGeometry(
         super.getScrollPosition(),
         super.getScrollerSize(),
         super.getViewportSize()
       )
-      return super.onScroll(handler)
+      // vscroll treats the return value as the teardown and calls it on
+      // dispose, where it removes its OWN handler. Ours has to come off in
+      // the same breath: today engine and viewport share the component's
+      // lifetime so a leak is unobservable, but that is a property of the
+      // caller, not of this class.
+      const offEngineScroll = super.onScroll(handler)
+      return () => {
+        this.viewport.removeEventListener('scroll', report)
+        offEngineScroll()
+      }
     }
   }
 

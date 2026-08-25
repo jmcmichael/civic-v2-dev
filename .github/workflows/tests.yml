@@ -94,7 +94,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26
 
       - run: corepack enable
         working-directory: ./client
@@ -108,7 +108,7 @@ jobs:
       - run: yarn build
         working-directory: ./client
 
-  # ESLint errors are a hard gate; warnings are ratcheted. The tree carries ~1035
+  # ESLint errors are a hard gate; warnings are ratcheted. The tree carries ~932
   # warnings (mostly prefer-standalone / prefer-inject from the Angular 22
   # migration), so failing on any warning would fail on day one and teach people
   # to ignore the job. --max-warnings pins the current count instead: new
@@ -125,7 +125,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26
 
       - run: corepack enable
         working-directory: ./client
@@ -133,7 +133,7 @@ jobs:
       - run: yarn install --immutable
         working-directory: ./client
 
-      - run: yarn ng lint --max-warnings=1035
+      - run: yarn ng lint --max-warnings=932
         working-directory: ./client
 
   # Playwright specs tagged @offline, which are the ones that hold with nothing
@@ -152,7 +152,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26
 
       - run: corepack enable
         working-directory: ./client
@@ -193,7 +193,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26
 
       - run: corepack enable
         working-directory: ./client
@@ -223,7 +223,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 26
 
       - run: corepack enable
         working-directory: ./client
