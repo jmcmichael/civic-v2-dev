@@ -17,7 +17,7 @@ import {
   OrgFilterSearchGQL,
   OrgFilterSearchQuery,
   OrgFilterSearchQueryVariables,
-} from '../../../activity-feed/feed-filters/org-filter-select/org-filter-select.query.gql.generated'
+} from './org-filter-select.query.gql.generated'
 import { ActivityStreamOrganization } from '../../activity-stream.types'
 
 /**

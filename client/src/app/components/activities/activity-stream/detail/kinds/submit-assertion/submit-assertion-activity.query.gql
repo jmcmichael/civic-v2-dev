@@ -1,0 +1,13 @@
+query SubmitAssertionActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...SubmitAssertionActivityDetail
+  }
+}
+
+fragment SubmitAssertionActivityDetail on SubmitAssertionActivity {
+  ...ActivityFeedItemBase
+  ...ActivityFeedItemEvents
+  parsedNote {
+    ...parsedCommentFragment
+  }
+}

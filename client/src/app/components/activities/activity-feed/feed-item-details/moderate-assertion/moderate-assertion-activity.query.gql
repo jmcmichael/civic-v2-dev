@@ -1,7 +1,0 @@
-fragment ModerateAssertionActivityDetail on ModerateAssertionActivity {
-  ...ActivityFeedItemBase
-  ...ActivityFeedItemEvents
-  parsedNote {
-    ...parsedCommentFragment
-  }
-}

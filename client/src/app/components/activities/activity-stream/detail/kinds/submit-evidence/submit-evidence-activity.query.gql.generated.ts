@@ -1,0 +1,206 @@
+/* eslint-disable */
+import * as Types from '../../../../../../generated/civic.apollo.types';
+
+import { gql } from 'apollo-angular';
+import { ActivityFeedItemEventsFragmentDoc, ActivityFeedItemBaseFragmentDoc } from '../../../activity-stream.fragments.gql.generated';
+import { ParsedCommentFragmentFragmentDoc } from '../../../../../comments/comment-list/comment-list.query.gql.generated';
+import { Injectable } from '@angular/core';
+import * as Apollo from 'apollo-angular';
+export type SubmitEvidenceItemActivityDetailQueryVariables = Types.Exact<{
+  id: Types.Scalars['Int']['input'];
+}>;
+
+
+export type SubmitEvidenceItemActivityDetailQuery = { __typename: 'Query', activity?:
+    | { __typename: 'AcceptRevisionsActivity' }
+    | { __typename: 'ApproveAssertionActivity' }
+    | { __typename: 'CommentActivity' }
+    | { __typename: 'CreateComplexMolecularProfileActivity' }
+    | { __typename: 'CreateFeatureActivity' }
+    | { __typename: 'CreateVariantActivity' }
+    | { __typename: 'DeleteCommentActivity' }
+    | { __typename: 'DeprecateComplexMolecularProfileActivity' }
+    | { __typename: 'DeprecateFeatureActivity' }
+    | { __typename: 'DeprecateVariantActivity' }
+    | { __typename: 'FlagEntityActivity' }
+    | { __typename: 'ModerateAssertionActivity' }
+    | { __typename: 'ModerateEvidenceItemActivity' }
+    | { __typename: 'RejectRevisionsActivity' }
+    | { __typename: 'ResolveFlagActivity' }
+    | { __typename: 'RevokeApprovalActivity' }
+    | { __typename: 'SubmitAssertionActivity' }
+    | { __typename: 'SubmitEvidenceItemActivity', id: number, verbiage: string, createdAt: any, parsedNote: Array<
+        | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+        | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+        | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+        | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+        | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+        | { __typename: 'CommentTextSegment', text: string }
+        | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> }
+      >, organization?: { __typename: 'Organization', id: number, name: string } | undefined, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole }, subject:
+        | { __typename: 'Assertion', id: number, name: string, link: string }
+        | { __typename: 'Comment', deleted: boolean, deletedAt?: any | undefined, id: number, name: string, link: string, commentable:
+            | { __typename: 'Assertion', id: number, name: string, link: string }
+            | { __typename: 'EvidenceItem', id: number, name: string, link: string }
+            | { __typename: 'Factor', id: number, name: string, link: string }
+            | { __typename: 'FactorVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+            | { __typename: 'Feature', id: number, name: string, link: string }
+            | { __typename: 'Flag', id: number, name: string, link: string }
+            | { __typename: 'Fusion', id: number, name: string, link: string }
+            | { __typename: 'FusionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+            | { __typename: 'Gene', id: number, name: string, link: string }
+            | { __typename: 'GeneVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+            | { __typename: 'MolecularProfile', id: number, name: string, link: string }
+            | { __typename: 'Region', id: number, name: string, link: string }
+            | { __typename: 'RegionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+            | { __typename: 'Revision', id: number, name: string, link: string }
+            | { __typename: 'Source', id: number, name: string, link: string }
+            | { __typename: 'SourcePopover', id: number, name: string, link: string }
+            | { __typename: 'Variant', id: number, name: string, link: string }
+            | { __typename: 'VariantGroup', id: number, name: string, link: string }
+           }
+        | { __typename: 'EvidenceItem', id: number, name: string, link: string }
+        | { __typename: 'ExonCoordinate', id: number, name: string, link: string }
+        | { __typename: 'Factor', id: number, name: string, link: string }
+        | { __typename: 'FactorVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'Feature', id: number, name: string, link: string }
+        | { __typename: 'Flag', id: number, name: string, link: string }
+        | { __typename: 'Fusion', id: number, name: string, link: string }
+        | { __typename: 'FusionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'Gene', id: number, name: string, link: string }
+        | { __typename: 'GeneVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'MolecularProfile', id: number, name: string, link: string }
+        | { __typename: 'Region', id: number, name: string, link: string }
+        | { __typename: 'RegionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'Revision', id: number, name: string, link: string }
+        | { __typename: 'RevisionSet', id: number, name: string, link: string }
+        | { __typename: 'Source', id: number, name: string, link: string }
+        | { __typename: 'SourcePopover', id: number, name: string, link: string }
+        | { __typename: 'SourceSuggestion', id: number, name: string, link: string }
+        | { __typename: 'Variant', id: number, name: string, link: string }
+        | { __typename: 'VariantCoordinate', id: number, name: string, link: string }
+        | { __typename: 'VariantGroup', id: number, name: string, link: string }
+      , events: Array<{ __typename: 'Event', id: number, createdAt: any, action: Types.EventAction, originatingObject?:
+          | { __typename: 'Assertion', id: number, name: string, link: string }
+          | { __typename: 'Comment', id: number, name: string, link: string }
+          | { __typename: 'EvidenceItem', id: number, name: string, link: string }
+          | { __typename: 'Factor', id: number, name: string, link: string }
+          | { __typename: 'FactorVariant', id: number, name: string, link: string }
+          | { __typename: 'Feature', id: number, name: string, link: string }
+          | { __typename: 'Flag', id: number, name: string, link: string }
+          | { __typename: 'Fusion', id: number, name: string, link: string }
+          | { __typename: 'FusionVariant', id: number, name: string, link: string }
+          | { __typename: 'Gene', id: number, name: string, link: string }
+          | { __typename: 'GeneVariant', id: number, name: string, link: string }
+          | { __typename: 'MolecularProfile', id: number, name: string, link: string }
+          | { __typename: 'Region', id: number, name: string, link: string }
+          | { __typename: 'RegionVariant', id: number, name: string, link: string }
+          | { __typename: 'Revision', id: number, name: string, link: string }
+          | { __typename: 'SourceSuggestion', id: number, name: string, link: string }
+          | { __typename: 'Variant', id: number, name: string, link: string }
+         | undefined, originatingUser: { __typename: 'User', id: number, displayName: string } }> }
+    | { __typename: 'SuggestRevisionSetActivity' }
+    | { __typename: 'SuggestSourceActivity' }
+    | { __typename: 'UpdateSourceSuggestionStatusActivity' }
+   | undefined };
+
+export type SubmitEvidenceItemActivityDetailFragment = { __typename: 'SubmitEvidenceItemActivity', id: number, verbiage: string, createdAt: any, parsedNote: Array<
+    | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+    | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+    | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+    | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+    | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+    | { __typename: 'CommentTextSegment', text: string }
+    | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> }
+  >, organization?: { __typename: 'Organization', id: number, name: string } | undefined, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole }, subject:
+    | { __typename: 'Assertion', id: number, name: string, link: string }
+    | { __typename: 'Comment', deleted: boolean, deletedAt?: any | undefined, id: number, name: string, link: string, commentable:
+        | { __typename: 'Assertion', id: number, name: string, link: string }
+        | { __typename: 'EvidenceItem', id: number, name: string, link: string }
+        | { __typename: 'Factor', id: number, name: string, link: string }
+        | { __typename: 'FactorVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'Feature', id: number, name: string, link: string }
+        | { __typename: 'Flag', id: number, name: string, link: string }
+        | { __typename: 'Fusion', id: number, name: string, link: string }
+        | { __typename: 'FusionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'Gene', id: number, name: string, link: string }
+        | { __typename: 'GeneVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'MolecularProfile', id: number, name: string, link: string }
+        | { __typename: 'Region', id: number, name: string, link: string }
+        | { __typename: 'RegionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+        | { __typename: 'Revision', id: number, name: string, link: string }
+        | { __typename: 'Source', id: number, name: string, link: string }
+        | { __typename: 'SourcePopover', id: number, name: string, link: string }
+        | { __typename: 'Variant', id: number, name: string, link: string }
+        | { __typename: 'VariantGroup', id: number, name: string, link: string }
+       }
+    | { __typename: 'EvidenceItem', id: number, name: string, link: string }
+    | { __typename: 'ExonCoordinate', id: number, name: string, link: string }
+    | { __typename: 'Factor', id: number, name: string, link: string }
+    | { __typename: 'FactorVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+    | { __typename: 'Feature', id: number, name: string, link: string }
+    | { __typename: 'Flag', id: number, name: string, link: string }
+    | { __typename: 'Fusion', id: number, name: string, link: string }
+    | { __typename: 'FusionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+    | { __typename: 'Gene', id: number, name: string, link: string }
+    | { __typename: 'GeneVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+    | { __typename: 'MolecularProfile', id: number, name: string, link: string }
+    | { __typename: 'Region', id: number, name: string, link: string }
+    | { __typename: 'RegionVariant', id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string } }
+    | { __typename: 'Revision', id: number, name: string, link: string }
+    | { __typename: 'RevisionSet', id: number, name: string, link: string }
+    | { __typename: 'Source', id: number, name: string, link: string }
+    | { __typename: 'SourcePopover', id: number, name: string, link: string }
+    | { __typename: 'SourceSuggestion', id: number, name: string, link: string }
+    | { __typename: 'Variant', id: number, name: string, link: string }
+    | { __typename: 'VariantCoordinate', id: number, name: string, link: string }
+    | { __typename: 'VariantGroup', id: number, name: string, link: string }
+  , events: Array<{ __typename: 'Event', id: number, createdAt: any, action: Types.EventAction, originatingObject?:
+      | { __typename: 'Assertion', id: number, name: string, link: string }
+      | { __typename: 'Comment', id: number, name: string, link: string }
+      | { __typename: 'EvidenceItem', id: number, name: string, link: string }
+      | { __typename: 'Factor', id: number, name: string, link: string }
+      | { __typename: 'FactorVariant', id: number, name: string, link: string }
+      | { __typename: 'Feature', id: number, name: string, link: string }
+      | { __typename: 'Flag', id: number, name: string, link: string }
+      | { __typename: 'Fusion', id: number, name: string, link: string }
+      | { __typename: 'FusionVariant', id: number, name: string, link: string }
+      | { __typename: 'Gene', id: number, name: string, link: string }
+      | { __typename: 'GeneVariant', id: number, name: string, link: string }
+      | { __typename: 'MolecularProfile', id: number, name: string, link: string }
+      | { __typename: 'Region', id: number, name: string, link: string }
+      | { __typename: 'RegionVariant', id: number, name: string, link: string }
+      | { __typename: 'Revision', id: number, name: string, link: string }
+      | { __typename: 'SourceSuggestion', id: number, name: string, link: string }
+      | { __typename: 'Variant', id: number, name: string, link: string }
+     | undefined, originatingUser: { __typename: 'User', id: number, displayName: string } }> };
+
+export const SubmitEvidenceItemActivityDetailFragmentDoc = gql`
+    fragment SubmitEvidenceItemActivityDetail on SubmitEvidenceItemActivity {
+  ...ActivityFeedItemBase
+  ...ActivityFeedItemEvents
+  parsedNote {
+    ...parsedCommentFragment
+  }
+}
+    ${ActivityFeedItemBaseFragmentDoc}
+${ActivityFeedItemEventsFragmentDoc}
+${ParsedCommentFragmentFragmentDoc}`;
+export const SubmitEvidenceItemActivityDetailDocument = gql`
+    query SubmitEvidenceItemActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...SubmitEvidenceItemActivityDetail
+  }
+}
+    ${SubmitEvidenceItemActivityDetailFragmentDoc}`;
+
+  @Injectable({
+    providedIn: 'root'
+  })
+  export class SubmitEvidenceItemActivityDetailGQL extends Apollo.Query<SubmitEvidenceItemActivityDetailQuery, SubmitEvidenceItemActivityDetailQueryVariables> {
+    document = SubmitEvidenceItemActivityDetailDocument;
+    
+    constructor(apollo: Apollo.Apollo) {
+      super(apollo);
+    }
+  }

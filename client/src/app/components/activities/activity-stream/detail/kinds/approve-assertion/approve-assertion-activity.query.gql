@@ -1,0 +1,10 @@
+# ApproveAssertionActivity has no detail renderer — it is a SIMPLE kind, so
+# the stream shows it as a plain single line. This fragment survives for a
+# different consumer: components/approvals/approval-list spreads it (beside
+# RevokeApprovalActivityDetail next door) to render an assertion's approval
+# and revocation history. Deleting it breaks that query, not the stream.
+
+fragment ApproveAssertionActivityDetail on ApproveAssertionActivity {
+  ...ActivityFeedItemBase
+  ...ActivityFeedItemEvents
+}

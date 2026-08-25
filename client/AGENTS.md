@@ -118,7 +118,7 @@ maintained in lockstep with the code.
    `filter.var` produces the same symptom; fix the var, not the rows.
 5. **ng-zorro lazy styles**: a component needing a style-heavy nz widget on
    a lazy route ships the stylesheet via a carrier component (see
-   `activity-feed/feed-filters/date-picker-styles.component.ts`); never
+   `activity-stream/filters/date-picker-styles.component.ts`); never
    `encapsulation: None` on the consumer.
 6. Popover content that loads async must re-anchor: use
    `cvcPopoverContentResize` (`src/app/tags/`) or the bespoke tags'

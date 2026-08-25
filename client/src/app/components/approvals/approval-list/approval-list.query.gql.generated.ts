@@ -2,8 +2,8 @@
 import * as Types from '../../../generated/civic.apollo.types';
 
 import { gql } from 'apollo-angular';
-import { RevokeApprovalActivityDetailFragmentDoc } from '../../activities/activity-feed/feed-item-details/revoke-approval/revoke-approval-activity.query.gql.generated';
-import { ApproveAssertionActivityDetailFragmentDoc } from '../../activities/activity-feed/feed-item-details/approve-assertion/approve-assertion-activity.query.gql.generated';
+import { RevokeApprovalActivityDetailFragmentDoc } from '../../activities/activity-stream/detail/kinds/revoke-approval/revoke-approval-activity.query.gql.generated';
+import { ApproveAssertionActivityDetailFragmentDoc } from '../../activities/activity-stream/detail/kinds/approve-assertion/approve-assertion-activity.query.gql.generated';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
 export type ApprovalListQueryVariables = Types.Exact<{

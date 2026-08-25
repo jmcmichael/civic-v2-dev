@@ -1,0 +1,20 @@
+query DeprecateVariantActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...DeprecateVariantActivityDetail
+  }
+}
+
+fragment DeprecateVariantActivityDetail on DeprecateVariantActivity {
+  parsedNote {
+    ...parsedCommentFragment
+  }
+  molecularProfiles {
+    id
+    name
+    link
+    deprecated
+    flagged
+  }
+  ...ActivityFeedItemBase
+  ...ActivityFeedItemEvents
+}
