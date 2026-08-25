@@ -51,7 +51,7 @@ export interface RevisionsTableScope {
  * The revisions browse table, as configuration — a FLAT table of
  * RevisionSets: the legacy row expansion (per-set diff details) is dropped
  * by design, its content the province of the entity revise pages and the
- * queued activity-feed abstraction. Rows keep the set's flattened field
+ * revision stream (`app/streams` phase 2). Rows keep the set's flattened field
  * names; the per-set diffs are one subject-tag click away.
  *
  * Scope carries the ids/status coupling: an `[ids]` search-result scope

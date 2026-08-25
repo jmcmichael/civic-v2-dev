@@ -2,7 +2,7 @@
 import * as Types from '../../../generated/civic.apollo.types';
 
 import { gql } from 'apollo-angular';
-import { ActivityFeedItemBaseFragmentDoc } from '../activity-feed/activity-feed.fragments.gql.generated';
+import { ActivityFeedItemBaseFragmentDoc } from './activity-stream.fragments.gql.generated';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
 export type ActivityStreamQueryVariables = Types.Exact<{

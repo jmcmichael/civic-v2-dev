@@ -1,0 +1,20 @@
+query CommentActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...CommentActivityDetail
+  }
+}
+
+fragment CommentActivityDetail on CommentActivity {
+  comment {
+    deleted
+    deletedAt
+    ...commentListNode
+    commentable {
+      id
+      name
+      link
+    }
+  }
+  ...ActivityFeedItemBase
+  ...ActivityFeedItemEvents
+}

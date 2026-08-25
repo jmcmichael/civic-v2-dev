@@ -1,0 +1,13 @@
+query ModerateAssertionActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...ModerateAssertionActivityDetail
+  }
+}
+
+fragment ModerateAssertionActivityDetail on ModerateAssertionActivity {
+  ...ActivityFeedItemBase
+  ...ActivityFeedItemEvents
+  parsedNote {
+    ...parsedCommentFragment
+  }
+}

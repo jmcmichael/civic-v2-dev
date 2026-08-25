@@ -3,7 +3,7 @@
 # travels in each detail component's own per-id query (see detail/), so the
 # stream's pages stay small and detail fields load when a row expands.
 #
-# ActivityFeedItemBase is defined in ../activity-feed/activity-feed.fragments.gql
+# ActivityFeedItemBase is defined in ./activity-stream.fragments.gql
 # so the generated-file import graph stays acyclic.
 query ActivityStream(
   $subject: [SubscribableQueryInput!]

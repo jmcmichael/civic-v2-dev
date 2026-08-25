@@ -1,7 +1,0 @@
-fragment ResolveFlagActivityDetail on ResolveFlagActivity {
-  ...ActivityFeedItemBase
-  ...ActivityFeedItemEvents
-  parsedNote {
-    ...parsedCommentFragment
-  }
-}

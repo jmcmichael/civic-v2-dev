@@ -13,9 +13,9 @@ import { provideNzDateFnsAdapter } from 'ng-zorro-antd/core/time'
 import { provideNzIcons } from 'ng-zorro-antd/icon'
 import { EMPTY, of } from 'rxjs'
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
-import { ActivityFeedUpdatesGQL } from '../../activity-feed/feed-filters/feed-filters.query.gql.generated'
-import { OrgFilterSearchGQL } from '../../activity-feed/feed-filters/org-filter-select/org-filter-select.query.gql.generated'
-import { UserFilterSearchGQL } from '../../activity-feed/feed-filters/user-filter-select/user-filter-select.query.gql.generated'
+import { ActivityFeedUpdatesGQL } from './activity-stream-filters.query.gql.generated'
+import { OrgFilterSearchGQL } from './org-filter-select/org-filter-select.query.gql.generated'
+import { UserFilterSearchGQL } from './user-filter-select/user-filter-select.query.gql.generated'
 import {
   ActivityStreamFilterOptions,
   ActivityStreamFilters,

@@ -1,0 +1,13 @@
+query SubmitEvidenceItemActivityDetail($id: Int!) {
+  activity(id: $id) {
+    ...SubmitEvidenceItemActivityDetail
+  }
+}
+
+fragment SubmitEvidenceItemActivityDetail on SubmitEvidenceItemActivity {
+  ...ActivityFeedItemBase
+  ...ActivityFeedItemEvents
+  parsedNote {
+    ...parsedCommentFragment
+  }
+}
