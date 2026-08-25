@@ -138,6 +138,24 @@ tr.data-row td:first-of-type {
   margin-right: 4px;
 }
 
+// count-column headers: five entity glyphs slid behind one another,
+// avatar-group style — each on a white disc with a 1px white ring so the
+// overlaps read as separate coins
+.header-icon-stack {
+  display: inline-flex;
+
+  .stacked-icon {
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #fff;
+  }
+
+  .stacked-icon + .stacked-icon {
+    // glyphs render at 12px (1em); -8px leaves a ~4px visible step
+    margin-left: -8px;
+  }
+}
+
 // filter control + optional host-projected extra (a scope-menu trigger)
 // side by side in the filter cell
 .filter-cell-content {

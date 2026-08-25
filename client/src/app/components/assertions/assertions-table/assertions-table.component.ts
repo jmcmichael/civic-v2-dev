@@ -10,6 +10,7 @@ import { toSignal } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 import { CvcTableDownloaderComponent } from '@app/components/shared/table-downloader/table-downloader.component'
+import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import {
   EvidenceStatusFilter,
   Maybe,
@@ -84,7 +85,10 @@ const FILTER_PARAMS: ReadonlyArray<[param: string, columnKey: string]> = [
       #table
       [spec]="spec()"
       [settings]="paramSettings"
-      [height]="height()">
+      [height]="height()"
+      [hostFilters]="scopeFilterRows()"
+      (hostFilterRemove)="onScopeFilterRemove($event)"
+      (hostFiltersCleared)="onScopeFiltersCleared()">
       <span cvcTableToolbarExtra>
         <cvc-table-downloader
           [vars]="table.queryVars()"
@@ -260,6 +264,52 @@ export class CvcAssertionsTableComponent {
       status: this.statusFilter(),
     })
   )
+
+  /**
+   * The scope menu's state, described for the table's filter popover — the
+   * table itself cannot see scope. Rows appear only when scope departs from
+   * the host page's own seed (so the pending queue's SUBMITTED baseline is
+   * not "an applied filter" there, but a user's change of it is).
+   */
+  protected readonly scopeFilterRows = computed(() => {
+    const rows = []
+    const seeded = this.status() ?? EvidenceStatusFilter.NonRejected
+    if (this.statusFilter() !== seeded) {
+      rows.push({
+        key: 'scope:status',
+        field: 'Status',
+        comparison: 'is' as const,
+        display: formatEvidenceEnum(
+          // EvidenceStatusFilter predates the InputEnum union; same shape
+          this.statusFilter() as unknown as Parameters<
+            typeof formatEvidenceEnum
+          >[0]
+        ),
+      })
+    }
+    if (this.includeSubgroups()) {
+      rows.push({
+        key: 'scope:subgroups',
+        field: 'Child organizations',
+        comparison: 'is' as const,
+        display: 'included',
+      })
+    }
+    return rows
+  })
+
+  protected onScopeFilterRemove(key: string): void {
+    if (key === 'scope:status') {
+      this.statusFilter.set(this.status() ?? EvidenceStatusFilter.NonRejected)
+    } else if (key === 'scope:subgroups') {
+      this.includeSubgroups.set(false)
+    }
+  }
+
+  protected onScopeFiltersCleared(): void {
+    this.statusFilter.set(this.status() ?? EvidenceStatusFilter.NonRejected)
+    this.includeSubgroups.set(false)
+  }
 
   protected onStatusChange(status: EvidenceStatusFilter): void {
     this.statusFilter.set(status)

@@ -21,6 +21,12 @@ the component and template should rarely need edits.
 
 ### Change a column's layout
 
+Users can drag-resize any column live: every header carries an
+`nz-resizable` right handle (`nzMinWidth` 40, preview line while
+dragging). Resizes are session state in the table's `widthOverrides` —
+the config's `width` stays the source of truth, and the settings
+popover's Reset Columns restores it along with visibility.
+
 `width`, `align`, `fixed`, `hidden`, `tooltip`, `emptyValue` are plain column
 fields — edit them in the manager's `*.config.ts`. Two constraints:
 
@@ -62,6 +68,18 @@ false` drops the icon for enums without a civic set). Set
 `placeholder` as short as possible — the convention is `'Any'` — and size
 the column to the smallest px width that fits the header label and that
 prompt (90px fits 'Type'/'Role' + 'Any').
+
+A column may also declare `extraFilter` — a second, funnel-only enum filter
+rendered beside its primary filter control (the legacy managers'
+dual-control filter cell; assertions' therapy-interaction funnel beside the
+therapy-name input). It lives in the shared filter state keyed
+`` `${key}:extra` ``, so resets and the filter popover cover it, and the
+config specs' declared∧used walk should include it.
+
+Hosts with SCOPE state the table cannot see (assertions' status radio) can
+list it in the filter popover via `[hostFilters]` +
+`(hostFilterRemove)`/`(hostFiltersCleared)` — rows appear when scope departs
+from the page's own seed.
 
 Options may declare a `group`: contiguous options sharing one render as a
 titled section in both controls (`nz-menu-group` under the funnel,
@@ -161,10 +179,11 @@ Checklist:
   `yarn generate-apollo` or the accessor will not compile.
 - `key` must be unique — `entityTableConfig` throws in dev mode otherwise.
 - A count column follows the count convention: `label: ''` with `labelIcon`
-  set to its entity's civic glyph (`'civic-evidence'` etc., rendered
-  twotone), ~55px — the icon alone is the header — and a
-  `kind: 'count-tag'` cell: a full-width tag carrying the count whose hover
-  popover shows the counted entities themselves. Give the cell `fetch`
+  set to its entity's civic glyph — the header renders it as a stack of five
+  overlapped glyphs (~2px step; a `count-tag` cell is what triggers the
+  stack), ~55px — and a `kind: 'count-tag'` cell: a full-width tag carrying
+  the entity glyph + the count, whose hover popover shows the counted
+  entities themselves. Give the cell `fetch`
   (`(row) => ({ entity: 'EvidenceItem', scope: { diseaseId: row.id } })`,
   resolved lazily by the app's `CVC_COUNT_ENTITY_RESOLVER` — see
   `components/shared/counted-entities/`) or `refs` when the row already

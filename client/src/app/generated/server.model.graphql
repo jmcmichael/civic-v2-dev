@@ -9396,6 +9396,11 @@ type Query {
     therapyId: Int
 
     """
+    Filtering on how an assertion's multiple therapies interact.
+    """
+    therapyInteractionType: TherapyInteraction
+
+    """
     Substring filtering on therapy name.
     """
     therapyName: String

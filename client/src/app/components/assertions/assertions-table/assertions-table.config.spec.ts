@@ -174,12 +174,23 @@ describe('assertionsTableConfig', () => {
     const declared = declaredVariables()
     const used = usedVariables()
     for (const col of spec.columns) {
-      if (!col.filter) continue
-      expect(declared.has(col.filter.var), `declared: ${col.filter.var}`).toBe(
-        true
-      )
-      expect(used.has(col.filter.var), `used: ${col.filter.var}`).toBe(true)
+      for (const filter of [col.filter, col.extraFilter]) {
+        if (!filter) continue
+        expect(declared.has(filter.var), `declared: ${filter.var}`).toBe(true)
+        expect(used.has(filter.var), `used: ${filter.var}`).toBe(true)
+      }
     }
+  })
+
+  it('folds the legacy INT column into a Therapies interaction funnel', () => {
+    expect(spec.columns.map((c) => c.key)).not.toContain(
+      'therapyInteractionType'
+    )
+    const extra = column('therapies').extraFilter
+    expect(extra?.var).toBe('therapyInteractionType')
+    expect(extra?.options.map((o) => o.value)).toEqual(
+      Object.values(TherapyInteraction)
+    )
   })
 
   it('maps each filter to its own variable', () => {
@@ -422,5 +433,29 @@ describe('cvc-assertions-table facade', () => {
     // the approving wrapper only exists when an approving org scopes the
     // table — legacy sent both wrappers always, empty or not
     expect(requests().at(-1)!['approvingOrganizations']).toBeUndefined()
+  })
+
+  it('sends the Therapies interaction funnel beside the therapy-name filter', async () => {
+    const fixture = await mount({})
+    await settleTable(fixture)
+
+    const table = fixture.debugElement.children[0].componentInstance
+    const therapies = table
+      .columns()
+      .find((c: { key: string }) => c.key === 'therapies')
+    table.onFilterChange(therapies, 'trametinib')
+    table.onExtraFilterChange(therapies, TherapyInteraction.Combination)
+    await settleTable(fixture)
+
+    expect(requests().at(-1)).toMatchObject({
+      therapyName: 'trametinib',
+      therapyInteractionType: TherapyInteraction.Combination,
+    })
+
+    table.onRemoveFilter('therapies:extra')
+    await settleTable(fixture)
+    const last = requests().at(-1)!
+    expect(last['therapyInteractionType']).toBeUndefined()
+    expect(last).toMatchObject({ therapyName: 'trametinib' })
   })
 })

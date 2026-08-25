@@ -10,6 +10,7 @@ import {
   EvidenceType,
   Maybe,
   OrganizationFilter,
+  TherapyInteraction,
 } from '@app/generated/civic.apollo.types'
 import {
   CvcEnumOption,
@@ -220,7 +221,7 @@ export function assertionsTableConfig(
       {
         key: 'therapies',
         label: 'Therapies',
-        width: '350px',
+        width: '260px',
         emptyValue: 'not-applicable',
         cell: {
           kind: 'entity-tag',
@@ -233,21 +234,14 @@ export function assertionsTableConfig(
           var: 'therapyName',
           placeholder: 'Filter Therapy Names',
         },
-      },
-      {
-        key: 'therapyInteractionType',
-        label: 'INT',
-        tooltip: 'Therapy Interaction Type',
-        width: '40px',
-        align: 'center',
-        emptyValue: 'not-applicable',
-        cell: {
-          kind: 'enum-tag',
-          value: (row) => row.therapyInteractionType,
-          tooltip: (row) => evidenceEnumDisplay(row.therapyInteractionType),
+        // the legacy INT column, folded in: interaction type filters from a
+        // funnel beside the therapy-name input (the value itself shows in
+        // evidence/assertion popovers)
+        extraFilter: {
+          kind: 'enum',
+          var: 'therapyInteractionType',
+          options: enumFilterOptions(TherapyInteraction),
         },
-        // no sort or filter: AssertionSortColumns has no interaction member
-        // and AssertionsBrowse declares no therapyInteractionType variable
       },
       {
         // wide enough that text-tag renders the summary string itself
@@ -255,7 +249,8 @@ export function assertionsTableConfig(
         // search phrase
         key: 'summary',
         label: 'Summary',
-        width: '150px',
+        // carries the quarter trimmed from Therapies
+        width: '240px',
         cell: { kind: 'text-tag', text: (row) => row.summary },
         sort: { column: AssertionSortColumns.Summary },
         filter: {

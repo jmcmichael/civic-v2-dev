@@ -80,6 +80,14 @@ export interface CvcColumn<
   cell: CvcCellSpec<TRow>
   sort?: CvcColumnSort<TSortColumn>
   filter?: CvcColumnFilter<TVars>
+  /**
+   * A second, funnel-only enum filter rendered beside the primary filter
+   * control in the column's filter cell — the legacy managers' dual-control
+   * layout (assertions' therapy-interaction funnel beside the therapy-name
+   * input). Lives in the same filter state as every filter, keyed
+   * `` `${key}:extra` ``, so reset paths and the filter popover inherit it.
+   */
+  extraFilter?: CvcEnumFilter<TVars>
   /** custom styles for the column's three cell rows; see CvcColumnStyles */
   styles?: CvcColumnStyles<TRow>
 }
