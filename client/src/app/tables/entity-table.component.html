@@ -37,6 +37,7 @@
             [nzSortFn]="!!col.sort && !col.sort.disabled"
             [nzSortOrder]="sortOrderFor(col)"
             [nzSortDirections]="col.sort?.directions ?? defaultSortDirections"
+            [ngStyle]="col.styles?.header ?? null"
             (nzSortOrderChange)="onSortChange(col, $event)">
             <!-- whitespace-controlled: the label interpolation sits hard
                  against the @if block so no incidental space text node
@@ -74,6 +75,7 @@
               [nzAlign]="col.align ?? 'left'"
               [nzLeft]="col.fixed === 'left'"
               [nzRight]="col.fixed === 'right'"
+              [ngStyle]="col.styles?.filter ?? null"
               class="attribute-filter">
               <!-- flex row so a host-projected extra (a scope-menu trigger)
                    sits beside the filter control -->
@@ -179,7 +181,8 @@
             [attr.data-column]="col.key"
             [nzAlign]="col.align ?? 'left'"
             [nzLeft]="col.fixed === 'left'"
-            [nzRight]="col.fixed === 'right'">
+            [nzRight]="col.fixed === 'right'"
+            [ngStyle]="cellStyle(col, row)">
             <!-- bound to a local so the discriminant narrows reliably -->
             @let cell = col.cell;
             @switch (cell.kind) {
@@ -433,25 +436,116 @@
       <ng-content select="[cvcTableToolbarExtra]" />
     </nz-col>
 
-    <!-- the settings popover carries the reset actions; the toolbar's old
-         standalone reset button is gone (reset-all also lives in every
-         enum filter dropdown's split Reset button) -->
-    <nz-col nzFlex="35px">
-      <button
-        nz-button
-        nz-popover
-        type="button"
-        nzType="default"
-        nzSize="small"
-        data-testid="column-prefs-trigger"
-        [nzPopoverTitle]="settingsTitle()"
-        [nzPopoverContent]="prefsPopover"
-        nzPopoverTrigger="click">
-        <span
-          nz-icon
-          nzType="setting"
-          nzTheme="outline"></span>
-      </button>
+    <!-- the filter popover reviews/removes applied filters; the settings
+         popover carries the reset actions; the toolbar's old standalone
+         reset button is gone (reset-all also lives in every enum filter
+         dropdown's split Reset button) -->
+    <nz-col nzFlex="70px">
+      <nz-space-compact>
+        <button
+          nz-button
+          nz-popover
+          type="button"
+          nzType="default"
+          nzSize="small"
+          data-testid="table-filters-trigger"
+          [nzPopoverTitle]="filtersPopoverTitle"
+          [nzPopoverContent]="filtersPopover"
+          nzPopoverTrigger="click">
+          <span
+            nz-icon
+            nzType="filter"
+            nzTheme="fill"
+            [class.filters-applied]="appliedFilters().length > 0"></span>
+        </button>
+        <button
+          nz-button
+          nz-popover
+          type="button"
+          nzType="default"
+          nzSize="small"
+          data-testid="column-prefs-trigger"
+          [nzPopoverTitle]="settingsTitle()"
+          [nzPopoverContent]="prefsPopover"
+          nzPopoverTrigger="click">
+          <span
+            nz-icon
+            nzType="setting"
+            nzTheme="outline"></span>
+        </button>
+      </nz-space-compact>
+
+      <ng-template #filtersPopoverTitle>
+        <span class="filters-popover-title">
+          {{ filtersTitle() }}
+          <button
+            nz-button
+            type="button"
+            nzType="default"
+            nzSize="small"
+            data-testid="clear-all-filters"
+            [disabled]="!appliedFilters().length"
+            (click)="onResetFilters()">
+            <span
+              nz-icon
+              nzType="retweet"
+              nzTheme="outline"></span>
+            Clear All
+          </button>
+        </span>
+      </ng-template>
+
+      <ng-template #filtersPopover>
+        <div
+          class="filters-popover"
+          data-testid="table-filters-panel">
+          @if (appliedFilters().length) {
+            <table class="applied-filters">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Matches</th>
+                  <th>Value</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (filter of appliedFilters(); track filter.key) {
+                  <tr
+                    data-testid="applied-filter"
+                    [attr.data-column]="filter.key">
+                    <td class="af-field">{{ filter.field }}</td>
+                    <td class="af-comparison">{{ filter.comparison }}</td>
+                    <td class="af-value">{{ filter.display }}</td>
+                    <td>
+                      <button
+                        nz-button
+                        type="button"
+                        nzType="text"
+                        nzSize="small"
+                        data-testid="remove-filter"
+                        nz-tooltip
+                        nzTooltipTitle="Remove this filter"
+                        (click)="onRemoveFilter(filter.key)">
+                        <span
+                          nz-icon
+                          nzType="close-circle"
+                          nzTheme="fill"></span>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } @else {
+            <span
+              nz-typography
+              nzType="secondary"
+              >No filters applied</span
+            >
+          }
+        </div>
+      </ng-template>
 
       <ng-template #prefsPopover>
         <div

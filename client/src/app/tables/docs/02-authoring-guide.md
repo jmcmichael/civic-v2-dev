@@ -34,6 +34,24 @@ fields — edit them in the manager's `*.config.ts`. Two constraints:
 - Never wrap the body's `nz-virtual-scroll` template in `<tbody>` (see
   troubleshooting §11 — it silently zeroes every pinned offset).
 
+### Style a column
+
+`styles` on a column carries inline styles for its three rows — `header`
+and `filter` (static), and `cell`, which may be row-driven: statuses,
+states, and value ranges. Every cell KIND also carries its own `style`,
+layered over the column's `styles.cell` so a kind can override its column.
+`heatmapStyle` maps a numeric range onto a background tint:
+
+```ts
+{
+  key: 'evidenceItemCount',
+  // …
+  styles: {
+    cell: (row) => heatmapStyle(row.evidenceItemCount, { max: 500 }),
+  },
+}
+```
+
 ### Change a filter
 
 Enum filters render as the funnel-icon dropdown by default — plain
