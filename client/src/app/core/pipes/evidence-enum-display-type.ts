@@ -21,6 +21,48 @@ export const EvidenceRatingLabelMap = new Map<number, string>([
   [4, 'Four Stars'],
   [5, 'Five Stars'],
 ])
+/**
+ * How an evidence enum reads to a person: PREDICTIVE becomes "Predictive",
+ * level B becomes "Clinical evidence", rating 5 becomes "Five Stars".
+ *
+ * Extracted from the pipe below so callers outside a template can use it —
+ * a table column config supplies its enum tooltips as an accessor, and
+ * instantiating a pipe class to call one method is worse than sharing the
+ * function both use.
+ */
+export function evidenceEnumDisplay(
+  value: Maybe<InputEnum | number>,
+  context: EnumOutputStyle = 'display-string'
+): string {
+  if (value === undefined || value === null) return ''
+  // if short string requested, and length is === 1, return string.
+  // This is to return 1-5 numerals for ratings, and A-E chars for levels
+  if (context === 'short-string' && value.toString().length === 1) {
+    let label = typeof value === 'string' ? value : value.toString()
+    return label
+  }
+  if (context === 'icon-name') {
+    if (typeof value === 'number') {
+      return `civic-rating${value}` // numbers will be evidence ratings
+    } else if (value.length === 1) {
+      // single char strings are evidence levels
+      return `civic-level${value.toLowerCase()}`
+    }
+    return `civic-${value.replace(/_/g, '').toLowerCase()}`
+  }
+  // if number, evidence rating - convert to string, return
+  if (typeof value === 'number') {
+    const label = EvidenceRatingLabelMap.get(value)
+    return label || value.toString()
+  }
+  // single character strings will be evidence levels, return level description
+  if (value.length === 1) {
+    const label = EvidenceLevelLabelMap.get(value as EvidenceLevel)
+    return label || value
+  }
+  return formatEvidenceEnum(value)
+}
+
 @Pipe({
   name: 'evidenceEnumDisplay',
   pure: true,
@@ -31,32 +73,6 @@ export class EvidenceEnumDisplayPipe implements PipeTransform {
     value: Maybe<InputEnum | number>,
     context: EnumOutputStyle = 'display-string'
   ): string {
-    if (value === undefined || value === null) return ''
-    // if short string requested, and length is === 1, return string.
-    // This is to return 1-5 numerals for ratings, and A-E chars for levels
-    if (context === 'short-string' && value.toString().length === 1) {
-      let label = typeof value === 'string' ? value : value.toString()
-      return label
-    }
-    if (context === 'icon-name') {
-      if (typeof value === 'number') {
-        return `civic-rating${value}` // numbers will be evidence ratings
-      } else if (value.length === 1) {
-        // single char strings are evidence levels
-        return `civic-level${value.toLowerCase()}`
-      }
-      return `civic-${value.replace(/_/g, '').toLowerCase()}`
-    }
-    // if number, evidence rating - convert to string, return
-    if (typeof value === 'number') {
-      const label = EvidenceRatingLabelMap.get(value)
-      return label || value.toString()
-    }
-    // single character strings will be evidence levels, return level description
-    if (value.length === 1) {
-      const label = EvidenceLevelLabelMap.get(value as EvidenceLevel)
-      return label || value
-    }
-    return formatEvidenceEnum(value)
+    return evidenceEnumDisplay(value, context)
   }
 }

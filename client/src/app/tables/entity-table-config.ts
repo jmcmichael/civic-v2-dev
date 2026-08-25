@@ -5,6 +5,7 @@ import {
   QueryData,
   QueryVars,
 } from '@app/forms/select/entity-select-config'
+import { isDevMode } from '@angular/core'
 import { OperationVariables } from '@apollo/client'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { QueryRef } from 'apollo-angular'
@@ -51,6 +52,17 @@ export interface EntityTableConfig<
   connection: (data: Maybe<QueryData<TQuery>>) => Maybe<CvcConnection<TNode>>
   /** rendered left-to-right in array order */
   columns: CvcColumn<TNode, QueryVars<TQuery>, TSortColumn>[]
+  /**
+   * The query variable carrying the sort, typed against the query's own
+   * variables and defaulting to `sortBy`.
+   *
+   * The name used to be hardcoded, which is exactly the shape of the bug
+   * `filter.var` exists to prevent: the evidence rating filter named
+   * `evidenceRating` where the query declares `$rating`, so it set a variable
+   * nothing read and filtered nothing, silently. A sort variable spelled wrong
+   * fails the same way.
+   */
+  sortVar?: keyof QueryVars<TQuery> & string
   /**
    * Rows per page, for the first query as well as subsequent ones.
    *
@@ -105,8 +117,11 @@ export interface EntityTableSpec<TNode> {
   columns: CvcColumn<TNode, Record<string, unknown>, string>[]
   pageSize: number
   scope: Record<string, unknown>
-  seedCache?: (rows: ReadonlyArray<TNode>) => void
+  sortVar: string
 }
+
+/** the query variable a table sorts through unless its config says otherwise */
+export const DEFAULT_SORT_VAR = 'sortBy'
 
 /** matches the server's own default, so behaviour is unchanged when unset */
 export const DEFAULT_PAGE_SIZE = 50
@@ -124,9 +139,37 @@ export function entityTableConfig<
 >(
   config: EntityTableConfig<TQuery, TNode, TSortColumn>
 ): EntityTableSpec<TNode> {
+  assertUniqueKeys(config.columns)
   return {
     ...config,
     pageSize: config.pageSize ?? DEFAULT_PAGE_SIZE,
     scope: (config.scope ?? {}) as Record<string, unknown>,
+    sortVar: config.sortVar ?? DEFAULT_SORT_VAR,
   } as unknown as EntityTableSpec<TNode>
+}
+
+/**
+ * Column keys address a column in preferences, filters, sticky offsets and the
+ * `data-column` test hook — every one of them a `Map` or a lookup by key, and
+ * `@for` tracks by it. A duplicate is therefore a silent aliasing bug rather
+ * than a rendering one, and the evidence manager shipped with two columns keyed
+ * `id`: a hidden one that rendered nothing, and the visible EID column. It
+ * survived only because the hidden one never reached `visibleColumns`.
+ *
+ * Dev-mode only: this is a config authoring mistake, not a runtime condition,
+ * and the check costs nothing to skip in production.
+ */
+function assertUniqueKeys(columns: ReadonlyArray<{ key: string }>): void {
+  if (!isDevMode()) return
+  const seen = new Set<string>()
+  const duplicates = columns
+    .map((column) => column.key)
+    .filter((key) => !seen.add(key))
+  if (duplicates.length > 0) {
+    throw new Error(
+      `entityTableConfig: duplicate column key(s) ${duplicates.join(', ')}. ` +
+        'Keys address columns in preferences, filters and sticky offsets, so ' +
+        'they must be unique.'
+    )
+  }
 }

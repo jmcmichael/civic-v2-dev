@@ -8,7 +8,6 @@ import {
 } from '@angular/core'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { CvcEntityTableComponent, CvcTableSettings } from '@app/tables'
-import { Apollo } from 'apollo-angular'
 import { variantManagerConfig } from './variant-manager.config'
 import { VariantManagerGQL } from './variant-manager.query.gql.generated'
 
@@ -44,7 +43,6 @@ import { VariantManagerGQL } from './variant-manager.query.gql.generated'
   styleUrl: './variant-manager.component.less',
 })
 export class CvcVariantManagerComponent {
-  private readonly apollo = inject(Apollo)
   private readonly query = inject(VariantManagerGQL)
 
   /** the complete selection, in and out */
@@ -62,7 +60,5 @@ export class CvcVariantManagerComponent {
    */
   readonly cvcTableSettings = input<Maybe<CvcTableSettings>>(undefined)
 
-  protected readonly spec = computed(() =>
-    variantManagerConfig(this.query, this.apollo)
-  )
+  protected readonly spec = computed(() => variantManagerConfig(this.query))
 }

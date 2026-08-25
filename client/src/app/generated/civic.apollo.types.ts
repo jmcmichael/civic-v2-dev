@@ -2623,8 +2623,11 @@ export enum EvidenceSortColumns {
   EvidenceRating = 'EVIDENCE_RATING',
   EvidenceType = 'EVIDENCE_TYPE',
   Id = 'ID',
+  MolecularProfileName = 'MOLECULAR_PROFILE_NAME',
   Significance = 'SIGNIFICANCE',
   Status = 'STATUS',
+  TherapyInteractionType = 'THERAPY_INTERACTION_TYPE',
+  TherapyName = 'THERAPY_NAME',
   VariantOrigin = 'VARIANT_ORIGIN'
 }
 

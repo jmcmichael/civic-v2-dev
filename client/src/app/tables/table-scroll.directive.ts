@@ -8,7 +8,8 @@ import {
   output,
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { Maybe, PageInfo } from '@app/generated/civic.apollo.types'
+import { Maybe } from '@app/generated/civic.apollo.types'
+import { CvcPageInfo } from './connection.types'
 import { NzTableComponent } from 'ng-zorro-antd/table'
 import { asyncScheduler } from 'rxjs'
 import {
@@ -66,7 +67,7 @@ export class CvcTableScrollObserverDirective {
   /** rows per page; only consulted when a fetch is actually requested */
   readonly fetchCount = input(50)
   /** the current connection's page info; without it nothing is ever fetched */
-  readonly pageInfo = input<Maybe<PageInfo>>(undefined)
+  readonly pageInfo = input<Maybe<CvcPageInfo>>(undefined)
   /** set to send the viewport back to a row, e.g. row 0 after a refetch */
   readonly scrollToIndex = input<Maybe<number>>(undefined)
 
@@ -193,7 +194,7 @@ export class CvcTableScrollObserverDirective {
  * virtual-scroll viewport with real layout — which jsdom does not provide.
  */
 export function nextFetch(
-  pageInfo: Maybe<PageInfo>,
+  pageInfo: Maybe<CvcPageInfo>,
   fetchCount: number,
   requestedCursor: Maybe<string>
 ): Maybe<CvcScrollFetch> {

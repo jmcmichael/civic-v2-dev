@@ -1,5 +1,4 @@
-import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
-import { CvcInputEnum } from '@app/forms/forms.types'
+import { evidenceEnumDisplay } from '@app/core/pipes/evidence-enum-display-type'
 import {
   EvidenceDirection,
   EvidenceLevel,
@@ -8,116 +7,93 @@ import {
   EvidenceType,
   TherapyInteraction,
 } from '@app/generated/civic.apollo.types'
-import { NzTableFilterList } from 'ng-zorro-antd/table'
-import { BehaviorSubject, Observable } from 'rxjs'
-import { $enum, EnumWrapper } from 'ts-enum-util'
-import {
-  CvcFilterChange,
-  CvcSortChange,
-  EvidenceManagerColKey,
-  EvidenceManagerColQueryMap,
-  EvidenceManagerColSortMap,
-  EvidenceManagerTableConfig,
-  hasFilterOptions,
-  hasSortOptions,
-} from './evidence-manager.types'
+import { entityTableConfig, enumFilterOptions } from '@app/tables'
+import { EvidenceManagerGQL } from './evidence-manager.query.gql.generated'
 
-export const columnKeyToSortColumnMap: EvidenceManagerColSortMap = {
-  description: EvidenceSortColumns.Description,
-  disease: EvidenceSortColumns.DiseaseName,
-  evidenceDirection: EvidenceSortColumns.EvidenceDirection,
-  evidenceLevel: EvidenceSortColumns.EvidenceLevel,
-  evidenceRating: EvidenceSortColumns.EvidenceRating,
-  evidenceType: EvidenceSortColumns.EvidenceType,
-  id: EvidenceSortColumns.Id,
-  significance: EvidenceSortColumns.Significance,
-  status: EvidenceSortColumns.Status,
-  variantOrigin: EvidenceSortColumns.VariantOrigin,
-}
+/** an EID typed with or without its prefix; anything else matches nothing */
+const EID_PATTERN = /^(?:EID)?(\d+)$/i
 
-// entity browse query vars include filter vars for values
-// not part of the evidence row model, this maps between
-// the columnKey and entity browse query variable
-export const columnKeyToQueryVariableMap: EvidenceManagerColQueryMap = {
-  molecularProfile: 'molecularProfileName',
-  disease: 'diseaseName',
-  therapies: 'therapyName',
-  evidenceItem: 'id',
-  // the query's variable is `rating`; without this entry the filter set
-  // `evidenceRating` on the variables object, which the query never reads, so
-  // the star-rating filter silently did nothing
-  evidenceRating: 'rating',
-}
-// column keys included here will be hidden in preference panel, preventing
-// defaults from being changed by the user
-export const omittedFromPrefs: EvidenceManagerColKey[] = ['selected', 'id']
+/** the star ratings, which are numbers rather than a schema enum */
+const RATING_OPTIONS = [1, 2, 3, 4, 5].map((stars) => ({
+  label: `${stars} stars`,
+  value: stars,
+}))
 
-// NOTE: implementing this separate config file as a class b/c it would be good
-// to move the additional onSortChanges, onFilterChange array config into
-// the class in a future refactor
-export class EvidenceManagerConfig {
-  config: EvidenceManagerTableConfig
-  sortStreams: Observable<CvcSortChange>[]
-  filterStreams: Observable<CvcFilterChange>[]
-
-  constructor() {
-    this.sortStreams = []
-    this.filterStreams = []
-
-    this.config = this.configureColumnStreams([
+/**
+ * The evidence manager's table, as configuration.
+ *
+ * The larger of the two managers and the one that exercises the whole cell
+ * union: six enum tags, four entity tags, a text tag, the select column and one
+ * column hidden by default.
+ *
+ * Three lookup tables go, replaced by fields the compiler checks — and each of
+ * them was hiding a live bug:
+ *
+ * - `columnKeyToQueryVariableMap` -> `filter.var`, typed `keyof` this query's
+ *   variables. The rating column filtered on `evidenceRating` where the query
+ *   declares `$rating`, so it set a variable nothing read and filtered nothing.
+ * - `columnKeyToSortColumnMap` -> `sort.column`, typed `EvidenceSortColumns`.
+ *   `molecularProfile` and `therapyInteractionType` declared a sort with no
+ *   entry in the map, so clicking either sent `sortBy: { column: undefined }`
+ *   against a non-null argument and failed the whole query; `therapies` was
+ *   marked `disabled: true` because there was nothing to send. All three now
+ *   name a real column — the server grew the sorts rather than the table
+ *   dropping the sorters.
+ * - `omittedFromPrefs` -> the per-column `omitFromPrefs` flag. It listed `id`,
+ *   which matched *two* columns: the visible EID column and a hidden one that
+ *   rendered nothing. The dead one is gone, and `entityTableConfig` now rejects
+ *   duplicate keys.
+ *
+ * No `seed` on any entity-tag column: `evidenceItems` returns real
+ * `EvidenceItem`s and the query spreads the `Linkable*` fragments, so every
+ * entity here normalises into the cache on its own. Seeding is a `Browse*`
+ * concern — see the variant manager, whose rows arrive flattened.
+ */
+export function evidenceManagerConfig(query: EvidenceManagerGQL) {
+  return entityTableConfig({
+    title: 'Use checkboxes to select or deselect Evidence Items',
+    query,
+    pageSize: 50,
+    connection: (data) => data?.evidenceItems,
+    columns: [
       {
+        // no label: 25px clips any text to a fragment, and the original
+        // rendered none either
         key: 'selected',
-        label: 'Select',
-        type: 'select',
+        label: '',
         width: '25px',
         align: 'center',
-        fixedLeft: true,
-        checkbox: {
-          th: {
-            showCheckbox: false,
-          },
-          td: {
-            showCheckbox: true,
-          },
-        },
+        fixed: 'left',
+        omitFromPrefs: true,
+        cell: { kind: 'select' },
       },
       {
-        hidden: true,
-        key: 'id',
-        label: 'ID',
-        type: 'default',
-        width: '30px',
-      },
-      {
-        hidden: true,
         key: 'status',
         label: 'Status',
-        type: 'default',
         width: '50px',
+        hidden: true,
+        cell: { kind: 'text', text: (row) => row.status },
       },
       {
         key: 'id',
         label: 'Evidence',
-        type: 'entity-tag',
         width: '95px',
-        context: 'evidenceItem',
-        fixedLeft: true,
-        showStatus: true,
-        tag: {
+        fixed: 'left',
+        omitFromPrefs: true,
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => ({ __typename: 'EvidenceItem' as const, id: row.id }),
           fullWidth: true,
           popoverPlacement: 'right',
         },
-        sort: {
-          default: 'ascend',
-        },
+        sort: { column: EvidenceSortColumns.Id, default: 'ascend' },
         filter: {
-          inputType: 'default',
-          options: [{ key: 'EID', value: null }],
-          transform: (v) => {
-            const match = v
-              ?.toString()
-              .trim()
-              .match(/^(?:EID)?(\d+)$/i)
+          kind: 'text',
+          var: 'id',
+          placeholder: 'EID',
+          // 'EID123' and '123' both mean 123; anything else clears the filter
+          transform: (value) => {
+            const match = value?.toString().trim().match(EID_PATTERN)
             return match ? +match[1] : null
           },
         },
@@ -125,222 +101,190 @@ export class EvidenceManagerConfig {
       {
         key: 'molecularProfile',
         label: 'Molecular Profile',
-        type: 'entity-tag',
         width: '240px',
-        sort: {},
-        tag: {
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => row.molecularProfile,
           truncateLabel: '200px',
         },
+        sort: { column: EvidenceSortColumns.MolecularProfileName },
         filter: {
-          inputType: 'default',
-          typename: 'MolecularProfile',
-          options: [
-            {
-              key: 'Filter Molecular Profiles',
-              value: null,
-            },
-          ],
+          kind: 'text',
+          var: 'molecularProfileName',
+          placeholder: 'Filter Molecular Profiles',
+          entityTypename: 'MolecularProfile',
         },
       },
       {
         key: 'disease',
-        type: 'entity-tag',
         label: 'Disease',
         width: '240px',
-        sort: {},
-        tag: {
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => row.disease,
           truncateLabel: '200px',
         },
+        sort: { column: EvidenceSortColumns.DiseaseName },
         filter: {
-          inputType: 'default',
-          typename: 'Disease',
-          options: [
-            {
-              key: 'Filter Disease Names',
-              value: null,
-            },
-          ],
+          kind: 'text',
+          var: 'diseaseName',
+          placeholder: 'Filter Disease Names',
+          entityTypename: 'Disease',
         },
       },
       {
         key: 'therapies',
         label: 'Therapies',
-        type: 'entity-tag',
         width: '275px',
-        sort: {
-          disabled: true,
-        },
-        tag: {
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => row.therapies,
           maxTags: 2,
           truncateLabel: '150px',
         },
+        sort: { column: EvidenceSortColumns.TherapyName },
         filter: {
-          inputType: 'default',
-          typename: 'Therapy',
-          options: [
-            {
-              key: 'Filter Therapy Names',
-              value: null,
-            },
-          ],
+          kind: 'text',
+          var: 'therapyName',
+          placeholder: 'Filter Therapy Names',
+          entityTypename: 'Therapy',
         },
       },
       {
         key: 'therapyInteractionType',
         label: 'INT',
         tooltip: 'Therapy Interaction Type',
-        type: 'enum-tag',
         width: '40px',
         align: 'center',
-        emptyValueCategory: 'not-applicable',
-        sort: {},
+        // an evidence item with one therapy cannot have an interaction type, so
+        // its absence is a property of the record rather than missing curation
+        emptyValue: 'not-applicable',
+        cell: {
+          kind: 'enum-tag',
+          value: (row) => row.therapyInteractionType,
+          tooltip: (row) => evidenceEnumDisplay(row.therapyInteractionType),
+        },
+        sort: { column: EvidenceSortColumns.TherapyInteractionType },
         filter: {
-          options: this.getAttributeFilters($enum(TherapyInteraction)),
+          kind: 'enum',
+          var: 'therapyInteractionType',
+          options: enumFilterOptions(TherapyInteraction),
         },
       },
       {
         key: 'description',
         label: 'DSC',
         tooltip: 'Evidence Description',
-        type: 'text-tag',
         width: '40px',
         align: 'center',
-        fixedRight: true,
-        emptyValueCategory: 'unspecified',
-        sort: {},
+        fixed: 'right',
+        cell: { kind: 'text-tag', text: (row) => row.description },
+        sort: { column: EvidenceSortColumns.Description },
         filter: {
-          inputType: 'default',
-          options: [{ key: 'Search Descriptions', value: null }],
+          kind: 'text',
+          var: 'description',
+          placeholder: 'Search Descriptions',
         },
       },
       {
         key: 'evidenceType',
         label: 'ET',
         tooltip: 'Evidence Type',
-        type: 'enum-tag',
         width: '40px',
         align: 'center',
-        fixedRight: true,
-        sort: {},
+        fixed: 'right',
+        cell: {
+          kind: 'enum-tag',
+          value: (row) => row.evidenceType,
+          tooltip: (row) => evidenceEnumDisplay(row.evidenceType),
+        },
+        sort: { column: EvidenceSortColumns.EvidenceType },
         filter: {
-          options: this.getAttributeFilters(
-            $enum(EvidenceType)
-            // EvidenceType.Predictive
-          ),
+          kind: 'enum',
+          var: 'evidenceType',
+          options: enumFilterOptions(EvidenceType),
         },
       },
       {
         key: 'evidenceLevel',
         label: 'EL',
         tooltip: 'Evidence Level',
-        type: 'enum-tag',
         width: '40px',
         align: 'center',
-        fixedRight: true,
-        sort: {},
+        fixed: 'right',
+        cell: {
+          kind: 'enum-tag',
+          value: (row) => row.evidenceLevel,
+          tooltip: (row) => evidenceEnumDisplay(row.evidenceLevel),
+        },
+        sort: { column: EvidenceSortColumns.EvidenceLevel },
         filter: {
-          options: this.getAttributeFilters($enum(EvidenceLevel)),
+          kind: 'enum',
+          var: 'evidenceLevel',
+          options: enumFilterOptions(EvidenceLevel),
         },
       },
       {
         key: 'evidenceDirection',
         label: 'ED',
         tooltip: 'Evidence Direction',
-        type: 'enum-tag',
         width: '40px',
         align: 'center',
-        fixedRight: true,
-        sort: {},
+        fixed: 'right',
+        cell: {
+          kind: 'enum-tag',
+          value: (row) => row.evidenceDirection,
+          tooltip: (row) => evidenceEnumDisplay(row.evidenceDirection),
+        },
+        sort: { column: EvidenceSortColumns.EvidenceDirection },
         filter: {
-          options: this.getAttributeFilters($enum(EvidenceDirection)),
+          kind: 'enum',
+          var: 'evidenceDirection',
+          options: enumFilterOptions(EvidenceDirection),
         },
       },
       {
         key: 'significance',
         label: 'SI',
         tooltip: 'Significance',
-        type: 'enum-tag',
-        align: 'center',
         width: '40px',
-        fixedRight: true,
-        sort: {},
+        align: 'center',
+        fixed: 'right',
+        cell: {
+          kind: 'enum-tag',
+          value: (row) => row.significance,
+          tooltip: (row) => evidenceEnumDisplay(row.significance),
+        },
+        sort: { column: EvidenceSortColumns.Significance },
         filter: {
-          options: this.getAttributeFilters($enum(EvidenceSignificance)),
+          kind: 'enum',
+          var: 'significance',
+          options: enumFilterOptions(EvidenceSignificance),
         },
       },
       {
         key: 'evidenceRating',
         label: 'ER',
         tooltip: 'Evidence Rating',
-        type: 'enum-tag',
         width: '45px',
         align: 'center',
-        fixedRight: true,
-        tag: {
-          showLabel: 'short-string',
+        fixed: 'right',
+        cell: {
+          kind: 'enum-tag',
+          // the number, not a rendering of it: the tag's icon resolver reads
+          // a number as a rating and the string '4' as evidence level 4
+          value: (row) => row.evidenceRating,
+          tooltip: (row) => evidenceEnumDisplay(row.evidenceRating),
         },
-        sort: {},
+        sort: { column: EvidenceSortColumns.EvidenceRating },
         filter: {
-          options: [1, 2, 3, 4, 5].map((n) => {
-            return { value: n, text: `${n} stars` }
-          }),
+          // the query declares `$rating`, not `$evidenceRating` — the old map
+          // named the latter, so this filter had never worked
+          kind: 'enum',
+          var: 'rating',
+          options: RATING_OPTIONS,
         },
       },
-    ])
-  }
-
-  get() {
-    return this.config
-  }
-
-  getSortStreams() {
-    return this.sortStreams
-  }
-
-  getFilterStreams() {
-    return this.filterStreams
-  }
-
-  private getAttributeFilters(
-    attrEnums: EnumWrapper,
-    byDefault?: CvcInputEnum
-  ): NzTableFilterList {
-    const filters = attrEnums.getValues().map((value) => {
-      return {
-        text: formatEvidenceEnum(value),
-        value: value,
-        byDefault: byDefault === value,
-      }
-    })
-    return filters
-  }
-  private configureColumnStreams(
-    config: EvidenceManagerTableConfig
-  ): EvidenceManagerTableConfig {
-    config.forEach((colConfig) => {
-      const col = colConfig
-      if (hasSortOptions(col)) {
-        col.sort.changes = new BehaviorSubject<CvcSortChange>({
-          key: col.key,
-          value: col.sort.default ?? null,
-        })
-        this.sortStreams.push(
-          // opt.sort.changes.pipe(tag(`${opt.key} sort changes`))
-          col.sort.changes
-        )
-      }
-      if (hasFilterOptions(col)) {
-        const defaultValue = col.filter.options.find((o) => o.byDefault)?.value
-        col.filter.changes = new BehaviorSubject<CvcFilterChange>({
-          key: col.key,
-          value: defaultValue ?? null,
-        })
-        this.filterStreams.push(
-          // opt.filter.changes.pipe(tag(`${opt.key} filter changes`))
-          col.filter.changes
-        )
-      }
-    })
-    return config
-  }
+    ],
+  })
 }

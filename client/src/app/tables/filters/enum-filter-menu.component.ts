@@ -8,7 +8,7 @@ import { CvcAttributeTagModule } from '@app/forms/components/attribute-tag/attri
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzMenuModule } from 'ng-zorro-antd/menu'
-import { NzTableFilterList } from 'ng-zorro-antd/table'
+import { CvcEnumOption } from '../entity-table.types'
 
 /**
  * The dropdown behind an enum column's funnel icon: one tag per value, plus a
@@ -28,12 +28,22 @@ import { NzTableFilterList } from 'ng-zorro-antd/table'
         <li
           nz-menu-item
           [nzSelected]="selected() === option.value"
+          [attr.aria-label]="option.label"
           (click)="selectedChange.emit(option.value)">
+          <!-- the tag renders the value's own label and icon; option.label is
+               the accessible name, since the tag is the only visible content -->
+          <!-- $any because cvc-attribute-tag types cvcAttrValue as
+               CvcInputEnum, a union of generated string enums, while the
+               evidence rating column filters on the numbers 1-5 and renders
+               them through the same tag. NzTableFilterList, which this
+               replaces, typed its value loosely enough to hide the mismatch.
+               Widening that input to cover the numeric case belongs to the
+               attribute-tag component, not here. -->
           <cvc-attribute-tag
             [cvcFullWidth]="true"
             cvcContext="menu-item"
             [cvcChecked]="selected() === option.value"
-            [cvcAttrValue]="option.value" />
+            [cvcAttrValue]="$any(option.value)" />
         </li>
       }
       <li style="padding: 3px">
@@ -55,7 +65,7 @@ import { NzTableFilterList } from 'ng-zorro-antd/table'
   `,
 })
 export class CvcEnumFilterMenuComponent {
-  readonly options = input.required<NzTableFilterList>()
+  readonly options = input.required<ReadonlyArray<CvcEnumOption<unknown>>>()
   readonly selected = input<unknown>(null)
 
   readonly selectedChange = output<unknown>()
