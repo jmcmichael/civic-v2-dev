@@ -90,6 +90,7 @@ export type CvcCellSpec<TRow> =
   | CvcEnumTagCell<TRow>
   | CvcTextTagCell<TRow>
   | CvcTextCell<TRow>
+  | CvcExternalLinkCell<TRow>
   | CvcCustomCell<TRow>
 
 /** row checkbox; the table owns the selection, the column just marks the slot */
@@ -175,11 +176,37 @@ export interface CvcTextCell<TRow> {
   highlight?: boolean
 }
 
+/**
+ * A `cvc-link-tag` to an off-site resource — an HPO term page, a sequence
+ * ontology entry, a registry lookup. No other kind fits: `entity-tag`
+ * addresses an in-app entity by cache identity, and `text` has no href.
+ * Recurs often enough (phenotypes' HPO ID, variant types' SOID, and more to
+ * come) to be a kind rather than a one-off `custom` cell per table.
+ */
+export interface CvcExternalLinkCell<TRow> {
+  kind: 'external-link'
+  /** the external URL; the empty state renders when this yields nothing */
+  href: (row: TRow) => Maybe<string>
+  /** the link's visible label; the href itself when omitted */
+  text?: (row: TRow) => Maybe<string>
+  tooltip?: string
+  /** ant icon name; `cvc-link-tag`'s own 'link' default when omitted */
+  iconName?: string
+}
+
 /** what custom-cell content receives — as template context or via injection */
 export interface CvcCellContext<TRow> {
   $implicit: TRow
   row: TRow
   column: CvcColumn<TRow, any, string>
+  /**
+   * Whether the virtual-scroll viewport is actively scrolling. A custom
+   * cell that renders its own popover/tooltip should suspend it while this
+   * is true, the way the built-in `entity-tag`/`enum-tag`/`text-tag` kinds
+   * do (docs/03-troubleshooting.md §13) — nothing else exposes that state
+   * to config-authored content.
+   */
+  isScrolling: boolean
 }
 
 /**
@@ -287,6 +314,14 @@ export interface CvcEnumFilter<
 > extends CvcFilterBase<TVars> {
   kind: 'enum'
   options: ReadonlyArray<CvcEnumOption<TValue>>
+  /**
+   * Render the menu's attribute tags without icons. Set `false` for enums
+   * with no `civic-*` icon set (e.g. `VariantCategories`) — the tag's
+   * icon-name derivation would otherwise request unregistered icons, which
+   * @ant-design/icons-angular reports as async errors outside any call
+   * stack. Defaults to showing icons.
+   */
+  showIcons?: boolean
 }
 
 /** the active sort, or none; `order` is ng-zorro's three-valued sort union */

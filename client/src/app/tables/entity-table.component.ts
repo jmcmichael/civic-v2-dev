@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  TemplateRef,
   computed,
   effect,
   inject,
@@ -15,6 +16,7 @@ import { FormsModule } from '@angular/forms'
 import { Maybe, SortDirection } from '@app/generated/civic.apollo.types'
 import { CvcAttributeTagModule } from '@app/forms/components/attribute-tag/attribute-tag.module'
 import { CvcEmptyValueModule } from '@app/forms/components/empty-value/empty-value.module'
+import { CvcLinkTagModule } from '@app/components/shared/link-tag/link-tag.module'
 import {
   CvcCollectionTagComponent,
   CvcTagComponent,
@@ -103,6 +105,7 @@ const QUERY_DEBOUNCE_MS = 300
     CvcTagComponent,
     CvcTagListComponent,
     CvcEmptyValueModule,
+    CvcLinkTagModule,
     NzButtonModule,
     NzCardModule,
     NzCheckboxModule,
@@ -141,6 +144,14 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * computes a pixel height in JavaScript.
    */
   readonly height = input<string>()
+
+  /**
+   * Replaces the card title's plain `spec().title` text — for hosts whose
+   * legacy card titles carry markup (an icon, a link). The toolbar's
+   * counterpart is the `[cvcTableToolbarExtra]` content slot, which projects
+   * host content (downloaders, scope menus) into the card-extra row.
+   */
+  readonly titleTemplate = input<Maybe<TemplateRef<void>>>()
 
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
@@ -419,7 +430,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     column: CvcSpecColumn<TRow>,
     row: TRow
   ): CvcCellContext<TRow> {
-    return { $implicit: row, row, column }
+    return { $implicit: row, row, column, isScrolling: this.isScrolling() }
   }
 
   /**

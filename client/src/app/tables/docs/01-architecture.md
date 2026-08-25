@@ -360,6 +360,12 @@ table writes each cell's offset and edge-shadow class itself. This works
 | `[(selectedIds)]` | `number[]` (model)                 | The **complete** selection on every change, not a delta. Emits `selectedIdsChange`. |
 | `[settings]`      | `CvcTableSettings`                 | Externally-driven filters + column visibility (see "Settings injection")            |
 | `[height]`        | `string` (CSS length)              | Omit to fill available space via the flex chain; set for a fixed-height region      |
+| `[titleTemplate]` | `TemplateRef<void>`                | Replaces the card title's plain `spec().title` text (icons, links)                  |
+
+The component also projects one content slot: host elements marked
+`cvcTableToolbarExtra` land in the card-extra toolbar row, between the row
+counts and the reset/preferences buttons — where the browse tables put their
+downloaders and scope menus.
 
 There are no other outputs: filters, sort and preferences are internal state;
 the observable consequence of all of them is the query the table sends.
@@ -396,14 +402,15 @@ template has exactly one `<th>` for headers, one for filters, and one `<td>`.
 
 Cell kinds (`CvcCellSpec<TRow>` union):
 
-| kind         | renders                                           | key fields                                                                                                                                              |
-| ------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `select`     | row checkbox                                      | — (the table owns the selection)                                                                                                                        |
-| `entity-tag` | `cvc-tag` / `cvc-tag-list` + `cvc-collection-tag` | `ref(row)` (single, list or nothing), `seed(row)` (cache projection for denormalised rows), `maxTags`, `truncateLabel`, `fullWidth`, `popoverPlacement` |
-| `enum-tag`   | `cvc-attribute-tag`                               | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
-| `text-tag`   | icon tag, full text in tooltip                    | `text(row)`                                                                                                                                             |
-| `text`       | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`                                                                                                       |
-| `custom`     | polymorpheus content declared in the config       | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
+| kind            | renders                                           | key fields                                                                                                                                              |
+| --------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `select`        | row checkbox                                      | — (the table owns the selection)                                                                                                                        |
+| `entity-tag`    | `cvc-tag` / `cvc-tag-list` + `cvc-collection-tag` | `ref(row)` (single, list or nothing), `seed(row)` (cache projection for denormalised rows), `maxTags`, `truncateLabel`, `fullWidth`, `popoverPlacement` |
+| `enum-tag`      | `cvc-attribute-tag`                               | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
+| `text-tag`      | icon tag, full text in tooltip                    | `text(row)`                                                                                                                                             |
+| `text`          | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`                                                                                                       |
+| `external-link` | `cvc-link-tag` to an off-site URL                 | `href(row)`, `text(row)` (falls back to the href), `tooltip`, `iconName`                                                                                |
+| `custom`        | polymorpheus content declared in the config       | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
 
 Every kind reads through an **accessor** (`ref`/`value`/`text`) checked
 against `TRow` — a column's data need not share its key, and there is no

@@ -209,7 +209,9 @@ Cell popovers/tooltips are suspended during scroll gestures via
 300 ms quiet). New cell kinds must do the same or a fast scroll leaves
 orphaned overlays. If phases seem wrong, remember both throttle _and_
 debounce sit on `elementScrolled()` — events during a gesture, one `stop`
-after it.
+after it. A `kind: 'custom'` cell gets the same signal as a plain
+`isScrolling` field on its `CvcCellContext` (it has no template-scope
+access to the component) — same suspend rule applies.
 
 ## 14. Custom cells
 

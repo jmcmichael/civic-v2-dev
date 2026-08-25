@@ -204,8 +204,12 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'resolvingUserId',
         'state',
       ]),
-      browsePhenotypes: relayStylePagination(['hpoId', 'name', 'sortBy']),
-      variantTypes: relayStylePagination(['soid', 'name', 'id']),
+      // the phenotypes browse table's field; see paginatedByAllArgs above
+      browsePhenotypes: paginatedByAllArgs(),
+      // the variant types browse table's field; see paginatedByAllArgs above
+      // (the previous list named a nonexistent `id` arg while omitting the
+      // real `ids` -- a pre-existing bug, fixed with this table's migration)
+      variantTypes: paginatedByAllArgs(),
       browseDiseases: relayStylePagination([
         'name',
         'doid',

@@ -50,6 +50,7 @@ export type {
   CvcEnumFilter,
   CvcEnumOption,
   CvcEnumTagCell,
+  CvcExternalLinkCell,
   CvcFilterChange,
   CvcNumericFilter,
   CvcSelectCell,
