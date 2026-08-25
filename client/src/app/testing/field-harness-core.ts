@@ -54,6 +54,36 @@ export function statePublicationProbe<T>(
   }
 }
 
+/**
+ * Gives a mounted field's form state a slot for the field's own key when it
+ * has a `fields` map but no slot there.
+ *
+ * `CvcFieldBase.connectStateField` publishes a field's value into
+ * `formState.fields[<its own key>]` and warns when a form supplies a `fields`
+ * map without that slot. In an app form that warning is a real signal — an
+ * entity's state carries a slot per field, so a missing one is a
+ * misconfiguration. A spec's state is different: it carries the keys the field
+ * *reads* (variant-select needs `featureId` before its typeahead enables) and
+ * has no reason to mention the field's own key. Left alone, that difference
+ * fired the warning 22 times in one spec file and buried it.
+ *
+ * Adding the slot keeps mounted state shaped the way production state is, so
+ * the warning stays worth reading. It also means every mount exercises the
+ * publish path incidentally, which the state-publication contract test asserts
+ * on deliberately via `statePublicationProbe`.
+ *
+ * A state with no `fields` map at all is returned untouched: that is the "no
+ * state" case, which `connectStateField` returns from without complaint.
+ */
+export function withOwnStateSlot(
+  key: string,
+  formState: Record<string, any> | undefined
+): Record<string, any> | undefined {
+  const fields = formState?.['fields']
+  if (!fields || fields[key] !== undefined) return formState
+  return { ...formState, fields: { ...fields, [key]: signal(undefined) } }
+}
+
 export function fieldHarnessCore(
   fixture: ComponentFixture<FormlyTestHostComponent>,
   options: {

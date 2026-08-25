@@ -45,7 +45,12 @@ const FEATURE = {
   deprecated: false,
   featureType: FeatureInstanceTypes.Gene,
   featureAliases: [],
-  featureInstance: { __typename: 'Gene' as const, entrezId: 673 },
+  // id, not just entrezId: Gene normalizes by id, and FeatureInstanceRef
+  // selects it on every member of the union. Without it the cache write lands
+  // partial, the read-back fails, and Apollo returns the raw network result —
+  // so a spec that omits it silently stops testing the cache round trip the
+  // LinkableFeature fragment exists to guarantee.
+  featureInstance: { __typename: 'Gene' as const, id: 5, entrezId: 673 },
 }
 
 const respond = (op: MockGraphqlOperation) => {

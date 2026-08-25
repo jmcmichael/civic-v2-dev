@@ -12,6 +12,7 @@ import {
   VariantOrigin,
 } from '@app/generated/civic.apollo.types'
 import {
+  CVC_ATTRIBUTE_COLUMNS,
   entityTableConfig,
   enumFilterOptions,
   SORT_DESCEND_FIRST,
@@ -170,13 +171,9 @@ export function evidenceTableConfig(
         },
       },
       {
-        key: 'description',
-        label: 'DSC',
-        tooltip: 'Evidence Description',
-        width: '40px',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.description,
         // a narrow fixed-tag column: widening only pads the compact tag
         resizable: false,
-        align: 'center',
         fixed: 'right',
         cell: { kind: 'text-tag', text: (row) => row.description },
         sort: { column: EvidenceSortColumns.Description },
@@ -187,11 +184,7 @@ export function evidenceTableConfig(
         },
       },
       {
-        key: 'evidenceLevel',
-        label: 'ELVL',
-        tooltip: 'Evidence Level',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceLevel,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -208,11 +201,7 @@ export function evidenceTableConfig(
         },
       },
       {
-        key: 'evidenceType',
-        label: 'ETYP',
-        tooltip: 'Evidence Type',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceType,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -229,11 +218,7 @@ export function evidenceTableConfig(
         },
       },
       {
-        key: 'evidenceDirection',
-        label: 'EDIR',
-        tooltip: 'Evidence Direction',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceDirection,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -250,11 +235,7 @@ export function evidenceTableConfig(
         },
       },
       {
-        key: 'significance',
-        label: 'ESIG',
-        tooltip: 'Significance',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.significance,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -271,11 +252,7 @@ export function evidenceTableConfig(
         },
       },
       {
-        key: 'variantOrigin',
-        label: 'VORI',
-        tooltip: 'Variant Origin',
-        width: '40px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.variantOrigin,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',
@@ -292,11 +269,7 @@ export function evidenceTableConfig(
         },
       },
       {
-        key: 'evidenceRating',
-        label: 'ERTG',
-        tooltip: 'Evidence Rating',
-        width: '45px',
-        align: 'center',
+        ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceRating,
         fixed: 'right',
         cell: {
           kind: 'enum-tag',

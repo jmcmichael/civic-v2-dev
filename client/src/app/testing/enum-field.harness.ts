@@ -17,6 +17,7 @@ import {
   FieldHarnessCore,
   fieldHarnessCore,
   statePublicationProbe,
+  withOwnStateSlot,
 } from './field-harness-core'
 import { createFieldTestHost } from './formly-test.host'
 
@@ -57,7 +58,7 @@ export async function createEnumFieldHarness(
       ...config.field,
     },
     model: config.model ?? {},
-    formState: config.formState,
+    formState: withOwnStateSlot(config.key, config.formState),
     // both registries: enum selects live in the select one, the plain fields
     // (clinvar, tag-input, the FDA checkboxes) in the base one
     imports: [

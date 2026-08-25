@@ -198,11 +198,8 @@ enum-tag column, from the evidence manager:
 
 ```ts
 {
-  key: 'evidenceType',
-  label: 'ET',
-  tooltip: 'Evidence Type',          // also the prefs-panel label
-  width: '40px',
-  align: 'center',
+  // key, label, tooltip, width and align — the shared vocabulary
+  ...CVC_ATTRIBUTE_COLUMNS.Evidence.evidenceType,
   fixed: 'right',
   cell: {
     kind: 'enum-tag',
@@ -212,11 +209,32 @@ enum-tag column, from the evidence manager:
   sort: { column: EvidenceSortColumns.EvidenceType },
   filter: {
     kind: 'enum',
-    var: 'evidenceType',
+    var: 'evidenceTypes',
     options: enumFilterOptions(EvidenceType),
+    control: 'icon-select',
+    multiple: true,
   },
 },
 ```
+
+**Attribute columns spread their vocabulary** from
+`CVC_ATTRIBUTE_COLUMNS.<Entity>.<attribute>` (`tables/attribute-columns.ts`):
+`key`, `label`, `tooltip`, `width`, `align`. The abbreviations are terms of art
+a curator learns once and reads across every table, so they live in one place
+rather than being restated per config — evidence abbreviates to three letters,
+assertions to four, and the entity namespace is what lets `SIG` and `ASIG`
+coexist on the shared `significance` key.
+
+What stays inline is what the compiler checks against the query — the cell
+accessor, the sort column and the filter — plus `fixed`, which is per-table
+layout (a pinned run must stay contiguous at its edge). Do **not** move those
+behind a helper: a column built by a generic factory loses both guarantees
+silently, typing its row as `unknown` and accepting a filter variable the
+query never declares.
+
+A `multiple` filter's `var` must name a **plural** server arg; its state is an
+array, and a scalar handed to one is widened to a single-value filter with a
+dev-mode warning rather than reaching the control, which cannot take it.
 
 Checklist:
 

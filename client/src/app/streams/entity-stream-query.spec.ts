@@ -41,9 +41,7 @@ class FakeQueryRef {
       this.nextRefetch ?? Promise.resolve({ data: undefined, loading: false })
   )
   readonly fetchMore = vi.fn(
-    (options: {
-      variables: Record<string, unknown>
-    }): Promise<FakeResult> =>
+    (options: { variables: Record<string, unknown> }): Promise<FakeResult> =>
       this.nextFetchMore ?? Promise.resolve({ data: undefined, loading: false })
   )
   nextRefetch?: Promise<FakeResult>
@@ -70,8 +68,7 @@ describe('CvcEntityStreamQuery', () => {
           unknown,
           Record<string, unknown>
         >,
-      connection: (data) =>
-        data as Maybe<CvcConnection<unknown>> | undefined,
+      connection: (data) => data as Maybe<CvcConnection<unknown>> | undefined,
       destroyRef: TestBed.inject(DestroyRef),
       onRefetch,
     })
@@ -83,6 +80,23 @@ describe('CvcEntityStreamQuery', () => {
     expect(watch).toHaveBeenCalledTimes(1)
     expect(watch).toHaveBeenCalledWith({
       variables: { mode: 'UNSCOPED', first: 5 },
+      notifyOnNetworkStatusChange: false,
+    })
+  })
+
+  /**
+   * The app's global watchQuery defaults set
+   * `notifyOnNetworkStatusChange: true`. This store does not render those
+   * emissions — `refetching`/`fetchingMore` are its own signals — but
+   * `getRange` and `settleAppend` both observe the result stream, so extra
+   * emissions are extra timing to reason about. The table store learned the
+   * same lesson when a global default flip flashed its spinner over live rows.
+   */
+  it('opts out of network-status emissions rather than inheriting the default', () => {
+    store.run({ first: 5 })
+
+    expect(watch.mock.calls[0][0]).toMatchObject({
+      notifyOnNetworkStatusChange: false,
     })
   })
 
@@ -178,9 +192,7 @@ describe('CvcEntityStreamQuery', () => {
     })
 
     // the page lands: the cache-side accumulation shows up as a new emission
-    ref.emit(
-      connection([edge('1'), edge('2'), edge('3'), edge('4')], true)
-    )
+    ref.emit(connection([edge('1'), edge('2'), edge('3'), edge('4')], true))
     land({ data: undefined, loading: false })
 
     const range = await pending

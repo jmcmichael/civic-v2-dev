@@ -58,6 +58,8 @@ function buildSpec(
     ratingLabelIcon?: boolean
     /** gives the name column header/filter/cell custom styles */
     styledName?: boolean
+    /** swaps the rating filter for a multi enum on a plural query variable */
+    multiEnumRating?: boolean
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
@@ -141,20 +143,33 @@ function buildSpec(
         },
         ...(options.noFilters
           ? {}
-          : {
-              filter: {
-                kind: 'text' as const,
-                var: 'id' as const,
-                // the EID shape: 'EID123' and '123' both mean 123
-                transform: (value: Maybe<string>) => {
-                  const match = value
-                    ?.toString()
-                    .trim()
-                    .match(/^(?:EID)?(\d+)$/i)
-                  return match ? +match[1] : null
+          : options.multiEnumRating
+            ? {
+                filter: {
+                  kind: 'enum' as const,
+                  var: 'evidenceTypes' as const,
+                  options: [
+                    { label: 'Predictive', value: 'PREDICTIVE' },
+                    { label: 'Diagnostic', value: 'DIAGNOSTIC' },
+                  ],
+                  control: 'icon-select' as const,
+                  multiple: true,
                 },
-              },
-            }),
+              }
+            : {
+                filter: {
+                  kind: 'text' as const,
+                  var: 'id' as const,
+                  // the EID shape: 'EID123' and '123' both mean 123
+                  transform: (value: Maybe<string>) => {
+                    const match = value
+                      ?.toString()
+                      .trim()
+                      .match(/^(?:EID)?(\d+)$/i)
+                    return match ? +match[1] : null
+                  },
+                },
+              }),
       },
     ],
   }) as unknown as EntityTableSpec<Row>
@@ -272,6 +287,64 @@ describe('cvc-entity-table', () => {
     table.onFilterChange(table.columns()[2], 'EID123')
 
     expect(table.queryVars()['id']).toBe(123)
+  })
+
+  /**
+   * A `multiple` enum filter's var is a plural, array-typed server arg, and
+   * its control is an nz-select in multiple mode — which calls `.filter()` on
+   * whatever it holds. A scalar therefore throws from inside an rxjs
+   * subscriber, outside the caller's stack, where it reads as a green test run
+   * that exits non-zero. The state is normalized instead, loudly in dev.
+   */
+  describe('a multi enum filter normalizes its state to an array', () => {
+    const multiColumn = () => {
+      fixture.componentInstance.spec.set(buildSpec({ multiEnumRating: true }))
+      fixture.detectChanges()
+      return table.columns()[2]
+    }
+
+    it('widens a scalar to a one-value filter, and says so in dev', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      table.onFilterChange(multiColumn(), 'PREDICTIVE')
+
+      expect(table.queryVars()['evidenceTypes']).toEqual(['PREDICTIVE'])
+      expect(warn).toHaveBeenCalledOnce()
+      expect(warn.mock.calls[0][0]).toContain('evidenceTypes')
+      warn.mockRestore()
+    })
+
+    it('passes an array through untouched, and silently', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      table.onFilterChange(multiColumn(), ['PREDICTIVE', 'DIAGNOSTIC'])
+
+      expect(table.queryVars()['evidenceTypes']).toEqual([
+        'PREDICTIVE',
+        'DIAGNOSTIC',
+      ])
+      expect(warn).not.toHaveBeenCalled()
+      warn.mockRestore()
+    })
+
+    it('treats an emptied selection as cleared, not as an empty array', () => {
+      const column = multiColumn()
+      table.onFilterChange(column, ['PREDICTIVE'])
+      table.onFilterChange(column, [])
+
+      // an empty array would reach the resolver and match nothing; cleared
+      // has to be an absent variable, the same contract text filters keep
+      expect('evidenceTypes' in table.queryVars()).toBe(true)
+      expect(table.queryVars()['evidenceTypes']).toBeUndefined()
+    })
+
+    it('seeds through the same rule a host settings push takes', async () => {
+      const column = multiColumn()
+      fixture.componentInstance.settings.set({
+        filters: [{ key: column.key, value: 'DIAGNOSTIC' }],
+      })
+      await settle()
+
+      expect(table.queryVars()['evidenceTypes']).toEqual(['DIAGNOSTIC'])
+    })
   })
 
   it('translates a sort into the generated sort column', () => {

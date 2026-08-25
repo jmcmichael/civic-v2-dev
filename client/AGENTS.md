@@ -54,9 +54,16 @@ Conventions every table config follows:
   zero renders as a bare '0'; entity-column overflow chips drop the icon
   (same-type tags precede them); `kind: 'number'` + `decimalAlign` for
   decimal-point-aligned numeric columns (MP Score).
-- Attribute columns: 4-char labels (ATYP/ADIR/ASIG/ACAT, ELVL/ETYP/EDIR/
-  ESIG/VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
-  `resizable: false` for ACAT/DSC-shaped narrow tag columns). Column
+- Attribute columns: spread the shared vocabulary from
+  `CVC_ATTRIBUTE_COLUMNS.<Entity>.<attribute>` (`tables/attribute-columns.ts`)
+  rather than restating label/tooltip/width — one abbreviation per attribute
+  across every table. Evidence is three letters (DSC/INT/LVL/TYP/DIR/SIG/RTG,
+  plus VTOR — variant origin describes the variant, not the evidence),
+  assertions four (ATYP/ADIR/ASIG/ACAT). Cell, sort, filter and `fixed` stay
+  inline: the first three are what `entityTableConfig` type-checks against the
+  row and `keyof TVars`, and extracting them erases those checks silently;
+  `fixed` is per-table layout. Icon-only `enum-tag` cells, non-resizable (kind
+  default; `resizable: false` for ACAT/DSC-shaped narrow tag columns). Column
   resize elsewhere is a boundary transfer — edge lands at the drop point,
   next resizable neighbor absorbs the delta; the rightmost resizable
   column has no handle (table edges stay fixed).
