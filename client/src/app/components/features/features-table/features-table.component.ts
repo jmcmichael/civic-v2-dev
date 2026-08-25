@@ -1,245 +1,62 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
   TemplateRef,
+  computed,
+  inject,
+  input,
 } from '@angular/core'
-import { ApolloQueryResult } from '@apollo/client/core'
-import {
-  buildSortParams,
-  SortDirectionEvent,
-} from '@app/core/utilities/datatable-helpers'
-import { ScrollEvent } from '@app/directives/table-scroll/table-scroll.directive'
-import {
-  BrowseFeaturesFieldsFragment,
-  BrowseFeaturesGQL,
-  BrowseFeaturesQuery,
-  BrowseFeaturesQueryVariables,
-} from './features-table.query.gql.generated'
-import {
-  BrowseFeatureConnection,
-  FeatureInstanceTypes,
-  FeaturesSortColumns,
-  Maybe,
-  PageInfo,
-  SortDirection,
-} from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  skip,
-  takeWhile,
-  withLatestFrom,
-} from 'rxjs/operators'
-import { pluck } from 'rxjs-etc/operators'
+import { CvcTableDownloaderComponent } from '@app/components/shared/table-downloader/table-downloader.component'
+import { Maybe } from '@app/generated/civic.apollo.types'
+import { CvcEntityTableComponent } from '@app/tables'
+import { featuresTableConfig } from './features-table.config'
+import { BrowseFeaturesGQL } from './features-table.query.gql.generated'
 
-export interface BrowseFeaturesTableUserFilters {
-  diseaseInput?: Maybe<string>
-  therapyInput?: Maybe<string>
-  nameInput?: Maybe<string>
-  fullNameInput?: Maybe<string>
-  aliasInput?: Maybe<string>
-}
-
-@UntilDestroy()
+/**
+ * Browse-table facade over `cvc-entity-table`: keeps the legacy selector and
+ * the input surface its embed sites bind (`ids`, `cvcTitle`), while the
+ * table itself is configuration — see `features-table.config.ts`.
+ *
+ * The `ids` scope input feeds the spec through a `computed`, so an embed
+ * changing it (query-search re-runs) re-queries through the table's normal
+ * debounced-variables path — no `ngOnChanges` refetch plumbing.
+ *
+ * The downloader reads the table's live `queryVars()` the way the legacy
+ * card-extra read `queryRef.variables`.
+ *
+ * The legacy `initialUserFilters`/`initialPageSize` inputs had no consumers
+ * (grepped across the app) and are dropped, matching the precedent set by
+ * the other migrated tables.
+ */
 @Component({
   selector: 'cvc-features-table',
-  templateUrl: './features-table.component.html',
-  styleUrls: ['./features-table.component.less'],
+  imports: [CvcEntityTableComponent, CvcTableDownloaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  template: `
+    <cvc-entity-table
+      #table
+      [spec]="spec()"
+      [titleTemplate]="cvcTitleTemplate()"
+      [height]="cvcHeight() ?? '800px'">
+      <cvc-table-downloader
+        cvcTableToolbarExtra
+        [vars]="table.queryVars()"
+        tableName="features" />
+    </cvc-entity-table>
+  `,
 })
-export class CvcFeaturesTableComponent implements OnInit, OnChanges {
-  @Input() ids: Maybe<number[]>
-  @Input() cvcHeight?: number
-  @Input() cvcTitleTemplate: Maybe<TemplateRef<void>>
-  @Input() cvcTitle: Maybe<string>
-  @Input() initialPageSize: number = 35
-  @Input()
-  set initialUserFilters(f: Maybe<BrowseFeaturesTableUserFilters>) {
-    // assign any attributes in filters object to this class
-    if (f) Object.assign(this, f)
-  }
+export class CvcFeaturesTableComponent {
+  private readonly gql = inject(BrowseFeaturesGQL)
 
-  // SOURCE STREAMS
-  scrollEvent$: BehaviorSubject<ScrollEvent>
-  sortChange$: Subject<SortDirectionEvent>
-  filterChange$: Subject<void>
+  readonly ids = input<Maybe<number[]>>()
+  readonly cvcTitle = input<Maybe<string>>()
+  readonly cvcTitleTemplate = input<Maybe<TemplateRef<void>>>()
+  /** explicit body height; the default matches the legacy table's 800px */
+  readonly cvcHeight = input<Maybe<string>>()
 
-  // INTERMEDIATE STREAMS
-  queryRef!: QueryRef<BrowseFeaturesQuery, BrowseFeaturesQueryVariables>
-  result$!: Observable<ApolloQueryResult<BrowseFeaturesQuery>>
-  connection$!: Observable<BrowseFeatureConnection>
-  pageInfo$!: Observable<PageInfo>
-
-  // PRESENTATION STREAMS
-  initialLoading$!: Observable<boolean>
-  moreLoading$!: Observable<boolean>
-  row$!: Observable<Maybe<BrowseFeaturesFieldsFragment>[]>
-  scrollIndex$: Subject<number>
-  noMoreRows$: BehaviorSubject<boolean>
-
-  // need a static var for scrolling state b/c sub/unsub in
-  // virtual scroll rows degrades performance
-  isScrolling: boolean = false
-
-  // filters
-  diseaseInput: Maybe<string>
-  therapyInput: Maybe<string>
-  nameInput: Maybe<string>
-  fullNameInput: Maybe<string>
-  aliasInput: Maybe<string>
-  typeInput: Maybe<FeatureInstanceTypes>
-
-  featureTypes = FeatureInstanceTypes
-
-  sortColumns: typeof FeaturesSortColumns = FeaturesSortColumns
-
-  private debouncedQuery = new Subject<void>()
-  constructor(
-    private query: BrowseFeaturesGQL,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.noMoreRows$ = new BehaviorSubject<boolean>(false)
-    this.scrollEvent$ = new BehaviorSubject<ScrollEvent>('stop')
-    this.sortChange$ = new Subject<SortDirectionEvent>()
-    this.filterChange$ = new Subject<void>()
-    this.scrollIndex$ = new Subject<number>()
-  }
-
-  ngOnInit() {
-    this.queryRef = this.query.watch({
-      variables: {
-        first: this.initialPageSize,
-        ids: this.ids,
-        sortBy: {
-          column: FeaturesSortColumns.VariantCount,
-          direction: SortDirection.Desc,
-        },
-      },
+  protected readonly spec = computed(() =>
+    featuresTableConfig(this.gql, this.cvcTitle(), {
+      ids: this.ids(),
     })
-
-    this.result$ = this.queryRef.valueChanges
-
-    // toggles table overlay 'Loading...' spinner
-    this.initialLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      takeWhile((l) => l !== false, true)
-    ) // only activate on 1st true/false sequence
-
-    // toggles table header 'Loading...' tag
-    this.moreLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      skip(2)
-    ) // skip 1st true/false sequence
-
-    this.connection$ = this.result$.pipe(
-      pluck('data', 'browseFeatures'),
-      filter(isNonNulled)
-    ) as Observable<BrowseFeatureConnection>
-
-    this.row$ = this.connection$.pipe(
-      pluck('edges'),
-      filter(isNonNulled),
-      map((edges) => edges.map((e) => e.node))
-    )
-
-    // provided to table-scroll directive for fetchMore queries
-    this.pageInfo$ = this.connection$.pipe(
-      pluck('pageInfo'),
-      filter(isNonNulled)
-    )
-
-    // refetch when column sort changes
-    this.sortChange$
-      .pipe(untilDestroyed(this))
-      .subscribe((e: SortDirectionEvent) => {
-        this.queryRef.refetch({ sortBy: buildSortParams(e) })
-      })
-
-    // refresh when filters change
-    this.filterChange$
-      .pipe(debounceTime(500), untilDestroyed(this))
-      .subscribe(() => {
-        this.refresh()
-      })
-
-    // for every onScrolled event, convert to bool & set isScrolling
-    this.scrollEvent$
-      .pipe(
-        map((e: ScrollEvent) => (e === 'stop' ? false : true)),
-        distinctUntilChanged(),
-        untilDestroyed(this)
-      )
-      .subscribe((e) => {
-        this.isScrolling = e
-        this.cdr.detectChanges()
-      })
-
-    // emit event from noMoreRow$ if hasNextPage false
-    this.scrollEvent$
-      .pipe(
-        filter((e) => e === 'bottom'),
-        withLatestFrom(this.pageInfo$),
-        map(([_, pageInfo]: [ScrollEvent, PageInfo]) => pageInfo),
-        untilDestroyed(this)
-      )
-      .subscribe((pageInfo: PageInfo) => {
-        if (!pageInfo.hasNextPage) {
-          this.noMoreRows$.next(true)
-          this.cdr.detectChanges()
-
-          // need to send a followup 'false' here or else
-          // ng won't interpret subsequent 'true' events as changes
-          setInterval(() => this.noMoreRows$.next(false))
-        }
-      })
-  } // ngOnInit()
-
-  refresh() {
-    if (!this.queryRef) return
-    this.queryRef
-      .refetch({
-        featureName: this.nameInput,
-        featureFullName: this.fullNameInput,
-        featureAlias: this.aliasInput,
-        diseaseName: this.diseaseInput,
-        therapyName: this.therapyInput,
-        featureType: this.typeInput,
-        ids: this.ids ? this.ids : undefined,
-      })
-      .then(() => this.scrollIndex$.next(0))
-
-    this.cdr.detectChanges()
-  }
-
-  onModelUpdated(_: Maybe<string>) {
-    this.debouncedQuery.next()
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('ids' in changes) {
-      this.refresh()
-    }
-  }
-
-  // virtual scroll helpers
-  trackByIndex(
-    _: number,
-    data: Maybe<BrowseFeaturesFieldsFragment>
-  ): Maybe<number> {
-    return data?.id
-  }
+  )
 }

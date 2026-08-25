@@ -7,6 +7,8 @@ import {
   DownloadOutline,
   ExclamationCircleOutline,
   LinkOutline,
+  LockOutline,
+  UnlockOutline,
 } from '@ant-design/icons-angular/icons'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { describe, expect, it, type TestContext } from 'vitest'
@@ -20,10 +22,14 @@ import { TABLE_ICONS } from './entity-table.harness'
  * `TABLE_ICONS` plus the outline-theme ant icons legacy card chrome renders
  * that the new framework does not (`cvc-link-tag`'s "link", the
  * downloader's "download", the clearable filter's "close-circle",
- * `cvc-no-more-rows`'s "exclamation-circle"). Same failure mode as
- * `TABLE_ICONS` itself: an unregistered icon throws *outside* the test's own
- * call stack, so every assertion stays green while the runner reports a
- * flood of unhandled errors.
+ * `cvc-no-more-rows`'s "exclamation-circle"). Also covers legacy per-table
+ * one-offs whose header cell renders outside the virtualised body, so it
+ * mounts regardless of jsdom's inability to render `cdk-virtual-scroll` rows
+ * — sources-table's Open Access column header icon (`unlock`; `lock` added
+ * alongside it for the same reason, in case a row ever does render). Same
+ * failure mode as `TABLE_ICONS` itself: an unregistered icon throws
+ * *outside* the test's own call stack, so every assertion stays green while
+ * the runner reports a flood of unhandled errors.
  */
 export const LEGACY_TABLE_ICONS = [
   ...TABLE_ICONS,
@@ -31,6 +37,8 @@ export const LEGACY_TABLE_ICONS = [
   DownloadOutline,
   ExclamationCircleOutline,
   LinkOutline,
+  LockOutline,
+  UnlockOutline,
 ]
 
 /**
@@ -73,6 +81,15 @@ export interface LegacyTableDescriptor<T> {
   sorts?: LegacyInteractionCase<T>[]
   /** does this table refetch when its `ids` input changes? default true */
   idsRefetch?: boolean
+  /**
+   * What the refetch is expected to send once `ids` changes, checked with
+   * `toMatchObject`. Defaults to `{ ids: [42] }`. Override only to document
+   * a legacy bug where the refetch does not actually carry the new value
+   * (e.g. a `refresh()` that rebuilds its variables object from scratch and
+   * forgets `ids` — Apollo's `refetch` then keeps whatever `ids` was at
+   * mount time, forever, however the input changes afterward).
+   */
+  idsRefetchSends?: Record<string, unknown>
 }
 
 export interface LegacyTableHarness<T> {
@@ -212,7 +229,9 @@ export function describeLegacyTableCharacterization<T>(
       await h.settle()
 
       expect(h.requests().length).toBeGreaterThan(opening)
-      expect(h.requests().at(-1)).toMatchObject({ ids: [42] })
+      expect(h.requests().at(-1)).toMatchObject(
+        descriptor.idsRefetchSends ?? { ids: [42] }
+      )
     })
   })
 }

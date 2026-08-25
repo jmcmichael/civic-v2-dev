@@ -7,11 +7,13 @@ import {
   CloseCircleFill,
   FilterFill,
   LinkOutline,
+  LockOutline,
   QuestionCircleOutline,
   RetweetOutline,
   SearchOutline,
   SettingOutline,
   SyncOutline,
+  UnlockOutline,
 } from '@ant-design/icons-angular/icons'
 import {
   CvcCellSpec,
@@ -46,11 +48,13 @@ export const TABLE_ICONS = [
   CloseCircleFill,
   FilterFill,
   LinkOutline,
+  LockOutline,
   QuestionCircleOutline,
   RetweetOutline,
   SearchOutline,
   SettingOutline,
   SyncOutline,
+  UnlockOutline,
   ...civicIcons,
 ]
 

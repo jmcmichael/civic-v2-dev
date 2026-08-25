@@ -106,41 +106,26 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'subjectType',
         'linkedApprovalId',
       ]),
-      browseFeatures: relayStylePagination([
-        'name',
-        'featureType',
-        'therapyName',
-        'featureAlias',
-        'diseaseName',
-      ]),
+      // the features browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing ids, featureFullName, and
+      // used a stale `name` instead of the query's real `featureName`)
+      browseFeatures: paginatedByAllArgs(),
       // the variant manager's field; see paginatedByAllArgs above
       browseVariants: paginatedByAllArgs(),
-      browseMolecularProfiles: relayStylePagination([
-        'variantName',
-        'entrezSymbol',
-        'diseaseName',
-        'therapyName',
-        'molecularProfileScore',
-        'molecularProfileAlias',
-        'variantId',
-      ]),
-      browseVariantGroups: relayStylePagination([
-        'name',
-        'geneNames',
-        'variantNames',
-        'variantId',
-      ]),
-      browseSources: relayStylePagination([
-        'name',
-        'year',
-        'sourceType',
-        'citationId',
-        'author',
-        'journal',
-        'clinicalTrialId',
-        'id',
-        'openAccess',
-      ]),
+      // the molecular profiles browse table's field; see paginatedByAllArgs
+      // above (the previous list was also missing ids, molecularProfileName,
+      // featureName, and sortBy; named a nonexistent `entrezSymbol` arg
+      // -- predates the rename to `featureName` -- and `molecularProfileScore`,
+      // which is a sort column, not a filter argument at all)
+      browseMolecularProfiles: paginatedByAllArgs(),
+      // the variant groups browse table's field; see paginatedByAllArgs
+      // above (the previous list named nonexistent `geneNames`/`variantId`
+      // args while omitting the real `featureNames` and `sortBy`)
+      browseVariantGroups: paginatedByAllArgs(),
+      // the sources browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing sortBy, and named a
+      // nonexistent `id` arg while omitting the real `ids`)
+      browseSources: paginatedByAllArgs(),
       sourceSuggestions: relayStylePagination([
         'sourceType',
         'citationId',
@@ -153,12 +138,9 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'status',
         'submitterId',
       ]),
-      browseTherapies: relayStylePagination([
-        'name',
-        'ncitId',
-        'therapyAlias',
-        'sortBy',
-      ]),
+      // the therapies browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing ids)
+      browseTherapies: paginatedByAllArgs(),
       events: relayStylePagination([
         'subject',
         'organizationId',
@@ -172,7 +154,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'name',
         'evidenceStatusFilter',
       ]),
-      comments: relayStylePagination(['originatingUserId', 'subject']),
+      // the comments browse table's field; see paginatedByAllArgs above
+      // (the previous list was missing ids, and possibly others -- this
+      // field is also queried, with different args, elsewhere)
+      comments: paginatedByAllArgs(),
       // the evidence manager's field; see paginatedByAllArgs above
       evidenceItems: paginatedByAllArgs(),
       assertions: relayStylePagination([
@@ -198,6 +183,11 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'status',
       ]),
       organizations: relayStylePagination(['name', 'id']),
+      // the organizations browse table's field; see paginatedByAllArgs
+      // above. Had NO field policy at all -- Apollo's default merge
+      // strategy applies to a relay connection field, which does not
+      // append fetchMore pages the way relayStylePagination's merge does
+      browseOrganizations: paginatedByAllArgs(),
       flags: relayStylePagination([
         'flaggable',
         'flaggingUserId',
@@ -210,15 +200,13 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       // (the previous list named a nonexistent `id` arg while omitting the
       // real `ids` -- a pre-existing bug, fixed with this table's migration)
       variantTypes: paginatedByAllArgs(),
-      browseDiseases: relayStylePagination([
-        'name',
-        'doid',
-        'diseaseAlias',
-        'featureName',
-        'sortBy',
-      ]),
+      // the diseases browse table's field; see paginatedByAllArgs above
+      // (the previous list was also missing ids)
+      browseDiseases: paginatedByAllArgs(),
       therapies: relayStylePagination(['ncitId', 'name', 'id']),
-      clinicalTrials: relayStylePagination(['nctId', 'name', 'id']),
+      // the clinical trials browse table's field; see paginatedByAllArgs
+      // above (the previous list was also missing sortBy)
+      clinicalTrials: paginatedByAllArgs(),
       notifications: relayStylePagination([
         'notificationReason',
         'subscriptionId',
@@ -235,12 +223,9 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'fieldName',
         'revisionsetId',
       ]),
-      browseUsers: relayStylePagination([
-        'name',
-        'organization',
-        'role',
-        'sortBy',
-      ]),
+      // the users browse table's field; see paginatedByAllArgs above (the
+      // previous list was also missing ids)
+      browseUsers: paginatedByAllArgs(),
       users: relayStylePagination(['userName', 'orgName', 'userRole']),
       revisionSets: relayStylePagination([
         'status',
