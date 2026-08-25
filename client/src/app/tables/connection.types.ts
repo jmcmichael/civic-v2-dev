@@ -1,14 +1,18 @@
-import { Maybe } from '@app/generated/civic.apollo.types'
+import { Maybe, PageInfo } from '@app/generated/civic.apollo.types'
 
 /**
- * The relay page cursor, structurally. Every generated `PageInfo` satisfies it.
+ * The relay page cursor, derived from the generated `PageInfo` rather than
+ * restated.
+ *
+ * Only `__typename` is dropped, because a query that does not select it still
+ * produces a usable cursor. Everything else follows the schema: if `PageInfo`
+ * gains or loses a field, this follows without anyone remembering to edit it.
+ * The hand-written version that used to live here had already drifted into a
+ * cast at the one place the two met.
  */
-export interface CvcPageInfo {
-  startCursor?: Maybe<string>
-  endCursor?: Maybe<string>
-  hasNextPage: boolean
-  hasPreviousPage: boolean
-}
+export type CvcPageInfo = Omit<PageInfo, '__typename'>
+
+export type { PageInfo }
 
 export interface CvcEdge<TNode> {
   cursor: string

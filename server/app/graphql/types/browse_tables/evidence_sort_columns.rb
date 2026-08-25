@@ -10,5 +10,8 @@ module Types::BrowseTables
     value "EVIDENCE_DIRECTION"
     value "SIGNIFICANCE"
     value "VARIANT_ORIGIN"
+    value "MOLECULAR_PROFILE_NAME"
+    value "THERAPY_NAME"
+    value "THERAPY_INTERACTION_TYPE"
   end
 end

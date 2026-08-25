@@ -11,8 +11,14 @@ export {
 export type { CvcScrollEvent, CvcScrollFetch } from './table-scroll.directive'
 export { connectionNodes, displayedCount } from './connection.types'
 export type { CvcConnection, CvcEdge, CvcPageInfo } from './connection.types'
-export { DEFAULT_PAGE_SIZE, entityTableConfig } from './entity-table-config'
+export { enumFilterOptions } from './enum-filter-options'
+export {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SORT_VAR,
+  entityTableConfig,
+} from './entity-table-config'
 export type {
+  CvcSpecColumn,
   CvcTableQuery,
   EntityTableConfig,
   EntityTableSpec,
@@ -26,6 +32,7 @@ export type {
   CvcCustomCell,
   CvcEntityTagCell,
   CvcEnumFilter,
+  CvcEnumOption,
   CvcEnumTagCell,
   CvcFilterChange,
   CvcFilterState,
@@ -37,3 +44,4 @@ export type {
   CvcTextFilter,
   CvcTextTagCell,
 } from './entity-table.types'
+export { DEFAULT_EMPTY_VALUE } from './entity-table.types'
