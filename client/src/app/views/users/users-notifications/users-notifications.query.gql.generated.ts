@@ -44,7 +44,7 @@ export type UserNotificationsQuery = { __typename: 'Query', notifications: { __t
         | { __typename: 'Variant', id: number, name: string }
         | { __typename: 'VariantCoordinate', id: number, name: string }
         | { __typename: 'VariantGroup', id: number, name: string }
-       | undefined }>, originatingUsers: Array<{ __typename: 'User', id: number, displayName: string }>, organizations: Array<{ __typename: 'Organization', id: number, name: string }>, edges: Array<{ __typename: 'NotificationEdge', node?: { __typename: 'Notification', id: number, type: Types.NotificationReason, seen: boolean, event: { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined }, subject?:
+       | undefined }>, originatingUsers: Array<{ __typename: 'User', id: number, displayName: string }>, organizations: Array<{ __typename: 'Organization', id: number, name: string }>, edges: Array<{ __typename: 'NotificationEdge', node?: { __typename: 'Notification', id: number, type: Types.NotificationReason, seen: boolean, event: { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole }, subject?:
             | { __typename: 'Assertion', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
             | { __typename: 'Comment', name: string, id: number, link: string }
             | { __typename: 'EvidenceItem', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
@@ -142,7 +142,7 @@ export type NotificationFeedSubjectsFragment = { __typename: 'EventSubjectWithCo
     | { __typename: 'VariantGroup', id: number, name: string }
    | undefined };
 
-export type NotificationNodeFragment = { __typename: 'Notification', id: number, type: Types.NotificationReason, seen: boolean, event: { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined }, subject?:
+export type NotificationNodeFragment = { __typename: 'Notification', id: number, type: Types.NotificationReason, seen: boolean, event: { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole }, subject?:
       | { __typename: 'Assertion', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
       | { __typename: 'Comment', name: string, id: number, link: string }
       | { __typename: 'EvidenceItem', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
@@ -215,7 +215,7 @@ export type UpdateNotificationStatusMutationVariables = Types.Exact<{
 }>;
 
 
-export type UpdateNotificationStatusMutation = { __typename: 'Mutation', updateNotificationStatus?: { __typename: 'UpdateNotificationStatusPayload', notifications: Array<{ __typename: 'Notification', id: number, type: Types.NotificationReason, seen: boolean, event: { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined }, subject?:
+export type UpdateNotificationStatusMutation = { __typename: 'Mutation', updateNotificationStatus?: { __typename: 'UpdateNotificationStatusPayload', notifications: Array<{ __typename: 'Notification', id: number, type: Types.NotificationReason, seen: boolean, event: { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole }, subject?:
           | { __typename: 'Assertion', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
           | { __typename: 'Comment', name: string, id: number, link: string }
           | { __typename: 'EvidenceItem', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }

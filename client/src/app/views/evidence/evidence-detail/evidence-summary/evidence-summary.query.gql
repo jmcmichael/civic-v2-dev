@@ -87,7 +87,6 @@ fragment EvidenceSummaryFields on EvidenceItem {
     }
     user {
       displayName
-      profileImagePath(size: 32)
       id
       role
     }
@@ -98,7 +97,6 @@ fragment EvidenceSummaryFields on EvidenceItem {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   submissionEvent {
@@ -107,7 +105,6 @@ fragment EvidenceSummaryFields on EvidenceItem {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   rejectionEvent {
@@ -116,7 +113,6 @@ fragment EvidenceSummaryFields on EvidenceItem {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
 }

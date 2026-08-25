@@ -15,7 +15,6 @@ fragment OrganizationDetailFields on Organization {
   subGroups {
     id
     name
-    profileImagePath(size: 12)
   }
   orgStatsHash {
     comments

@@ -86,7 +86,6 @@ fragment AssertionSummaryFields on Assertion {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   ...assertionSubmissionActivity
@@ -96,7 +95,6 @@ fragment AssertionSummaryFields on Assertion {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   rejectionEvent {
@@ -105,7 +103,6 @@ fragment AssertionSummaryFields on Assertion {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   activeApprovals: approvals(status: ACTIVE) {

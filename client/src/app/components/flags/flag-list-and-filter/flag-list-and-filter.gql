@@ -77,7 +77,6 @@ fragment flag on Flag {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   resolutionActivity {
@@ -90,7 +89,6 @@ fragment flag on Flag {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
 }

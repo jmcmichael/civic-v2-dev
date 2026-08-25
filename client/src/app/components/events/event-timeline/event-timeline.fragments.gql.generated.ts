@@ -2,7 +2,7 @@
 import * as Types from '../../../generated/civic.apollo.types';
 
 import { gql } from 'apollo-angular';
-export type EventTimelineNodeFragment = { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined }, subject?:
+export type EventTimelineNodeFragment = { __typename: 'Event', id: number, action: Types.EventAction, createdAt: any, organization?: { __typename: 'Organization', id: number, name: string } | undefined, originatingUser: { __typename: 'User', id: number, username: string, displayName: string, role: Types.UserRole }, subject?:
     | { __typename: 'Assertion', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
     | { __typename: 'Comment', name: string, id: number, link: string }
     | { __typename: 'EvidenceItem', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
@@ -54,14 +54,12 @@ export const EventTimelineNodeFragmentDoc = gql`
   organization {
     id
     name
-    profileImagePath(size: 32)
   }
   originatingUser {
     id
     username
     displayName
     role
-    profileImagePath(size: 32)
   }
   subject {
     name

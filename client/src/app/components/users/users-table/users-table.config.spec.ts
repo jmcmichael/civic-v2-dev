@@ -40,7 +40,6 @@ const ROW: UserBrowseTableRowFieldsFragment = {
   role: UserRole.Editor,
   evidenceCount: 12,
   revisionCount: 3,
-  profileImagePath: '/avatars/4.png',
   mostRecentActivityTimestamp: '2026-08-01T00:00:00Z',
 }
 

@@ -25,7 +25,6 @@ import { CvcCommentBodyModule } from '@app/components/comments/comment-body/comm
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { CvcEmptyValueModule } from '@app/forms/components/empty-value/empty-value.module'
 import { CvcOrganizationTagModule } from '@app/components/organizations/organization-tag/organization-tag.module'
-import { NzAvatarModule } from 'ng-zorro-antd/avatar'
 import { RouterModule } from '@angular/router'
 import { NzCardModule } from 'ng-zorro-antd/card'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
@@ -51,7 +50,6 @@ import { CvcEntityDescription } from '@app/components/shared/entity-description/
     NzDescriptionsModule,
     NzTooltipModule,
     NzPopoverModule,
-    NzAvatarModule,
     NzCardModule,
     NzAlertModule,
     NzRadioModule,

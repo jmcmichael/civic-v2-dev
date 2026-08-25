@@ -88,7 +88,6 @@ fragment commenterFields on User {
   organizations {
     id
     name
-    profileImagePath(size: 32)
   }
 }
 
