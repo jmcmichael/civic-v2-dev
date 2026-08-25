@@ -52,6 +52,36 @@ Conventions every table config follows:
 - Type-policies: browse fields use `paginatedByAllArgs()` in
   `graphql.type-policies.ts` — never hand-maintained keyArgs lists.
 
+## The entity-stream framework (`src/app/streams/`)
+
+One configurable feed drives the activity stream (and next, the revisions
+list). **Read `src/app/streams/docs/01-architecture.md`,
+`02-authoring-guide.md`, `03-troubleshooting.md` before touching it** —
+maintained in lockstep with the code.
+
+- Facades own filter vocabulary: the core takes an erased `[filters]`
+  variables patch merged UNDER the spec's `scope` (scope wins collisions),
+  debounced 300 ms and value-deduped. Cleared filters are `undefined`,
+  never null.
+- Item renderers are polymorpheus components reading a per-view stable
+  `CvcStreamItemContext` (live `item`/`isScrolling`/`expanded`/`selected`
+  plus `toggle`/`setSelected`); facade services reach renderers through the
+  facade component's `providers` (and are declared in the contract spec's
+  `providers`). Outlet contexts are never inline literals — gotcha 2 below.
+- Detail regions are lazy twice over: per-kind `detail.load()` dynamic
+  imports, and the detail component owns its own per-id query — connection
+  documents stay summary-only (no boolean-gated detail spreads).
+- `pagination: 'infinite'` (vscroll engine) or `'button'` (Load More — for
+  streams whose items host stateful interactive content that must not
+  recycle). vscroll imports live ONLY in `streams/scroll/vscroll-engine.ts`.
+- `[height]`: the same three-mode model as entity-table (explicit | `'auto'`
+  | flex-fill); never reintroduce the legacy auto-height directives.
+- Type-policies: stream fields use `paginatedByAllArgs()`.
+- Testing mirrors tables: config/type guards → component `'button'`-mode
+  spec → `describeEntityStreamContract`
+  (`src/app/testing/entity-stream.harness.ts`, icons in `STREAM_ICONS`) →
+  browser goldens (the only layer asserting rendered items).
+
 ## Recurring gotchas
 
 1. **Linkable-fragment completeness**: a tag rendering `#<id>` means the

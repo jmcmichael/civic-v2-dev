@@ -1,0 +1,199 @@
+<nz-row [nzGutter]="[8, 8]">
+  @if (newActivities() > 0) {
+    <nz-col
+      [@refreshAlertAnimation]
+      nzSpan="24">
+      <nz-alert
+        nzType="info"
+        [nzDescription]="msgTmpl"
+        [nzAction]="actionTmpl"></nz-alert>
+      <ng-template #msgTmpl>
+        {{ newActivities() }} new
+        {{ newActivities() > 1 ? 'activities' : 'activity' }} available
+      </ng-template>
+      <ng-template #actionTmpl>
+        <button
+          nz-button
+          nzSize="small"
+          nzType="default"
+          (click)="onRefresh()">
+          Refresh
+        </button>
+      </ng-template>
+    </nz-col>
+  }
+  <nz-col nzSpan="24">
+    <h4>Activity Type{{ cvcFilters().activityType.length > 1 ? 's' : '' }}</h4>
+    <nz-select
+      nzPlaceHolder="Select Type"
+      nzMode="multiple"
+      [nzDropdownMatchSelectWidth]="false"
+      [ngModel]="cvcFilters().activityType"
+      (ngModelChange)="patch({ activityType: $event })"
+      [nzCustomTemplate]="activityTypeLabel"
+      [nzOptionOverflowSize]="12"
+      [nzOptionHeightPx]="28">
+      @for (activity of cvcOptions().activityTypes | enumSort; track activity) {
+        <nz-option
+          nzCustomContent
+          [nzLabel]="activity | enumToTitle"
+          [nzValue]="activity">
+          <i
+            class="select-icon"
+            nz-icon
+            nzTheme="twotone"
+            [nzTwotoneColor]="'Event' | entityColor"
+            nzType="civic-event"></i>
+          {{ activity | enumToTitle }}
+        </nz-option>
+      }
+      <ng-template
+        #activityTypeLabel
+        let-selected>
+        <i
+          class="select-icon"
+          nz-icon
+          nzTheme="twotone"
+          [nzTwotoneColor]="'Event' | entityColor"
+          nzType="civic-event"></i>
+        {{ selected.nzLabel }}
+      </ng-template>
+    </nz-select>
+  </nz-col>
+  @if (showSubjectType()) {
+    <nz-col nzSpan="24">
+      <h4>Subject Type{{ cvcFilters().subjectType.length > 1 ? 's' : '' }}</h4>
+      <nz-select
+        nzPlaceHolder="Select Subject Type"
+        nzMode="multiple"
+        [ngModel]="cvcFilters().subjectType"
+        (ngModelChange)="patch({ subjectType: $event })"
+        [nzCustomTemplate]="subjectTypeLabel"
+        [nzOptionHeightPx]="28"
+        [nzOptionOverflowSize]="10">
+        @for (subject of cvcOptions().subjectTypes | enumSort; track subject) {
+          <nz-option
+            nzCustomContent
+            [nzLabel]="subject | enumToTitle"
+            [nzValue]="subject">
+            <i
+              class="select-icon"
+              nz-icon
+              nzTheme="twotone"
+              [nzTwotoneColor]="subject | entityTypeToTypename | entityColor"
+              [nzType]="subject | iconNameForSubscribableEntity"></i>
+            {{ subject | enumToTitle }}
+          </nz-option>
+        }
+        <ng-template
+          #subjectTypeLabel
+          let-selected>
+          <i
+            class="select-icon"
+            nz-icon
+            nzTheme="twotone"
+            [nzTwotoneColor]="
+              selected.nzValue | entityTypeToTypename | entityColor
+            "
+            [nzType]="selected.nzValue | iconNameForSubscribableEntity"></i>
+          {{ selected.nzLabel }}
+        </ng-template>
+      </nz-select>
+    </nz-col>
+  }
+  @if (showUserSelect()) {
+    <nz-col nzSpan="24">
+      <h4>Participating User{{ cvcFilters().userId.length > 1 ? 's' : '' }}</h4>
+      <cvc-user-filter-select
+        [cvcUniqueParticipants]="cvcOptions().uniqueParticipants"
+        [cvcUserId]="cvcFilters().userId"
+        (cvcUserIdChange)="patch({ userId: $event })"></cvc-user-filter-select>
+    </nz-col>
+  }
+  @if (showOrgSelect()) {
+    <nz-col nzSpan="24">
+      <h4>
+        Participating Organization{{
+          cvcFilters().organizationId.length > 1 ? 's' : ''
+        }}
+      </h4>
+      <cvc-org-filter-select
+        [cvcParticipatingOrganizations]="
+          cvcOptions().participatingOrganizations
+        "
+        [cvcOrganizationId]="cvcFilters().organizationId"
+        (cvcOrganizationIdChange)="
+          patch({ organizationId: $event })
+        "></cvc-org-filter-select>
+    </nz-col>
+  }
+  <nz-col
+    nzSpan="2"
+    class="option-input">
+    <label
+      nz-checkbox
+      [ngModel]="cvcFilters().includeSubgroups"
+      (ngModelChange)="patch({ includeSubgroups: $event })"></label>
+  </nz-col>
+  <nz-col
+    nzSpan="22"
+    class="option-key">
+    <span>Include child org activities</span>
+  </nz-col>
+  <nz-col
+    nzMd="24"
+    nzLg="12">
+    <!-- renders nothing; loads the picker's CSS into this lazy chunk -->
+    <cvc-date-picker-styles />
+    <h4>Occurred After</h4>
+    <nz-date-picker
+      nzFormat="yyyy-MM-dd"
+      [ngModel]="cvcFilters().occurredAfter"
+      [nzDisabledDate]="disableDates.beforeToday"
+      (ngModelChange)="patch({ occurredAfter: $event })"
+      nzPlaceHolder="Select Date">
+    </nz-date-picker>
+  </nz-col>
+  <nz-col
+    nzMd="24"
+    nzLg="12">
+    <h4>Occurred Before</h4>
+    <nz-date-picker
+      nzFormat="yyyy-MM-dd"
+      [ngModel]="cvcFilters().occurredBefore"
+      [nzDisabledDate]="disableDates.beforeTomorrow"
+      (ngModelChange)="patch({ occurredBefore: $event })"
+      nzPlaceHolder="Select Date">
+    </nz-date-picker>
+  </nz-col>
+  <nz-col nzSpan="24">
+    <h4>Sort Column</h4>
+    <nz-select
+      nzPlaceHolder="Select Column"
+      [ngModel]="cvcFilters().sortByColumn"
+      (ngModelChange)="patch({ sortByColumn: $event })"
+      [nzOptionHeightPx]="28">
+      @for (column of cvcOptions().sortColumns; track column) {
+        <nz-option
+          [nzLabel]="column | enumToTitle"
+          [nzValue]="column">
+        </nz-option>
+      }
+    </nz-select>
+  </nz-col>
+  <nz-col nzSpan="24">
+    <h4>Sort Direction</h4>
+    <nz-select
+      nzPlaceHolder="Select Direction"
+      [ngModel]="cvcFilters().sortByDirection"
+      (ngModelChange)="patch({ sortByDirection: $event })"
+      [nzOptionHeightPx]="28">
+      @for (direction of cvcOptions().sortDirections; track direction) {
+        <nz-option
+          [nzLabel]="direction | enumToTitle"
+          [nzValue]="direction">
+        </nz-option>
+      }
+    </nz-select>
+  </nz-col>
+</nz-row>

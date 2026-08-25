@@ -59,14 +59,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
   },
   Query: {
     fields: {
-      activities: relayStylePagination([
-        'subject',
-        'organizationId',
-        'userId',
-        'activityType',
-        'subjectType',
-        'linkedApprovalId',
-      ]),
+      // the activity stream's field; see paginatedByAllArgs above. Note the
+      // field nests organization filters under an `organization` argument
+      // object — keying on all args as sent is what keys it correctly.
+      activities: paginatedByAllArgs(),
       // the features browse table's field; see paginatedByAllArgs above
       // (the previous list was also missing ids, featureFullName, and
       // used a stale `name` instead of the query's real `featureName`)

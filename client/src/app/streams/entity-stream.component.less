@@ -1,0 +1,119 @@
+// Sizing is CSS, not JavaScript — the same model as cvc-entity-table:
+// an explicit `height` writes straight onto the list body, `'auto'` is a
+// live measurement of the viewport's remaining height, and omitted means
+// "fill a height-bounded ancestor", carried here by a flex-column chain.
+// Do not reintroduce the legacy auto-height directives: they derive this
+// number in JS on racing schedules, and a lost race sticks until a window
+// resize.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.entity-stream {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+
+  // nz-card renders the body as a plain block; the stream column has to be
+  // able to shrink inside it for a percentage height to resolve
+  ::ng-deep .ant-card-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+}
+
+.results-message {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+// rendered inside the card title, after the title text
+.stream-counts {
+  margin-left: 12px;
+  font-weight: normal;
+}
+
+.stream-container {
+  // pull container flush to nz-card body edges
+  margin-top: -11px;
+  margin-bottom: -12px;
+  margin-left: -12px;
+  margin-right: -12px;
+  border-bottom-left-radius: 2px;
+  overflow: hidden;
+  &.stream-border {
+    border-right: 1px solid #f0f0f0;
+    margin-right: inherit;
+  }
+}
+
+.stream-layers {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  // messages layer
+  .messages {
+    z-index: 10;
+    position: absolute;
+    display: block;
+    height: 100%;
+    width: 100%;
+    // Pass pointer events through to lower layers
+    pointer-events: none;
+    // Accept pointer events in child elements
+    * {
+      pointer-events: auto;
+    }
+  }
+
+  // list layer
+  .scroller {
+    z-index: 0;
+    position: relative;
+    display: block;
+    padding: 0 12px;
+
+    // nz-spin nests two plain-block wrappers between the scroller and the
+    // list body; each must pass a bounded height through for the body's
+    // `height: 100%` to resolve in the fill-ancestor mode
+    ::ng-deep {
+      .ant-spin-nested-loading,
+      .ant-spin-container {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        min-width: 0;
+      }
+    }
+  }
+}
+
+// the virtual scroller's viewport: always a scroll container; an explicit
+// or measured height lands on its style attribute and wins over the fill
+.stream-viewport {
+  height: 100%;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+// the Load-More list flows naturally unless a height bounds it
+.stream-list {
+  min-height: 0;
+}
+
+.load-more {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}

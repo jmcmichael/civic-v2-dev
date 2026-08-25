@@ -100,6 +100,11 @@ export interface CvcStreamItemSpec<TItem> {
   kind(item: TItem): string
   /** the summary renderer for kinds without a `summary` override */
   summary: PolymorpheusContent<CvcStreamItemContext<TItem>>
+  /**
+   * Content rendered in the item header's trailing position — a timestamp,
+   * a status tag. Omitted, the header holds only the summary.
+   */
+  extra?: PolymorpheusContent<CvcStreamItemContext<TItem>>
   /** per-kind overrides; a kind absent here renders the default summary, unexpandable */
   kinds?: Record<string, CvcStreamItemKindSpec<TItem>>
   /**

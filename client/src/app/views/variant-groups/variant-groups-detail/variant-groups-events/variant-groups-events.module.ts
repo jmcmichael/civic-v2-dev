@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VariantGroupsEventsPage } from './variant-groups-events.page'
-import { CvcActivityFeed } from '@app/components/activities/activity-feed/activity-feed.component'
+import { CvcActivityStream } from '@app/components/activities/activity-stream/activity-stream.component'
 
 @NgModule({
   declarations: [VariantGroupsEventsPage],
-  imports: [CommonModule, CvcActivityFeed],
+  imports: [CommonModule, CvcActivityStream],
   exports: [VariantGroupsEventsPage],
 })
 export class VariantGroupsEventsModule {}

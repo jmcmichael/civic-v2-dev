@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { ActivityFeedScope } from '@app/components/activities/activity-feed/activity-feed.types'
+import { ActivityStreamScope } from '@app/components/activities/activity-stream/activity-stream.types'
 import {
   EventFeedMode,
   SubscribableEntities,
@@ -14,7 +14,7 @@ import {
   standalone: false,
 })
 export class VariantGroupsEventsPage {
-  feedScope: ActivityFeedScope
+  feedScope: ActivityStreamScope
 
   constructor(private route: ActivatedRoute) {
     this.feedScope = {

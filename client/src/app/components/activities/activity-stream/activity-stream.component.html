@@ -1,0 +1,20 @@
+<cvc-entity-stream
+  [spec]="spec()"
+  [filters]="filterVars()"
+  [height]="cvcHeight()">
+  <div cvcStreamHeaderExtra>
+    <cvc-activity-stream-settings
+      [(cvcSettings)]="settingsState"
+      [cvcScope]="cvcScope()" />
+  </div>
+  @if (cvcShowFilters()) {
+    <div cvcStreamSidebar>
+      <cvc-activity-stream-filters
+        [(cvcFilters)]="filtersState"
+        [cvcOptions]="filterOptions()"
+        [cvcScope]="cvcScope()"
+        [cvcCheckInterval]="cvcCheckInterval()"
+        (cvcRefresh)="refresh()" />
+    </div>
+  }
+</cvc-entity-stream>
