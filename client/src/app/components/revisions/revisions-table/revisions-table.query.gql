@@ -8,10 +8,9 @@ query RevisionsBrowse(
   $excludeRevisionsFromUserId: Int
   $organizationName: String
   $subjectType: ActivitySubjectInput
-  $id: Int
   $ids: [Int!]
   $status: RevisionStatus
-  $requestDetails: Boolean = false
+  $sortBy: DateSort
 ) {
   revisionSets(
     first: $first
@@ -24,8 +23,8 @@ query RevisionsBrowse(
     excludeRevisionsFromUserId: $excludeRevisionsFromUserId
     organizationName: $organizationName
     subjectType: $subjectType
-    id: $id
     ids: $ids
+    sortBy: $sortBy
   ) {
     totalCount
     pageInfo {
@@ -55,16 +54,13 @@ fragment RevisionSetBrowseFields on RevisionSet {
     fieldName
     fieldDisplayName
     link
-    linkoutData @include(if: $requestDetails) {
-      ...revisionLinkoutData
-    }
     subject {
       ... on ExonCoordinate {
         coordinateType
       }
     }
   }
-  creationActivity @skip(if: $requestDetails) {
+  creationActivity {
     subject {
       id
       name

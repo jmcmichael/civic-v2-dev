@@ -11,16 +11,15 @@ GraphQL + Searchkick/OpenSearch). Area-specific guides: `client/AGENTS.md`,
   `git add -A`); no `Co-Authored-By`/AI trailers; never amend or rewrite
   history without being asked. Messages document what was found and why the
   change took its shape — they are the project's detailed record.
-- Commits may pause on 1Password commit signing — that is a human approving;
-  wait, don't retry or bypass.
+- Commits may pause on commit signing — that is a human approving; wait,
+  don't retry or bypass.
 - Never commit `.angular/` caches or edit `server/public` build artifacts
   (deploy builds are committed deliberately by maintainers; clobbers of
   `server/public` are routinely reverted).
 - Prefer targeted lookups (resolvers, `git grep` in-repo) over broad
   recursive searches; stay inside the repo unless asked.
-- Secrets: the root `.env` is a 1Password-backed fifo. Never snapshot it to
-  a file. To load it for CLI work: `set -a; eval "$(cat ../.env)"; set +a`
-  (from `server/`; adjust the relative path).
+- Secrets: never snapshot secrets into a file, and never reference
+  uncommitted files in public documents or comments.
 
 ## Dev processes (typically already running — ask before starting/killing)
 
@@ -61,7 +60,7 @@ lazy import can hoist 60 kB+ into `main`.
 ## Server quick notes
 
 - Searchkick dev indices go stale after DB resets:
-  `bundle exec rails searchkick:reindex:all` (env loaded as above).
+  `bundle exec rails searchkick:reindex:all` (with server env loaded).
 - `rails dev:restore_images` repopulates user/org avatars after a reset.
   Fixed per-user exceptions live in `USER_AVATAR_OVERRIDES`
   (`server/lib/tasks/dev.rake`); a plain re-run self-corrects an overridden
