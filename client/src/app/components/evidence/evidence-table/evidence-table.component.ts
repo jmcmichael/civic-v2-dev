@@ -66,9 +66,6 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
       <span
         cvcTableToolbarExtra
         style="display: inline-flex; align-items: center; gap: 8px">
-        <cvc-table-downloader
-          [vars]="table.queryVars()"
-          tableName="evidence" />
         @if (!idsScoped()) {
           <nz-filter-trigger
             data-testid="evidence-scope-trigger"
@@ -83,6 +80,10 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
           </nz-filter-trigger>
         }
       </span>
+      <cvc-table-downloader
+        cvcTableCtrlButton
+        [vars]="table.queryVars()"
+        tableName="evidence" />
     </cvc-entity-table>
 
     <nz-dropdown-menu #scopeMenu>

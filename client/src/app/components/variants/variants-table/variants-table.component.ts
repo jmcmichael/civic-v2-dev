@@ -54,10 +54,11 @@ import { BrowseVariantsGQL } from './variants-table.query.gql.generated'
           (ngModelChange)="hasNoVariantType.set($event)">
           Untyped
         </label>
-        <cvc-table-downloader
-          [vars]="table.queryVars()"
-          tableName="variants" />
       </span>
+      <cvc-table-downloader
+        cvcTableCtrlButton
+        [vars]="table.queryVars()"
+        tableName="variants" />
     </cvc-entity-table>
   `,
 })

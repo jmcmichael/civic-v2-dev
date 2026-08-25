@@ -368,10 +368,14 @@ table writes each cell's offset and edge-shadow class itself. This works
 | `[height]`        | `string` (CSS length or `'auto'`)  | Explicit CSS height; `'auto'` fits the viewport minus the layout's measured bottom reserve (browse home pages); omit to fill a height-bounded ancestor via the flex chain |
 | `[titleTemplate]` | `TemplateRef<void>`                | Replaces the card title's plain `spec().title` text (icons, links)                                                                                                        |
 
-The component also projects one content slot: host elements marked
-`cvcTableToolbarExtra` land in the card-extra toolbar row, between the row
-counts and the reset/preferences buttons — where the browse tables put their
-downloaders and scope menus.
+The component projects two content slots into the card-extra toolbar row:
+elements marked `cvcTableCtrlButton` join the action bar's compact button
+group (`cvc-entity-table-header-ctrls`) ahead of the table's own Filters
+and Settings triggers — the facades' Download buttons; elements marked
+`cvcTableToolbarExtra` land beside the bar, outside the group — scope
+menus and toggles. The action bar's labels (its own and projected
+`.ctrl-label` spans) drop below the sm breakpoint via CDK
+`BreakpointObserver`, leaving icon-only buttons.
 
 There are no other outputs: filters, sort and preferences are internal state;
 the observable consequence of all of them is the query the table sends.

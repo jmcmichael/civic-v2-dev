@@ -46,6 +46,10 @@ Conventions every table config follows:
   `shortLabel` (AMP's 'IA'); `multiple: true` = bare-glyph multi (3 then
   +N) on the server's PLURAL array args (values OR; never send singular
   and plural together).
+- Toolbar: `cvcTableCtrlButton` projects into the header action bar's
+  compact group (Download|Filters|Settings; labels auto-drop below sm
+  via `cvc-entity-table-header-ctrls`); `cvcTableToolbarExtra` sits
+  outside it (scope menus, toggles).
 - Count cells: collection-tag chip vocabulary ([count][icon], no plus),
   zero renders as a bare '0'; entity-column overflow chips drop the icon
   (same-type tags precede them); `kind: 'number'` + `decimalAlign` for

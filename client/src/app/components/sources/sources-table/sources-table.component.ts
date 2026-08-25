@@ -57,7 +57,7 @@ import { BrowseSourcesGQL } from './sources-table.query.gql.generated'
       [titleTemplate]="cvcTitleTemplate()"
       [height]="heightPx()">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="sources" />
     </cvc-entity-table>

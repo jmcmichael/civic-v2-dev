@@ -51,15 +51,27 @@ class Resolvers::BrowseMolecularProfiles < GraphQL::Schema::Resolver
   end
 
   option :sort_by, type: Types::BrowseTables::MolecularProfilesSortType do |scope, value|
+    direction = value.direction == "DESC" ? "DESC" : "ASC"
     case value.column
     when "evidenceItemCount"
-      scope.reorder "evidence_item_count #{value.direction}"
+      scope.reorder "evidence_item_count #{direction}"
     when "assertionCount"
-      scope.reorder "assertion_count #{value.direction}"
+      scope.reorder "assertion_count #{direction}"
     when "molecularProfileScore"
-      scope.reorder "evidence_score #{value.direction}"
+      scope.reorder "evidence_score #{direction}"
     when "variantCount"
-      scope.reorder "variant_count #{value.direction}"
+      scope.reorder "variant_count #{direction}"
+    when "id"
+      scope.reorder "id #{direction}"
+    # NOTE: no plain name sort — the view's name column stores the
+    # tokenized form ('NOT #VID270 AND #VID324'); display names resolve at
+    # the GraphQL layer, so ordering by it is variant-id order in disguise.
+    # The alphabetical keys are the aggregated features'/variants' REAL
+    # names: the least name per row (the json aggregates order by id).
+    when "featureName"
+      scope.reorder Arel.sql("(SELECT MIN(elem->>'name') FROM json_array_elements(features) elem) #{direction}, id ASC")
+    when "variantName"
+      scope.reorder Arel.sql("(SELECT MIN(elem->>'name') FROM json_array_elements(variants) elem) #{direction}, id ASC")
     end
   end
 end

@@ -20,7 +20,10 @@ import { CvcColumn } from './entity-table.types'
  * unrecognised option.
  */
 export interface CvcTableQuery<TData, TVars extends OperationVariables> {
-  watch(options?: { variables?: TVars }): QueryRef<TData, TVars>
+  watch(options?: {
+    variables?: TVars
+    notifyOnNetworkStatusChange?: boolean
+  }): QueryRef<TData, TVars>
 }
 
 /**

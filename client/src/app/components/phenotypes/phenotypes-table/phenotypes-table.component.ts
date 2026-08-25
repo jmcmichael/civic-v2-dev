@@ -38,7 +38,7 @@ import { PhenotypesBrowseGQL } from './phenotypes-table.query.gql.generated'
       [titleTemplate]="cvcTitleTemplate()"
       [height]="cvcHeight() ?? 'auto'">
       <cvc-table-downloader
-        cvcTableToolbarExtra
+        cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="phenotypes" />
     </cvc-entity-table>
