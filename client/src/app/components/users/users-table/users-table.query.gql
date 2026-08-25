@@ -48,6 +48,5 @@ fragment UserBrowseTableRowFields on BrowseUser {
   role
   evidenceCount
   revisionCount
-  profileImagePath(size: 64)
   mostRecentActivityTimestamp
 }

@@ -36,7 +36,6 @@ fragment VariantSummaryFields on VariantInterface {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   lastAcceptedRevisionEvent {
@@ -44,7 +43,6 @@ fragment VariantSummaryFields on VariantInterface {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   creationActivity {
@@ -52,7 +50,6 @@ fragment VariantSummaryFields on VariantInterface {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
   }
@@ -61,7 +58,6 @@ fragment VariantSummaryFields on VariantInterface {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
     parsedNote {

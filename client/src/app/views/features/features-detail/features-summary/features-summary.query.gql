@@ -78,7 +78,6 @@ fragment RegionSummaryFields on Region {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
   }
@@ -87,7 +86,6 @@ fragment RegionSummaryFields on Region {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
   }
@@ -148,7 +146,6 @@ fragment FusionSummaryFields on Fusion {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
   }
@@ -157,7 +154,6 @@ fragment FusionSummaryFields on Fusion {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
   }
@@ -221,7 +217,6 @@ fragment FactorSummaryFields on Factor {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
   }
@@ -230,7 +225,6 @@ fragment FactorSummaryFields on Factor {
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     createdAt
   }

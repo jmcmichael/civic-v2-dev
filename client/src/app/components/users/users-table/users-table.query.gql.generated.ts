@@ -17,9 +17,9 @@ export type UsersBrowseQueryVariables = Types.Exact<{
 }>;
 
 
-export type UsersBrowseQuery = { __typename: 'Query', browseUsers: { __typename: 'BrowseUserConnection', totalCount: number, pageInfo: { __typename: 'PageInfo', endCursor?: string | undefined, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined }, edges: Array<{ __typename: 'BrowseUserEdge', cursor: string, node?: { __typename: 'BrowseUser', id: number, name?: string | undefined, displayName: string, username: string, role: Types.UserRole, evidenceCount: number, revisionCount: number, profileImagePath?: string | undefined, mostRecentActivityTimestamp?: any | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> } | undefined }> } };
+export type UsersBrowseQuery = { __typename: 'Query', browseUsers: { __typename: 'BrowseUserConnection', totalCount: number, pageInfo: { __typename: 'PageInfo', endCursor?: string | undefined, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined }, edges: Array<{ __typename: 'BrowseUserEdge', cursor: string, node?: { __typename: 'BrowseUser', id: number, name?: string | undefined, displayName: string, username: string, role: Types.UserRole, evidenceCount: number, revisionCount: number, mostRecentActivityTimestamp?: any | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> } | undefined }> } };
 
-export type UserBrowseTableRowFieldsFragment = { __typename: 'BrowseUser', id: number, name?: string | undefined, displayName: string, username: string, role: Types.UserRole, evidenceCount: number, revisionCount: number, profileImagePath?: string | undefined, mostRecentActivityTimestamp?: any | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> };
+export type UserBrowseTableRowFieldsFragment = { __typename: 'BrowseUser', id: number, name?: string | undefined, displayName: string, username: string, role: Types.UserRole, evidenceCount: number, revisionCount: number, mostRecentActivityTimestamp?: any | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> };
 
 export const UserBrowseTableRowFieldsFragmentDoc = gql`
     fragment UserBrowseTableRowFields on BrowseUser {
@@ -34,7 +34,6 @@ export const UserBrowseTableRowFieldsFragmentDoc = gql`
   role
   evidenceCount
   revisionCount
-  profileImagePath(size: 64)
   mostRecentActivityTimestamp
 }
     `;

@@ -21,14 +21,14 @@ export type MolecularProfileSummaryQuery = { __typename: 'Query', molecularProfi
       | { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
       | { __typename: 'MolecularProfileTextSegment', text: string }
       | { __typename: 'Variant', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
-    >, complexMolecularProfileCreationActivity?: { __typename: 'CreateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined } } | undefined, variantDeprecationActivity?: { __typename: 'DeprecateVariantActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined } } | undefined, complexMolecularProfileDeprecationActivity?: { __typename: 'DeprecateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined }, parsedNote: Array<
+    >, complexMolecularProfileCreationActivity?: { __typename: 'CreateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole } } | undefined, variantDeprecationActivity?: { __typename: 'DeprecateVariantActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole } } | undefined, complexMolecularProfileDeprecationActivity?: { __typename: 'DeprecateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole }, parsedNote: Array<
         | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
         | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
         | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
         | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
         | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
         | { __typename: 'CommentTextSegment', text: string }
-        | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined }> }
+        | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> }
       > } | undefined } | undefined };
 
 export type MolecularProfileSummaryFieldsFragment = { __typename: 'MolecularProfile', id: number, name: string, description?: string | undefined, molecularProfileAliases: Array<string>, molecularProfileScore: number, sources: Array<{ __typename: 'Source', id: number, citation?: string | undefined, link: string, sourceType: Types.SourceSource, deprecated: boolean }>, variants: Array<
@@ -41,14 +41,14 @@ export type MolecularProfileSummaryFieldsFragment = { __typename: 'MolecularProf
     | { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
     | { __typename: 'MolecularProfileTextSegment', text: string }
     | { __typename: 'Variant', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }
-  >, complexMolecularProfileCreationActivity?: { __typename: 'CreateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined } } | undefined, variantDeprecationActivity?: { __typename: 'DeprecateVariantActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined } } | undefined, complexMolecularProfileDeprecationActivity?: { __typename: 'DeprecateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole, profileImagePath?: string | undefined }, parsedNote: Array<
+  >, complexMolecularProfileCreationActivity?: { __typename: 'CreateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole } } | undefined, variantDeprecationActivity?: { __typename: 'DeprecateVariantActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole } } | undefined, complexMolecularProfileDeprecationActivity?: { __typename: 'DeprecateComplexMolecularProfileActivity', createdAt: any, user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole }, parsedNote: Array<
       | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
       | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
       | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
       | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
       | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
       | { __typename: 'CommentTextSegment', text: string }
-      | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string, profileImagePath?: string | undefined }> }
+      | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> }
     > } | undefined };
 
 export type MolecularProfileParsedName_Feature_Fragment = { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean };
@@ -177,7 +177,6 @@ export const MolecularProfileSummaryFieldsFragmentDoc = gql`
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   variantDeprecationActivity {
@@ -186,7 +185,6 @@ export const MolecularProfileSummaryFieldsFragmentDoc = gql`
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
   }
   complexMolecularProfileDeprecationActivity {
@@ -195,7 +193,6 @@ export const MolecularProfileSummaryFieldsFragmentDoc = gql`
       id
       displayName
       role
-      profileImagePath(size: 32)
     }
     parsedNote {
       ...parsedCommentFragment

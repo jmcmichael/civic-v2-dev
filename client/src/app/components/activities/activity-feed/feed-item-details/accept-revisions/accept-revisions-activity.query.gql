@@ -12,7 +12,6 @@ fragment AcceptRevisionsActivityDetail on AcceptRevisionsActivity {
     creationActivity {
       user {
         displayName
-        profileImagePath(size: 32)
         id
         role
       }
