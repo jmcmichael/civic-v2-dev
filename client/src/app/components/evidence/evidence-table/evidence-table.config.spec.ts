@@ -1,4 +1,6 @@
-import { TestBed } from '@angular/core/testing'
+import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { ActivatedRoute, convertToParamMap } from '@angular/router'
+import { DownloadOutline } from '@ant-design/icons-angular/icons'
 import { SORT_DESCEND_FIRST } from '@app/tables'
 import {
   EvidenceDirection,
@@ -11,13 +13,21 @@ import {
   TherapyInteraction,
   VariantOrigin,
 } from '@app/generated/civic.apollo.types'
-import { provideMockApollo } from '@app/testing/apollo-test.providers'
+import {
+  MockGraphqlOperation,
+  provideMockApollo,
+} from '@app/testing/apollo-test.providers'
 import {
   describeEntityTableContract,
+  settleTable,
   specColumn,
+  TABLE_ICONS,
 } from '@app/testing/entity-table.harness'
 import { OperationDefinitionNode, visit } from 'graphql'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { of } from 'rxjs'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { CvcEvidenceTableComponent } from './evidence-table.component'
 import { evidenceTableConfig } from './evidence-table.config'
 import {
   EvidenceBrowseDocument,
@@ -29,8 +39,9 @@ import {
  * The browse twin of `evidence-manager.config.spec.ts`: the shared contract
  * plus the invariants the compiler cannot see — filter→variable routing
  * (including the declared∧used document walk that caught the manager's
- * rating bug), sortable columns, the scope defaults, and the
- * molecular-profile visibility option.
+ * rating bug), sortable columns, the scope defaults, the molecular-profile
+ * visibility option, and — on the mounted facade — that the folded INT
+ * funnel reaches the wire alongside the therapy-name filter.
  */
 
 const ROW: EvidenceGridFieldsFragment = {
@@ -143,11 +154,11 @@ describe('evidenceTableConfig', () => {
     const declared = declaredVariables()
     const used = usedVariables()
     for (const col of spec.columns) {
-      if (!col.filter) continue
-      expect(declared.has(col.filter.var), `declared: ${col.filter.var}`).toBe(
-        true
-      )
-      expect(used.has(col.filter.var), `used: ${col.filter.var}`).toBe(true)
+      for (const filter of [col.filter, col.extraFilter]) {
+        if (!filter) continue
+        expect(declared.has(filter.var), `declared: ${filter.var}`).toBe(true)
+        expect(used.has(filter.var), `used: ${filter.var}`).toBe(true)
+      }
     }
   })
 
@@ -171,6 +182,25 @@ describe('evidenceTableConfig', () => {
     ])
   })
 
+  /**
+   * The legacy INT column showed an interaction type it could not filter on:
+   * EvidenceBrowse declared no therapyInteractionType variable, so the column
+   * carried a sorter and nothing else. It is now a funnel beside the
+   * Therapies name filter — the query declares the variable, the column is
+   * gone, and its sorter went with it. The value itself still renders in
+   * evidence popovers.
+   */
+  it('folds the legacy INT column into a Therapies interaction funnel', () => {
+    expect(spec.columns.map((c) => c.key)).not.toContain(
+      'therapyInteractionType'
+    )
+    const extra = column('therapies').extraFilter
+    expect(extra?.var).toBe('therapyInteractionType')
+    expect(extra?.options.map((o) => o.value)).toEqual(
+      Object.values(TherapyInteraction)
+    )
+  })
+
   it('cycles the rating column descend-first, as the legacy table did', () => {
     expect(column('evidenceRating').sort?.directions).toEqual(
       SORT_DESCEND_FIRST
@@ -185,7 +215,6 @@ describe('evidenceTableConfig', () => {
       EvidenceSortColumns.MolecularProfileName,
       EvidenceSortColumns.DiseaseName,
       EvidenceSortColumns.TherapyName,
-      EvidenceSortColumns.TherapyInteractionType,
       EvidenceSortColumns.Description,
       EvidenceSortColumns.EvidenceLevel,
       EvidenceSortColumns.EvidenceType,
@@ -232,5 +261,89 @@ describe('evidenceTableConfig', () => {
       { displayMolecularProfile: false }
     )
     expect(specColumn(embedded, 'molecularProfile').hidden).toBe(true)
+  })
+})
+
+/**
+ * The facade mounted, so the folded funnel can be proven at the wire rather
+ * than in the config: a mounted table is the only place `onExtraFilterChange`
+ * and `onRemoveFilter('<key>:extra')` meet the query variables they produce.
+ */
+describe('cvc-evidence-table facade', () => {
+  let recorded: MockGraphqlOperation[]
+
+  async function mount(): Promise<ComponentFixture<CvcEvidenceTableComponent>> {
+    recorded = []
+    const paramMap = convertToParamMap({})
+    await TestBed.configureTestingModule({
+      imports: [
+        CvcEvidenceTableComponent,
+        // the facade's toolbar adds cvc-table-downloader, whose icon the
+        // table's own set does not carry
+        NzIconModule.forRoot([...TABLE_ICONS, DownloadOutline]),
+      ],
+      providers: [
+        provideMockApollo(
+          () => ({
+            evidenceItems: {
+              __typename: 'EvidenceItemConnection',
+              edges: [ROW, SECOND_ROW].map((node) => ({
+                cursor: `c${node.id}`,
+                node,
+              })),
+              pageInfo: {
+                __typename: 'PageInfo',
+                hasNextPage: false,
+                hasPreviousPage: false,
+                startCursor: 'ca',
+                endCursor: 'cb',
+              },
+              totalCount: 11190,
+            },
+          }),
+          recorded
+        ),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { queryParamMap: paramMap },
+            queryParamMap: of(paramMap),
+          },
+        },
+      ],
+    }).compileComponents()
+
+    const fixture = TestBed.createComponent(CvcEvidenceTableComponent)
+    fixture.detectChanges()
+    return fixture
+  }
+
+  const requests = () =>
+    recorded
+      .filter((op) => op.operationName === 'EvidenceBrowse')
+      .map((op) => op.variables)
+
+  it('sends the Therapies interaction funnel beside the therapy-name filter', async () => {
+    const fixture = await mount()
+    await settleTable(fixture)
+
+    const table = fixture.debugElement.children[0].componentInstance
+    const therapies = table
+      .columns()
+      .find((c: { key: string }) => c.key === 'therapies')
+    table.onFilterChange(therapies, 'trametinib')
+    table.onExtraFilterChange(therapies, TherapyInteraction.Combination)
+    await settleTable(fixture)
+
+    expect(requests().at(-1)).toMatchObject({
+      therapyName: 'trametinib',
+      therapyInteractionType: TherapyInteraction.Combination,
+    })
+
+    table.onRemoveFilter('therapies:extra')
+    await settleTable(fixture)
+    const last = requests().at(-1)!
+    expect(last['therapyInteractionType']).toBeUndefined()
+    expect(last).toMatchObject({ therapyName: 'trametinib' })
   })
 })

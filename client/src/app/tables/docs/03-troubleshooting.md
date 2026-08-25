@@ -76,8 +76,10 @@ Almost always height, not data. The chain that must hold:
   with no height-bounded ancestor, pass `[height]="'auto'"` — the
   component's own measured viewport-fit (ViewportRuler + ResizeObserver,
   bottom reserve from the layout's computed styles). Do not reintroduce the
-  legacy `cvcAutoHeightCard`/`cvcAutoHeightTable` directives; they compute
-  window math on racing schedules and ignore layout padding.
+  legacy `cvcAutoHeightCard`/`cvcAutoHeightDiv` directives; they compute
+  window math on racing schedules and ignore layout padding. Their
+  `cvcAutoHeightTable` sibling is gone — it lost its last consumer when the
+  browse tables migrated, and was deleted rather than left as a trap.
 - A zero-height viewport also _reads as scrolled-to-bottom_, which is why
   the scroll directive guards `getViewportSize() > 0` before bottom
   detection — remove that and a hidden/drawer-mounted table fetches page two
