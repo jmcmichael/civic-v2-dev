@@ -7,17 +7,16 @@
  * `forms/types/evidence-select/evidence-manager` for a complete example.
  *
  * Consumer surface: `CvcEntityTableComponent`, `entityTableConfig`,
- * `enumFilterOptions`, the column/cell/filter types, and `CvcCellDirective`
- * for one-off cell templates. The scroll directive, filter widgets and
- * connection helpers are internals of the component, exported for tests.
+ * `enumFilterOptions`, and the column/cell/filter types — one-off cells are
+ * `kind: 'custom'` columns carrying polymorpheus content in the config
+ * (`CvcCustomCell`). The scroll directive, filter widgets and connection
+ * helpers are internals of the component, exported for tests.
  *
  * Developer docs live in ./docs: 01-architecture.md (incl. the column-model
  * → ng-zorro mapping), 02-authoring-guide.md, 03-troubleshooting.md.
  */
 export { CvcEntityTableComponent } from './entity-table.component'
 export type { CvcTableRequestError } from './entity-table-query'
-export { CvcCellDirective } from './cell.directive'
-export type { CvcCellContext } from './cell.directive'
 export { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
 export { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
 export {
@@ -40,6 +39,7 @@ export type {
   EntityTableSpec,
 } from './entity-table-config'
 export type {
+  CvcCellContext,
   CvcCellSpec,
   CvcColumn,
   CvcColumnFilter,
@@ -51,7 +51,6 @@ export type {
   CvcEnumOption,
   CvcEnumTagCell,
   CvcFilterChange,
-  CvcFilterState,
   CvcNumericFilter,
   CvcSelectCell,
   CvcSortState,

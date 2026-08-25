@@ -111,14 +111,12 @@ export type CvcSignificanceSelectFieldOptions = Partial<
   FieldTypeConfig<CvcSignificanceSelectFieldProps>
 >
 
-export interface CvcSignificanceSelectFieldProps
-  extends CvcEnumSelectFieldProps {
+export interface CvcSignificanceSelectFieldProps extends CvcEnumSelectFieldProps {
   placeholderFn: (entityName: string, entityType?: string) => string
   requireTypePromptFn: (entityName: string) => string
 }
 
-export interface CvcSignificanceSelectFieldConfig
-  extends FormlyFieldConfig<CvcSignificanceSelectFieldProps> {
+export interface CvcSignificanceSelectFieldConfig extends FormlyFieldConfig<CvcSignificanceSelectFieldProps> {
   type: 'significance-select' | Type<CvcSignificanceSelectField>
 }
 
@@ -193,22 +191,24 @@ export class CvcSignificanceSelectField extends CvcEnumSelectFieldBase<
   ): void {
     const state = this.state!
     if (!entityType) {
-      this.props.disabled = true
-      this.props.required = false
-      this.props.description = this.props.requireTypePromptFn(state.entityName)
-      this.props.extraType = 'prompt'
-      this.markDirty()
+      this.applyProps({
+        disabled: true,
+        required: false,
+        description: this.props.requireTypePromptFn(state.entityName),
+        extraType: 'prompt',
+      })
       return
     }
 
-    this.props.disabled = false
-    this.props.required = true
     this.placeholder.set(this.props.placeholderFn(state.entityName))
     const text: Maybe<string> = significance
       ? optionText[state.entityName]?.[entityType]?.[significance]
       : undefined
-    this.props.description = text
-    this.props.extraType = text ? 'description' : undefined
-    this.markDirty()
+    this.applyProps({
+      disabled: false,
+      required: true,
+      description: text,
+      extraType: text ? 'description' : undefined,
+    })
   }
 }

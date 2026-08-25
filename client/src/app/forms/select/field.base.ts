@@ -1,9 +1,11 @@
 import {
+  ChangeDetectorRef,
   DestroyRef,
   Directive,
   Injector,
   OnInit,
   Signal,
+  effect,
   inject,
   signal,
 } from '@angular/core'
@@ -36,6 +38,7 @@ export abstract class CvcFieldBase<
   protected readonly destroyRef = inject(DestroyRef)
   /** for effects created outside the constructor, i.e. from ngOnInit */
   protected readonly injector = inject(Injector)
+  protected readonly cdr = inject(ChangeDetectorRef)
 
   private readonly currentValue = signal<Maybe<V>>(undefined)
   readonly value: Signal<Maybe<V>> = this.currentValue.asReadonly()
@@ -78,10 +81,12 @@ export abstract class CvcFieldBase<
       return
     }
 
+    // synchronous seed, so siblings whose ngOnInit runs later still read a
+    // populated slot before any effect has flushed
     stateField.set(this.value())
-    this.formControl.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((v) => stateField.set(normalizeValue(v)))
+    // thereafter the state follows the value signal — `value` already covers
+    // model changes and user input alike, so no second control subscription
+    effect(() => stateField.set(this.value()), { injector: this.injector })
   }
 
   /**
@@ -91,7 +96,54 @@ export abstract class CvcFieldBase<
   protected resetField(): void {
     this.formControl.setValue(undefined)
   }
+
+  /**
+   * Writes formly props and marks the view dirty, in one step.
+   *
+   * props are plain objects read by the OnPush form-field wrapper above this
+   * field, and formly only auto-repaints writes to keys it observed at init
+   * (`label`, `placeholder`, `disabled`…) — anything else, `description` and
+   * `extraType` above all, repaints only if the view is marked. Routing every
+   * props write through here makes that contract explicit instead of leaving
+   * each field to remember (or forget) its own `markForCheck`.
+   */
+  protected applyProps(patch: Partial<FC['props']>): void {
+    Object.assign(this.props, patch)
+    this.markDirty()
+  }
+
+  /**
+   * Marks the view dirty so the OnPush form-field wrapper re-reads props.
+   */
+  protected markDirty(): void {
+    this.cdr.markForCheck()
+  }
+
+  /**
+   * Follows a state signal and clears the control whenever its value CHANGES.
+   *
+   * **The first run never clears.** Arriving at an initial value is not a
+   * change — on a revise or clone form that value accompanies the
+   * prepopulated control, and clearing would wipe what the form just loaded.
+   * Returns the source so callers can chain further reactions off it.
+   */
+  protected connectClearOnChange<T>(source: Signal<T>): Signal<T> {
+    let previous: T | typeof FIRST_RUN = FIRST_RUN
+    effect(
+      () => {
+        const current = source()
+        const changed = previous !== FIRST_RUN && previous !== current
+        previous = current
+        if (changed && this.formControl.value) this.resetField()
+      },
+      { injector: this.injector }
+    )
+    return source
+  }
 }
+
+/** Distinguishes "no previous value yet" from a previous value of undefined. */
+const FIRST_RUN = Symbol('first run')
 
 /** nz form controls emit null when cleared; the rest of the stack wants undefined. */
 function normalizeValue<V>(v: Maybe<V>): Maybe<V> {

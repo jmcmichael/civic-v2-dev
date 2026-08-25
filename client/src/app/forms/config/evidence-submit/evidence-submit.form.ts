@@ -149,8 +149,7 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
             console.error('Error retrieving evidenceItem.')
             console.error(error)
           },
-          complete: () => {
-          },
+          complete: () => {},
         })
     } else {
     }
@@ -200,7 +199,6 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
   }
 
   ngOnDestroy(): void {
-    this.options.formState.onDestroy()
     this.routeSub.unsubscribe()
   }
 }

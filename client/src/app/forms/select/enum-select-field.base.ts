@@ -1,12 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Directive,
-  Signal,
-  computed,
-  effect,
-  inject,
-  signal,
-} from '@angular/core'
+import { Directive, Signal, computed, effect, signal } from '@angular/core'
 import { EntityType } from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { FieldTypeConfig } from '@ngx-formly/core'
@@ -14,9 +6,6 @@ import { CvcFieldBase } from './field.base'
 import { CvcEnumSelectFieldProps } from './select.types'
 
 export type CvcEnumSelectValue<E extends string> = Maybe<E | E[]>
-
-/** Distinguishes "no previous value yet" from a previous value of undefined. */
-const FIRST_RUN = Symbol('first run')
 
 /**
  * Base for fields that select from a fixed enum rather than searching the
@@ -33,10 +22,19 @@ export abstract class CvcEnumSelectFieldBase<
   E extends string,
   P extends CvcEnumSelectFieldProps = CvcEnumSelectFieldProps,
 > extends CvcFieldBase<CvcEnumSelectValue<E>, FieldTypeConfig<P>> {
-  protected readonly cdr = inject(ChangeDetectorRef)
+  private readonly ownOptions = signal<E[]>([])
 
-  /** the enum values this field offers; set directly or via connectStateEnum */
-  protected readonly optionValues = signal<E[]>([])
+  /**
+   * The enum values this field offers. Either the field's own list (set it
+   * with `setOptions`) or, after `connectStateEnum`, the form state's enum
+   * signal itself — referenced directly rather than copied through an effect.
+   */
+  protected optionValues: Signal<E[]> = this.ownOptions
+
+  /** replaces the field's own option list (ignored after connectStateEnum) */
+  protected setOptions(values: E[]): void {
+    this.ownOptions.set(values)
+  }
 
   /** the current selection when the field is single-select, else undefined */
   protected readonly selected: Signal<Maybe<E>> = computed(() => {
@@ -60,14 +58,10 @@ export abstract class CvcEnumSelectFieldBase<
       () => {
         const value = this.selected()
         const description = value ? this.descriptionFor(value) : undefined
-        if (description) {
-          this.props.description = description
-          this.props.extraType = 'description'
-        } else {
-          this.props.description = undefined
-          this.props.extraType = undefined
-        }
-        this.markDirty()
+        this.applyProps({
+          description,
+          extraType: description ? 'description' : undefined,
+        } as Partial<P>)
       },
       { injector: this.injector }
     )
@@ -97,26 +91,16 @@ export abstract class CvcEnumSelectFieldBase<
       return signal<Maybe<T>>(undefined).asReadonly()
     }
 
-    let previous: Maybe<T> | typeof FIRST_RUN = FIRST_RUN
-    effect(
-      () => {
-        const current = entityType()
-        const wasFirstRun = previous === FIRST_RUN
-        const changed = !wasFirstRun && previous !== current
-        previous = current
-        if (changed && this.formControl.value) this.resetField()
-      },
-      { injector: this.injector }
-    )
-
-    return entityType
+    return this.connectClearOnChange(entityType)
   }
 
-  /** Feeds a form-state enum into the dropdown's options. */
+  /**
+   * Adopts a form-state enum as the dropdown's options. A reference, not a
+   * copy: the state signal simply becomes `optionValues`, so there is no
+   * effect to keep the two in step. Call from ngOnInit, before first render.
+   */
   protected connectStateEnum(source: Signal<E[]>): void {
-    effect(() => this.optionValues.set(source() ?? []), {
-      injector: this.injector,
-    })
+    this.optionValues = source
   }
 
   protected onTagClose(): void {
@@ -125,13 +109,5 @@ export abstract class CvcEnumSelectFieldBase<
 
   protected override resetField(): void {
     this.formControl.setValue(this.props.isMultiSelect ? [] : undefined)
-  }
-
-  /**
-   * props are plain objects read by the OnPush form-field wrapper above this
-   * field; only marking the view dirty makes the wrapper re-render them.
-   */
-  protected markDirty(): void {
-    this.cdr.markForCheck()
   }
 }

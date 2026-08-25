@@ -26,7 +26,9 @@ const optionText: Record<number, string> = {
   5: 'Excellent - Solid, well supported evidence from a lab or journal with respected academic standing. Experiments are well controlled, and results are clean and reproducible across multiple replicates. Evidence confirmed using separate methods.',
 }
 
-export type CvcRatingFieldOptions = Partial<FieldTypeConfig<CvcRatingFieldProps>>
+export type CvcRatingFieldOptions = Partial<
+  FieldTypeConfig<CvcRatingFieldProps>
+>
 
 export interface CvcRatingFieldProps extends FormlyFieldProps {
   count: number
@@ -35,8 +37,7 @@ export interface CvcRatingFieldProps extends FormlyFieldProps {
   extraType?: CvcFormFieldExtraType
 }
 
-export interface CvcRatingSelectFieldConfig
-  extends FormlyFieldConfig<CvcRatingFieldProps> {
+export interface CvcRatingSelectFieldConfig extends FormlyFieldConfig<CvcRatingFieldProps> {
   type: 'rating' | Type<CvcRatingField>
 }
 
@@ -56,7 +57,6 @@ export class CvcRatingField extends CvcFieldBase<
   Maybe<number>,
   FieldTypeConfig<CvcRatingFieldProps>
 > {
-
   defaultOptions: CvcRatingFieldOptions = {
     props: {
       label: 'Evidence Rating',
@@ -81,12 +81,17 @@ export class CvcRatingField extends CvcFieldBase<
   }
 
   private describe(rating: Maybe<number>): void {
+    // applyProps rather than bare assignments: description/extraType are not
+    // formly-observed keys, so without marking the view dirty the wrapper
+    // only repainted when a pointer event happened to pass through it —
+    // programmatic value changes (revise forms) left it stale
     if (!rating) {
-      this.props.description = undefined
-      this.props.extraType = 'prompt'
+      this.applyProps({ description: undefined, extraType: 'prompt' })
     } else {
-      this.props.description = optionText[rating]
-      this.props.extraType = 'description'
+      this.applyProps({
+        description: optionText[rating],
+        extraType: 'description',
+      })
     }
   }
 }

@@ -7,7 +7,9 @@ import {
   EvidenceDirection,
   EvidenceType,
 } from '@app/generated/civic.apollo.types'
-import { Signal, WritableSignal } from '@angular/core'
+import { Signal, WritableSignal, computed, signal } from '@angular/core'
+import { CvcInputEnum } from '@app/forms/forms.types'
+import { Maybe } from '@app/generated/civic.apollo.types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { $enum } from 'ts-enum-util'
 
@@ -57,21 +59,25 @@ export type EntityDerivedSignalMap = { [key: string]: Signal<any> }
 // 'state' for non-entity forms that just stores layout for form-field.wrapper's template logic
 export type NoStateFormOptions = { formState: { formLayout: NzFormLayoutType } }
 
-export interface IEntityState {
-  formLayout: NzFormLayoutType
-  formMode: CvcFormMode
-  validStates: Map<EntityType, ValidEntity>
-  getTypeOptions: () => EntityType[]
-  getSignificanceOptions: (et: EntityType) => EntitySignificance[]
-  getDirectionOptions: (et: EntityType) => EntityDirection[]
-  isValidSignificanceOption: (et: EntityType, cs: EntitySignificance) => boolean
-  isValidDirectionOption: (et: EntityType, cs: EntityDirection) => boolean
-  requiresTherapy: (et: EntityType) => boolean
-  requiresDisease: (et: EntityType) => boolean
-  requiresAcmgCodes: (et: EntityType) => boolean
-  requiresAmpLevel: (et: EntityType) => boolean
-  requiresClingenCodes: (et: EntityType) => boolean
-  allowsFdaApproval: (et: EntityType) => boolean
+/** The four enum-option signals, derived from the chosen entity type. */
+export type EntityEnums = {
+  entityType: Signal<CvcInputEnum[]>
+  significance: Signal<CvcInputEnum[]>
+  direction: Signal<CvcInputEnum[]>
+  interaction: Signal<CvcInputEnum[]>
+}
+
+/**
+ * The requires/allows flags, derived from the chosen entity type. `false`
+ * until a type is chosen — nothing is required of an empty form.
+ */
+export type EntityRequires = {
+  requiresDisease: Signal<boolean>
+  requiresTherapy: Signal<boolean>
+  requiresClingenCodes: Signal<boolean>
+  requiresAcmgCodes: Signal<boolean>
+  requiresAmpLevel: Signal<boolean>
+  allowsFdaApproval: Signal<boolean>
 }
 
 /**
@@ -85,7 +91,7 @@ export interface IEntityState {
  * published. A field created later still reads the truth whenever it reads.
  * (`base.state.spec.ts` pins these semantics.)
  */
-class BaseState implements IEntityState {
+class BaseState {
   formLayout: NzFormLayoutType = 'vertical'
   formMode: CvcFormMode = 'add'
   fields: EntityFieldSignalMap
@@ -179,11 +185,76 @@ class BaseState implements IEntityState {
   }
 
   /**
-   * Kept because the form components call it from ngOnDestroy. There is nothing
-   * left to tear down — the derived state is `computed`, which needs no
-   * unsubscribing — but removing it would mean touching every form config.
+   * A signal derived from the chosen entity type: `pick` of that type once
+   * one is chosen, `fallback` until then. The one derivation idiom both
+   * entity states build their `enums` and `requires` from.
    */
-  onDestroy() {}
+  protected forType<T>(
+    entityType: Signal<Maybe<EntityType>>,
+    pick: (et: EntityType) => T,
+    fallback: T
+  ): Signal<T> {
+    return computed(() => {
+      const et = entityType()
+      return et ? pick(et) : fallback
+    })
+  }
+
+  /** the six requires/allows flags, derived from the chosen entity type */
+  protected buildRequires(
+    entityType: Signal<Maybe<EntityType>>
+  ): EntityRequires {
+    return {
+      requiresDisease: this.forType(
+        entityType,
+        (et) => this.requiresDisease(et),
+        false
+      ),
+      requiresTherapy: this.forType(
+        entityType,
+        (et) => this.requiresTherapy(et),
+        false
+      ),
+      requiresClingenCodes: this.forType(
+        entityType,
+        (et) => this.requiresClingenCodes(et),
+        false
+      ),
+      requiresAcmgCodes: this.forType(
+        entityType,
+        (et) => this.requiresAcmgCodes(et),
+        false
+      ),
+      requiresAmpLevel: this.forType(
+        entityType,
+        (et) => this.requiresAmpLevel(et),
+        false
+      ),
+      allowsFdaApproval: this.forType(
+        entityType,
+        (et) => this.allowsFdaApproval(et),
+        false
+      ),
+    }
+  }
+
+  /** the four enum-option signals, derived from the chosen entity type */
+  protected buildEnums(entityType: Signal<Maybe<EntityType>>): EntityEnums {
+    return {
+      entityType: signal(this.getTypeOptions()),
+      significance: this.forType(
+        entityType,
+        (et) => this.getSignificanceOptions(et),
+        []
+      ),
+      direction: this.forType(
+        entityType,
+        (et) => this.getDirectionOptions(et),
+        []
+      ),
+      interaction: signal(this.getInteractionOptions()),
+    }
+  }
 }
 
 export { BaseState }

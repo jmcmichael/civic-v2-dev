@@ -38,8 +38,7 @@ export type CvcLevelSelectFieldOptions = Partial<
 
 export interface CvcLevelSelectFieldProps extends CvcEnumSelectFieldProps {}
 
-export interface CvcLevelSelectFieldConfig
-  extends FormlyFieldConfig<CvcLevelSelectFieldProps> {
+export interface CvcLevelSelectFieldConfig extends FormlyFieldConfig<CvcLevelSelectFieldProps> {
   type: 'level-select' | Type<CvcLevelSelectField>
 }
 
@@ -73,7 +72,7 @@ export class CvcLevelSelectField extends CvcEnumSelectFieldBase<
 
   override ngOnInit(): void {
     super.ngOnInit()
-    this.optionValues.set($enum(EvidenceLevel).getValues())
+    this.setOptions($enum(EvidenceLevel).getValues())
     this.connectValueDescription()
   }
 

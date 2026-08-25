@@ -53,13 +53,6 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         cell: { kind: 'select' },
       },
       {
-        key: 'status',
-        label: 'Status',
-        width: '50px',
-        hidden: true,
-        cell: { kind: 'text', text: (row) => row.status },
-      },
-      {
         key: 'id',
         label: 'Evidence',
         width: '95px',
@@ -82,6 +75,16 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
             return match ? +match[1] : null
           },
         },
+      },
+      {
+        // sits after the pinned-left block: a prefs-shown column must not
+        // interleave between pinned columns — sticky offsets assume each
+        // pinned run is contiguous at its edge
+        key: 'status',
+        label: 'Status',
+        width: '50px',
+        hidden: true,
+        cell: { kind: 'text', text: (row) => row.status },
       },
       {
         key: 'molecularProfile',

@@ -83,7 +83,7 @@ describe('entityTableConfig', () => {
           // a custom cell keeps this case about the filter alone: the
           // deliberate error below collapses TNode inference for the whole
           // call, which would make an accessor's `row` parameter `unknown`
-          cell: { kind: 'custom' },
+          cell: { kind: 'custom', content: () => '' },
           // @ts-expect-error 'evidenceRating' is not a variable of this query;
           // the real one is 'rating'. Removing this line must fail the build.
           filter: { kind: 'numeric', var: 'evidenceRating' },
@@ -106,6 +106,50 @@ describe('entityTableConfig', () => {
         },
       ],
     })
+  })
+
+  it('types custom-cell content against the row', () => {
+    entityTableConfig({
+      query: gql,
+      connection: (data) => data?.evidenceItems,
+      columns: [
+        {
+          key: 'shout',
+          label: 'Shout',
+          width: '40px',
+          cell: {
+            kind: 'custom',
+            // @ts-expect-error EvidenceItem has no `summary` field — the
+            // handler's context carries the inferred row type
+            content: (ctx) => ctx.row.summary,
+          },
+        },
+      ],
+    })
+  })
+
+  /**
+   * The old string-keyed template lookup rendered a silently blank cell when
+   * nothing matched; content now travels in the config, so the equivalent
+   * mistake — a custom cell with nothing to draw — fails loudly instead.
+   */
+  it('throws in dev mode on a custom cell with no content', () => {
+    expect(() =>
+      entityTableConfig({
+        query: gql,
+        connection: (data) => data?.evidenceItems,
+        columns: [
+          {
+            key: 'blank',
+            label: 'Blank',
+            width: '40px',
+            // the type requires `content`; the runtime guard is for JS
+            // callers and erased call sites
+            cell: { kind: 'custom' } as never,
+          },
+        ],
+      })
+    ).toThrowError(/custom cell\(s\) blank/)
   })
 })
 

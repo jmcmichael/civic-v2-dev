@@ -22,15 +22,13 @@ export type CvcRegionVariantNameSelectFieldOptions = Partial<
   FieldTypeConfig<CvcRegionVariantNameSelectFieldProps>
 >
 
-export interface CvcRegionVariantNameSelectFieldProps
-  extends CvcEnumSelectFieldProps {}
+export interface CvcRegionVariantNameSelectFieldProps extends CvcEnumSelectFieldProps {}
 
 export interface RegionVariantSelectModalData {
   feature?: FeatureSelectTypeaheadFieldsFragment
 }
 
-export interface CvcRegionVariantNameSelectFieldConfig
-  extends FormlyFieldConfig<CvcRegionVariantNameSelectFieldProps> {
+export interface CvcRegionVariantNameSelectFieldConfig extends FormlyFieldConfig<CvcRegionVariantNameSelectFieldProps> {
   type: 'region-variant-name-select' | Type<CvcRegionVariantNameSelectField>
 }
 
@@ -76,7 +74,7 @@ export class CvcRegionVariantNameSelectField extends CvcEnumSelectFieldBase<
 
   override ngOnInit(): void {
     super.ngOnInit()
-    this.optionValues.set($enum(RegionVariantName).getValues())
+    this.setOptions($enum(RegionVariantName).getValues())
 
     const featureId = this.nzModalData.feature?.id
     if (!featureId) return
@@ -91,7 +89,7 @@ export class CvcRegionVariantNameSelectField extends CvcEnumSelectFieldBase<
           )
           return
         }
-        this.optionValues.set(data.regionVariantNamesForFeatureId)
+        this.setOptions(data.regionVariantNamesForFeatureId)
       })
   }
 }

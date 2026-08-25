@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Type,
   computed,
@@ -48,8 +47,7 @@ export interface CvcSourceSelectFieldProps extends CvcEntitySelectFieldProps {
 // NOTE: any multi-select field must have the string 'multi' in its type name,
 // as UI logic (currently in base-field) depends on its presence to differentiate
 // field types in some expressions
-export interface CvcSourceSelectFieldConfig
-  extends FormlyFieldConfig<CvcSourceSelectFieldProps> {
+export interface CvcSourceSelectFieldConfig extends FormlyFieldConfig<CvcSourceSelectFieldProps> {
   type: 'source-select' | 'source-multi-select' | Type<CvcSourceSelectField>
 }
 
@@ -92,7 +90,6 @@ export class CvcSourceSelectField extends CvcEntitySelectFieldBase<
 > {
   private readonly typeaheadGQL = inject(SourceSelectTypeaheadGQL)
   private readonly tagGQL = inject(SourceSelectTagGQL)
-  private readonly cdr = inject(ChangeDetectorRef)
 
   protected readonly select = entitySelectConfig({
     entityName: { singular: 'Source', plural: 'Sources' },
@@ -147,7 +144,7 @@ export class CvcSourceSelectField extends CvcEntitySelectFieldBase<
       if (this.props.description === description) return
       this.props.description = description
       // the form-field wrapper renders the description, not this component
-      this.cdr.markForCheck()
+      this.markDirty()
     })
   }
 

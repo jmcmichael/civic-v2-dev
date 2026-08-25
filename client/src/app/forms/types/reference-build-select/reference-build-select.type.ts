@@ -18,11 +18,9 @@ export type CvcReferenceBuildSelectFieldOptions = Partial<
   FieldTypeConfig<CvcReferenceBuildSelectFieldProps>
 >
 
-export interface CvcReferenceBuildSelectFieldProps
-  extends CvcEnumSelectFieldProps {}
+export interface CvcReferenceBuildSelectFieldProps extends CvcEnumSelectFieldProps {}
 
-export interface CvcReferenceBuildSelectFieldConfig
-  extends FormlyFieldConfig<CvcReferenceBuildSelectFieldProps> {
+export interface CvcReferenceBuildSelectFieldConfig extends FormlyFieldConfig<CvcReferenceBuildSelectFieldProps> {
   type: 'reference-build-select' | Type<CvcReferenceBuildSelectField>
 }
 
@@ -56,6 +54,6 @@ export class CvcReferenceBuildSelectField extends CvcEnumSelectFieldBase<
 
   override ngOnInit(): void {
     super.ngOnInit()
-    this.optionValues.set($enum(ReferenceBuild).getValues())
+    this.setOptions($enum(ReferenceBuild).getValues())
   }
 }

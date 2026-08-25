@@ -32,11 +32,9 @@ export type CvcInteractionSelectFieldOptions = Partial<
   FieldTypeConfig<CvcInteractionSelectFieldProps>
 >
 
-export interface CvcInteractionSelectFieldProps
-  extends CvcEnumSelectFieldProps {}
+export interface CvcInteractionSelectFieldProps extends CvcEnumSelectFieldProps {}
 
-export interface CvcInteractionSelectFieldConfig
-  extends FormlyFieldConfig<CvcInteractionSelectFieldProps> {
+export interface CvcInteractionSelectFieldConfig extends FormlyFieldConfig<CvcInteractionSelectFieldProps> {
   type: 'interaction-select' | Type<CvcInteractionSelectField>
 }
 
@@ -98,10 +96,9 @@ export class CvcInteractionSelectField extends CvcEnumSelectFieldBase<
     }
 
     const therapyIds = therapies
-    effect(
-      () => this.applyGate(therapyIds()?.length ?? 0, this.selected()),
-      { injector: this.injector }
-    )
+    effect(() => this.applyGate(therapyIds()?.length ?? 0, this.selected()), {
+      injector: this.injector,
+    })
   }
 
   protected override descriptionFor(value: TherapyInteraction): Maybe<string> {
@@ -110,17 +107,20 @@ export class CvcInteractionSelectField extends CvcEnumSelectFieldBase<
 
   private applyGate(therapyCount: number, value?: TherapyInteraction): void {
     if (therapyCount < 2) {
-      this.props.disabled = true
-      this.props.required = false
-      this.props.description = therapyCount === 0 ? NO_THERAPIES : ONE_THERAPY
-      this.props.extraType = 'prompt'
+      this.applyProps({
+        disabled: true,
+        required: false,
+        description: therapyCount === 0 ? NO_THERAPIES : ONE_THERAPY,
+        extraType: 'prompt',
+      })
       if (this.formControl.value !== undefined) this.resetField()
     } else {
-      this.props.disabled = false
-      this.props.required = true
-      this.props.description = value ? optionText[value] : PROMPT
-      this.props.extraType = value ? 'description' : 'prompt'
+      this.applyProps({
+        disabled: false,
+        required: true,
+        description: value ? optionText[value] : PROMPT,
+        extraType: value ? 'description' : 'prompt',
+      })
     }
-    this.markDirty()
   }
 }
