@@ -5767,6 +5767,7 @@ export type QueryAssertionsArgs = {
   status?: InputMaybe<EvidenceStatusFilter>;
   summary?: InputMaybe<Scalars['String']['input']>;
   therapyId?: InputMaybe<Scalars['Int']['input']>;
+  therapyInteractionType?: InputMaybe<TherapyInteraction>;
   therapyName?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['Int']['input']>;
   variantId?: InputMaybe<Scalars['Int']['input']>;

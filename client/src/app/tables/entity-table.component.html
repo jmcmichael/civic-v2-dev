@@ -38,7 +38,12 @@
             [nzSortOrder]="sortOrderFor(col)"
             [nzSortDirections]="col.sort?.directions ?? defaultSortDirections"
             [ngStyle]="col.styles?.header ?? null"
-            (nzSortOrderChange)="onSortChange(col, $event)">
+            (nzSortOrderChange)="onSortChange(col, $event)"
+            nz-resizable
+            nzBounds="window"
+            nzPreview
+            [nzMinWidth]="40"
+            (nzResizeEnd)="onColumnResize(col.key, $event.width)">
             <!-- whitespace-controlled: the label interpolation sits hard
                  against the @if block so no incidental space text node
                  shifts labels — icon↔label spacing is the CSS margin alone,
@@ -50,15 +55,27 @@
               nz-tooltip
               [nzTooltipTitle]="col.tooltip"
               >@if (col.labelIcon; as icon) {
-                <span
-                  nz-icon
-                  class="header-label-icon"
-                  [class.with-label]="!!col.label"
-                  [nzType]="icon"
-                  nzTheme="twotone"
-                  [nzTwotoneColor]="labelIconColor(icon)"></span>
+                @if (col.cell.kind === 'count-tag') {
+                  <!-- a count column's header stacks five entity glyphs,
+                       collection-tag style: many-of-this-entity at a glance -->
+                  <span class="header-icon-stack">@for (i of iconStack; track i) {<span
+                      nz-icon
+                      class="stacked-icon"
+                      [nzType]="icon"
+                      nzTheme="twotone"
+                      [nzTwotoneColor]="labelIconColor(icon)"></span>}</span>
+                } @else {
+                  <span
+                    nz-icon
+                    class="header-label-icon"
+                    [class.with-label]="!!col.label"
+                    [nzType]="icon"
+                    nzTheme="twotone"
+                    [nzTwotoneColor]="labelIconColor(icon)"></span>
+                }
               }{{ col.label }}</span
             >
+            <nz-resize-handle nzDirection="right" />
           </th>
         }
       </tr>
@@ -147,6 +164,31 @@
                         (valueChange)="onFilterChange(col, $event)" />
                     }
                   }
+                }
+                @if (col.extraFilter; as extraFilter) {
+                  <!-- the column's second, funnel-only filter (the legacy
+                       managers' dual-control filter cell) -->
+                  <nz-filter-trigger
+                    data-testid="extra-filter-trigger"
+                    [nzActive]="extraFilterValue(col.key) !== null"
+                    [nzDropdownMenu]="extraEnumMenu"
+                    #extraTrigger="nzFilterTrigger">
+                    <span
+                      nz-icon
+                      nzType="filter"
+                      nzTheme="fill"></span>
+                  </nz-filter-trigger>
+                  <nz-dropdown-menu #extraEnumMenu="nzDropdownMenu">
+                    <cvc-enum-filter-menu
+                      [options]="extraFilter.options"
+                      [showIcons]="extraFilter.showIcons ?? true"
+                      [selected]="extraFilterValue(col.key)"
+                      (selectedChange)="
+                        onExtraFilterChange(col, $event);
+                        extraTrigger.nzVisible = false
+                      "
+                      (resetAll)="onResetFilters()" />
+                  </nz-dropdown-menu>
                 }
                 @if (filterExtraFor(col.key); as extra) {
                   <!-- no context, so the embedded view is created once -->
@@ -304,6 +346,10 @@
                   [count]="cell.count(row)"
                   [items]="cell.refs?.(row)"
                   [request]="cell.fetch?.(row)"
+                  [icon]="col.labelIcon"
+                  [iconColor]="
+                    col.labelIcon ? labelIconColor(col.labelIcon) : undefined
+                  "
                   [suspended]="isScrolling()" />
               }
 
@@ -456,7 +502,7 @@
             nz-icon
             nzType="filter"
             nzTheme="fill"
-            [class.filters-applied]="appliedFilters().length > 0"></span>
+            [class.filters-applied]="allAppliedFilters().length > 0"></span>
         </button>
         <button
           nz-button
@@ -484,8 +530,8 @@
             nzType="default"
             nzSize="small"
             data-testid="clear-all-filters"
-            [disabled]="!appliedFilters().length"
-            (click)="onResetFilters()">
+            [disabled]="!allAppliedFilters().length"
+            (click)="onClearAllFilters()">
             <span
               nz-icon
               nzType="retweet"
@@ -499,7 +545,7 @@
         <div
           class="filters-popover"
           data-testid="table-filters-panel">
-          @if (appliedFilters().length) {
+          @if (allAppliedFilters().length) {
             <table class="applied-filters">
               <thead>
                 <tr>
@@ -510,7 +556,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (filter of appliedFilters(); track filter.key) {
+                @for (filter of allAppliedFilters(); track filter.key) {
                   <tr
                     data-testid="applied-filter"
                     [attr.data-column]="filter.key">
@@ -526,7 +572,7 @@
                         data-testid="remove-filter"
                         nz-tooltip
                         nzTooltipTitle="Remove this filter"
-                        (click)="onRemoveFilter(filter.key)">
+                        (click)="onRemoveAnyFilter(filter.key)">
                         <span
                           nz-icon
                           nzType="close-circle"

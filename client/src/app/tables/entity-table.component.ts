@@ -14,6 +14,7 @@ import {
   inject,
   input,
   model,
+  output,
   signal,
   untracked,
 } from '@angular/core'
@@ -43,6 +44,7 @@ import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzResizableModule } from 'ng-zorro-antd/resizable'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table'
@@ -107,6 +109,11 @@ const LABEL_ICON_COLORS: Record<string, string> = {
   'civic-variant': getEntityColor('Variant'),
 }
 
+/** the filter-state key of a column's extraFilter (see CvcColumn.extraFilter) */
+function extraKey(key: string): string {
+  return `${key}:extra`
+}
+
 /** a CvcCellStyle resolved against its row; null when it yields nothing */
 function resolveCellStyle<TRow>(
   style: CvcCellStyle<TRow> | undefined,
@@ -163,6 +170,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     NzGridModule,
     NzIconModule,
     NzPopoverModule,
+    NzResizableModule,
     NzSelectModule,
     NzSpaceModule,
     NzTableModule,
@@ -244,6 +252,9 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
+  /** five glyphs for a count column's stacked header icon */
+  protected readonly iconStack = [0, 1, 2, 3, 4]
+
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
     return LABEL_ICON_COLORS[icon] ?? getEntityColor('Greyscale')
@@ -313,13 +324,35 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     new Map()
   )
 
+  /** user drag-resizes, px strings keyed by column; cleared by Reset Columns */
+  private readonly widthOverrides = signal<ReadonlyMap<string, string>>(
+    new Map()
+  )
+
   readonly columns = computed<CvcSpecColumn<TRow>[]>(() => {
-    const overrides = this.hiddenOverrides()
+    const hidden = this.hiddenOverrides()
+    const widths = this.widthOverrides()
     return this.spec().columns.map((column) => {
-      const override = overrides.get(column.key)
-      return override === undefined ? column : { ...column, hidden: override }
+      const hiddenOverride = hidden.get(column.key)
+      const width = widths.get(column.key)
+      if (hiddenOverride === undefined && width === undefined) return column
+      return {
+        ...column,
+        ...(hiddenOverride === undefined ? {} : { hidden: hiddenOverride }),
+        ...(width === undefined ? {} : { width }),
+      }
     })
   })
+
+  /** a header drag-resize landing (nzResizeEnd); session state, not config */
+  onColumnResize(key: string, width: number | undefined): void {
+    if (!width) return
+    this.widthOverrides.update((current) => {
+      const next = new Map(current)
+      next.set(key, `${Math.round(width)}px`)
+      return next
+    })
+  }
 
   readonly visibleColumns = computed(() =>
     this.columns().filter((column) => !column.hidden)
@@ -405,6 +438,19 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     return typeof value === 'string' || typeof value === 'number' ? value : null
   }
 
+  /** a column's extraFilter value; same null-means-cleared contract */
+  protected extraFilterValue(key: string): unknown {
+    return this.filterValues().get(extraKey(key)) ?? null
+  }
+
+  onExtraFilterChange(column: CvcSpecColumn<TRow>, value: unknown): void {
+    this.filterValues.update((current) => {
+      const next = new Map(current)
+      next.set(extraKey(column.key), value)
+      return next
+    })
+  }
+
   sortOrderFor(column: CvcSpecColumn<TRow>): NzTableSortOrder {
     const sort = this.effectiveSort()
     return sort?.key === column.key ? sort.order : null
@@ -444,6 +490,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       // variable rather than an explicit null — a null still reaches the
       // resolver and filters for rows whose column is null
       vars[column.filter.var] =
+        value === null || value === '' ? undefined : value
+    }
+
+    for (const column of spec.columns) {
+      if (!column.extraFilter) continue
+      const value = this.filterValues().get(extraKey(column.key))
+      vars[column.extraFilter.var] =
         value === null || value === '' ? undefined : value
     }
 
@@ -814,12 +867,13 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
-   * Returns every column to its configured visibility — the settings
-   * popover's Reset Columns. The independent half of what Reset Filters
-   * does for filter/sort state.
+   * Returns every column to its configured visibility AND width — the
+   * settings popover's Reset Columns. The independent half of what Reset
+   * Filters does for filter/sort state.
    */
   onResetColumns(): void {
     this.hiddenOverrides.set(new Map())
+    this.widthOverrides.set(new Map())
   }
 
   /** titles the settings popover: "Assertion Settings", "Variant Settings"… */
@@ -831,6 +885,34 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   readonly filtersTitle = computed(
     () => `${this.spec().entity ?? 'Entity'} Table Filters`
   )
+
+  /**
+   * Filter rows the HOST contributes to the filter popover — scope state the
+   * table cannot see (assertions' status radio, subgroup checkboxes). Their
+   * removes route back out through `hostFilterRemove`/`hostFiltersCleared`.
+   */
+  readonly hostFilters = input<ReadonlyArray<CvcAppliedFilter>>([])
+  readonly hostFilterRemove = output<string>()
+  readonly hostFiltersCleared = output<void>()
+
+  /** everything the filter popover lists: host scope rows first */
+  readonly allAppliedFilters = computed<CvcAppliedFilter[]>(() => [
+    ...this.hostFilters(),
+    ...this.appliedFilters(),
+  ])
+
+  protected onRemoveAnyFilter(key: string): void {
+    if (this.hostFilters().some((filter) => filter.key === key)) {
+      this.hostFilterRemove.emit(key)
+    } else {
+      this.onRemoveFilter(key)
+    }
+  }
+
+  protected onClearAllFilters(): void {
+    this.onResetFilters()
+    if (this.hostFilters().length) this.hostFiltersCleared.emit()
+  }
 
   /**
    * The global filter popover's rows: every column filter currently
@@ -845,34 +927,53 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     const rows: CvcAppliedFilter[] = []
     for (const column of this.columns()) {
       const filter = column.filter
-      if (!filter) continue
       const value = values.get(column.key)
-      if (value === null || value === undefined || value === '') continue
+      if (filter && value !== null && value !== undefined && value !== '') {
+        if (filter.kind === 'enum') {
+          const option = filter.options.find((o) => o.value === value)
+          rows.push({
+            key: column.key,
+            field: column.tooltip || column.label,
+            comparison: 'is',
+            display: option?.label ?? String(value),
+          })
+        } else {
+          rows.push({
+            key: column.key,
+            field: column.tooltip || column.label,
+            comparison: filter.kind === 'numeric' ? 'is' : 'contains',
+            display: String(value),
+          })
+        }
+      }
 
-      if (filter.kind === 'enum') {
-        const option = filter.options.find((o) => o.value === value)
+      const extra = column.extraFilter
+      const extraValue = values.get(extraKey(column.key))
+      if (
+        extra &&
+        extraValue !== null &&
+        extraValue !== undefined &&
+        extraValue !== ''
+      ) {
+        const option = extra.options.find((o) => o.value === extraValue)
         rows.push({
-          key: column.key,
+          key: extraKey(column.key),
           field: column.tooltip || column.label,
           comparison: 'is',
-          display: option?.label ?? String(value),
-        })
-      } else {
-        rows.push({
-          key: column.key,
-          field: column.tooltip || column.label,
-          comparison: filter.kind === 'numeric' ? 'is' : 'contains',
-          display: String(value),
+          display: option?.label ?? String(extraValue),
         })
       }
     }
     return rows
   })
 
-  /** clears one applied filter, by its column key (a popover row's remove) */
+  /** clears one applied filter, by its (possibly `:extra`) key */
   onRemoveFilter(key: string): void {
-    const column = this.columns().find((c) => c.key === key)
-    if (column) this.onFilterChange(column, null)
+    this.filterValues.update((current) => {
+      const next = new Map(current)
+      next.set(key, null)
+      return next
+    })
   }
 
   /**

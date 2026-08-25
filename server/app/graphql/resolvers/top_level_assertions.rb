@@ -61,6 +61,9 @@ class Resolvers::TopLevelAssertions < GraphQL::Schema::Resolver
       .joins("INNER JOIN therapies AS therapy_names ON therapy_names.id = at_names.therapy_id")
       .where("therapy_names.name ILIKE ?", "%#{value}%")
   end
+  option(:therapy_interaction_type, type: Types::TherapyInteractionType, description: "Filtering on how an assertion's multiple therapies interact.") do |scope, value|
+    scope.where(therapy_interaction_type: value)
+  end
   option(:molecular_profile_name, type: GraphQL::Types::String, description: "Substring filtering on molecular profile name") do |scope, value|
     results = Searchkick.search(
                   value,
