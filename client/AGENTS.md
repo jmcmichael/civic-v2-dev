@@ -23,9 +23,10 @@ touching it** — they are maintained in lockstep with the code.
 
 Conventions every table config follows:
 
-- Count/score columns: `label: ''`, `labelIcon: 'civic-<entity>'` (twotone,
-  entity-colored), `directions: SORT_DESCEND_FIRST`, ~55px; the header
-  `tooltip` carries the name and doubles as the prefs-panel label.
+- Count/score columns: `label: 'Ct.'` + `labelSecondary: true` (muted text),
+  `labelIcon: 'civic-<entity>'` (twotone, entity-colored),
+  `directions: SORT_DESCEND_FIRST`, ~70px; the header `tooltip` carries the
+  name and doubles as the prefs-panel label.
 - Subject column (first entity column): entity-tag `fullWidth: true`
   (labels flex-ellipsize when clipped); custom subject cells use block
   host+tag styles.
@@ -66,6 +67,19 @@ Conventions every table config follows:
 6. Popover content that loads async must re-anchor: use
    `cvcPopoverContentResize` (`src/app/tags/`) or the bespoke tags'
    `(contentRendered)` output.
+7. **Leaderboard cache policies**: `LeaderboardUser`/`LeaderboardOrganization`
+   are embedded (`keyFields: false`) and `UserLeaderboards`/
+   `OrganizationLeaderboards` deep-merge (`merge: true`) in
+   `graphql.type-policies.ts` — normalizing the rows by id folds all four
+   boards/windows into one object and clobbers rank; replacing the keyless
+   namespace drops the other boards. Don't reintroduce `no-cache` on the
+   leaderboard components (it only masked this) and don't normalize
+   row types whose fields depend on the query that fetched them.
+8. **`profileImagePath(size:)`**: fetch it only where an avatar actually
+   renders (`cvc-user-avatar`/`cvc-organization-avatar` or a direct
+   `nz-avatar` binding) — `cvc-user-tag`/`cvc-organization-tag` render no
+   avatar, so image fields on tag-only users are dead weight. URLs are
+   stable per blob+size (server proxy mode), so identical fetches are free.
 
 ## Testing
 

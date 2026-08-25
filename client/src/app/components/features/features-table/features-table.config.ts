@@ -104,7 +104,7 @@ export function featuresTableConfig(
       {
         key: 'featureInstanceType',
         label: 'Type',
-        width: '130px',
+        width: '90px',
         cell: {
           kind: 'text',
           text: (row) =>
@@ -113,7 +113,7 @@ export function featuresTableConfig(
         filter: {
           kind: 'enum',
           control: 'select',
-          placeholder: 'Select Type',
+          placeholder: 'Any',
           var: 'featureType',
           options: FEATURE_TYPE_OPTIONS,
           showIcons: false,
@@ -167,10 +167,11 @@ export function featuresTableConfig(
       },
       {
         key: 'molecularProfileCount',
-        label: '',
+        label: 'Ct.',
         tooltip: 'Molecular Profile Count',
+        labelSecondary: true,
         labelIcon: 'civic-molecularprofile',
-        width: '55px',
+        width: '70px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.molecularProfileCount },
@@ -181,10 +182,11 @@ export function featuresTableConfig(
       },
       {
         key: 'variantCount',
-        label: '',
+        label: 'Ct.',
         tooltip: 'Variant Count',
+        labelSecondary: true,
         labelIcon: 'civic-variant',
-        width: '55px',
+        width: '70px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
@@ -196,10 +198,11 @@ export function featuresTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: '',
+        label: 'Ct.',
         tooltip: 'Evidence Count',
+        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '55px',
+        width: '70px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
@@ -210,10 +213,11 @@ export function featuresTableConfig(
       },
       {
         key: 'assertionCount',
-        label: '',
+        label: 'Ct.',
         tooltip: 'Assertion Count',
+        labelSecondary: true,
         labelIcon: 'civic-assertion',
-        width: '55px',
+        width: '70px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
