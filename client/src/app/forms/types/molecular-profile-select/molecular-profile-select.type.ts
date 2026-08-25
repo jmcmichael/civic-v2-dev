@@ -3,7 +3,6 @@ import {
   Component,
   Type,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core'
@@ -153,9 +152,6 @@ export class CvcMolecularProfileSelectField extends CvcEntitySelectFieldBase<
     return Array.isArray(value) ? value[0] : value
   })
 
-  /** props.description is help text for an empty field; captured in ngOnInit */
-  private initialDescription: Maybe<string>
-
   defaultOptions: Partial<
     FieldTypeConfig<CvcMolecularProfileSelectFieldProps>
   > = {
@@ -176,20 +172,7 @@ export class CvcMolecularProfileSelectField extends CvcEntitySelectFieldBase<
 
   constructor() {
     super()
-    // Effects created here first run after the initial change detection, so
-    // ngOnInit has already captured the description by the time this reads it.
-    effect(() => {
-      const description = this.value() ? undefined : this.initialDescription
-      if (this.props.description === description) return
-      this.props.description = description
-      // the form-field wrapper renders the description, not this component
-      this.markDirty()
-    })
-  }
-
-  override ngOnInit(): void {
-    super.ngOnInit()
-    this.initialDescription = this.props.description
+    this.connectEmptyDescription()
   }
 
   protected toggleEditor(): void {

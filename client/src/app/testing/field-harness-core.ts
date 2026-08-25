@@ -1,5 +1,5 @@
 import { OverlayContainer } from '@angular/cdk/overlay'
-import { Type } from '@angular/core'
+import { Type, WritableSignal, signal } from '@angular/core'
 import { ComponentFixture } from '@angular/core/testing'
 import { AbstractControl } from '@angular/forms'
 import { By } from '@angular/platform-browser'
@@ -29,6 +29,29 @@ export interface FieldHarnessCore {
   /** the field component instance */
   field<T>(fieldType: Type<T>): T
   destroy(): void
+}
+
+/**
+ * Scaffold for the state-publication contract test both field contracts run:
+ * the caller's base form state — merged, not replaced, since a field may need
+ * other state to be usable — plus one probe signal registered under the
+ * field's own key, which `CvcFieldBase.connectStateField` should write.
+ */
+export function statePublicationProbe<T>(
+  key: string,
+  base: Record<string, any> | undefined
+): {
+  formState: Record<string, any>
+  stateField: WritableSignal<T | undefined>
+} {
+  const stateField = signal<T | undefined>(undefined)
+  return {
+    stateField,
+    formState: {
+      ...base,
+      fields: { ...(base?.['fields'] ?? {}), [key]: stateField },
+    },
+  }
 }
 
 export function fieldHarnessCore(

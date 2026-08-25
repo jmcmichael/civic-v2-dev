@@ -1,6 +1,10 @@
 import { Directive, effect } from '@angular/core'
 import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
-import { EntityType } from '@app/forms/states/base.state'
+import {
+  EntityName,
+  EntityRequires,
+  EntityType,
+} from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { CvcEntitySelectResult } from './entity-select-config'
 import {
@@ -16,7 +20,7 @@ export interface CvcTypeGateConfig {
    * 'requiresTherapy', 'requiresAcmgCodes', 'requiresClingenCodes'. It is
    * derived from the chosen entity type, and false while none is chosen.
    */
-  requiresKey: string
+  requiresKey: keyof EntityRequires
   /**
    * Description shown when the chosen entity type excludes this field, e.g.
    * `(t, e) => `${t} ${e} does not include associated diseases``.
@@ -55,41 +59,27 @@ export abstract class CvcTypeGatedSelectFieldBase<
    */
   private connectTypeGate(): void {
     const state = this.state
-    if (!state) return
+    // a state without the entity-state surface (a finder or quick-add form)
+    // is simply not type-gated; `requires` narrows to the full surface
+    if (!state?.requires) return
 
-    // a form may provide a partial state — neither map is assumed
-    const isRequired = state.requires?.[this.typeGate.requiresKey]
-    if (!isRequired) {
-      // a form with no `requires` map at all is simply not type-gated; one that
-      // has the map but not this key is a misconfiguration worth reporting
-      if (state.requires) {
-        console.warn(
-          `${this.field.id} field's form provides a state, but could not find ${this.typeGate.requiresKey} to attach.`
-        )
-      }
-      return
-    }
+    const isRequired = state.requires[this.typeGate.requiresKey]
+    // typed app code cannot build a requires map missing a key (EntityRequires
+    // is total) — but formly's `any` boundary can still deliver one
+    if (!isRequired) return
 
-    const entityTypeKey = `${state.entityName.toLowerCase()}Type`
-    const entityTypeField = this.props.requireType
-      ? state.fields?.[entityTypeKey]
-      : undefined
-    if (this.props.requireType && !entityTypeField) {
-      console.error(
-        `${this.field.id} requireType is true, however form state does not provide ${entityTypeKey}.`
-      )
-      return
-    }
-
-    const entityType: () => Maybe<EntityType> =
-      entityTypeField ?? (() => undefined)
+    const entityType: () => Maybe<EntityType> = this.props.requireType
+      ? state.typeField
+      : () => undefined
+    const entityName = state.entityName
 
     effect(
       () =>
         this.applyStateUpdates(
-          isRequired() ?? false,
+          isRequired(),
           entityType(),
-          this.value()
+          this.value(),
+          entityName
         ),
       { injector: this.injector }
     )
@@ -98,7 +88,8 @@ export abstract class CvcTypeGatedSelectFieldBase<
   private applyStateUpdates(
     isRequired: boolean,
     entityType: Maybe<EntityType>,
-    value: CvcEntitySelectValue
+    value: CvcEntitySelectValue,
+    entityName: EntityName
   ): void {
     // this entity type has no association with what the field selects
     if (!isRequired && entityType) {
@@ -106,7 +97,7 @@ export abstract class CvcTypeGatedSelectFieldBase<
       this.props.disabled = true
       this.props.description = this.typeGate.excludedDescription(
         formatEvidenceEnum(entityType),
-        this.state!.entityName
+        entityName
       )
       this.props.extraType = 'prompt'
     }
@@ -115,7 +106,7 @@ export abstract class CvcTypeGatedSelectFieldBase<
       this.props.required = false
       this.props.disabled = true
       this.props.description = this.props.requireTypePromptFn(
-        this.state!.entityName,
+        entityName,
         this.props.isMultiSelect
       )
       this.props.extraType = 'prompt'

@@ -5,6 +5,7 @@ import {
   CvcEnumSelectFieldBase,
   CvcEnumSelectFieldProps,
 } from '@app/forms/select'
+import { fieldOf } from '@app/forms/states/base.state'
 import { Maybe, TherapyInteraction } from '@app/generated/civic.apollo.types'
 import {
   FieldTypeConfig,
@@ -71,23 +72,17 @@ export class CvcInteractionSelectField extends CvcEnumSelectFieldBase<
 
   override ngOnInit(): void {
     super.ngOnInit()
-    if (!this.state) {
+    const state = this.state
+    if (!state?.enums) {
       console.error(
-        `${this.field.id} requires a form state to populate its options, none was found.`
+        `${this.field.id} requires an entity form state to populate its options, none was found.`
       )
       return
     }
+    this.connectStateEnum(state.enums.interaction)
 
-    if (!this.state.enums.interaction) {
-      console.error(
-        `${this.field.id} could not find form state's interaction to populate select.`
-      )
-    } else {
-      this.connectStateEnum(this.state.enums.interaction)
-    }
-
-    const therapies = this.state.fields.therapyIds
-    if (!therapies) {
+    const therapyIds = fieldOf<number[]>(state, 'therapyIds')
+    if (!therapyIds) {
       console.warn(
         `${this.field.id} could not find state's fields.therapyIds to handle its required & disabled states.`
       )
@@ -95,7 +90,6 @@ export class CvcInteractionSelectField extends CvcEnumSelectFieldBase<
       return
     }
 
-    const therapyIds = therapies
     effect(() => this.applyGate(therapyIds()?.length ?? 0, this.selected()), {
       injector: this.injector,
     })

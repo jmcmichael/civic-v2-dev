@@ -18,24 +18,27 @@ const SIGNIFICANCES = [
 /**
  * The slice of BaseState this field actually reads. The real state class pulls
  * in the whole evidence/assertion validity map, which none of this exercises.
+ * `typeField` aliases the same signal a real state would expose there.
  */
 const formState = (
   formMode: 'add' | 'revise' = 'add',
   entityType?: EvidenceType
-) => ({
-  entityName: 'Evidence',
-  formMode,
-  fields: {
-    evidenceType: signal<EvidenceType | undefined>(entityType),
-    significance: signal<EvidenceSignificance | undefined>(
-      undefined
-    ),
-  },
-  enums: {
-    significance: signal(SIGNIFICANCES),
-  },
-  requires: {},
-})
+) => {
+  const evidenceType = signal<EvidenceType | undefined>(entityType)
+  return {
+    entityName: 'Evidence',
+    formMode,
+    typeField: evidenceType,
+    fields: {
+      evidenceType,
+      significance: signal<EvidenceSignificance | undefined>(undefined),
+    },
+    enums: {
+      significance: signal(SIGNIFICANCES),
+    },
+    requires: {},
+  }
+}
 
 const setup = (
   state: ReturnType<typeof formState>,

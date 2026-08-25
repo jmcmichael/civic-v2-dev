@@ -11,6 +11,8 @@ import {
   settleTable,
 } from '@app/testing/entity-table.harness'
 import { EvidenceManagerGQL } from '@app/forms/types/evidence-select/evidence-manager/evidence-manager.query.gql.generated'
+import { writeCachedEntity } from '@app/tags'
+import { Apollo } from 'apollo-angular'
 import { CvcEntityTableComponent } from './entity-table.component'
 import { entityTableConfig, EntityTableSpec } from './entity-table-config'
 
@@ -33,7 +35,12 @@ interface Row {
 const row = (id: number, name: string): Row => ({ id, name })
 
 function buildSpec(
-  options: { defaultSortOnName?: boolean; pinned?: boolean } = {}
+  options: {
+    defaultSortOnName?: boolean
+    pinned?: boolean
+    /** gives the name filter an entityTypename, for the settings id→name path */
+    nameFilterByEntity?: boolean
+  } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
   return entityTableConfig({
@@ -72,7 +79,13 @@ function buildSpec(
           column: 'name',
           default: options.defaultSortOnName ? 'ascend' : undefined,
         },
-        filter: { kind: 'text', var: 'description' },
+        filter: {
+          kind: 'text',
+          var: 'description',
+          ...(options.nameFilterByEntity
+            ? { entityTypename: 'Disease' as const }
+            : {}),
+        },
       },
       {
         key: 'rating',
@@ -364,6 +377,57 @@ describe('cvc-entity-table', () => {
   // asserted by the Playwright golden ('pinned columns hold their offsets…').
   // The one component-level invariant — that the template must not wrap the
   // virtual-scroll body in a <tbody> — is documented in the template itself.
+
+  /**
+   * The trickiest branch of applySettings: a text filter declaring
+   * `entityTypename` is driven from outside by entity ID but filters by
+   * NAME, so the id is resolved synchronously out of the Apollo cache. An
+   * entity that was never cached is skipped, not guessed at — a wrong guess
+   * would silently filter by the wrong string.
+   */
+  describe('settings id→name resolution', () => {
+    beforeEach(() => {
+      fixture.componentInstance.spec.set(
+        buildSpec({ nameFilterByEntity: true })
+      )
+      fixture.detectChanges()
+    })
+
+    it('resolves a pushed entity id to its cached display name', async () => {
+      writeCachedEntity(TestBed.inject(Apollo), 'Disease', {
+        __typename: 'Disease',
+        id: 7,
+        name: 'Melanoma',
+        link: '/diseases/7',
+        deprecated: false,
+      })
+
+      fixture.componentInstance.settings.set({
+        filters: [{ key: 'name', value: 7 }],
+      })
+      await settle()
+
+      expect(table.filterValue('name')).toBe('Melanoma')
+    })
+
+    it('skips an entity the cache has never seen', async () => {
+      fixture.componentInstance.settings.set({
+        filters: [{ key: 'name', value: 999 }],
+      })
+      await settle()
+
+      expect(table.filterValue('name')).toBeNull()
+    })
+
+    it('passes a plain value through for a column without entityTypename', async () => {
+      fixture.componentInstance.settings.set({
+        filters: [{ key: 'rating', value: 'EID12' }],
+      })
+      await settle()
+
+      expect(table.filterValue('rating')).toBe('EID12')
+    })
+  })
 
   /**
    * A request, not a position: consecutive refetches all target row 0, and

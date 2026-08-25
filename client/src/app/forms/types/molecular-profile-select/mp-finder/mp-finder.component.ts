@@ -29,6 +29,8 @@ type MpFinderModel = {
 
 type MpFinderState = {
   formLayout: NzFormLayoutType
+  // deliberately the erased map — a finder state offers only field slots for
+  // its fields to publish into; the entity-state surface does not apply
   fields: EntityFieldSignalMap
 }
 
