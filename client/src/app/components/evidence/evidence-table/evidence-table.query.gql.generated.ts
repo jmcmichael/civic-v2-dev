@@ -30,6 +30,7 @@ export type EvidenceBrowseQueryVariables = Types.Exact<{
   phenotypeId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   diseaseId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   therapyId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+  therapyInteractionType?: Types.InputMaybe<Types.TherapyInteraction>;
   sourceId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   clinicalTrialId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   molecularProfileName?: Types.InputMaybe<Types.Scalars['String']['input']>;
@@ -89,7 +90,7 @@ export const EvidenceGridFieldsFragmentDoc = gql`
 }
     ${MolecularProfileParsedNameFragmentDoc}`;
 export const EvidenceBrowseDocument = gql`
-    query EvidenceBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $id: Int, $ids: [Int!], $description: String, $evidenceLevels: [EvidenceLevel!], $evidenceDirections: [EvidenceDirection!], $significances: [EvidenceSignificance!], $evidenceTypes: [EvidenceType!], $evidenceRatings: [Int!], $variantOrigins: [VariantOrigin!], $variantId: Int, $molecularProfileId: Int, $assertionId: Int, $organization: OrganizationFilter, $userId: Int, $sortBy: EvidenceSort, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $sourceId: Int, $clinicalTrialId: Int, $molecularProfileName: String, $status: EvidenceStatusFilter) {
+    query EvidenceBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $id: Int, $ids: [Int!], $description: String, $evidenceLevels: [EvidenceLevel!], $evidenceDirections: [EvidenceDirection!], $significances: [EvidenceSignificance!], $evidenceTypes: [EvidenceType!], $evidenceRatings: [Int!], $variantOrigins: [VariantOrigin!], $variantId: Int, $molecularProfileId: Int, $assertionId: Int, $organization: OrganizationFilter, $userId: Int, $sortBy: EvidenceSort, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $therapyInteractionType: TherapyInteraction, $sourceId: Int, $clinicalTrialId: Int, $molecularProfileName: String, $status: EvidenceStatusFilter) {
   evidenceItems(
     first: $first
     last: $last
@@ -114,6 +115,7 @@ export const EvidenceBrowseDocument = gql`
     phenotypeId: $phenotypeId
     diseaseId: $diseaseId
     therapyId: $therapyId
+    therapyInteractionType: $therapyInteractionType
     sourceId: $sourceId
     clinicalTrialId: $clinicalTrialId
     molecularProfileName: $molecularProfileName

@@ -164,13 +164,69 @@ describe('evidenceManagerConfig', () => {
     })
 
     /**
-     * The historical bug: the column is `evidenceRating`, the query's variable
-     * is `$rating`, and it reaches the field as `evidenceRating: $rating`. The
-     * old map named the column key, so the filter set a variable nothing read.
+     * The column key and its variable still differ — the column is
+     * `evidenceRating`, the variable is `$evidenceRatings` — which is the
+     * shape that once let a filter name a variable nothing read.
      */
     it('routes the rating column to the variable that exists', () => {
-      expect(column('evidenceRating').filter!.var).toBe('rating')
+      expect(column('evidenceRating').filter!.var).toBe('evidenceRatings')
       expect(declaredVariables().has('evidenceRating')).toBe(false)
+    })
+
+    /**
+     * Every enum filter sends an ORed array, so a curator can ask for
+     * "Supports or Does Not Support" in one pass. Singular variables would
+     * silently narrow a multi-select to its last pick, so the plural spelling
+     * is asserted rather than left to the config.
+     */
+    it('filters all six enum columns through multi-select icon controls', () => {
+      const enumFilters = spec.columns
+        .filter((c) => c.filter?.kind === 'enum')
+        .map((c) => ({
+          key: c.key,
+          var: c.filter!.var,
+          control: (c.filter as { control?: string }).control,
+          multiple: (c.filter as { multiple?: boolean }).multiple,
+        }))
+
+      expect(enumFilters).toEqual([
+        {
+          key: 'therapyInteractionType',
+          var: 'therapyInteractionTypes',
+          control: 'icon-select',
+          multiple: true,
+        },
+        {
+          key: 'evidenceType',
+          var: 'evidenceTypes',
+          control: 'icon-select',
+          multiple: true,
+        },
+        {
+          key: 'evidenceLevel',
+          var: 'evidenceLevels',
+          control: 'icon-select',
+          multiple: true,
+        },
+        {
+          key: 'evidenceDirection',
+          var: 'evidenceDirections',
+          control: 'icon-select',
+          multiple: true,
+        },
+        {
+          key: 'significance',
+          var: 'significances',
+          control: 'icon-select',
+          multiple: true,
+        },
+        {
+          key: 'evidenceRating',
+          var: 'evidenceRatings',
+          control: 'icon-select',
+          multiple: true,
+        },
+      ])
     })
 
     it('offers every enum member the schema declares', () => {
