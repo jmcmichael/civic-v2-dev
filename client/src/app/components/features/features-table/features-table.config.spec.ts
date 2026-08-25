@@ -257,11 +257,15 @@ describe('featuresTableConfig', () => {
       expect(text.highlight).toBe(true)
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'molecularProfileCount', 'text').text(ROW)).toBe(45)
-      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe(130)
-      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(300)
-      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe(15)
+    it('renders the counts as count-tag cells', () => {
+      expect(
+        specCell(spec, 'molecularProfileCount', 'count-tag').count(ROW)
+      ).toBe(45)
+      expect(specCell(spec, 'variantCount', 'count-tag').count(ROW)).toBe(130)
+      expect(specCell(spec, 'evidenceItemCount', 'count-tag').count(ROW)).toBe(
+        300
+      )
+      expect(specCell(spec, 'assertionCount', 'count-tag').count(ROW)).toBe(15)
     })
   })
 

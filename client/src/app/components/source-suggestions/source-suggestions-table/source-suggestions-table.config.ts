@@ -63,6 +63,7 @@ export function sourceSuggestionsTableConfig(
   options: { hideSubmitterFilter?: boolean } = {}
 ) {
   return entityTableConfig({
+    entity: 'Source Suggestion',
     title: title ?? undefined,
     query,
     pageSize: 35,

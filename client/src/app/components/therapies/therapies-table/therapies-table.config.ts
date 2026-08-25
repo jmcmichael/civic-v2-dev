@@ -25,6 +25,7 @@ export function therapiesTableConfig(
   scope: TherapiesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Therapy',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -88,14 +89,20 @@ export function therapiesTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { therapyId: row.id },
+          }),
+        },
         sort: {
           column: TherapySortColumns.EvidenceItemCount,
           default: 'descend',
@@ -104,14 +111,20 @@ export function therapiesTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Assertion Count',
-        labelSecondary: true,
         labelIcon: 'civic-assertion',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.assertionCount,
+          fetch: (row) => ({
+            entity: 'Assertion',
+            scope: { therapyId: row.id },
+          }),
+        },
         sort: {
           column: TherapySortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,

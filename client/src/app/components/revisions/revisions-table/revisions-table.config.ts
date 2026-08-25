@@ -72,6 +72,7 @@ export function revisionsTableConfig(
   scope: RevisionsTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Revision',
     title: title ?? undefined,
     query,
     pageSize: 25,

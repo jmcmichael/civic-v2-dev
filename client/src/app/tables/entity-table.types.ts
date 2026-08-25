@@ -68,12 +68,6 @@ export interface CvcColumn<
    * with the rest of the civic set; `TABLE_ICONS` covers specs.
    */
   labelIcon?: string
-  /**
-   * Render the header label in secondary (muted) text — the count columns'
-   * convention: entity icon + a quiet 'Ct.', so the icon stays the header's
-   * identity and the label just disambiguates it from an entity column.
-   */
-  labelSecondary?: boolean
   /** keep the column out of the visible-columns panel, e.g. the select column */
   omitFromPrefs?: boolean
   /**
@@ -104,11 +98,45 @@ export type CvcCellSpec<TRow> =
   | CvcTextTagCell<TRow>
   | CvcTextCell<TRow>
   | CvcExternalLinkCell<TRow>
+  | CvcCountTagCell<TRow>
   | CvcCustomCell<TRow>
 
 /** row checkbox; the table owns the selection, the column just marks the slot */
 export interface CvcSelectCell {
   kind: 'select'
+}
+
+/** one entity a count-tag popover shows: the tag ref, plus the cache seed
+ * that makes it renderable when the entity has never been fetched whole */
+export interface CvcCountEntity {
+  ref: EntityTagRef
+  seed?: EntityTagRef & { name: string } & Record<string, unknown>
+}
+
+/**
+ * What a `count-tag` cell's popover asks the app to fetch: the counted
+ * entity's typename and the parent scope (`{ diseaseId: 7 }`). The table
+ * itself never queries — the app registers a `CVC_COUNT_ENTITY_RESOLVER`
+ * (see `count-entity-resolver.ts`) that maps requests onto real queries,
+ * which keeps the framework entity-agnostic.
+ */
+export interface CvcCountEntitiesRequest {
+  entity: string
+  scope: Record<string, unknown>
+}
+
+/**
+ * A count rendered as a full-width tag whose hover popover discloses the
+ * counted entities themselves — the count columns' cell. Provide `refs`
+ * when the row already carries the entities (mp's variants), `fetch` to
+ * resolve them lazily on first open; neither means a plain count tag with
+ * no popover (counts whose entities no query can yet scope to the row).
+ */
+export interface CvcCountTagCell<TRow> {
+  kind: 'count-tag'
+  count: (row: TRow) => Maybe<number>
+  refs?: (row: TRow) => ReadonlyArray<CvcCountEntity>
+  fetch?: (row: TRow) => CvcCountEntitiesRequest
 }
 
 /**

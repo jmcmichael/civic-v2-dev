@@ -56,6 +56,9 @@ The 17 browse tables under `views/` are the intended future consumers.
 | `table-scroll.directive.ts`                           | `cvcTableScrollObserver` — scroll phase + next-page requests for the CDK virtual-scroll viewport                                |
 | `filters/table-filter-input.component.ts`             | Text/numeric filter box in the filter row                                                                                       |
 | `filters/enum-filter-menu.component.ts`               | The funnel-icon dropdown for enum filters                                                                                       |
+| `cells/count-tag-cell.component.ts`                   | The `count-tag` cell: count tag + lazy entities popover                                                                         |
+| `count-entity-resolver.ts`                            | `CVC_COUNT_ENTITY_RESOLVER` token — the app maps popover requests onto queries                                                  |
+| `column-filter-extra.directive.ts`                    | `ng-template[cvcColumnFilterExtra]` — host content beside a column's filter control                                             |
 | `enum-filter-options.ts`                              | `enumFilterOptions(Enum)` — filter options derived from a generated enum; `groupEnumOptions` — their rendered sections          |
 | `index.ts`                                            | Barrel; its doc names the consumer surface vs. internals                                                                        |
 | `testing/entity-table.harness.ts` (in `app/testing/`) | `describeEntityTableContract` — the 12-behaviour contract every table must pass                                                 |
@@ -330,21 +333,21 @@ cell's _contents_ vary by kind.
 └──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-|  #  | Region             | Template anchor                            | Driven by                                                                                      |
-| :-: | ------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-|  1  | Card title         | `#cardTitle` → `[nzTitle]`                 | `spec().title`                                                                                 |
-|  2  | "Loading…" tag     | `#toolbar` → `[nzExtra]`                   | `isFetchingMore()` — a page being appended, not the first load                                 |
-|  3  | "No more rows" tag | `#toolbar`                                 | `noMoreRows()` — phase `'bottom'` **and** `hasNextPage === false`                              |
-|  4  | Error tags         | `#toolbar`                                 | `requestError()`, split by `splitError` into query vs. network                                 |
-|  5  | Row count          | `data-testid="row-count"`                  | `rows().length` of `displayedTotal()`                                                          |
-|  6  | Reset filters      | `data-testid="filter-reset"`               | `onResetFilters()` — filters + sort, never visibility                                          |
-|  7  | Visible columns    | `data-testid="column-prefs-trigger"`       | `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`                                         |
-|  8  | Scroll region      | `[nzScroll]` on `nz-table`                 | `bodyHeight()` — explicit `height()`, `'auto'` measurement, or `'100%'` through the flex chain |
-|  9  | Header row         | `thead > tr.col-header-row`                | `visibleColumns()`; sorters via `sortOrderFor()` / `onSortChange()`                            |
-| 10  | Filter row         | `thead > tr.filter-row`                    | `filterValue(col.key)` / `onFilterChange()`                                                    |
-| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options`, typed by `CvcEnumOption`                                                 |
-| 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                                               |
-| 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                                                   |
+|  #  | Region             | Template anchor                            | Driven by                                                                                                                                                                   |
+| :-: | ------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  1  | Card title         | `#cardTitle` → `[nzTitle]`                 | `spec().title`                                                                                                                                                              |
+|  2  | "Loading…" tag     | `#toolbar` → `[nzExtra]`                   | `isFetchingMore()` — a page being appended, not the first load                                                                                                              |
+|  3  | "No more rows" tag | `#toolbar`                                 | `noMoreRows()` — phase `'bottom'` **and** `hasNextPage === false`                                                                                                           |
+|  4  | Error tags         | `#toolbar`                                 | `requestError()`, split by `splitError` into query vs. network                                                                                                              |
+|  5  | Row count          | `data-testid="row-count"`                  | `rows().length` of `displayedTotal()`                                                                                                                                       |
+|  6  | Settings popover   | `data-testid="column-prefs-trigger"`       | `settingsTitle()` ("[entity] Settings"); `columnPrefs()` / `checkedPrefs()` / `onPrefsChange()`; `reset-columns` → `onResetColumns()`, `reset-filters` → `onResetFilters()` |
+|  8  | Scroll region      | `[nzScroll]` on `nz-table`                 | `bodyHeight()` — explicit `height()`, `'auto'` measurement, or `'100%'` through the flex chain                                                                              |
+|  9  | Header row         | `thead > tr.col-header-row`                | `visibleColumns()`; sorters via `sortOrderFor()` / `onSortChange()`                                                                                                         |
+| 10  | Filter row         | `thead > tr.filter-row`                    | `filterValue(col.key)` / `onFilterChange()`                                                                                                                                 |
+| 11  | Enum filter menu   | `cvc-enum-filter-menu` (funnel trigger)    | `col.filter.options` (`CvcEnumOption`); its split Reset clears the column, its `reset-all` item fires `onResetFilters()` (the funnel deliberately stays open)               |
+| 12  | Filter-cell extras | `ng-template[cvcColumnFilterExtra="key"]`  | host-projected content beside a column's filter control (assertions' status scope menu beside the AID box)                                                                  |
+| 12  | Body               | `tbody` + `ng-template nz-virtual-scroll`  | `rows()`, tracked by `trackById`                                                                                                                                            |
+| 13  | Scroll reporting   | `cvcTableScrollObserver` on the `nz-table` | `(scrollPhase)` and `(fetchRequest)` outputs                                                                                                                                |
 
 The `|<- fixed ->|` brackets in the header band are ng-zorro's own boolean
 `nzLeft`/`nzRight` pinning: a hidden measure row supplies the widths and the
@@ -402,15 +405,16 @@ template has exactly one `<th>` for headers, one for filters, and one `<td>`.
 
 Cell kinds (`CvcCellSpec<TRow>` union):
 
-| kind            | renders                                           | key fields                                                                                                                                              |
-| --------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `select`        | row checkbox                                      | — (the table owns the selection)                                                                                                                        |
-| `entity-tag`    | `cvc-tag` / `cvc-tag-list` + `cvc-collection-tag` | `ref(row)` (single, list or nothing), `seed(row)` (cache projection for denormalised rows), `maxTags`, `truncateLabel`, `fullWidth`, `popoverPlacement` |
-| `enum-tag`      | `cvc-attribute-tag`                               | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
-| `text-tag`      | ≤100px column: icon tag, full text in tooltip, `label(row)` swaps the icon for compact text (AMP's 'IA'); >100px: the string itself, ellipsized, full text on hover | `text(row)`, `label(row)`                                                                      |
-| `text`          | plain text with filter-match highlighting         | `text(row)` (string, number or list), `highlight`, `tooltip` (full text on hover, for values that outrun the column; suspended during scroll)           |
-| `external-link` | `cvc-link-tag` to an off-site URL                 | `href(row)`, `text(row)` (falls back to the href), `tooltip`, `iconName`                                                                                |
-| `custom`        | polymorpheus content declared in the config       | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
+| kind            | renders                                                                                                                                                             | key fields                                                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `select`        | row checkbox                                                                                                                                                        | — (the table owns the selection)                                                                                                                        |
+| `entity-tag`    | `cvc-tag` / `cvc-tag-list` + `cvc-collection-tag`                                                                                                                   | `ref(row)` (single, list or nothing), `seed(row)` (cache projection for denormalised rows), `maxTags`, `truncateLabel`, `fullWidth`, `popoverPlacement` |
+| `enum-tag`      | `cvc-attribute-tag`                                                                                                                                                 | `value(row)` — the raw enum value/number, `tooltip(row)`                                                                                                |
+| `count-tag`     | full-width count tag; hover popover lazily lists the counted entities (`refs` in-row, or `fetch` via the app's `CVC_COUNT_ENTITY_RESOLVER`)                         | `count(row)`, `refs(row)`, `fetch(row)`                                                                                                                 |
+| `text-tag`      | ≤100px column: icon tag, full text in tooltip, `label(row)` swaps the icon for compact text (AMP's 'IA'); >100px: the string itself, ellipsized, full text on hover | `text(row)`, `label(row)`                                                                                                                               |
+| `text`          | plain text with filter-match highlighting                                                                                                                           | `text(row)` (string, number or list), `highlight`, `tooltip` (full text on hover, for values that outrun the column; suspended during scroll)           |
+| `external-link` | `cvc-link-tag` to an off-site URL                                                                                                                                   | `href(row)`, `text(row)` (falls back to the href), `tooltip`, `iconName`                                                                                |
+| `custom`        | polymorpheus content declared in the config                                                                                                                         | `content` — handler `(ctx) => string`, component, or TemplateRef; typed `CvcCellContext<TRow>`                                                          |
 
 Every kind reads through an **accessor** (`ref`/`value`/`text`) checked
 against `TRow` — a column's data need not share its key, and there is no
@@ -837,8 +841,9 @@ viewport, which measures real layout and renders nothing in jsdom — the same
 reason `table-scroll.directive.spec.ts` tests its pure `nextFetch` rather than
 the directive. Row-level behaviour lives in the Playwright goldens, which
 address the table through the `data-testid` contract (`entity-table`, `row`,
-`column-header`, `column-filter`, `row-count`, `filter-reset`,
-`column-prefs-trigger/-panel`, all carrying `data-column`/`data-row-id`).
+`column-header`, `column-filter`, `row-count`, `column-prefs-trigger/-panel`,
+`reset-columns`, `reset-filters`, `reset-reveal`, `reset-all`, all carrying
+`data-column`/`data-row-id`).
 
 One trap worth knowing at every jsdom layer: ant's icon service throws on an
 unregistered icon name **outside** the test's call stack, which leaves

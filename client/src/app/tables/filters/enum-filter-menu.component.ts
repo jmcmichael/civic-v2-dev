@@ -8,8 +8,11 @@ import {
 import { evidenceEnumDisplay } from '@app/core/pipes/evidence-enum-display-type'
 import { InputEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzMenuModule } from 'ng-zorro-antd/menu'
+import { NzSpaceModule } from 'ng-zorro-antd/space'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { CvcEnumOption } from '../entity-table.types'
 import { groupEnumOptions } from '../enum-filter-options'
 
@@ -28,7 +31,14 @@ import { groupEnumOptions } from '../enum-filter-options'
  */
 @Component({
   selector: 'cvc-enum-filter-menu',
-  imports: [NzButtonModule, NzIconModule, NzMenuModule],
+  imports: [
+    NzButtonModule,
+    NzDropdownModule,
+    NzIconModule,
+    NzMenuModule,
+    NzSpaceModule,
+    NzTooltipModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ul nz-menu>
@@ -72,19 +82,51 @@ import { groupEnumOptions } from '../enum-filter-options'
         }
       }
       <li style="padding: 3px">
-        <button
-          nz-button
-          nzType="default"
+        <!-- split reset: the button clears this column; its reveal opens
+             the reset-all action (the table has no toolbar reset button) -->
+        <nz-space-compact
           nzBlock
-          nzSize="small"
-          [disabled]="selected() === null"
-          (click)="selectedChange.emit(null)">
-          <span
-            nz-icon
-            nzType="retweet"
-            nzTheme="outline"></span>
-          Reset
-        </button>
+          nzSize="small">
+          <button
+            nz-button
+            nzType="default"
+            nzSize="small"
+            style="flex: 1 1 auto"
+            [disabled]="selected() === null"
+            (click)="selectedChange.emit(null)">
+            <span
+              nz-icon
+              nzType="retweet"
+              nzTheme="outline"></span>
+            Reset
+          </button>
+          <button
+            nz-button
+            nzType="default"
+            nzSize="small"
+            data-testid="reset-reveal"
+            nz-dropdown
+            [nzDropdownMenu]="resetMenu"
+            nzPlacement="bottomRight">
+            <span
+              nz-icon
+              nzType="down"
+              nzTheme="outline"></span>
+          </button>
+        </nz-space-compact>
+        <nz-dropdown-menu #resetMenu="nzDropdownMenu">
+          <ul nz-menu>
+            <li
+              nz-menu-item
+              data-testid="reset-all"
+              nz-tooltip
+              nzTooltipTitle="Reset all table filters"
+              nzTooltipPlacement="right"
+              (click)="resetAll.emit()">
+              Reset all
+            </li>
+          </ul>
+        </nz-dropdown-menu>
       </li>
     </ul>
   `,
@@ -96,6 +138,10 @@ export class CvcEnumFilterMenuComponent {
   readonly showIcons = input<boolean>(true)
 
   readonly selectedChange = output<unknown>()
+
+  /** reset EVERY table filter, not just this column's — see the split
+   * reset button; the host table wires this to its onResetFilters() */
+  readonly resetAll = output<void>()
 
   protected readonly groups = computed(() => groupEnumOptions(this.options()))
 

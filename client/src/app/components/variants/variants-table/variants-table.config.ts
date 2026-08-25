@@ -42,6 +42,7 @@ export function variantsTableConfig(
   scope: VariantsTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Variant',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -209,14 +210,20 @@ export function variantsTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceItemCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { variantId: row.id },
+          }),
+        },
         sort: {
           column: VariantsSortColumns.EvidenceItemCount,
           default: 'descend',

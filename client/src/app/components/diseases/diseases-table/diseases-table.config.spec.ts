@@ -220,11 +220,13 @@ describe('diseasesTableConfig', () => {
       expect(text.highlight).toBe(true)
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'featureCount', 'text').text(ROW)).toBe(1)
-      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe(40)
-      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(130)
-      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe(12)
+    it('renders the counts as count-tag cells', () => {
+      expect(specCell(spec, 'featureCount', 'count-tag').count(ROW)).toBe(1)
+      expect(specCell(spec, 'variantCount', 'count-tag').count(ROW)).toBe(40)
+      expect(specCell(spec, 'evidenceItemCount', 'count-tag').count(ROW)).toBe(
+        130
+      )
+      expect(specCell(spec, 'assertionCount', 'count-tag').count(ROW)).toBe(12)
     })
 
     it('renders Features as a custom cell (slim LinkableFeature projection, missing fields)', () => {

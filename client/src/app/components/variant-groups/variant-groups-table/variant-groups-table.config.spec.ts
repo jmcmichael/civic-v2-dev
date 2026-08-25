@@ -186,9 +186,11 @@ describe('variantGroupsTableConfig', () => {
       expect(features.highlight).toBe(true)
     })
 
-    it('renders the counts as plain text', () => {
-      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe(12)
-      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(34)
+    it('renders the counts as count-tag cells', () => {
+      expect(specCell(spec, 'variantCount', 'count-tag').count(ROW)).toBe(12)
+      expect(specCell(spec, 'evidenceItemCount', 'count-tag').count(ROW)).toBe(
+        34
+      )
     })
   })
 })

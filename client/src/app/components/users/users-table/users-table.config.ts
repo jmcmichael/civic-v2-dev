@@ -48,6 +48,7 @@ export function usersTableConfig(
   scope: UsersTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Contributor',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -116,26 +117,31 @@ export function usersTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { userId: row.id },
+          }),
+        },
         sort: { column: UsersSortColumns.EvidenceCount },
       },
       {
         key: 'revisionCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Revision Count',
-        labelSecondary: true,
         labelIcon: 'civic-revision',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.revisionCount },
+        cell: { kind: 'count-tag', count: (row) => row.revisionCount },
         sort: { column: UsersSortColumns.RevisionCount },
       },
     ],

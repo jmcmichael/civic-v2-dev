@@ -172,7 +172,7 @@ describe('variantTypesTableConfig', () => {
     })
 
     it('renders the variant count as plain text', () => {
-      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe(130)
+      expect(specCell(spec, 'variantCount', 'count-tag').count(ROW)).toBe(130)
     })
 
     it('renders SOID as an external link-out to sequenceontology.org', () => {

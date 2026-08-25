@@ -15,6 +15,12 @@
  * Developer docs live in ./docs: 01-architecture.md (incl. the column-model
  * → ng-zorro mapping), 02-authoring-guide.md, 03-troubleshooting.md.
  */
+export { CvcColumnFilterExtraDirective } from './column-filter-extra.directive'
+export { CVC_COUNT_ENTITY_RESOLVER } from './count-entity-resolver'
+export type {
+  CvcCountEntitiesResult,
+  CvcCountEntityResolver,
+} from './count-entity-resolver'
 export { CvcEntityTableComponent } from './entity-table.component'
 export type { CvcTableRequestError } from './entity-table-query'
 export { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
@@ -47,6 +53,9 @@ export type {
   CvcColumnFilter,
   CvcColumnPref,
   CvcColumnSort,
+  CvcCountEntitiesRequest,
+  CvcCountEntity,
+  CvcCountTagCell,
   CvcCustomCell,
   CvcEntityTagCell,
   CvcEnumFilter,
