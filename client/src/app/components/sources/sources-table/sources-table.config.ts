@@ -85,6 +85,7 @@ export function sourcesTableConfig(
   scope: SourcesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Source',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -215,14 +216,20 @@ export function sourcesTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceItemCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { sourceId: row.id },
+          }),
+        },
         sort: {
           column: SourcesSortColumns.EvidenceCount,
           default: 'descend',
@@ -231,14 +238,13 @@ export function sourcesTableConfig(
       },
       {
         key: 'sourceSuggestionCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Suggestion Count',
-        labelSecondary: true,
         labelIcon: 'civic-queue',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.sourceSuggestionCount },
+        cell: { kind: 'count-tag', count: (row) => row.sourceSuggestionCount },
         sort: {
           column: SourcesSortColumns.SuggestionCount,
           directions: SORT_DESCEND_FIRST,

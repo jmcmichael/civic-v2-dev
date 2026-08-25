@@ -23,6 +23,7 @@ export function clinicalTrialsTableConfig(
   title: Maybe<string>
 ) {
   return entityTableConfig({
+    entity: 'Clinical Trial',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -57,14 +58,20 @@ export function clinicalTrialsTableConfig(
       },
       {
         key: 'sourceCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Source Count',
-        labelSecondary: true,
         labelIcon: 'civic-source',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.sourceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.sourceCount,
+          fetch: (row) => ({
+            entity: 'Source',
+            scope: { clinicalTrialId: row.id },
+          }),
+        },
         sort: {
           column: ClinicalTrialSortColumns.SourceCount,
           directions: SORT_DESCEND_FIRST,
@@ -72,14 +79,20 @@ export function clinicalTrialsTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { clinicalTrialId: row.id },
+          }),
+        },
         sort: {
           column: ClinicalTrialSortColumns.EvidenceItemCount,
           directions: SORT_DESCEND_FIRST,

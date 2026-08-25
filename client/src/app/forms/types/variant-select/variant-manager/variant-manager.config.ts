@@ -20,6 +20,7 @@ import { VariantManagerGQL } from './variant-manager.query.gql.generated'
  */
 export function variantManagerConfig(query: VariantManagerGQL) {
   return entityTableConfig({
+    entity: 'Variant',
     title: 'Use checkboxes to select or deselect Variants',
     query,
     pageSize: 50,

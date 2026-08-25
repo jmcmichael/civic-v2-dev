@@ -67,6 +67,7 @@ export function evidenceTableConfig(
   options: { displayMolecularProfile?: boolean } = {}
 ) {
   return entityTableConfig({
+    entity: 'Evidence',
     title: title ?? undefined,
     query,
     pageSize: 35,

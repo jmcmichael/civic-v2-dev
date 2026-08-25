@@ -239,9 +239,9 @@ describe('variantsTableConfig', () => {
       ])
     })
 
-    it('renders the category and count as plain text', () => {
+    it('renders the category as text and the count as a count-tag', () => {
       expect(textCell('category').text(ROW)).toBe('Gene')
-      expect(textCell('evidenceCount').text(ROW)).toBe(130)
+      expect(specCell(spec, 'evidenceCount', 'count-tag').count(ROW)).toBe(130)
       expect(textCell('aliases').text(ROW)).toEqual(['RS113488022'])
     })
   })

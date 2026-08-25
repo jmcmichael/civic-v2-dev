@@ -23,6 +23,7 @@ export function variantGroupsTableConfig(
   title: Maybe<string>
 ) {
   return entityTableConfig({
+    entity: 'Variant Group',
     title: title ?? undefined,
     query,
     pageSize: 30,
@@ -74,14 +75,20 @@ export function variantGroupsTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Variant Count',
-        labelSecondary: true,
         labelIcon: 'civic-variant',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.variantCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.variantCount,
+          fetch: (row) => ({
+            entity: 'Variant',
+            scope: { variantGroupId: row.id },
+          }),
+        },
         sort: {
           column: VariantGroupsSortColumns.VariantCount,
           default: 'descend',
@@ -90,14 +97,13 @@ export function variantGroupsTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: { kind: 'count-tag', count: (row) => row.evidenceItemCount },
         sort: {
           column: VariantGroupsSortColumns.EvidenceItemCount,
           directions: SORT_DESCEND_FIRST,

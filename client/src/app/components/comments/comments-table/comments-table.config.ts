@@ -32,6 +32,7 @@ export function commentsTableConfig(
   scope: CommentsTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Comment',
     title: title ?? undefined,
     query,
     pageSize: 35,

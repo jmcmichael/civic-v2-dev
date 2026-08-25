@@ -27,6 +27,7 @@ export function phenotypesTableConfig(
   scope: PhenotypesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Phenotype',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -69,14 +70,20 @@ export function phenotypesTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.evidenceCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { phenotypeId: row.id },
+          }),
+        },
         sort: {
           column: PhenotypeSortColumns.EvidenceItemCount,
           default: 'descend',
@@ -85,14 +92,20 @@ export function phenotypesTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Assertion Count',
-        labelSecondary: true,
         labelIcon: 'civic-assertion',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.assertionCount,
+          fetch: (row) => ({
+            entity: 'Assertion',
+            scope: { phenotypeId: row.id },
+          }),
+        },
         sort: {
           column: PhenotypeSortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,

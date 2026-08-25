@@ -31,6 +31,7 @@ export function organizationsTableConfig(
   title: Maybe<string>
 ) {
   return entityTableConfig({
+    entity: 'Organization',
     title: title ?? undefined,
     query,
     pageSize: 35,

@@ -28,6 +28,7 @@ export function variantTypesTableConfig(
   scope: VariantTypesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Variant Type',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -70,14 +71,20 @@ export function variantTypesTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Variant Count',
-        labelSecondary: true,
         labelIcon: 'civic-variant',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.variantCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.variantCount,
+          fetch: (row) => ({
+            entity: 'Variant',
+            scope: { variantTypeIds: [row.id] },
+          }),
+        },
         sort: {
           column: VariantTypeSortColumns.VariantCount,
           directions: SORT_DESCEND_FIRST,

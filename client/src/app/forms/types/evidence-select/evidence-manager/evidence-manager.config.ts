@@ -37,6 +37,7 @@ const RATING_OPTIONS = [1, 2, 3, 4, 5].map((stars) => ({
  */
 export function evidenceManagerConfig(query: EvidenceManagerGQL) {
   return entityTableConfig({
+    entity: 'Evidence',
     title: 'Use checkboxes to select or deselect Evidence Items',
     query,
     pageSize: 50,

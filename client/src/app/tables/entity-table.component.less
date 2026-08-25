@@ -131,24 +131,49 @@ tr.data-row td:first-of-type {
   text-overflow: ellipsis;
 }
 
-// a labelSecondary header label: quiet text beside the entity icon (the
-// count columns' 'Ct.')
-.label-secondary {
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: normal;
+// breathing room between a header's entity icon and its label (variants
+// Type, mp Score); icon-only headers stay centered without it. The template
+// guarantees no whitespace text node, so this margin IS the gap.
+.header-label-icon.with-label {
+  margin-right: 4px;
+}
+
+// filter control + optional host-projected extra (a scope-menu trigger)
+// side by side in the filter cell
+.filter-cell-content {
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+  width: 100%;
+
+  > cvc-table-filter-input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }
 
 .prefs-popover {
   max-width: 240px;
 
+  nz-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    row-gap: 4px;
+  }
+
   // one row per column; flex (not block) so the label text sits beside its
   // checkbox — a global style blockifies the wrapper's label span, which
   // wrapped the text beneath the box
-  ::ng-deep .ant-checkbox-group-item {
+  ::ng-deep label.ant-checkbox-wrapper {
     display: flex;
     align-items: center;
     column-gap: 6px;
+    margin-inline-start: 0;
     margin-right: 0;
+  }
+
+  .prefs-divider {
+    margin: 8px 0;
   }
 }
 

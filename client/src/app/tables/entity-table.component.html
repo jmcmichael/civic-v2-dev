@@ -38,23 +38,26 @@
             [nzSortOrder]="sortOrderFor(col)"
             [nzSortDirections]="col.sort?.directions ?? defaultSortDirections"
             (nzSortOrderChange)="onSortChange(col, $event)">
+            <!-- whitespace-controlled: the label interpolation sits hard
+                 against the @if block so no incidental space text node
+                 shifts labels — icon↔label spacing is the CSS margin alone,
+                 and iconless labels start flush at the cell padding.
+                 prettier-ignore keeps it from re-inserting those nodes. -->
+            <!-- prettier-ignore -->
             <span
               class="col-header-label"
               nz-tooltip
-              [nzTooltipTitle]="col.tooltip">
-              @if (col.labelIcon; as icon) {
+              [nzTooltipTitle]="col.tooltip"
+              >@if (col.labelIcon; as icon) {
                 <span
                   nz-icon
+                  class="header-label-icon"
+                  [class.with-label]="!!col.label"
                   [nzType]="icon"
                   nzTheme="twotone"
                   [nzTwotoneColor]="labelIconColor(icon)"></span>
-              }
-              @if (col.labelSecondary) {
-                <span class="label-secondary">{{ col.label }}</span>
-              } @else {
-                {{ col.label }}
-              }
-            </span>
+              }{{ col.label }}</span
+            >
           </th>
         }
       </tr>
@@ -72,73 +75,82 @@
               [nzLeft]="col.fixed === 'left'"
               [nzRight]="col.fixed === 'right'"
               class="attribute-filter">
-              @if (col.filter; as filter) {
-                @switch (filter.kind) {
-                  @case ('enum') {
-                    @if (filter.control === 'select') {
-                      <!-- the legacy tables' idiom, for columns wide enough
+              <!-- flex row so a host-projected extra (a scope-menu trigger)
+                   sits beside the filter control -->
+              <span class="filter-cell-content">
+                @if (col.filter; as filter) {
+                  @switch (filter.kind) {
+                    @case ('enum') {
+                      @if (filter.control === 'select') {
+                        <!-- the legacy tables' idiom, for columns wide enough
                            to show it; the funnel is for narrow icon columns -->
-                      <nz-select
-                        class="enum-filter-select"
-                        nzSize="small"
-                        nzAllowClear
-                        [nzPlaceHolder]="filter.placeholder ?? ''"
-                        [ngModel]="filterValue(col.key)"
-                        (ngModelChange)="onFilterChange(col, $event)">
-                        <!-- index tracking: a grouped enum may repeat a value
+                        <nz-select
+                          class="enum-filter-select"
+                          nzSize="small"
+                          nzAllowClear
+                          [nzPlaceHolder]="filter.placeholder ?? ''"
+                          [ngModel]="filterValue(col.key)"
+                          (ngModelChange)="onFilterChange(col, $event)">
+                          <!-- index tracking: a grouped enum may repeat a value
                              under several headings (significance's NA) -->
-                        @for (
-                          group of enumOptionGroups(filter.options);
-                          track $index
-                        ) {
-                          @if (group.title) {
-                            <nz-option-group [nzLabel]="group.title">
+                          @for (
+                            group of enumOptionGroups(filter.options);
+                            track $index
+                          ) {
+                            @if (group.title) {
+                              <nz-option-group [nzLabel]="group.title">
+                                @for (option of group.options; track $index) {
+                                  <nz-option
+                                    [nzValue]="option.value"
+                                    [nzLabel]="option.label" />
+                                }
+                              </nz-option-group>
+                            } @else {
                               @for (option of group.options; track $index) {
                                 <nz-option
                                   [nzValue]="option.value"
                                   [nzLabel]="option.label" />
                               }
-                            </nz-option-group>
-                          } @else {
-                            @for (option of group.options; track $index) {
-                              <nz-option
-                                [nzValue]="option.value"
-                                [nzLabel]="option.label" />
                             }
                           }
-                        }
-                      </nz-select>
-                    } @else {
-                      <nz-filter-trigger
-                        [nzActive]="filterValue(col.key) !== null"
-                        [nzDropdownMenu]="enumMenu"
-                        #enumTrigger="nzFilterTrigger">
-                        <span
-                          nz-icon
-                          nzType="filter"
-                          nzTheme="fill"></span>
-                      </nz-filter-trigger>
-                      <nz-dropdown-menu #enumMenu="nzDropdownMenu">
-                        <cvc-enum-filter-menu
-                          [options]="filter.options"
-                          [showIcons]="filter.showIcons ?? true"
-                          [selected]="filterValue(col.key)"
-                          (selectedChange)="
-                            onFilterChange(col, $event);
-                            enumTrigger.nzVisible = false
-                          " />
-                      </nz-dropdown-menu>
+                        </nz-select>
+                      } @else {
+                        <nz-filter-trigger
+                          [nzActive]="filterValue(col.key) !== null"
+                          [nzDropdownMenu]="enumMenu"
+                          #enumTrigger="nzFilterTrigger">
+                          <span
+                            nz-icon
+                            nzType="filter"
+                            nzTheme="fill"></span>
+                        </nz-filter-trigger>
+                        <nz-dropdown-menu #enumMenu="nzDropdownMenu">
+                          <cvc-enum-filter-menu
+                            [options]="filter.options"
+                            [showIcons]="filter.showIcons ?? true"
+                            [selected]="filterValue(col.key)"
+                            (selectedChange)="
+                              onFilterChange(col, $event);
+                              enumTrigger.nzVisible = false
+                            "
+                            (resetAll)="onResetFilters()" />
+                        </nz-dropdown-menu>
+                      }
+                    }
+                    @default {
+                      <cvc-table-filter-input
+                        [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
+                        [placeholder]="filter.placeholder"
+                        [value]="filterBoxValue(col.key)"
+                        (valueChange)="onFilterChange(col, $event)" />
                     }
                   }
-                  @default {
-                    <cvc-table-filter-input
-                      [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
-                      [placeholder]="filter.placeholder"
-                      [value]="filterBoxValue(col.key)"
-                      (valueChange)="onFilterChange(col, $event)" />
-                  }
                 }
-              }
+                @if (filterExtraFor(col.key); as extra) {
+                  <!-- no context, so the embedded view is created once -->
+                  <ng-container [ngTemplateOutlet]="extra" />
+                }
+              </span>
             </th>
           }
         </tr>
@@ -284,6 +296,14 @@
                 }
               }
 
+              @case ('count-tag') {
+                <cvc-count-tag-cell
+                  [count]="cell.count(row)"
+                  [items]="cell.refs?.(row)"
+                  [request]="cell.fetch?.(row)"
+                  [suspended]="isScrolling()" />
+              }
+
               @case ('text') {
                 <!-- empty segments mean there was nothing to show; the
                        accessor's own emptiness rules live in textSegments -->
@@ -413,49 +433,69 @@
       <ng-content select="[cvcTableToolbarExtra]" />
     </nz-col>
 
+    <!-- the settings popover carries the reset actions; the toolbar's old
+         standalone reset button is gone (reset-all also lives in every
+         enum filter dropdown's split Reset button) -->
     <nz-col nzFlex="35px">
-      <nz-space-compact>
-        <button
-          nz-button
-          type="button"
-          nzType="default"
-          nzSize="small"
-          data-testid="filter-reset"
-          nz-tooltip
-          nzTooltipTitle="Reset filters"
-          (click)="onResetFilters()">
-          <span
-            nz-icon
-            nzType="retweet"
-            nzTheme="outline"></span>
-        </button>
-        <button
-          nz-button
-          nz-popover
-          type="button"
-          nzType="default"
-          nzSize="small"
-          data-testid="column-prefs-trigger"
-          nzPopoverTitle="Visible Columns"
-          [nzPopoverContent]="prefsPopover"
-          nzPopoverTrigger="click">
-          <span
-            nz-icon
-            nzType="setting"
-            nzTheme="outline"></span>
-        </button>
-      </nz-space-compact>
+      <button
+        nz-button
+        nz-popover
+        type="button"
+        nzType="default"
+        nzSize="small"
+        data-testid="column-prefs-trigger"
+        [nzPopoverTitle]="settingsTitle()"
+        [nzPopoverContent]="prefsPopover"
+        nzPopoverTrigger="click">
+        <span
+          nz-icon
+          nzType="setting"
+          nzTheme="outline"></span>
+      </button>
 
       <ng-template #prefsPopover>
         <div
           data-testid="column-prefs-panel"
           class="prefs-popover">
-          <!-- ng-zorro 22 splits these: nzOptions supplies the list, ngModel
+          <!-- projected-label form of the v22 checkbox group: each label
+               owns its content (room for icons later); ngModel still
                carries only the checked values -->
           <nz-checkbox-group
-            [nzOptions]="columnPrefs()"
             [ngModel]="checkedPrefs()"
-            (ngModelChange)="onPrefsChange($event)"></nz-checkbox-group>
+            (ngModelChange)="onPrefsChange($event)">
+            @for (pref of columnPrefs(); track pref.value) {
+              <label
+                nz-checkbox
+                [nzValue]="pref.value"
+                >{{ pref.label }}</label
+              >
+            }
+          </nz-checkbox-group>
+          <nz-divider class="prefs-divider" />
+          <nz-space-compact
+            nzBlock
+            nzSize="small">
+            <button
+              nz-button
+              type="button"
+              nzType="default"
+              nzSize="small"
+              style="flex: 1 1 50%"
+              data-testid="reset-columns"
+              (click)="onResetColumns()">
+              Reset Columns
+            </button>
+            <button
+              nz-button
+              type="button"
+              nzType="default"
+              nzSize="small"
+              style="flex: 1 1 50%"
+              data-testid="reset-filters"
+              (click)="onResetFilters()">
+              Reset Filters
+            </button>
+          </nz-space-compact>
         </div>
       </ng-template>
     </nz-col>

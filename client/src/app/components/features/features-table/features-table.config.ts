@@ -49,6 +49,7 @@ export function featuresTableConfig(
   scope: FeaturesTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Feature',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -167,14 +168,20 @@ export function featuresTableConfig(
       },
       {
         key: 'molecularProfileCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Molecular Profile Count',
-        labelSecondary: true,
         labelIcon: 'civic-molecularprofile',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.molecularProfileCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.molecularProfileCount,
+          fetch: (row) => ({
+            entity: 'MolecularProfile',
+            scope: { featureId: row.id },
+          }),
+        },
         sort: {
           column: FeaturesSortColumns.MolecularProfileCount,
           directions: SORT_DESCEND_FIRST,
@@ -182,14 +189,20 @@ export function featuresTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Variant Count',
-        labelSecondary: true,
         labelIcon: 'civic-variant',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.variantCount },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.variantCount,
+          fetch: (row) => ({
+            entity: 'Variant',
+            scope: { featureId: row.id },
+          }),
+        },
         sort: {
           column: FeaturesSortColumns.VariantCount,
           default: 'descend',
@@ -198,14 +211,13 @@ export function featuresTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
+        cell: { kind: 'count-tag', count: (row) => row.evidenceItemCount },
         sort: {
           column: FeaturesSortColumns.EvidenceItemCount,
           directions: SORT_DESCEND_FIRST,
@@ -213,14 +225,13 @@ export function featuresTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Assertion Count',
-        labelSecondary: true,
         labelIcon: 'civic-assertion',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
+        cell: { kind: 'count-tag', count: (row) => row.assertionCount },
         sort: {
           column: FeaturesSortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,

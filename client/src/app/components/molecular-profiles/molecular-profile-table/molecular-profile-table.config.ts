@@ -53,6 +53,7 @@ export function molecularProfileTableConfig(
   scope: MolecularProfileTableScope = {}
 ) {
   return entityTableConfig({
+    entity: 'Molecular Profile',
     title: title ?? undefined,
     query,
     pageSize: 35,
@@ -186,16 +187,19 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Evidence Count',
-        labelSecondary: true,
         labelIcon: 'civic-evidence',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: {
-          kind: 'text',
-          text: (row) => formatCount(row.evidenceItemCount),
+          kind: 'count-tag',
+          count: (row) => row.evidenceItemCount,
+          fetch: (row) => ({
+            entity: 'EvidenceItem',
+            scope: { molecularProfileId: row.id },
+          }),
         },
         sort: {
           column: MolecularProfilesSortColumns.EvidenceItemCount,
@@ -204,14 +208,20 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'assertionCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Assertion Count',
-        labelSecondary: true,
         labelIcon: 'civic-assertion',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => formatCount(row.assertionCount) },
+        cell: {
+          kind: 'count-tag',
+          count: (row) => row.assertionCount,
+          fetch: (row) => ({
+            entity: 'Assertion',
+            scope: { molecularProfileId: row.id },
+          }),
+        },
         sort: {
           column: MolecularProfilesSortColumns.AssertionCount,
           directions: SORT_DESCEND_FIRST,
@@ -219,14 +229,18 @@ export function molecularProfileTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Ct.',
+        label: '',
         tooltip: 'Variant Count',
-        labelSecondary: true,
         labelIcon: 'civic-variant',
-        width: '70px',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => formatCount(row.variantCount) },
+        // plain count for now: the row's LinkableVariant list cannot seed
+        // tags (the browse MV omits `flagged`, which LinkableVariant demands
+        // non-null -- selecting it 500s every row) and no variants query
+        // scopes by molecularProfileId. Popover follows the MV v15 +
+        // resolver follow-up that adds flagged.
+        cell: { kind: 'count-tag', count: (row) => row.variantCount },
         sort: {
           column: MolecularProfilesSortColumns.VariantCount,
           directions: SORT_DESCEND_FIRST,

@@ -26,3 +26,4 @@ export {
 } from './cached-entity'
 export { CvcTagListComponent } from './tag-list.component'
 export { CvcCollectionTagComponent } from './collection-tag.component'
+export { CvcPopoverContentResizeDirective } from './popover-content-resize.directive'

@@ -255,15 +255,16 @@ describe('molecularProfileTableConfig', () => {
       expect(therapies.ref(ROW)).toEqual([{ __typename: 'Therapy', id: 9 }])
     })
 
-    it('renders score and counts locale-grouped, like the legacy | number pipe', () => {
+    it('renders the score locale-grouped and the counts as count-tag cells', () => {
       expect(specCell(spec, 'molecularProfileScore', 'text').text(ROW)).toBe(
         '125.5'
       )
-      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(
-        '1,240'
+      // count-tag cells carry the raw number; the cell formats it
+      expect(specCell(spec, 'evidenceItemCount', 'count-tag').count(ROW)).toBe(
+        1240
       )
-      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe('3')
-      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe('1')
+      expect(specCell(spec, 'assertionCount', 'count-tag').count(ROW)).toBe(3)
+      expect(specCell(spec, 'variantCount', 'count-tag').count(ROW)).toBe(1)
     })
   })
 

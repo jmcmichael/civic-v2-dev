@@ -26,13 +26,13 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
         [nzStep]="1"
         style="width: 100%" />
     } @else {
-      <!-- No nzSize here, deliberately. It would belong on the nz-input
-           directive (<nz-input-wrapper> has no such input and ignores it),
-           and setting it there shrinks the box to 22px — matching the
-           existing tables means leaving it off. -->
+      <!-- nzSize belongs on the nz-input directive; <nz-input-wrapper> has
+           no such input and ignores it. Small everywhere, matching the enum
+           selects — default-size boxes fattened the filter row. -->
       <nz-input-wrapper>
         <input
           nz-input
+          nzSize="small"
           [placeholder]="placeholder() ?? ''"
           [ngModel]="value()"
           (ngModelChange)="value.set($event)" />

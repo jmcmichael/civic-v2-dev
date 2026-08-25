@@ -40,6 +40,12 @@ interface EntityTableShape<TData, TVars, TNode, TSortColumn extends string> {
   /** shown in the card header; omit for an untitled table */
   title?: string
   /**
+   * The row entity's display name ('Assertion', 'Molecular Profile'…) —
+   * titles the settings popover ("Assertion Settings"). Omitted, the
+   * popover falls back to "Table Settings".
+   */
+  entity?: string
+  /**
    * Picks the connection out of the query result.
    *
    * A method rather than a function-typed property, which is what lets
