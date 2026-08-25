@@ -36,10 +36,14 @@ fields — edit them in the manager's `*.config.ts`. Two constraints:
 
 ### Change a filter
 
-Enum filters render as the funnel-icon dropdown by default; set
-`control: 'select'` (with a `placeholder`) on columns wide enough to show
-the full inline `nz-select` — the legacy tables' idiom (users' Role,
-features'/sources'/variants' Type).
+Enum filters render as the funnel-icon dropdown by default — plain
+ng-zorro menu items, the value's civic icon plus its label (`showIcons:
+false` drops the icon for enums without a civic set). Set
+`control: 'select'` on columns wide enough to show the inline `nz-select`
+(users' Role, features'/sources'/variants' Type). Keep the select's
+`placeholder` as short as possible — the convention is `'Any'` — and size
+the column to the smallest px width that fits the header label and that
+prompt (90px fits 'Type'/'Role' + 'Any').
 
 Options may declare a `group`: contiguous options sharing one render as a
 titled section in both controls (`nz-menu-group` under the funnel,
@@ -138,10 +142,11 @@ Checklist:
 - **The field must be in the query.** Add it to `*.query.gql` +
   `yarn generate-apollo` or the accessor will not compile.
 - `key` must be unique — `entityTableConfig` throws in dev mode otherwise.
-- A count column labelled just "Count" should set `labelIcon` to its
-  entity's civic glyph (`'civic-evidence'` etc., rendered twotone) — the
-  icon is what tells four "Count" headers apart, as every legacy browse
-  table did.
+- A count column follows the count convention: `label: 'Ct.'` +
+  `labelSecondary: true` (muted text) beside `labelIcon` set to its entity's
+  civic glyph (`'civic-evidence'` etc., rendered twotone), ~70px — the icon
+  is what tells four count headers apart, the quiet label what marks them as
+  counts.
 - If the rows are denormalised (`Browse*`) and the new column is an
   `entity-tag`, it needs a `seed` (see §3 below).
 - New enum-tag values may resolve **civic icons** the test harness must know:

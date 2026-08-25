@@ -58,6 +58,7 @@ fragment BrowseSourceSuggestionRowFields on SourceSuggestion {
     id
     name
     link
+    flagged
     deprecated
   }
   disease {
@@ -76,6 +77,7 @@ fragment BrowseSourceSuggestionRowFields on SourceSuggestion {
   source {
     link
     id
+    name
     citation
     citationId
     sourceType
@@ -88,7 +90,6 @@ fragment BrowseSourceSuggestionRowFields on SourceSuggestion {
     id
     displayName
     role
-    profileImagePath(size: 32)
   }
   creationActivity {
     parsedNote {
@@ -103,15 +104,4 @@ fragment BrowseSourceSuggestionRowFields on SourceSuggestion {
   status
   reason
   createdAt
-}
-
-mutation UpdateSourceSuggestionStatus(
-  $input: UpdateSourceSuggestionStatusInput!
-) {
-  updateSourceSuggestionStatus(input: $input) {
-    sourceSuggestion {
-      id
-      status
-    }
-  }
 }

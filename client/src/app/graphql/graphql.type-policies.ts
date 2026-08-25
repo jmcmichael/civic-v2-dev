@@ -126,18 +126,10 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
       // (the previous list was also missing sortBy, and named a
       // nonexistent `id` arg while omitting the real `ids`)
       browseSources: paginatedByAllArgs(),
-      sourceSuggestions: relayStylePagination([
-        'sourceType',
-        'citationId',
-        'sourceId',
-        'molecularProfileName',
-        'diseaseName',
-        'comment',
-        'submitter',
-        'citation',
-        'status',
-        'submitterId',
-      ]),
+      // the source-suggestions browse table's field; the previous
+      // hand-maintained list omitted sortBy, so differently-sorted result
+      // sets shared one cache entry
+      sourceSuggestions: paginatedByAllArgs(),
       // the therapies browse table's field; see paginatedByAllArgs above
       // (the previous list was also missing ids)
       browseTherapies: paginatedByAllArgs(),

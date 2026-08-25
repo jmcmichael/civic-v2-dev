@@ -93,6 +93,24 @@ export class CvcUpdateSourceSuggestionForm implements OnDestroy {
             reason: this.reason,
             organizationId: this.mostRecentOrg?.id,
           },
+        },
+        {
+          // flip the row's status tag in place immediately; Apollo reverts
+          // the cache write if the server rejects the change. The browse
+          // table deliberately does not refetch (the row stays put until
+          // the next filter/sort change), so this is the whole visible
+          // result of a successful update.
+          optimisticResponse: {
+            __typename: 'Mutation' as const,
+            updateSourceSuggestionStatus: {
+              __typename: 'UpdateSourceSuggestionStatusPayload',
+              sourceSuggestion: {
+                __typename: 'SourceSuggestion',
+                id: this.sourceSuggestionId,
+                status: this.newStatus,
+              },
+            },
+          },
         }
       )
 

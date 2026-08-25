@@ -131,11 +131,23 @@ tr.data-row td:first-of-type {
   text-overflow: ellipsis;
 }
 
+// a labelSecondary header label: quiet text beside the entity icon (the
+// count columns' 'Ct.')
+.label-secondary {
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: normal;
+}
+
 .prefs-popover {
   max-width: 240px;
 
+  // one row per column; flex (not block) so the label text sits beside its
+  // checkbox — a global style blockifies the wrapper's label span, which
+  // wrapped the text beneath the box
   ::ng-deep .ant-checkbox-group-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    column-gap: 6px;
     margin-right: 0;
   }
 }
