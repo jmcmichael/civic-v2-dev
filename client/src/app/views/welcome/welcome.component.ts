@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http'
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { feedDefaultSettings } from '@app/components/activities/activity-feed/activity-feed.config'
-import { ActivityFeedSettings } from '@app/components/activities/activity-feed/activity-feed.types'
+import { streamDefaultSettings } from '@app/components/activities/activity-stream/activity-stream.config'
+import { ActivityStreamSettings } from '@app/components/activities/activity-stream/activity-stream.types'
 
 interface GithubRelease {
   html_url: string
@@ -21,8 +21,8 @@ interface GithubRelease {
 export class WelcomeComponent implements OnInit {
   release$?: Observable<GithubRelease>
 
-  feedSettings: ActivityFeedSettings = {
-    ...feedDefaultSettings,
+  feedSettings: ActivityStreamSettings = {
+    ...streamDefaultSettings,
     showOrganization: false,
   }
   constructor(private http: HttpClient) {}

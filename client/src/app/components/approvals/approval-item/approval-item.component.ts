@@ -1,8 +1,9 @@
 import {
+  ChangeDetectionStrategy,
   Component,
+  computed,
   input,
   Signal,
-  ChangeDetectionStrategy,
 } from '@angular/core'
 import { NzListModule } from 'ng-zorro-antd/list'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
@@ -14,14 +15,14 @@ import { ApprovalListNodeFragment } from '@app/components/approvals/approval-lis
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { AssertionDetailFieldsFragment } from '@app/views/assertions/assertions-detail/assertions-detail.query.gql.generated'
 import {
-  ActivityFeedFilters,
-  ActivityFeedSettings,
-} from '@app/components/activities/activity-feed/activity-feed.types'
+  ActivityStreamFilters,
+  ActivityStreamSettings,
+} from '@app/components/activities/activity-stream/activity-stream.types'
 import {
-  feedDefaultFilters,
-  feedDefaultSettings,
-} from '@app/components/activities/activity-feed/activity-feed.config'
-import { CvcActivityFeed } from '@app/components/activities/activity-feed/activity-feed.component'
+  streamDefaultFilters,
+  streamDefaultSettings,
+} from '@app/components/activities/activity-stream/activity-stream.config'
+import { CvcActivityStream } from '@app/components/activities/activity-stream/activity-stream.component'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcApprovalActionTooltipPipe } from '@app/components/approvals/approval-pipes/approval-action-tooltip.pipe'
@@ -44,7 +45,7 @@ import { CommonModule } from '@angular/common'
     NzTagModule,
     NzFlexModule,
     CvcPipesModule,
-    CvcActivityFeed,
+    CvcActivityStream,
     CvcUserTagModule,
     CvcOrganizationTagModule,
     CvcApprovalActionTooltipPipe,
@@ -66,18 +67,16 @@ export class CvcApprovalItemComponent {
     this.viewer = toSignal(this.viewerService.viewer$)
   }
 
-  feedSettings(): ActivityFeedSettings {
-    return {
-      ...feedDefaultSettings,
-      showOrganization: false,
-    }
+  /** referentially stable so the stream's input seeding never re-runs */
+  readonly feedSettings: ActivityStreamSettings = {
+    ...streamDefaultSettings,
+    showOrganization: false,
   }
 
-  feedFilters(approval: ApprovalListNodeFragment): ActivityFeedFilters {
-    return {
-      ...feedDefaultFilters,
-      linkedApprovalId: approval.id,
-      occurredAfter: new Date(approval.lastReviewed),
-    }
-  }
+  /** the approval's unapproved-changes window, recomputed per approval */
+  readonly feedFilters = computed<ActivityStreamFilters>(() => ({
+    ...streamDefaultFilters,
+    linkedApprovalId: this.cvcApproval().id,
+    occurredAfter: new Date(this.cvcApproval().lastReviewed),
+  }))
 }

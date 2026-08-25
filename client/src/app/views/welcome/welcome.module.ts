@@ -10,7 +10,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcSiteStatsCardModule } from '@app/components/shared/site-stats-card/site-stats-card.module'
 import { HomepageNewsItemsComponent } from './news-item-list/news-item-list.component'
-import { CvcActivityFeed } from '@app/components/activities/activity-feed/activity-feed.component'
+import { CvcActivityStream } from '@app/components/activities/activity-stream/activity-stream.component'
 import { CvcAutoHeightDivModule } from '@app/directives/auto-height-div/auto-height-div.module'
 import { CvcWelcomeBannerComponent } from '@app/views/welcome/banners/welcome-banner/welcome-banner.component'
 import { CvcDiscoverBannerComponent } from '@app/views/welcome/banners/discover-banner/discover-banner.component'
@@ -30,7 +30,7 @@ import { NewsItemListComponent } from '@app/components/news/news-item-list/news-
     WelcomeRoutingModule,
     CvcAutoHeightDivModule,
     CvcSiteStatsCardModule,
-    CvcActivityFeed,
+    CvcActivityStream,
     NewsItemListComponent,
     CvcWelcomeBannerComponent,
     CvcDiscoverBannerComponent,

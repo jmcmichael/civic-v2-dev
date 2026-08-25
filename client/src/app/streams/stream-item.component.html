@@ -1,0 +1,91 @@
+<nz-card
+  nzSize="small"
+  [nzTitle]="itemHeader"
+  [nzExtra]="extraContent() ? itemExtra : undefined"
+  class="stream-item"
+  [class.expanded]="expanded()"
+  [attr.data-item-id]="id()"
+  [attr.data-item-kind]="kind()"
+  data-testid="stream-item">
+  @if (expandable()) {
+    <div
+      class="detail"
+      [@details]="expanded() ? 'visible' : 'hidden'"
+      (@details.done)="onDetailsDone($event)">
+      <!-- the inner @if stays: the region renders while the collapse
+           animation runs, and must empty once it settles -->
+      @if (expanded()) {
+        @if (detailContent(); as detail) {
+          <ng-container *polymorpheusOutlet="detail; context: context" />
+        } @else if (detailError()) {
+          <div
+            class="detail-error"
+            data-testid="stream-item-detail-error">
+            Details could not be loaded.
+            <a (click)="retryDetail()">Retry</a>
+          </div>
+        } @else {
+          <div class="loading-container">
+            <nz-skeleton
+              [nzActive]="true"
+              [nzTitle]="false"
+              [nzParagraph]="{ rows: 2 }" />
+          </div>
+        }
+      }
+    </div>
+  }
+  @if (footerContent(); as footer) {
+    <div class="footer">
+      <ng-container *polymorpheusOutlet="footer as value; context: context">{{
+        value
+      }}</ng-container>
+    </div>
+  }
+</nz-card>
+
+<ng-template #itemHeader>
+  @if (showSelectBox()) {
+    <label
+      nz-checkbox
+      class="select"
+      nz-tooltip
+      [nzTooltipTitle]="selectTooltip()"
+      [nzDisabled]="!selectableItem()"
+      [nzChecked]="isSelected()"
+      (nzCheckedChange)="setSelected($event)"></label>
+  }
+  @if (hasToggleRail()) {
+    @if (expandable()) {
+      <div
+        class="toggle"
+        data-testid="stream-item-toggle"
+        (click)="toggle()">
+        <span
+          nz-icon
+          nzType="caret-right"
+          nzTheme="outline"></span>
+      </div>
+    } @else {
+      <div class="no-toggle">
+        <span
+          nz-icon
+          nzType="caret-right"
+          nzTheme="outline"></span>
+      </div>
+    }
+  }
+  <div class="summary">
+    <ng-container
+      *polymorpheusOutlet="summaryContent() as value; context: context"
+      >{{ value }}</ng-container
+    >
+  </div>
+</ng-template>
+
+<ng-template #itemExtra>
+  <ng-container
+    *polymorpheusOutlet="extraContent()! as value; context: context"
+    >{{ value }}</ng-container
+  >
+</ng-template>

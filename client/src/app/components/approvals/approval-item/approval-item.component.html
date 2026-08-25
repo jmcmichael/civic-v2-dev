@@ -110,13 +110,12 @@
             <div
               class="revisions-container"
               #revisionsContainer>
-              <cvc-activity-feed
-                [cvcFilters]="feedFilters(approval)"
-                [cvcSettings]="feedSettings()"
+              <cvc-activity-stream
+                [cvcFilters]="feedFilters()"
+                [cvcSettings]="feedSettings"
                 [cvcShowFilters]="false"
-                [cvcAutoHeightTarget]="revisionsContainer"
-                [cvcAutoHeightOffset]="-40"
-                cvcTitle="Unapproved Changes"></cvc-activity-feed>
+                cvcHeight="210px"
+                cvcTitle="Unapproved Changes"></cvc-activity-stream>
             </div>
           </div>
         </nz-collapse-panel>

@@ -1,0 +1,38 @@
+<nz-select
+  nzPlaceHolder="Select Organization"
+  nzMode="multiple"
+  nzAllowClear
+  [(ngModel)]="cvcOrganizationId"
+  (nzOnSearch)="onSearch$.next($event)"
+  [nzCustomTemplate]="organizationLabel"
+  [nzNotFoundContent]="notFound"
+  [nzOptionHeightPx]="28">
+  @for (organization of filteredOrganizations(); track organization.id) {
+    <nz-option
+      nzCustomContent
+      [nzLabel]="organization.name"
+      [nzValue]="organization.id">
+      <span
+        nz-icon
+        nzType="civic-organization"
+        nzTheme="twotone"
+        [nzTwotoneColor]="'Organization' | entityColor"></span>
+      {{ organization.name }}
+    </nz-option>
+  }
+</nz-select>
+
+<ng-template
+  #organizationLabel
+  let-selected>
+  <span
+    nz-icon
+    nzType="civic-organization"
+    nzTheme="twotone"
+    [nzTwotoneColor]="'Organization' | entityColor"></span>
+  {{ selected.nzLabel }}
+</ng-template>
+
+<ng-template #notFound>
+  <span>No organizations found matching "{{ onSearch() }}"</span>
+</ng-template>

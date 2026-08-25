@@ -1,0 +1,94 @@
+@let activity = context.item;
+@let popover = !context.isScrolling;
+
+<div class="description">
+  <!-- Approve/Revoke Approval: organization-led phrasing -->
+  @if (
+    (activity.__typename === 'ApproveAssertionActivity' ||
+      activity.__typename === 'RevokeApprovalActivity') &&
+    activity.organization
+  ) {
+    <cvc-organization-tag
+      [org]="activity.organization"
+      [enablePopover]="popover"></cvc-organization-tag>
+    <span
+      class="verbiage"
+      nz-typography
+      nzType="secondary">
+      {{ activity.verbiage }}
+    </span>
+    <cvc-activity-subject-tag
+      [subject]="activity.subject"
+      [enablePopover]="popover" />
+  } @else {
+    <!-- default phrasing: user, verbiage, subject, organization -->
+    @if (mode() !== 'USER') {
+      <cvc-user-tag
+        [user]="activity.user"
+        [enablePopover]="popover"></cvc-user-tag>
+    }
+    @if (activity.__typename === 'CommentActivity') {
+      <span
+        class="verbiage"
+        nz-typography
+        nzType="secondary">
+        added
+      </span>
+      <cvc-comment-tag
+        [comment]="activity.comment"
+        [enablePopover]="popover"></cvc-comment-tag>
+      <span
+        class="verbiage"
+        nz-typography
+        nzType="secondary">
+        to
+      </span>
+    } @else {
+      <span
+        class="verbiage"
+        nz-typography
+        nzType="secondary">
+        {{ activity.verbiage }}
+      </span>
+    }
+    @if (mode() !== 'SUBJECT') {
+      <cvc-activity-subject-tag
+        [subject]="activity.subject"
+        [enablePopover]="popover" />
+    } @else {
+      <span
+        class="subject-type"
+        nz-typography
+        nzType="secondary">
+        this {{ activity.subject.__typename | entityTypeToTypeLabel }}
+      </span>
+    }
+    @if (
+      activity.__typename === 'DeleteCommentActivity' &&
+      activity.subject.__typename === 'Comment'
+    ) {
+      <span
+        class="verbiage"
+        nz-typography
+        nzType="secondary">
+        from
+      </span>
+      <cvc-activity-subject-tag
+        [subject]="activity.subject.commentable"
+        [enablePopover]="popover" />
+    }
+    @if (showOrganization() && activity.organization) {
+      <div class="organization">
+        <span
+          class="verbiage"
+          nz-typography
+          nzType="secondary">
+          for
+        </span>
+        <cvc-organization-tag
+          [org]="activity.organization"
+          [enablePopover]="popover"></cvc-organization-tag>
+      </div>
+    }
+  }
+</div>
