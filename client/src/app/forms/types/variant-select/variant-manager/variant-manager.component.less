@@ -2,8 +2,7 @@
 // drawer sets a definite height, this passes it through, and the table's own
 // flex chain turns it into a resolvable `nzScroll.y: 100%`. `min-height: 0` is
 // what allows the shrink — without it a flex item refuses to go below its
-// content height, which is the overlarge-table symptom the old per-table
-// height directives existed to fight.
+// content height, which reads as an overlarge table.
 // `min-width: 0` is as load-bearing here as `min-height: 0`. This is a flex
 // item of `.manager-drawer`, and a flex item defaults to `min-width: auto` —
 // "never narrower than my content". The table's content is wider than the

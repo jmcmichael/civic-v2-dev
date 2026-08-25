@@ -7,12 +7,9 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
 /**
  * The text/numeric filter box in a column header.
  *
- * One copy, replacing the byte-identical templates under both managers whose
- * components differed only by a `cvc-variant-` selector prefix.
- *
  * Change detection is Default, not OnPush: the value is a `model()` written on
  * every keystroke, and the suffix icon flips between search and clear based on
- * it. The originals said the same thing by setting `Eager` explicitly.
+ * it.
  */
 @Component({
   selector: 'cvc-table-filter-input',
@@ -29,14 +26,10 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
         [nzStep]="1"
         style="width: 100%" />
     } @else {
-      <!-- No nzSize here, deliberately.
-
-           The managers wrote nzSize="small" on <nz-input-wrapper>, which has no
-           such input, so it did nothing and the filter boxes rendered at the
-           default 28px. Moving it onto the nz-input directive — which does have
-           the input, and does propagate the size to its wrapper — is what makes
-           it take effect, dropping the box to 22px and the filter row from 35px
-           to 29px. Matching the existing tables means leaving it off. -->
+      <!-- No nzSize here, deliberately. It would belong on the nz-input
+           directive (<nz-input-wrapper> has no such input and ignores it),
+           and setting it there shrinks the box to 22px — matching the
+           existing tables means leaving it off. -->
       <nz-input-wrapper>
         <input
           nz-input

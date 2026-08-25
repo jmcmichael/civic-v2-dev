@@ -23,26 +23,12 @@ const RATING_OPTIONS = [1, 2, 3, 4, 5].map((stars) => ({
  * The evidence manager's table, as configuration.
  *
  * The larger of the two managers and the one that exercises the whole cell
- * union: six enum tags, four entity tags, a text tag, the select column and one
- * column hidden by default.
- *
- * Three lookup tables go, replaced by fields the compiler checks — and each of
- * them was hiding a live bug:
- *
- * - `columnKeyToQueryVariableMap` -> `filter.var`, typed `keyof` this query's
- *   variables. The rating column filtered on `evidenceRating` where the query
- *   declares `$rating`, so it set a variable nothing read and filtered nothing.
- * - `columnKeyToSortColumnMap` -> `sort.column`, typed `EvidenceSortColumns`.
- *   `molecularProfile` and `therapyInteractionType` declared a sort with no
- *   entry in the map, so clicking either sent `sortBy: { column: undefined }`
- *   against a non-null argument and failed the whole query; `therapies` was
- *   marked `disabled: true` because there was nothing to send. All three now
- *   name a real column — the server grew the sorts rather than the table
- *   dropping the sorters.
- * - `omittedFromPrefs` -> the per-column `omitFromPrefs` flag. It listed `id`,
- *   which matched *two* columns: the visible EID column and a hidden one that
- *   rendered nothing. The dead one is gone, and `entityTableConfig` now rejects
- *   duplicate keys.
+ * union: six enum tags, four entity tags, a text tag, the select column and
+ * one column hidden by default. `filter.var` and `sort.column` are checked
+ * against the query's generated types, so a filter or sorter cannot silently
+ * name a variable or column the query does not have —
+ * `evidence-manager.config.spec.ts` additionally pins that every filter
+ * variable is declared *and* reaches a field.
  *
  * No `seed` on any entity-tag column: `evidenceItems` returns real
  * `EvidenceItem`s and the query spreads the `Linkable*` fragments, so every
@@ -57,8 +43,7 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
     connection: (data) => data?.evidenceItems,
     columns: [
       {
-        // no label: 25px clips any text to a fragment, and the original
-        // rendered none either
+        // no label: 25px clips any text to a fragment
         key: 'selected',
         label: '',
         width: '25px',
@@ -278,8 +263,8 @@ export function evidenceManagerConfig(query: EvidenceManagerGQL) {
         },
         sort: { column: EvidenceSortColumns.EvidenceRating },
         filter: {
-          // the query declares `$rating`, not `$evidenceRating` — the old map
-          // named the latter, so this filter had never worked
+          // the column key and the query variable genuinely differ here: the
+          // query declares `$rating`, not `$evidenceRating`
           kind: 'enum',
           var: 'rating',
           options: RATING_OPTIONS,

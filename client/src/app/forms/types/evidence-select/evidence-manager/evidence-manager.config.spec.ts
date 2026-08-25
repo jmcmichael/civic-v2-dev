@@ -21,10 +21,9 @@ import {
 } from './evidence-manager.query.gql.generated'
 
 /**
- * The three lookup tables this config replaced each hid a live bug, and the
- * types now catch two of them: a filter naming a variable the query does not
- * declare, and a sort naming a column the schema does not have, are both
- * compile errors.
+ * The config's filter and sort surface is typed against the query, so a
+ * filter naming a variable the query does not declare, or a sort naming a
+ * column the schema does not have, is a compile error.
  *
  * What types still cannot catch is a variable that is *declared but never
  * passed to the field* — `keyof EvidenceManagerQueryVariables` is generated

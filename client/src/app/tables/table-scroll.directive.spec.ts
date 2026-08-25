@@ -15,51 +15,33 @@ function pageInfo(over: Partial<PageInfo> = {}): PageInfo {
 
 describe('nextFetch', () => {
   it('asks for the next page after the current end cursor', () => {
-    expect(nextFetch(pageInfo(), 50, undefined)).toEqual({
+    expect(nextFetch(pageInfo(), 50)).toEqual({
       first: 50,
       after: 'cursor-1',
     })
   })
 
   it('asks for nothing when the connection is exhausted', () => {
-    expect(
-      nextFetch(pageInfo({ hasNextPage: false }), 50, undefined)
-    ).toBeUndefined()
+    expect(nextFetch(pageInfo({ hasNextPage: false }), 50)).toBeUndefined()
   })
 
   it('asks for nothing before a connection has loaded', () => {
-    expect(nextFetch(undefined, 50, undefined)).toBeUndefined()
+    expect(nextFetch(undefined, 50)).toBeUndefined()
   })
 
   it('asks for nothing when there is no cursor to page from', () => {
     // an empty connection reports hasNextPage without an endCursor
     // (Maybe<T> is T | undefined in this codebase, not T | null)
-    expect(
-      nextFetch(pageInfo({ endCursor: undefined }), 50, undefined)
-    ).toBeUndefined()
+    expect(nextFetch(pageInfo({ endCursor: undefined }), 50)).toBeUndefined()
   })
 
-  /**
-   * The guard that makes the looser bottom-detection safe. Scrolling around
-   * near the end fires repeatedly; without this each of those would append the
-   * same page again.
-   */
-  it('does not re-request the cursor already in flight', () => {
-    expect(
-      nextFetch(pageInfo({ endCursor: 'cursor-1' }), 50, 'cursor-1')
-    ).toBeUndefined()
-  })
-
-  it('requests again once the cursor has advanced', () => {
-    expect(
-      nextFetch(pageInfo({ endCursor: 'cursor-2' }), 50, 'cursor-1')
-    ).toEqual({
-      first: 50,
-      after: 'cursor-2',
-    })
+  // in-flight cursor dedup is the host's job — see nextFetch's doc and the
+  // fetchMore describe block in entity-table.component.spec.ts
+  it('re-reports the same cursor on repeated near-bottom events', () => {
+    expect(nextFetch(pageInfo(), 50)).toEqual(nextFetch(pageInfo(), 50))
   })
 
   it('carries the configured page size', () => {
-    expect(nextFetch(pageInfo(), 25, undefined)?.first).toBe(25)
+    expect(nextFetch(pageInfo(), 25)?.first).toBe(25)
   })
 })

@@ -18,16 +18,18 @@ export type CvcFieldValue = Maybe<
 
 /**
  * Base for every CIViC formly field: exposes the control's value as a signal
- * and binds the field to its form-state subject. Replaces the BaseFieldType
- * mixin's onModelChange$/onValueChange$ pair — one signal covers both, since
- * `formControl.valueChanges` fires for programmatic updates (quick-add, tag
- * close, restored query params) as well as user input.
+ * and publishes it into the form state. One signal covers model changes and
+ * user input alike, since `formControl.valueChanges` fires for programmatic
+ * updates (quick-add, tag close, restored query params) as well as typing.
+ *
+ * @template V the control's value type
+ * @template FC the formly field config, for fields with custom props
  */
 @Directive()
 export abstract class CvcFieldBase<
-    V extends CvcFieldValue,
-    FC extends FieldTypeConfig = FieldTypeConfig,
-  >
+  V extends CvcFieldValue,
+  FC extends FieldTypeConfig = FieldTypeConfig,
+>
   extends FieldType<FC>
   implements OnInit
 {
@@ -58,11 +60,9 @@ export abstract class CvcFieldBase<
   }
 
   /**
-   * Publishes this field's value into the form state, under its own `key`.
-   *
-   * The `${field.key}$` naming convention this used to rely on is gone with the
-   * subjects — the state keys are now just the field keys, so there is no
-   * convention left to get wrong.
+   * Publishes this field's value into the form state signal keyed by the
+   * field's own formly `key`. A no-op (with a console warning) when the form
+   * provides no state or no slot for the key.
    */
   protected connectStateField(): void {
     const formState = this.field.options?.formState
@@ -84,6 +84,10 @@ export abstract class CvcFieldBase<
       .subscribe((v) => stateField.set(normalizeValue(v)))
   }
 
+  /**
+   * Clears the control to `undefined`. Note the fork: `CvcEnumSelectFieldBase`
+   * overrides this to `[]` for multi-selects, whose nz model is an array.
+   */
   protected resetField(): void {
     this.formControl.setValue(undefined)
   }

@@ -24,10 +24,10 @@ import { ConfigOption, FormlyModule } from '@ngx-formly/core'
  * field's answer. Companion to CvcSelectFieldsRegistryModule; both are
  * imported by types/form-types.module.ts.
  *
- * Two registrations from the old per-field modules are deliberately not
- * carried over, both unused and both broken: `base-multi-select` extended
- * `level-select` (the evidence level enum, copied by accident), and `enum`
- * extended a bare `select` that this app never registers.
+ * `base-multi-select` and `enum` are deliberately not registered: nothing
+ * uses either, and both were broken as previously defined (one aliased the
+ * evidence-level enum by accident, the other extended a `select` type this
+ * app never registers).
  */
 const baseFieldTypes: ConfigOption = {
   types: [

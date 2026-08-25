@@ -75,21 +75,15 @@ export interface IEntityState {
 }
 
 /**
- * Form state as signals rather than subjects.
+ * Shared form state, as signals.
  *
- * This replaced a map of BehaviorSubjects plus a `formReady$` barrier. The
- * barrier existed because a BehaviorSubject replays its current value to every
- * new subscriber, and during population that value is the initial `undefined` —
- * so a field subscribing to a sibling's value immediately received an event
- * indistinguishable from "the user just cleared this", and dutifully cleared a
- * value the revise form had only just loaded. `formReady$` was a global "don't
- * subscribe yet" flag compensating for that.
- *
- * Signals remove the need for it. A signal has a current value rather than a
- * stream of events, so there is nothing to replay and misread; and effects flush
- * at the end of a change-detection cycle, by which point every field's ngOnInit
- * has published. A field created later still reads the truth whenever it reads,
- * which is the case the old barrier could not handle at all.
+ * `fields` are written by the fields themselves (`connectStateField`);
+ * `enums` and `requires` are `computed` from them. There is deliberately no
+ * readiness barrier: a signal has a current value rather than a stream of
+ * events, so there is nothing to replay and misread, and effects flush at the
+ * end of a change-detection cycle — by which point every field's ngOnInit has
+ * published. A field created later still reads the truth whenever it reads.
+ * (`base.state.spec.ts` pins these semantics.)
  */
 class BaseState implements IEntityState {
   formLayout: NzFormLayoutType = 'vertical'

@@ -65,8 +65,7 @@ export class CvcVariantgroupReviseForm
     this.form = new UntypedFormGroup({})
     this.fields = variantgroupSuggestFields
     // no form state: this form's fields are plain inputs with no cross-field
-    // gating. It previously carried a lone formReady$ that nothing consumed
-    // once the readiness barrier was removed.
+    // gating
     this.options = {}
     this.reviseAssertionMutator = new MutatorWithState(this.networkErrorService)
   }

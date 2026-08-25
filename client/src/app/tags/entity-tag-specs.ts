@@ -37,9 +37,9 @@ import {
 /**
  * Per-typename rendering/config spec for CvcTag. The fragment defines the
  * exact cache shape watched via Apollo.watchFragment; presentation options
- * (icon, color, linkability) live here rather than being smuggled through
- * component inputs (the old design let two presentational inputs change the
- * fragment shape, making correctness depend on attribute order).
+ * (icon, color, linkability) live here rather than on component inputs —
+ * presentation must never change the fragment shape, or correctness would
+ * depend on attribute order.
  */
 export interface EntityTagSpec<F extends LinkableEntity = LinkableEntity> {
   readonly fragment: TypedDocumentNode<F, unknown>

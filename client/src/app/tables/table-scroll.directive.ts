@@ -39,28 +39,22 @@ const SCROLL_DEBOUNCE_MS = 300
 /**
  * Emits scroll phase and next-page requests for a virtual-scrolled nz-table.
  *
- * Replaces the two byte-identical `table-scroller.directive.ts` copies in the
- * managers. It reports rather than acts: the host owns the QueryRef and decides
- * what a fetch request means, which is what lets one query pipeline serialise
- * refetches and fetchMores instead of racing them. (The older app-wide
+ * It reports rather than acts: the host owns the QueryRef and decides what a
+ * fetch request means, which is what lets one query pipeline serialise
+ * refetches and fetchMores instead of racing them. (The app-wide
  * `cvcTableScroll` calls `fetchMore` itself; it stays until the browse tables
  * move onto this table, at which point it goes too.)
  *
  * The selector is `cvcTableScrollObserver`, not `cvcTableScroll`, because that
- * one is the app-wide directive's and eighteen modules still import it. Two
- * directives matching one `nz-table` would both run, and the older one would
- * try to `fetchMore` on a QueryRef this table owns. The names are also not
- * aliased: this is an implementation detail of `cvc-entity-table`, so its
- * bindings are read in exactly one template and gain nothing from a prefix.
+ * name belongs to the app-wide directive and both would otherwise run on the
+ * same `nz-table` — with the app-wide one calling `fetchMore` on a QueryRef
+ * this table owns. The bindings are not prefixed: this is an implementation
+ * detail of `cvc-entity-table`, read in exactly one template.
  *
- * Two behaviours differ deliberately from the directives it replaces:
- *
- * 1. Bottom detection reads the current offset instead of comparing successive
- *    offsets with `pairwise()`. The old form required two distinct decreasing
- *    readings, so dragging the scrollbar to the end in one motion produced a
- *    single event and silently fetched nothing.
- * 2. A fetch is not re-requested for a cursor already in flight, so the looser
- *    trigger above cannot turn into a burst of duplicate pages.
+ * Bottom detection reads the current offset rather than comparing successive
+ * offsets with `pairwise()`: requiring two distinct decreasing readings means
+ * a single-motion scrollbar drag to the end produces only one event and
+ * silently fetches nothing.
  */
 @Directive({ selector: '[cvcTableScrollObserver]' })
 export class CvcTableScrollObserverDirective {
@@ -76,11 +70,16 @@ export class CvcTableScrollObserverDirective {
   /** set to send the viewport back to a row, e.g. row 0 after a refetch */
   readonly scrollToIndex = input<Maybe<number>>(undefined)
 
+  /** scroll gesture phase; `bottom` accompanies each fetch request */
   readonly scrollPhase = output<CvcScrollEvent>()
+  /**
+   * A request for the next page. Near-bottom scrolling fires repeatedly, so
+   * the host must ignore a request for a cursor it already has in flight —
+   * dedup lives with the QueryRef's owner because only it knows when a
+   * refetch has made a cursor stale (see
+   * `CvcEntityTableComponent.onFetchRequest`).
+   */
   readonly fetchRequest = output<CvcScrollFetch>()
-
-  /** the cursor a fetch has already been requested for, to avoid re-asking */
-  private requestedCursor?: string
 
   constructor() {
     effect(() => {
@@ -120,10 +119,8 @@ export class CvcTableScrollObserverDirective {
         // An unmeasured viewport reports zero distance to the bottom, so it
         // reads as "already scrolled to the end" and would ask for a page
         // before the user has done anything. A table mounting inside a drawer
-        // does spend a frame at zero height, and the resize that fixes it emits
-        // a scroll event — so this is reachable, even though the doubled first
-        // page that prompted the guard turned out to have a different cause
-        // (variables never reaching `watch`).
+        // does spend a frame at zero height, and the resize that fixes it
+        // emits a scroll event — so this is reachable.
         filter(() => viewport.getViewportSize() > 0),
         map(() => viewport.measureScrollOffset('bottom')),
         filter((offset) => offset < this.targetHeight()),
@@ -180,14 +177,8 @@ export class CvcTableScrollObserverDirective {
   }
 
   private requestFetch(): void {
-    const fetch = nextFetch(
-      this.pageInfo(),
-      this.fetchCount(),
-      this.requestedCursor
-    )
-    if (!fetch) return
-    this.requestedCursor = fetch.after
-    this.fetchRequest.emit(fetch)
+    const fetch = nextFetch(this.pageInfo(), this.fetchCount())
+    if (fetch) this.fetchRequest.emit(fetch)
   }
 }
 
@@ -197,18 +188,25 @@ export class CvcTableScrollObserverDirective {
  * Split out from the directive because it carries the rules worth testing, and
  * exercising them through a directive would mean standing up a real
  * virtual-scroll viewport with real layout — which jsdom does not provide.
+ *
+ * In-flight cursor dedup is deliberately NOT here. A stale guard held in the
+ * directive cannot be reset when the host refetches, and relay cursors are
+ * positional, so a post-refetch first page can legitimately end on the same
+ * cursor string — the host's own guard is the only one that can be reset at
+ * the right moment.
+ *
+ * @param pageInfo the current connection's page info
+ * @param fetchCount rows to request per page
+ * @returns relay pagination arguments for the next page, or undefined
  */
 export function nextFetch(
   pageInfo: Maybe<CvcPageInfo>,
-  fetchCount: number,
-  requestedCursor: Maybe<string>
+  fetchCount: number
 ): Maybe<CvcScrollFetch> {
   if (!pageInfo?.hasNextPage) return undefined
   const after = pageInfo.endCursor
-  // endCursor is nullable on an empty connection; and re-requesting the cursor
-  // already in flight would append the same page twice, which is the risk the
-  // looser bottom-detection above would otherwise introduce
-  if (!after || after === requestedCursor) return undefined
+  // endCursor is nullable on an empty connection
+  if (!after) return undefined
   return { first: fetchCount, after }
 }
 
@@ -232,7 +230,7 @@ function afterViewportReady(
       const late = host.cdkVirtualScrollViewport
       if (!late) {
         throw new Error(
-          'cvcTableScroll found no cdkVirtualScrollViewport on its host nz-table. ' +
+          'cvcTableScrollObserver found no cdkVirtualScrollViewport on its host nz-table. ' +
             'The table needs [nzVirtualItemSize] and an nz-virtual-scroll body.'
         )
       }

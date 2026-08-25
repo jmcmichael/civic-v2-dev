@@ -47,9 +47,18 @@ export interface EntitySelectConfig<
   TParam = void,
 > {
   entityName: CvcSelectEntityName
-  /** static typename, or a resolver for polymorphic results (Variant, Feature) */
+  /**
+   * Static typename, or a resolver for polymorphic results (Variant,
+   * Feature). A resolver runs per *typeahead* result; for a prepopulated id
+   * the concrete typename usually arrives via the tag query instead.
+   */
   typename: TaggableTypename | ((result: TResult) => TaggableTypename)
   typeahead: TTypeahead
+  /**
+   * Builds the typeahead's variables. `search` is `''` when the dropdown
+   * opens with no input — the field lists what the server offers for an
+   * empty query — so do not assume a non-empty string.
+   */
   typeaheadVars: (search: string, param: TParam) => QueryVars<TTypeahead>
   typeaheadResults: (data: Maybe<QueryData<TTypeahead>>) => TResult[]
   /**
@@ -66,29 +75,43 @@ export interface EntitySelectConfig<
   minSearchStrLength?: number
 }
 
-/** An EntitySelectConfig with its query type parameters erased. */
+/**
+ * The config with its query type parameters erased. Instantiating at `AnyQuery`
+ * erases `QueryData`/`QueryVars` to `any` on its own, which covers every member
+ * except the two query services themselves.
+ */
+type ErasedSelectConfig<
+  TResult extends CvcEntitySelectResult,
+  TParam,
+> = EntitySelectConfig<TResult, AnyQuery, AnyQuery, TParam>
+
+/**
+ * An EntitySelectConfig with its query type parameters erased. Member docs live
+ * on `EntitySelectConfig`; produce one only via `entitySelectConfig`, whose
+ * literal type-check a hand-built spec would bypass.
+ *
+ * Members are inherited rather than re-declared, so one added to the config
+ * cannot go missing here. The two exceptions are the query services: a spec
+ * carries the structural subset a field actually calls, which is a different
+ * type from the generated class rather than an erasure of it.
+ */
 export interface EntitySelectSpec<
   TResult extends CvcEntitySelectResult,
   TParam = void,
-> {
-  entityName: CvcSelectEntityName
-  typename: TaggableTypename | ((result: TResult) => TaggableTypename)
+> extends Omit<ErasedSelectConfig<TResult, TParam>, 'typeahead' | 'tag'> {
   typeahead: CvcSelectQuery<any>
-  typeaheadVars: (search: string, param: TParam) => any
-  typeaheadResults: (data: any) => TResult[]
-  tag: {
+  tag: Omit<ErasedSelectConfig<TResult, TParam>['tag'], 'query'> & {
     query: CvcSelectQuery<any>
-    vars: (id: number) => any
-    result: (data: any) => Maybe<TResult>
   }
-  minSearchStrLength?: number
 }
 
 /**
  * Type-checks a config literal — inferring every query type from the GQL
- * services passed in, where the old mixin made each field spell out eleven
- * explicit type arguments — then erases them so field classes carry only
- * their result type.
+ * services passed in, so a field spells out no explicit type arguments — then
+ * erases them so field classes carry only their result type.
+ *
+ * @param config the field's select config; see `EntitySelectConfig`
+ * @returns the same object, with query type parameters erased
  */
 export function entitySelectConfig<
   TResult extends CvcEntitySelectResult,
@@ -98,5 +121,17 @@ export function entitySelectConfig<
 >(
   config: EntitySelectConfig<TResult, TTypeahead, TTag, TParam>
 ): EntitySelectSpec<TResult, TParam> {
-  return config as unknown as EntitySelectSpec<TResult, TParam>
+  return {
+    ...config,
+    // The two members no assignment can erase: `Query#fetch` types its
+    // arguments as a `{} extends TVariables` conditional tuple, which does not
+    // resolve for a generic TVariables and so satisfies no call signature.
+    // Everything else — both accessors' result types, the typename resolver —
+    // is still checked.
+    typeahead: config.typeahead as unknown as CvcSelectQuery<any>,
+    tag: {
+      ...config.tag,
+      query: config.tag.query as unknown as CvcSelectQuery<any>,
+    },
+  }
 }

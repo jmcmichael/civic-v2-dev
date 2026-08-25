@@ -21,7 +21,8 @@ export interface CvcSelectMessages {
 }
 
 export const CVC_DEFAULT_SELECT_MESSAGES: CvcSelectMessages = {
-  search: (entityName, query) => `Searching ${entityName} matching "${query}"...`,
+  search: (entityName, query) =>
+    `Searching ${entityName} matching "${query}"...`,
   searchAll: (entityName) => `Listing all ${entityName}...`,
   searchParam: (entityName, query, paramName) =>
     `Searching ${paramName} ${entityName} matching "${query}"...`,
@@ -60,21 +61,15 @@ export interface CvcSelectDisplayState {
 }
 
 /**
- * Pure derivation of the dropdown's not-found slot. The old implementation
- * tracked an open/closed transition across emissions to pick an "initial open"
- * message; the branches below reproduce every message it could show without
- * that hidden state, so this stays a plain function of the current state.
+ * Pure derivation of the dropdown's not-found slot: every message is a plain
+ * function of the current state, with deliberately no hidden open/closed
+ * transition tracking across emissions.
  */
 export function selectNotFoundDisplay(
   state: CvcSelectDisplayState
 ): CvcSelectNotFoundDisplay {
-  const {
-    entityName,
-    searchStr,
-    paramName,
-    minSearchStrLength,
-    messages,
-  } = state
+  const { entityName, searchStr, paramName, minSearchStrLength, messages } =
+    state
   const name = entityName.plural
   const hasParam = paramName !== undefined
   const base = { searchStr, showAddForm: state.showAddForm }

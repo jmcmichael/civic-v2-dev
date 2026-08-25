@@ -33,7 +33,7 @@ export class FormlyTestHostComponent {
 export interface FieldTestHostConfig {
   field: FormlyFieldConfig
   model?: Record<string, any>
-  /** becomes `options.formState`, where fields find their state subjects */
+  /** becomes `options.formState`, where fields find their state signals */
   formState?: any
   imports?: any[]
   providers?: any[]
@@ -43,6 +43,9 @@ export interface FieldTestHostConfig {
  * Configures a TestBed around one field and returns its fixture. FormlyModule
  * is provided with forRoot here (test root injector only — never do this in a
  * lazy app injector, it breaks FieldArrayType.onPopulate).
+ *
+ * @returns the host component's fixture; `fixture.componentInstance.fields[0]`
+ *   is the mounted field's FormlyFieldConfig
  */
 export function createFieldTestHost(config: FieldTestHostConfig) {
   TestBed.configureTestingModule({

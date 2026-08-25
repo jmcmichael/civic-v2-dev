@@ -27,10 +27,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { switchMap } from 'rxjs/operators'
-import {
-  EntityTagRef,
-  tagSpecFor,
-} from './entity-tag-specs'
+import { EntityTagRef, tagSpecFor } from './entity-tag-specs'
 import {
   CvcTagContext,
   CvcTagMode,
@@ -90,7 +87,7 @@ export class CvcTagComponent {
   readonly popoverPlacement = input<string>('top')
   readonly showIcon = input<boolean>(true)
   readonly fullWidth = input<boolean>(false)
-  /** CSS length for label max-width (replaces the old px-union input) */
+  /** CSS length for label max-width */
   readonly truncate = input<string | undefined>(undefined)
   readonly checked = model<boolean>(false)
   readonly closed = output<void>()
@@ -103,8 +100,10 @@ export class CvcTagComponent {
     toObservable(this.ref).pipe(
       switchMap((ref) =>
         this.apollo.watchFragment<LinkableEntity>({
-          fragment: tagSpecFor(ref.__typename)
-            .fragment as TypedDocumentNode<LinkableEntity, unknown>,
+          fragment: tagSpecFor(ref.__typename).fragment as TypedDocumentNode<
+            LinkableEntity,
+            unknown
+          >,
           from: { __typename: ref.__typename, id: ref.id },
         })
       )

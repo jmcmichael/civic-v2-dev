@@ -37,9 +37,8 @@ export type PopoverPlacement =
   | 'rightBottom'
 
 /**
- * Label max-widths the tag styling supports. CvcTag's `truncate` input takes
- * any CSS length — the old component needed a closed set because each width
- * was a separate host class.
+ * Conventional label max-widths. CvcTag's `truncate` input itself accepts
+ * any CSS length; this union just names the values configs commonly use.
  */
 export type CvcTagLabelMax =
   | '50px'
@@ -68,9 +67,9 @@ export interface LabelSegment {
 
 /**
  * Splits `label` into segments marking case-insensitive occurrences of
- * `emphasize`. Plain string matching — no RegExp construction from user
- * input, no innerHTML (replaces the old highlightTypeahead pipe's unescaped
- * RegExp + bypassSecurityTrustHtml).
+ * `emphasize`. Deliberately plain string matching: a RegExp built from user
+ * input throws on unbalanced brackets, and highlighting must never pass
+ * server-supplied names through innerHTML.
  */
 export function labelSegments(
   label: string,

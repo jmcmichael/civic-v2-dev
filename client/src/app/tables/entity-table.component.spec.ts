@@ -269,7 +269,7 @@ describe('cvc-entity-table', () => {
     expect(table.sortOrderFor(table.columns()[1])).toBeNull()
   })
 
-  it('restores the default sort on reset, as the managers did', () => {
+  it('restores the default sort on reset', () => {
     fixture.componentInstance.spec.set(buildSpec({ defaultSortOnName: true }))
     fixture.detectChanges()
     table.onSortChange(table.columns()[1], 'descend')
@@ -337,6 +337,42 @@ describe('cvc-entity-table', () => {
   it('reads counts out of the connection, preferring the filtered count', () => {
     expect(table.displayedTotal()).toBe(42)
     expect(table.rows()).toHaveLength(2)
+  })
+
+  /**
+   * The scroll directive re-reports the same cursor on every near-bottom
+   * event; the component is the single owner of the in-flight guard because
+   * only the QueryRef's owner can reset it when a refetch invalidates the
+   * cursor.
+   */
+  describe('fetchMore requests', () => {
+    it('ignores a repeat request for a cursor already in flight', async () => {
+      await settle()
+      const before = recorded.length
+
+      table.onFetchRequest({ first: 25, after: 'b' })
+      table.onFetchRequest({ first: 25, after: 'b' })
+      await settle(0)
+
+      expect(recorded.length).toBe(before + 1)
+    })
+
+    // relay cursors are positional, so after a filter change the new first
+    // page can end on the same cursor string; a guard that never resets
+    // would block paging permanently
+    it('accepts the same cursor again once the variables have changed', async () => {
+      await settle()
+      table.onFetchRequest({ first: 25, after: 'b' })
+
+      table.onFilterChange(table.columns()[1], 'kinase')
+      await settle()
+      const before = recorded.length
+
+      table.onFetchRequest({ first: 25, after: 'b' })
+      await settle(0)
+
+      expect(recorded.length).toBe(before + 1)
+    })
   })
 
   /**

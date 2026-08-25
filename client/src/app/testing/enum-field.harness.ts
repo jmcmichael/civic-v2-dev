@@ -12,8 +12,14 @@ import { civicIcons } from '@app/icons-provider.module'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { describe, expect, it } from 'vitest'
-import { MockGraphqlOperation, provideMockApollo } from './apollo-test.providers'
-import { FormlyTestHostComponent, createFieldTestHost } from './formly-test.host'
+import {
+  MockGraphqlOperation,
+  provideMockApollo,
+} from './apollo-test.providers'
+import {
+  FormlyTestHostComponent,
+  createFieldTestHost,
+} from './formly-test.host'
 
 /** Everything a spec needs to drive one mounted enum-select field. */
 export interface EnumFieldHarness {
@@ -104,10 +110,11 @@ export async function createEnumFieldHarness(
     selectedItem: () =>
       select().querySelector('.ant-select-selection-item') as HTMLElement,
     control: () => fixture.componentInstance.form.get(config.key)!,
-    field: <T,>(fieldType: Type<T>) =>
+    field: <T>(fieldType: Type<T>) =>
       fixture.debugElement.query(By.directive(fieldType as Type<any>))
         .componentInstance as T,
-    props: () => fixture.componentInstance.fields[0].props as Record<string, any>,
+    props: () =>
+      fixture.componentInstance.fields[0].props as Record<string, any>,
     destroy() {
       fixture.debugElement.injector.get(OverlayContainer).ngOnDestroy()
     },
@@ -118,15 +125,23 @@ export async function createEnumFieldHarness(
 }
 
 export interface EnumSelectContractConfig<TField> {
+  /** the field's component class, for typed instance access */
   fieldType: Type<TField>
   /** registered single-select type name */
   type: string
+  /** the model/control key, e.g. 'significance' */
   key: string
   /** the enum values the field is expected to offer, in order */
   values: string[]
   /** label text expected in the first option, when it is not the raw value */
   firstOptionText?: string
+  /**
+   * Form state factory, merged with the contract's own. A gated field is
+   * disabled until an entity type exists, so its formState must seed one or
+   * the dropdown never opens.
+   */
   formState?: () => Record<string, any>
+  /** answers GraphQL operations, for fields whose options load remotely */
   respond?: (op: MockGraphqlOperation) => Record<string, any>
 }
 

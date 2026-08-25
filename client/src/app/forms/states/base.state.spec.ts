@@ -5,15 +5,9 @@ import { EvidenceState } from './evidence.state'
 
 /**
  * The field specs all build their own form-state doubles, so none of them can
- * see a change to the real state. These cover the state itself.
- *
- * This file replaced one testing `formReady$`, a global "the form has finished
- * populating" barrier. It existed because the state was a map of
- * BehaviorSubjects, which replay to every new subscriber — so a field reacting
- * to a sibling's value received the initial `undefined` as though the user had
- * just cleared it, and wiped a value a revise form had only loaded. As signals
- * there is nothing to replay, and the derived values below are `computed`, so
- * they cannot disagree with the field they come from.
+ * see a change to the real state. These cover the state itself: the derived
+ * values are `computed` from the field signals, so they cannot disagree with
+ * the field they come from, and a late reader always sees the current value.
  */
 describe('EvidenceState', () => {
   it('derives nothing until an evidence type is chosen', () => {
