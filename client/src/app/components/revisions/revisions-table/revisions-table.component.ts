@@ -1,332 +1,126 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Input,
-  OnInit,
-  OnChanges,
-  SimpleChanges,
-  TemplateRef,
-  Signal,
   computed,
+  inject,
+  input,
+  signal,
+  TemplateRef,
 } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
-import { ApolloQueryResult } from '@apollo/client/core'
-import { SortDirectionEvent } from '@app/core/utilities/datatable-helpers'
-import { ScrollEvent } from '@app/directives/table-scroll/table-scroll.directive'
-import { RevisionActivityDetailFragment } from '@app/components/activities/activity-feed/activity-feed.fragments.gql.generated'
-import { RevisionFragment } from '@app/components/revisions/revisions-list-and-filter/revisions-list-and-filter.query.gql.generated'
-import {
-  RevisionsBrowseGQL,
-  RevisionsBrowseQuery,
-  RevisionsBrowseQueryVariables,
-  RevisionSetBrowseFieldsFragment,
-} from './revisions-table.query.gql.generated'
-import { ViewerFieldsFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
-import {
-  RevisionSetConnection,
-  Maybe,
-  PageInfo,
-  RevisionSet,
-  ActivitySubjectInput,
-  RevisionStatus,
-} from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, Observable, Subject, Subscription } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  skip,
-  takeUntil,
-  takeWhile,
-  withLatestFrom,
-} from 'rxjs/operators'
-import { pluck } from 'rxjs-etc/operators'
-import { ActivatedRoute } from '@angular/router'
-import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
-import { TagInfo } from '@app/components/shared/tag-overflow/tag-overflow.component'
-import { EnumToTitlePipe } from '@app/core/pipes/enum-to-title-pipe'
+import { FormsModule } from '@angular/forms'
+import { ViewerService } from '@app/core/services/viewer/viewer.service'
+import { Maybe } from '@app/generated/civic.apollo.types'
+import { CvcEntityTableComponent } from '@app/tables'
+import { NzCardModule } from 'ng-zorro-antd/card'
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
+import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
+import { NzGridModule } from 'ng-zorro-antd/grid'
+import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzTableModule } from 'ng-zorro-antd/table'
+import { revisionsTableConfig } from './revisions-table.config'
+import { RevisionsBrowseGQL } from './revisions-table.query.gql.generated'
 
-@UntilDestroy()
+/**
+ * Browse-table facade over `cvc-entity-table`: keeps the legacy selector and
+ * the input surface its 2 embed sites bind (the pending-revisions queue's
+ * title, query-search's `[ids]`), while the table itself is configuration —
+ * see `revisions-table.config.ts` and the four custom cells beside it.
+ *
+ * The legacy card-extra menu survives in the toolbar slot: the
+ * "exclude revisions submitted by myself" checkbox, which scopes the query
+ * by the signed-in curator's id. Hidden when `[ids]` scopes the table, like
+ * the other tables' scope menus.
+ *
+ * Row expansion is deliberately gone — see the config's docstring.
+ */
 @Component({
   selector: 'cvc-revisions-table',
-  templateUrl: './revisions-table.component.html',
-  styleUrls: ['./revisions-table.component.less'],
+  imports: [
+    CvcEntityTableComponent,
+    FormsModule,
+    NzCardModule,
+    NzCheckboxModule,
+    NzDropdownModule,
+    NzGridModule,
+    NzIconModule,
+    NzTableModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
-})
-export class CvcRevisionsTableComponent implements OnInit, OnChanges {
-  @Input() cvcHeight: Maybe<string>
-  @Input() cvcTitleTemplate: Maybe<TemplateRef<void>>
-  @Input() cvcTitle: Maybe<string>
-  @Input() ids: Maybe<number[]>
-
-  // SOURCE STREAMS
-  scrollEvent$: BehaviorSubject<ScrollEvent>
-
-  // INTERMEDIATE STREAMS
-  result$!: Observable<ApolloQueryResult<RevisionsBrowseQuery>>
-  connection$!: Observable<RevisionSetConnection>
-  pageInfo$!: Observable<PageInfo>
-
-  // PRESENTATION STREAMS
-  initialLoading$!: Observable<boolean>
-  moreLoading$!: Observable<boolean>
-  row$!: Observable<Maybe<RevisionSet>[]>
-  scrollIndex$: Subject<number>
-  noMoreRows$: BehaviorSubject<boolean>
-  queryRef!: QueryRef<RevisionsBrowseQuery, RevisionsBrowseQueryVariables>
-  expandSet = new Set<number>()
-  expandDetails = new Map<
-    number,
-    Observable<Maybe<RevisionSetBrowseFieldsFragment>[]>
-  >()
-  detailRevision$: undefined | Observable<Maybe<RevisionFragment>> = undefined
-
-  // need a static var for scrolling state b/c sub/unsub in
-  // virtual scroll rows degrades performance
-  isScrolling: boolean = false
-
-  private debouncedQuery = new Subject<void>()
-
-  isLoading$?: Observable<boolean>
-  filteredCount$?: Observable<number>
-
-  isLoading = false
-
-  initialPageSize = 25
-  totalCount?: number
-  fetchMorePageSize = 25
-  isLoadingDelay = 300
-  visibleCount: number = this.initialPageSize
-
-  loadedPages: number = 1
-
-  tableView: boolean = true
-
-  textInputCallback?: () => void
-
-  showTooltips = true
-
-  //filters
-  fieldNameInput: Maybe<string>
-  originatingUserNameInput: Maybe<string>
-  organizationNameInput: Maybe<string>
-  subjectTypeInput: Maybe<ActivitySubjectInput>
-
-  statusFilterVisible = false
-  excludeOwnRevisions = false
-  viewer: Signal<Maybe<Viewer>>
-  user: Signal<Maybe<ViewerFieldsFragment>>
-
-  private destroy$ = new Subject<void>()
-
-  constructor(
-    private gql: RevisionsBrowseGQL,
-    private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute,
-    private viewerService: ViewerService
-  ) {
-    this.noMoreRows$ = new BehaviorSubject<boolean>(false)
-    this.scrollEvent$ = new BehaviorSubject<ScrollEvent>('stop')
-    this.scrollIndex$ = new Subject<number>()
-    this.viewer = toSignal(this.viewerService.viewer$)
-    this.user = computed(() => {
-      return this.viewer()?.user
-    })
-  }
-
-  ngOnInit() {
-    this.queryRef = this.gql.watch({
-      variables: {
-        first: this.initialPageSize,
-        ids: this.ids,
-        status: this.ids ? undefined : RevisionStatus.New,
-        excludeRevisionsFromUserId: this.excludeOwnRevisions
-          ? this.user()?.id
-          : undefined,
-      },
-    })
-
-    this.result$ = this.queryRef.valueChanges
-
-    // for controlling nzTable's loading overlay, which covers the whole table -
-    // good for the initial load as it's hard to miss
-    this.initialLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      takeWhile((l) => l !== false, true)
-    ) // only activate on 1st true/false sequence
-
-    // controls the smaller [Loading...] indicator, better for not distracting
-    // users by overlaying the row data they're focusing on
-    this.moreLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      skip(2)
-    ) // skip 1st true/false sequence
-
-    this.connection$ = this.result$.pipe(
-      pluck('data', 'revisionSets'),
-      filter(isNonNulled)
-    ) as Observable<RevisionSetConnection>
-
-    this.row$ = this.connection$.pipe(
-      pluck('edges'),
-      filter(isNonNulled),
-      map((edges) => edges.map((e) => e.node))
-    )
-
-    this.pageInfo$ = this.connection$.pipe(
-      pluck('pageInfo'),
-      filter(isNonNulled)
-    )
-
-    this.debouncedQuery
-      .pipe(takeUntil(this.destroy$), debounceTime(500))
-      .subscribe((_) => this.refresh())
-
-    this.textInputCallback = () => {
-      this.debouncedQuery.next()
-    }
-
-    // for every onScrolled event, convert to bool, share multicast
-    // false on 'scroll', true on 'stop'
-    this.scrollEvent$
-      .pipe(
-        map((e: ScrollEvent) => (e === 'stop' ? false : true)),
-        distinctUntilChanged(),
-        untilDestroyed(this)
-      )
-      .subscribe((e) => {
-        this.isScrolling = e
-        this.cdr.detectChanges()
-      })
-
-    // emit event from noMoreRow$ when scroll viewport hits bottom
-    // and no next page exists
-    this.scrollEvent$
-      .pipe(
-        filter((e) => e === 'bottom'),
-        withLatestFrom(this.pageInfo$),
-        map(([_, pageInfo]: [ScrollEvent, PageInfo]) => pageInfo),
-        untilDestroyed(this)
-      )
-      .subscribe((pageInfo: PageInfo) => {
-        if (!pageInfo.hasNextPage) {
-          this.noMoreRows$.next(true)
-          this.cdr.detectChanges()
-
-          // need to send a followup 'false' here or else
-          // ng won't interpret subsequent 'true' events as changes
-          setInterval(() => this.noMoreRows$.next(false))
-        }
-      })
-  } // ngOnInit()
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('ids' in changes && this.queryRef) {
-      this.refresh()
-    }
-  }
-
-  // filtering, sorting callbacks
-  onModelChanged() {
-    this.debouncedQuery.next()
-  }
-
-  // refetch results, replacing current rows
-  refresh() {
-    this.isLoading = true
-    this.loadedPages = 1
-    this.queryRef.refetch({
-      fieldName: this.fieldNameInput,
-      originatingUserName: this.originatingUserNameInput,
-      excludeRevisionsFromUserId: this.excludeOwnRevisions
-        ? this.user()?.id
-        : undefined,
-      organizationName: this.organizationNameInput,
-      subjectType: this.subjectTypeInput ? this.subjectTypeInput : undefined,
-      ids: this.ids ? this.ids : undefined,
-      status: this.ids ? undefined : RevisionStatus.New,
-    })
-  }
-
-  // fetch more results, append to current rows
-  loadMore(cursor: Maybe<string>) {
-    this.isLoading = true
-    this.queryRef.fetchMore({
-      variables: { after: cursor },
-    })
-
-    this.loadedPages += 1
-  }
-
-  excludeOwnRevisionsChanged() {
-    this.debouncedQuery.next()
-    this.statusFilterVisible = false
-  }
-
-  // virtual scroll helpers
-  trackByIndex(_: number, data: Maybe<RevisionSet>): Maybe<number> {
-    return data?.id
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next()
-    this.destroy$.unsubscribe()
-  }
-
-  onExpandChange(id: number, checked: boolean): void {
-    if (checked) {
-      this.expandSet.add(id)
-    } else {
-      this.expandSet.delete(id)
-    }
-  }
-
-  queryRevisionDetails(
-    setId: number
-  ): Observable<Maybe<RevisionSetBrowseFieldsFragment>[]> {
-    if (this.expandDetails.has(setId)) {
-      return this.expandDetails.get(setId)!
-    } else {
-      const query = this.gql.fetch({
-        variables: {
-          id: setId,
-          requestDetails: true,
-        },
-      })
-      const results = query.pipe(
-        map((r) => r.data?.revisionSets.edges),
-        filter(isNonNulled),
-        map((edges) => edges.map((e) => e.node))
-      )
-      this.expandDetails.set(setId, results)
-      return results
-    }
-  }
-
-  castToRevisionActivityDetailFragment(
-    revision: any
-  ): RevisionActivityDetailFragment {
-    return revision as RevisionActivityDetailFragment
-  }
-
-  revisionsToTagOverFlowInput(revisions: any[]): string[] {
-    return revisions.map((revision) => {
-      if (revision.subject.__typename === 'ExonCoordinate') {
-        const coordinateType = new EnumToTitlePipe().transform(
-          revision.subject.coordinateType
-        )
-        return revision.fieldDisplayName + ' (' + coordinateType + ')'
-      } else {
-        return revision.fieldDisplayName
+  template: `
+    <cvc-entity-table
+      #table
+      [spec]="spec()"
+      [titleTemplate]="cvcTitleTemplate()"
+      [height]="height()">
+      @if (!idsScoped()) {
+        <span cvcTableToolbarExtra>
+          <nz-filter-trigger
+            data-testid="revisions-scope-trigger"
+            [nzVisible]="scopeMenuVisible"
+            (nzVisibleChange)="scopeMenuVisible = $event"
+            [nzActive]="excludeOwn()"
+            [nzDropdownMenu]="scopeMenu">
+            <span
+              nz-icon
+              nzType="filter"
+              nzTheme="fill"></span>
+          </nz-filter-trigger>
+        </span>
       }
+    </cvc-entity-table>
+
+    <nz-dropdown-menu #scopeMenu>
+      <nz-card data-testid="revisions-scope-menu">
+        <nz-row>
+          <nz-col nzSpan="2">
+            <label
+              nz-checkbox
+              [ngModel]="excludeOwn()"
+              (ngModelChange)="onExcludeOwnChange($event)"></label>
+          </nz-col>
+          <nz-col nzSpan="22">
+            <span>Exclude revisions submitted by myself</span>
+          </nz-col>
+        </nz-row>
+      </nz-card>
+    </nz-dropdown-menu>
+  `,
+})
+export class CvcRevisionsTableComponent {
+  private readonly gql = inject(RevisionsBrowseGQL)
+  private readonly viewerService = inject(ViewerService)
+
+  readonly ids = input<Maybe<number[]>>()
+  readonly cvcTitle = input<Maybe<string>>()
+  readonly cvcTitleTemplate = input<Maybe<TemplateRef<void>>>()
+  /** explicit body height; a bare number is treated as px */
+  readonly cvcHeight = input<Maybe<string>>()
+
+  protected scopeMenuVisible = false
+  protected readonly excludeOwn = signal(false)
+
+  private readonly viewer = toSignal(this.viewerService.viewer$)
+
+  protected readonly idsScoped = computed(() => (this.ids()?.length ?? 0) > 0)
+
+  protected readonly height = computed(() => {
+    const height = this.cvcHeight()
+    if (!height) return 'auto'
+    return /^\d+$/.test(height) ? `${height}px` : height
+  })
+
+  protected readonly spec = computed(() =>
+    revisionsTableConfig(this.gql, this.cvcTitle(), {
+      ids: this.ids(),
+      excludeRevisionsFromUserId: this.excludeOwn()
+        ? this.viewer()?.user?.id
+        : undefined,
     })
+  )
+
+  protected onExcludeOwnChange(exclude: boolean): void {
+    this.excludeOwn.set(exclude)
+    this.scopeMenuVisible = false
   }
 }

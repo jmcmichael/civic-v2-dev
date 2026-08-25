@@ -2,7 +2,6 @@
 import * as Types from '../../../generated/civic.apollo.types';
 
 import { gql } from 'apollo-angular';
-import { RevisionLinkoutDataFragmentDoc } from '../revisions-list-and-filter/revisions-list-and-filter.query.gql.generated';
 import { ParsedCommentFragmentFragmentDoc } from '../../comments/comment-list/comment-list.query.gql.generated';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
@@ -16,17 +15,13 @@ export type RevisionsBrowseQueryVariables = Types.Exact<{
   excludeRevisionsFromUserId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   organizationName?: Types.InputMaybe<Types.Scalars['String']['input']>;
   subjectType?: Types.InputMaybe<Types.ActivitySubjectInput>;
-  id?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   ids?: Types.InputMaybe<Array<Types.Scalars['Int']['input']> | Types.Scalars['Int']['input']>;
   status?: Types.InputMaybe<Types.RevisionStatus>;
-  requestDetails?: Types.InputMaybe<Types.Scalars['Boolean']['input']>;
+  sortBy?: Types.InputMaybe<Types.DateSort>;
 }>;
 
 
-export type RevisionsBrowseQuery = { __typename: 'Query', revisionSets: { __typename: 'RevisionSetConnection', totalCount: number, pageInfo: { __typename: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined, endCursor?: string | undefined }, edges: Array<{ __typename: 'RevisionSetEdge', cursor: string, node?: { __typename: 'RevisionSet', id: number, name: string, revisions: Array<{ __typename: 'Revision', id: number, name: string, status: Types.RevisionStatus, currentValue?: any | undefined, suggestedValue?: any | undefined, fieldName: string, fieldDisplayName: string, link: string, linkoutData?: { __typename: 'LinkoutData', name: string, diffValue:
-              | { __typename: 'ObjectFieldDiff', currentObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, addedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, removedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, keptObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, suggestedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }> }
-              | { __typename: 'ScalarFieldDiff', left: string, right: string }
-             }, subject:
+export type RevisionsBrowseQuery = { __typename: 'Query', revisionSets: { __typename: 'RevisionSetConnection', totalCount: number, pageInfo: { __typename: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined, endCursor?: string | undefined }, edges: Array<{ __typename: 'RevisionSetEdge', cursor: string, node?: { __typename: 'RevisionSet', id: number, name: string, revisions: Array<{ __typename: 'Revision', id: number, name: string, status: Types.RevisionStatus, currentValue?: any | undefined, suggestedValue?: any | undefined, fieldName: string, fieldDisplayName: string, link: string, subject:
             | { __typename: 'Assertion' }
             | { __typename: 'Comment' }
             | { __typename: 'EvidenceItem' }
@@ -84,10 +79,7 @@ export type RevisionsBrowseQuery = { __typename: 'Query', revisionSets: { __type
             | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> }
           >, organization?: { __typename: 'Organization', id: number, name: string } | undefined } | undefined } | undefined }> } };
 
-export type RevisionSetBrowseFieldsFragment = { __typename: 'RevisionSet', id: number, name: string, revisions: Array<{ __typename: 'Revision', id: number, name: string, status: Types.RevisionStatus, currentValue?: any | undefined, suggestedValue?: any | undefined, fieldName: string, fieldDisplayName: string, link: string, linkoutData?: { __typename: 'LinkoutData', name: string, diffValue:
-        | { __typename: 'ObjectFieldDiff', currentObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, addedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, removedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, keptObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }>, suggestedObjects: Array<{ __typename: 'ModeratedObjectField', id: number, displayName?: string | undefined, displayType?: string | undefined, entityType: string, link?: string | undefined, deleted: boolean, deprecated?: boolean | undefined, flagged?: boolean | undefined, feature?: { __typename: 'LinkableFeature', link: string, id: number, name: string, deprecated: boolean, flagged: boolean } | undefined }> }
-        | { __typename: 'ScalarFieldDiff', left: string, right: string }
-       }, subject:
+export type RevisionSetBrowseFieldsFragment = { __typename: 'RevisionSet', id: number, name: string, revisions: Array<{ __typename: 'Revision', id: number, name: string, status: Types.RevisionStatus, currentValue?: any | undefined, suggestedValue?: any | undefined, fieldName: string, fieldDisplayName: string, link: string, subject:
       | { __typename: 'Assertion' }
       | { __typename: 'Comment' }
       | { __typename: 'EvidenceItem' }
@@ -158,16 +150,13 @@ export const RevisionSetBrowseFieldsFragmentDoc = gql`
     fieldName
     fieldDisplayName
     link
-    linkoutData @include(if: $requestDetails) {
-      ...revisionLinkoutData
-    }
     subject {
       ... on ExonCoordinate {
         coordinateType
       }
     }
   }
-  creationActivity @skip(if: $requestDetails) {
+  creationActivity {
     subject {
       id
       name
@@ -216,10 +205,9 @@ export const RevisionSetBrowseFieldsFragmentDoc = gql`
     }
   }
 }
-    ${RevisionLinkoutDataFragmentDoc}
-${ParsedCommentFragmentFragmentDoc}`;
+    ${ParsedCommentFragmentFragmentDoc}`;
 export const RevisionsBrowseDocument = gql`
-    query RevisionsBrowse($first: Int, $last: Int, $before: String, $after: String, $fieldName: String, $originatingUserName: String, $excludeRevisionsFromUserId: Int, $organizationName: String, $subjectType: ActivitySubjectInput, $id: Int, $ids: [Int!], $status: RevisionStatus, $requestDetails: Boolean = false) {
+    query RevisionsBrowse($first: Int, $last: Int, $before: String, $after: String, $fieldName: String, $originatingUserName: String, $excludeRevisionsFromUserId: Int, $organizationName: String, $subjectType: ActivitySubjectInput, $ids: [Int!], $status: RevisionStatus, $sortBy: DateSort) {
   revisionSets(
     first: $first
     last: $last
@@ -231,8 +219,8 @@ export const RevisionsBrowseDocument = gql`
     excludeRevisionsFromUserId: $excludeRevisionsFromUserId
     organizationName: $organizationName
     subjectType: $subjectType
-    id: $id
     ids: $ids
+    sortBy: $sortBy
   ) {
     totalCount
     pageInfo {

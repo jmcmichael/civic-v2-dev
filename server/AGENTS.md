@@ -1,7 +1,7 @@
 # Agent guide — server (Rails + GraphQL)
 
-Read the root `AGENTS.md` first for repo-wide agreements (env loading,
-commit rules, dev processes).
+Read the root `AGENTS.md` first for repo-wide agreements (commit rules,
+gates, dev processes).
 
 - GraphQL API under `app/graphql/`; browse tables are backed by
   `resolvers/browse_*.rb`. Adding a filter/sort argument for the client is
