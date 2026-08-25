@@ -1,9 +1,13 @@
 import { CommonModule } from '@angular/common'
+import { ViewportRuler } from '@angular/cdk/scrolling'
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  NgZone,
   TemplateRef,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -37,12 +41,14 @@ import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTableModule, NzTableSortOrder } from 'ng-zorro-antd/table'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { debouncedSignal } from '@app/core/utilities/debounced-signal'
+import { getEntityColor } from '@app/core/utilities/get-entity-color'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import {
   CvcPageInfo,
@@ -73,6 +79,30 @@ import {
  * enough to collapse a filter reset, which emits one change per column.
  */
 const QUERY_DEBOUNCE_MS = 300
+
+/**
+ * Twotone fill per `labelIcon`, resolved through the same `getEntityColor`
+ * map the page-header icons use (via `| entityColor`). The bridge is
+ * explicit because icon names and typenames spell entities differently
+ * ('civic-evidence' vs 'EvidenceItem'); an unmapped icon falls back to the
+ * map's greyscale rather than ant's default blue.
+ */
+const LABEL_ICON_COLORS: Record<string, string> = {
+  'civic-assertion': getEntityColor('Assertion'),
+  'civic-evidence': getEntityColor('EvidenceItem'),
+  'civic-feature': getEntityColor('Feature'),
+  'civic-molecularprofile': getEntityColor('MolecularProfile'),
+  'civic-queue': getEntityColor('Queue'),
+  'civic-revision': getEntityColor('Revision'),
+  'civic-source': getEntityColor('Source'),
+  'civic-variant': getEntityColor('Variant'),
+}
+
+/** `height: 'auto'` floor — a viewport too short to be useful still scrolls */
+const AUTO_HEIGHT_MIN = 200
+
+/** what `height: 'auto'` renders before the first measurement (and in jsdom) */
+const AUTO_HEIGHT_FALLBACK = '800px'
 
 /**
  * One configurable, virtual-scrolled entity table, driven entirely by an
@@ -113,6 +143,7 @@ const QUERY_DEBOUNCE_MS = 300
     NzGridModule,
     NzIconModule,
     NzPopoverModule,
+    NzSelectModule,
     NzSpaceModule,
     NzTableModule,
     NzTagModule,
@@ -137,13 +168,39 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   readonly settings = input<Maybe<CvcTableSettings>>(undefined)
 
   /**
-   * An explicit body height. Omit to fill the available space: the card is a
-   * flex column and the table region is `flex: 1; min-height: 0`, which is what
-   * lets `nzScroll.y: 100%` resolve. `nzScroll.y` is not a measurement API — it
-   * is written straight to the viewport's `style.height` — so nothing here
-   * computes a pixel height in JavaScript.
+   * The body height, three ways:
+   *
+   * - an explicit CSS height (`'400px'`) — written straight to the viewport's
+   *   `style.height` via `nzScroll.y`;
+   * - `'auto'` — fit the visible viewport: the table body fills the window's
+   *   remaining height minus everything below it that the page layout
+   *   reserves (each ancestor's bottom padding/border/margin, measured live —
+   *   see `measureAutoHeight`). This is what browse-table home pages want,
+   *   and what the legacy `cvcAutoHeightCard` viewport mode approximated
+   *   with window math + a hand-tuned offset that ignored layout padding;
+   * - omitted — fill a height-bounded ancestor: the card is a flex column and
+   *   the table region is `flex: 1; min-height: 0`, which lets
+   *   `nzScroll.y: 100%` resolve (the form managers' mode). With no bounded
+   *   ancestor this collapses to 0 — use `'auto'` there instead.
    */
   readonly height = input<string>()
+
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef)
+  private readonly zone = inject(NgZone)
+  private readonly viewportRuler = inject(ViewportRuler)
+
+  /** what `'auto'` last measured; px string, set only in the browser */
+  private readonly measuredAutoHeight = signal<Maybe<string>>(undefined)
+
+  /** what `nzScroll.y` actually receives — see `height` for the three modes */
+  readonly bodyHeight = computed(() => {
+    const height = this.height()
+    if (height === 'auto') {
+      // fallback covers the tick before the first measurement lands
+      return this.measuredAutoHeight() ?? AUTO_HEIGHT_FALLBACK
+    }
+    return height ?? '100%'
+  })
 
   /**
    * Replaces the card title's plain `spec().title` text — for hosts whose
@@ -155,6 +212,22 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
   /** what an empty cell renders as unless its column overrides it */
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
+
+  /** the entity color a header's `labelIcon` fills its twotone with */
+  protected labelIconColor(icon: string): string {
+    return LABEL_ICON_COLORS[icon] ?? getEntityColor('Greyscale')
+  }
+
+  /**
+   * ng-zorro's own click-cycle order, restated so a column without
+   * `sort.directions` binds a stable array (`th[nzSortDirections]` treats
+   * `undefined` as "no directions", not "use the default").
+   */
+  protected readonly defaultSortDirections: NzTableSortOrder[] = [
+    'ascend',
+    'descend',
+    null,
+  ]
 
   // ---------------------------------------------------------------- columns
 
@@ -173,6 +246,16 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
 
   readonly visibleColumns = computed(() =>
     this.columns().filter((column) => !column.hidden)
+  )
+
+  /**
+   * Whether the filter row renders at all. A table whose visible columns
+   * declare no filters (the comments browse table — its query has no filter
+   * variables) would otherwise show a dead blank row under the headers that
+   * its legacy counterpart never had.
+   */
+  readonly hasFilterRow = computed(() =>
+    this.visibleColumns().some((column) => column.filter)
   )
 
   // Pinned-column offsets are ng-zorro's own: the template passes boolean
@@ -371,6 +454,80 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       const rows = this.rows()
       if (rows.length) untracked(() => this.seedRows(rows))
     })
+
+    // `height: 'auto'` — measure once the view exists, then on every window
+    // resize (ViewportRuler) and host box change (content above shifting the
+    // table down fires this via the host's own resize). Signal equality makes
+    // the loop stable: re-measuring after our own height write produces the
+    // same string and notifies nothing.
+    afterNextRender(() => {
+      if (this.height() !== 'auto') return
+      this.measureAutoHeight()
+
+      const observer = new ResizeObserver(() =>
+        this.zone.run(() => this.measureAutoHeight())
+      )
+      observer.observe(this.hostRef.nativeElement)
+      const ruler = this.viewportRuler
+        .change(50)
+        .subscribe(() => this.zone.run(() => this.measureAutoHeight()))
+      this.destroyRef.onDestroy(() => {
+        observer.disconnect()
+        ruler.unsubscribe()
+      })
+    })
+  }
+
+  /**
+   * What `'auto'` means: the table body fills the window's remaining height,
+   * stopping where the page layout ends rather than at the window edge — the
+   * bottom reserve is the *measured* bottom padding/border/margin of every
+   * ancestor (the page container's and layout's padding the legacy
+   * `cvcAutoHeightCard` viewport mode ignored), plus the card's own chrome
+   * below the scroll viewport (footer row, card padding/border).
+   */
+  private measureAutoHeight(): void {
+    if (this.height() !== 'auto') return
+    const host = this.hostRef.nativeElement
+    const card = host.querySelector('.cvc-entity-table')
+    // the element nzScroll.y sizes: in virtual mode the scroll container is
+    // the CDK viewport (there is no .ant-table-body)
+    const body = host.querySelector('cdk-virtual-scroll-viewport')
+    if (!card || !body) return
+    const cardRect = card.getBoundingClientRect()
+    const bodyRect = body.getBoundingClientRect()
+    // not laid out (hidden tab, display: none): keep the last measurement
+    if (cardRect.height === 0) return
+
+    // the card's own bottom padding/border live between the two rects below,
+    // so the card contributes only its margin here; ancestors contribute all
+    // three
+    let reserve = parseFloat(getComputedStyle(card).marginBottom) || 0
+    for (
+      let el: Element | null = card.parentElement;
+      el && el !== document.documentElement;
+      el = el.parentElement
+    ) {
+      const style = getComputedStyle(el)
+      reserve +=
+        (parseFloat(style.paddingBottom) || 0) +
+        (parseFloat(style.borderBottomWidth) || 0) +
+        (parseFloat(style.marginBottom) || 0)
+    }
+    // in-card chrome between the scroll viewport and the card's border box:
+    // footer row, card body padding, card border. Stable whatever the
+    // viewport's current height — both bottoms move together when it
+    // changes, so measuring after our own height write is not a feedback
+    // loop.
+    const chromeBelowBody = cardRect.bottom - bodyRect.bottom
+
+    const available =
+      this.viewportRuler.getViewportSize().height -
+      bodyRect.top -
+      chromeBelowBody -
+      reserve
+    const height = Math.max(AUTO_HEIGHT_MIN, Math.floor(available))
+    this.measuredAutoHeight.set(`${height}px`)
   }
 
   // --------------------------------------------------------- query pipeline
@@ -430,7 +587,20 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     column: CvcSpecColumn<TRow>,
     row: TRow
   ): CvcCellContext<TRow> {
-    return { $implicit: row, row, column, isScrolling: this.isScrolling() }
+    // isScrolling is a live getter and filterText a closure: a custom cell
+    // may hold one context object across change detection, and both values
+    // must read current state when it does (signal reads inside the cell's
+    // template still register reactivity for the reading view)
+    const table = this
+    return {
+      $implicit: row,
+      row,
+      column,
+      get isScrolling(): boolean {
+        return table.isScrolling()
+      },
+      filterText: () => table.textFilterValue(column.key),
+    }
   }
 
   /**
@@ -489,6 +659,24 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     if (!cell.highlight) return [{ text, highlight: false }]
     const filter = this.filterValues().get(column.key)
     return labelSegments(text, typeof filter === 'string' ? filter : undefined)
+  }
+
+  /**
+   * The full text a `tooltip: true` text cell discloses on hover — the same
+   * normalisation as `textSegments`, because truncation hides exactly what
+   * the segments render. `null` (no tooltip) unless the cell opts in, and
+   * while the viewport scrolls — the same suspend rule every built-in
+   * kind's popover/tooltip follows.
+   */
+  textTooltip(column: CvcSpecColumn<TRow>, row: TRow): string | null {
+    const cell = column.cell
+    if (cell.kind !== 'text' || !cell.tooltip || this.isScrolling()) {
+      return null
+    }
+    const value = cell.text(row)
+    if (value === null || value === undefined) return null
+    const text = Array.isArray(value) ? value.join(', ') : String(value)
+    return text === '' ? null : text
   }
 
   /**

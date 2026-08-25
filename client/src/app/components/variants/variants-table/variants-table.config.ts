@@ -4,7 +4,11 @@ import {
   VariantCategories,
   VariantsSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, enumFilterOptions } from '@app/tables'
+import {
+  entityTableConfig,
+  enumFilterOptions,
+  SORT_DESCEND_FIRST,
+} from '@app/tables'
 import { BrowseVariantsGQL } from './variants-table.query.gql.generated'
 
 /**
@@ -82,11 +86,14 @@ export function variantsTableConfig(
         key: 'category',
         label: 'Type',
         tooltip: 'Feature Type',
-        width: '80px',
+        labelIcon: 'civic-feature',
+        width: '130px',
         fixed: 'left',
         cell: { kind: 'text', text: (row) => formatEvidenceEnum(row.category) },
         filter: {
           kind: 'enum',
+          control: 'select',
+          placeholder: 'Select Type',
           var: 'category',
           options: enumFilterOptions(VariantCategories),
           // no civic-* icons exist for the feature categories
@@ -128,6 +135,7 @@ export function variantsTableConfig(
           kind: 'text',
           text: (row) => row.aliases.map((alias) => alias.name),
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -201,15 +209,17 @@ export function variantsTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '80px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
         sort: {
           column: VariantsSortColumns.EvidenceItemCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
     ],

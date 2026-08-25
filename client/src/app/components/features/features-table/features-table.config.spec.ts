@@ -3,6 +3,7 @@ import {
   FeatureInstanceTypes,
   FeaturesSortColumns,
 } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
@@ -151,6 +152,39 @@ describe('featuresTableConfig', () => {
       ['diseases', 'diseaseName'],
       ['therapies', 'therapyName'],
     ])
+  })
+
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of [
+      'molecularProfileCount',
+      'variantCount',
+      'evidenceItemCount',
+      'assertionCount',
+    ]) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['molecularProfileCount', 'civic-molecularprofile'],
+      ['variantCount', 'civic-variant'],
+      ['evidenceItemCount', 'civic-evidence'],
+      ['assertionCount', 'civic-assertion'],
+    ])
+  })
+
+  it('discloses its clip-prone text columns in hover tooltips', () => {
+    expect(column('fullName').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+    expect(column('featureAliases').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
   })
 
   it('offers a sorter only where the legacy table did', () => {

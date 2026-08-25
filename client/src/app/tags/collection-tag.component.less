@@ -28,6 +28,13 @@ nz-tag {
     padding: 3px 0 3px 0;
     line-height: 1;
   }
+  // nz-avatar-group's pileup method: each subsequent icon slides behind
+  // the previous via negative start margin (multiple side-by-side entity
+  // icons are unworkably wide in a table cell). No backing disc: it
+  // occluded the underlying glyph and painted over the tag border
+  .entity-icon + .entity-icon {
+    margin-left: -7px;
+  }
   .entity-icon:last-child {
     padding-right: 3px;
   }

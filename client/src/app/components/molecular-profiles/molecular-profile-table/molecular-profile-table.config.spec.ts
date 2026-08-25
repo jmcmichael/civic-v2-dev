@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { MolecularProfilesSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
@@ -42,7 +43,7 @@ const ROW: BrowseMolecularProfilesFieldsFragment = {
   __typename: 'BrowseMolecularProfile',
   id: 7,
   name: 'BRAF V600E',
-  evidenceItemCount: 40,
+  evidenceItemCount: 1240,
   molecularProfileScore: 125.5,
   assertionCount: 3,
   variantCount: 1,
@@ -182,6 +183,28 @@ describe('molecularProfileTableConfig', () => {
     ])
   })
 
+  it('cycles count and score columns descend-first, as the legacy table did', () => {
+    for (const key of [
+      'molecularProfileScore',
+      'evidenceItemCount',
+      'assertionCount',
+      'variantCount',
+    ]) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['molecularProfileScore', 'civic-molecularprofile'],
+      ['evidenceItemCount', 'civic-evidence'],
+      ['assertionCount', 'civic-assertion'],
+      ['variantCount', 'civic-variant'],
+    ])
+  })
+
   it('offers a sorter only where the legacy table did', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)
@@ -232,13 +255,15 @@ describe('molecularProfileTableConfig', () => {
       expect(therapies.ref(ROW)).toEqual([{ __typename: 'Therapy', id: 9 }])
     })
 
-    it('renders the score and counts as plain text', () => {
+    it('renders score and counts locale-grouped, like the legacy | number pipe', () => {
       expect(specCell(spec, 'molecularProfileScore', 'text').text(ROW)).toBe(
-        125.5
+        '125.5'
       )
-      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(40)
-      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe(3)
-      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe(1)
+      expect(specCell(spec, 'evidenceItemCount', 'text').text(ROW)).toBe(
+        '1,240'
+      )
+      expect(specCell(spec, 'assertionCount', 'text').text(ROW)).toBe('3')
+      expect(specCell(spec, 'variantCount', 'text').text(ROW)).toBe('1')
     })
   })
 

@@ -34,6 +34,7 @@ import {
   LinkableEntity,
   labelSegments,
 } from './entity-tag.types'
+import { CvcPopoverContentResizeDirective } from './popover-content-resize.directive'
 import { TAG_POPOVERS, hasTagPopover } from './tag-popovers'
 
 /**
@@ -58,6 +59,7 @@ import { TAG_POPOVERS, hasTagPopover } from './tag-popovers'
     NzTooltipModule,
     NzSpinModule,
     PolymorpheusOutlet,
+    CvcPopoverContentResizeDirective,
   ],
   templateUrl: './entity-tag.component.html',
   styleUrl: './entity-tag.component.less',
@@ -176,7 +178,8 @@ export class CvcTagComponent {
       this.popoverComponent.set(
         new PolymorpheusComponent(component as Type<unknown>)
       )
-      setTimeout(() => this.updatePopoverPosition())
+      // no reposition here: the popover template's cvcPopoverContentResize
+      // wrapper re-anchors on every content growth step
     })
   }
 

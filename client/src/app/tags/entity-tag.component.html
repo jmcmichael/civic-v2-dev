@@ -59,12 +59,18 @@
 </ng-template>
 
 <ng-template #popoverTpl>
-  @if (popoverComponent(); as component) {
-    <ng-container
-      *polymorpheusOutlet="component; context: popoverContext()" />
-  } @else {
-    <nz-spin
-      nzSimple
-      nzSize="small"></nz-spin>
-  }
+  <!-- the wrapper re-anchors the overlay as the content grows: it opens
+       against the spinner, then the lazy component and its query land -->
+  <div
+    cvcPopoverContentResize
+    (cvcPopoverContentResize)="updatePopoverPosition()">
+    @if (popoverComponent(); as component) {
+      <ng-container
+        *polymorpheusOutlet="component; context: popoverContext()" />
+    } @else {
+      <nz-spin
+        nzSimple
+        nzSize="small"></nz-spin>
+    }
+  </div>
 </ng-template>

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { DiseasesSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
@@ -133,6 +134,35 @@ describe('diseasesTableConfig', () => {
     ])
   })
 
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of [
+      'featureCount',
+      'variantCount',
+      'evidenceItemCount',
+      'assertionCount',
+    ]) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['featureCount', 'civic-feature'],
+      ['variantCount', 'civic-variant'],
+      ['evidenceItemCount', 'civic-evidence'],
+      ['assertionCount', 'civic-assertion'],
+    ])
+  })
+
+  it('discloses its clip-prone text columns in hover tooltips', () => {
+    expect(column('diseaseAliases').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
   it('offers a sorter only where the schema has a sort column', () => {
     expect(
       spec.columns.filter((c) => c.sort).map((c) => c.sort!.column)
@@ -173,6 +203,15 @@ describe('diseasesTableConfig', () => {
       const link = specCell(spec, 'doid', 'external-link')
       expect(link.href(ROW)).toBe('https://disease-ontology.org/?id=DOID:1909')
       expect(link.text?.(ROW)).toBe('DOID:1909')
+    })
+
+    // href gated on doid, not just diseaseUrl: the external-link kind falls
+    // back to the href as its label when `text` yields nothing, so a row
+    // with a url but no doid would render the raw url where the legacy
+    // table branched on doid and showed its empty state
+    it('shows the empty state when doid is absent, whatever the url says', () => {
+      const link = specCell(spec, 'doid', 'external-link')
+      expect(link.href({ ...ROW, doid: undefined })).toBeUndefined()
     })
 
     it('renders aliases as highlightable plain text', () => {

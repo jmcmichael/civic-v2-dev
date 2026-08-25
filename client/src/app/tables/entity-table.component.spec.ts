@@ -12,10 +12,12 @@ import {
   settleTable,
 } from '@app/testing/entity-table.harness'
 import { EvidenceManagerGQL } from '@app/forms/types/evidence-select/evidence-manager/evidence-manager.query.gql.generated'
+import { Maybe } from '@app/generated/civic.apollo.types'
 import { writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
 import { CvcEntityTableComponent } from './entity-table.component'
 import { entityTableConfig, EntityTableSpec } from './entity-table-config'
+import { SORT_DESCEND_FIRST } from './entity-table.types'
 
 /**
  * Covers the parts of the table that hold its defects: what ends up in the query
@@ -41,13 +43,23 @@ function buildSpec(
     pinned?: boolean
     /** gives the name filter an entityTypename, for the settings id→name path */
     nameFilterByEntity?: boolean
+    /** gives the rating sort a descend-first click cycle */
+    descendFirstRating?: boolean
+    /** opts the name text cell into the full-text hover tooltip */
+    nameTooltip?: boolean
+    /** overrides the host-scope variables (default `{ assertionId: 7 }`) */
+    scope?: Record<string, unknown>
+    /** strips every column filter, comments-browse-style */
+    noFilters?: boolean
+    /** gives the rating header a civic entity icon */
+    ratingLabelIcon?: boolean
   } = {}
 ): EntityTableSpec<Row> {
   const gql = TestBed.inject(EvidenceManagerGQL)
   return entityTableConfig({
     query: gql,
     pageSize: 25,
-    scope: { assertionId: 7 },
+    scope: options.scope ?? { assertionId: 7 },
     connection: () => ({
       edges: [
         { cursor: 'a', node: row(1, 'one') },
@@ -75,39 +87,58 @@ function buildSpec(
         label: 'Name',
         width: '200px',
         fixed: options.pinned ? ('left' as const) : undefined,
-        cell: { kind: 'text', text: (r) => r.name, highlight: true },
+        cell: {
+          kind: 'text',
+          text: (r) => r.name,
+          highlight: true,
+          ...(options.nameTooltip ? { tooltip: true } : {}),
+        },
         sort: {
           column: 'name',
           default: options.defaultSortOnName ? 'ascend' : undefined,
         },
-        filter: {
-          kind: 'text',
-          var: 'description',
-          ...(options.nameFilterByEntity
-            ? { entityTypename: 'Disease' as const }
-            : {}),
-        },
+        ...(options.noFilters
+          ? {}
+          : {
+              filter: {
+                kind: 'text' as const,
+                var: 'description' as const,
+                ...(options.nameFilterByEntity
+                  ? { entityTypename: 'Disease' as const }
+                  : {}),
+              },
+            }),
       },
       {
         key: 'rating',
         label: 'Rating',
         tooltip: 'Evidence Rating',
+        ...(options.ratingLabelIcon ? { labelIcon: 'civic-evidence' } : {}),
         width: '60px',
         fixed: options.pinned ? ('right' as const) : undefined,
         cell: { kind: 'text', text: (r) => r.name },
-        sort: { column: 'evidenceRating' },
-        filter: {
-          kind: 'text',
-          var: 'id',
-          // the EID shape: 'EID123' and '123' both mean 123
-          transform: (value) => {
-            const match = value
-              ?.toString()
-              .trim()
-              .match(/^(?:EID)?(\d+)$/i)
-            return match ? +match[1] : null
-          },
+        sort: {
+          column: 'evidenceRating',
+          ...(options.descendFirstRating
+            ? { directions: SORT_DESCEND_FIRST }
+            : {}),
         },
+        ...(options.noFilters
+          ? {}
+          : {
+              filter: {
+                kind: 'text' as const,
+                var: 'id' as const,
+                // the EID shape: 'EID123' and '123' both mean 123
+                transform: (value: Maybe<string>) => {
+                  const match = value
+                    ?.toString()
+                    .trim()
+                    .match(/^(?:EID)?(\d+)$/i)
+                  return match ? +match[1] : null
+                },
+              },
+            }),
       },
     ],
   }) as unknown as EntityTableSpec<Row>
@@ -162,6 +193,27 @@ describe('cvc-entity-table', () => {
     )
     expect(initial.length).toBeGreaterThan(0)
     expect(initial[0].variables).toMatchObject({ first: 25, assertionId: 7 })
+  })
+
+  /**
+   * The facade pattern replaces every legacy `ngOnChanges`/`refresh()` with a
+   * `computed()` spec, and the audit of the 12-table migration found exactly
+   * why that matters: three legacy tables' refetch payloads dropped a scope
+   * input (users' `ids`, sources' `clinicalTrialId`, molecular-profiles'
+   * `variantId`), so a live instance whose scope input changed later never
+   * reflected it — silently, forever. The fix is by construction, but until
+   * this test nothing asserted the mechanism at the wire: a spec identity
+   * change must re-query with the new scope.
+   */
+  it('re-queries with the new scope when the spec changes', async () => {
+    await settle()
+
+    fixture.componentInstance.spec.set(buildSpec({ scope: { assertionId: 9 } }))
+    await settle()
+
+    const ops = recorded.filter((op) => op.operationName === 'EvidenceManager')
+    expect(ops.length).toBeGreaterThan(1)
+    expect(ops.at(-1)!.variables).toMatchObject({ assertionId: 9 })
   })
 
   /**
@@ -267,6 +319,98 @@ describe('cvc-entity-table', () => {
 
     expect(table.sortOrderFor(table.columns()[1])).toBeNull()
     expect(table.sortOrderFor(table.columns()[2])).toBe('descend')
+  })
+
+  // The click-cycle order is a per-column contract — legacy count columns
+  // declared descend-first via `[nzSortDirections]`, which silently flipped
+  // to ng-zorro's ascend-first as the tables migrated. Asserted through a
+  // real header click because the cycle logic lives in ng-zorro's th;
+  // calling `onSortChange` directly cannot regress it.
+  const ratingHeader = (): HTMLElement =>
+    fixture.nativeElement.querySelector(
+      '[data-testid="column-header"][data-column="rating"]'
+    ) as HTMLElement
+
+  it('cycles ascend-first on a header click by default', () => {
+    ratingHeader().click()
+    fixture.detectChanges()
+
+    expect(table.sortOrderFor(table.columns()[2])).toBe('ascend')
+  })
+
+  it('cycles descend-first when the column declares it', () => {
+    fixture.componentInstance.spec.set(buildSpec({ descendFirstRating: true }))
+    fixture.detectChanges()
+
+    ratingHeader().click()
+    fixture.detectChanges()
+
+    expect(table.sortOrderFor(table.columns()[2])).toBe('descend')
+    expect(table.queryVars()['sortBy']).toEqual({
+      column: 'evidenceRating',
+      direction: 'DESC',
+    })
+  })
+
+  // Three height modes (see the `height` input doc). jsdom has no layout,
+  // so 'auto' is asserted only as resolving to a px value — the fallback
+  // before a real browser's measurement lands. The measurement itself is a
+  // live-browser concern, like everything below the thead.
+  it('resolves the three height modes: explicit, flex-fill, auto', () => {
+    expect(table.bodyHeight()).toBe('100%')
+
+    fixture.componentInstance.height.set('400px')
+    fixture.detectChanges()
+    expect(table.bodyHeight()).toBe('400px')
+
+    fixture.componentInstance.height.set('auto')
+    fixture.detectChanges()
+    expect(table.bodyHeight()).toMatch(/^\d+px$/)
+  })
+
+  // Four columns all labelled "Count" are told apart by the entity glyph
+  // their legacy headers carried; the icon renders only when configured.
+  it('prefixes the header label with the configured entity icon', () => {
+    const headerIcon = () =>
+      fixture.nativeElement.querySelector(
+        '[data-testid="column-header"][data-column="rating"] .col-header-label [nz-icon]'
+      )
+    expect(headerIcon()).toBeNull()
+
+    fixture.componentInstance.spec.set(buildSpec({ ratingLabelIcon: true }))
+    fixture.detectChanges()
+
+    expect(headerIcon()).not.toBeNull()
+  })
+
+  // A table with no filterable columns (comments-browse) renders no filter
+  // row at all — its legacy counterpart never had one, and a row of empty
+  // <th>s reads as a dead blank band under the headers.
+  it('renders the filter row only when a visible column declares a filter', () => {
+    const filterCells = () =>
+      fixture.nativeElement.querySelectorAll('[data-testid="column-filter"]')
+        .length
+    expect(filterCells()).toBeGreaterThan(0)
+
+    fixture.componentInstance.spec.set(buildSpec({ noFilters: true }))
+    fixture.detectChanges()
+
+    expect(filterCells()).toBe(0)
+  })
+
+  // jsdom cannot render the virtual-scroll body, so the tooltip contract is
+  // asserted on the method the template binds — the same reason rows are
+  // never asserted in this file.
+  it('discloses a text tooltip only where the cell opts in, never mid-scroll', () => {
+    fixture.componentInstance.spec.set(buildSpec({ nameTooltip: true }))
+    fixture.detectChanges()
+    const [, name, rating] = table.columns()
+
+    expect(table.textTooltip(name, row(1, 'one'))).toBe('one')
+    expect(table.textTooltip(rating, row(1, 'one'))).toBeNull()
+
+    table.onScrollPhase('scroll')
+    expect(table.textTooltip(name, row(1, 'one'))).toBeNull()
   })
 
   // the reset button read as inert in both managers: it cleared the query but

@@ -11,7 +11,11 @@ import {
   TherapyInteraction,
   VariantOrigin,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, enumFilterOptions } from '@app/tables'
+import {
+  entityTableConfig,
+  enumFilterOptions,
+  SORT_DESCEND_FIRST,
+} from '@app/tables'
 import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
 
 /** an EID typed with or without its prefix; anything else matches nothing */
@@ -296,7 +300,10 @@ export function evidenceTableConfig(
           value: (row) => row.evidenceRating,
           tooltip: (row) => evidenceEnumDisplay(row.evidenceRating),
         },
-        sort: { column: EvidenceSortColumns.EvidenceRating },
+        sort: {
+          column: EvidenceSortColumns.EvidenceRating,
+          directions: SORT_DESCEND_FIRST,
+        },
         filter: {
           // the browse query names this `evidenceRating`; the manager's
           // otherwise-identical column filters its query's `rating`

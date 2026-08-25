@@ -2,7 +2,7 @@ import {
   ClinicalTrialSortColumns,
   Maybe,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcClinicalTrialNctIdCellComponent } from './clinical-trials-table-nct-id-cell.component'
 import { ClinicalTrialsBrowseGQL } from './clinical-trials-table.query.gql.generated'
@@ -46,29 +46,42 @@ export function clinicalTrialsTableConfig(
         key: 'name',
         label: 'Name',
         width: '600px',
-        cell: { kind: 'text', text: (row) => row.name, highlight: true },
+        cell: {
+          kind: 'text',
+          text: (row) => row.name,
+          highlight: true,
+          tooltip: true,
+        },
         sort: { column: ClinicalTrialSortColumns.Name },
         filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
       },
       {
         key: 'sourceCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Source Count',
-        width: '75px',
+        labelIcon: 'civic-source',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.sourceCount },
-        sort: { column: ClinicalTrialSortColumns.SourceCount },
+        sort: {
+          column: ClinicalTrialSortColumns.SourceCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'evidenceCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '75px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceCount },
-        sort: { column: ClinicalTrialSortColumns.EvidenceItemCount },
+        sort: {
+          column: ClinicalTrialSortColumns.EvidenceItemCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

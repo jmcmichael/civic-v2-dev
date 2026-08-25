@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { VariantTypeSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
@@ -126,6 +127,16 @@ describe('variantTypesTableConfig', () => {
       ['name', 'name'],
       ['soid', 'soid'],
     ])
+  })
+
+  it('cycles its count column descend-first, as the legacy table did', () => {
+    expect(column('variantCount').sort?.directions).toEqual(SORT_DESCEND_FIRST)
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([['variantCount', 'civic-variant']])
   })
 
   it('offers a sorter on every sortable column, none defaulted', () => {

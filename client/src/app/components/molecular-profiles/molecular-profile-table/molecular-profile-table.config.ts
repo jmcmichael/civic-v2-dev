@@ -2,7 +2,7 @@ import {
   Maybe,
   MolecularProfilesSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, formatCount, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcMolecularProfileAliasesCellComponent } from './molecular-profile-table-aliases-cell.component'
 import { CvcMolecularProfileNameCellComponent } from './molecular-profile-table-name-cell.component'
@@ -171,41 +171,63 @@ export function molecularProfileTableConfig(
         key: 'molecularProfileScore',
         label: 'Score',
         tooltip: 'Molecular Profile Score',
+        labelIcon: 'civic-molecularprofile',
         width: '75px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.molecularProfileScore },
-        sort: { column: MolecularProfilesSortColumns.MolecularProfileScore },
+        cell: {
+          kind: 'text',
+          text: (row) => formatCount(row.molecularProfileScore),
+        },
+        sort: {
+          column: MolecularProfilesSortColumns.MolecularProfileScore,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'evidenceItemCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '75px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.evidenceItemCount },
-        sort: { column: MolecularProfilesSortColumns.EvidenceItemCount },
+        cell: {
+          kind: 'text',
+          text: (row) => formatCount(row.evidenceItemCount),
+        },
+        sort: {
+          column: MolecularProfilesSortColumns.EvidenceItemCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'assertionCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Assertion Count',
-        width: '75px',
+        labelIcon: 'civic-assertion',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: MolecularProfilesSortColumns.AssertionCount },
+        cell: { kind: 'text', text: (row) => formatCount(row.assertionCount) },
+        sort: {
+          column: MolecularProfilesSortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'variantCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Variant Count',
-        width: '75px',
+        labelIcon: 'civic-variant',
+        width: '55px',
         fixed: 'right',
         align: 'right',
-        cell: { kind: 'text', text: (row) => row.variantCount },
-        sort: { column: MolecularProfilesSortColumns.VariantCount },
+        cell: { kind: 'text', text: (row) => formatCount(row.variantCount) },
+        sort: {
+          column: MolecularProfilesSortColumns.VariantCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

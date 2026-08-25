@@ -17,7 +17,11 @@ import { BrowseDiseaseRowFieldsFragment } from './diseases-table.query.gql.gener
  * several features of different types, and none of that data is in this
  * query. Faking the missing fields would render the wrong icon per
  * feature; `cvc-tag-overflow` (`cvc-feature-tag` internally) tolerates the
- * gap gracefully, matching the legacy table exactly.
+ * gap gracefully, matching the legacy rendering except for one deliberate
+ * drop: the legacy `[matchingText]="featureNameInput"` per-tag match
+ * annotation, which a custom cell cannot express (no hook into a column's
+ * live filter value by design — the same trade users-table's organizations
+ * cell and sources-table's authors cell document).
  */
 @Component({
   selector: 'cvc-disease-features-cell',

@@ -34,5 +34,7 @@
     [nzType]="icon"
     nzTheme="twotone"
     [nzTwotoneColor]="user.role | titlecase | entityColor"></i>
-  {{ user.displayName }}
+  @for (segment of segments(); track $index) {
+    <span [class.typeahead-match]="segment.highlight">{{ segment.text }}</span>
+  }
 </ng-template>
