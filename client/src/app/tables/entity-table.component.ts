@@ -60,10 +60,12 @@ import { CvcEntityTableQuery } from './entity-table-query'
 import {
   CvcCellContext,
   CvcEntityTagCell,
+  CvcEnumOption,
   CvcSortState,
   CvcTableSettings,
   DEFAULT_EMPTY_VALUE,
 } from './entity-table.types'
+import { CvcEnumOptionGroup, groupEnumOptions } from './enum-filter-options'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
 import {
@@ -216,6 +218,27 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
     return LABEL_ICON_COLORS[icon] ?? getEntityColor('Greyscale')
+  }
+
+  /**
+   * A select-control enum filter's options, partitioned into their
+   * `nz-option-group` sections. Memoized per options array (config objects
+   * are stable across CD) so the template's call returns identical group
+   * arrays every tick — `@for` re-diffs nothing.
+   */
+  private readonly enumGroupCache = new WeakMap<
+    ReadonlyArray<CvcEnumOption<unknown>>,
+    CvcEnumOptionGroup<unknown>[]
+  >()
+  protected enumOptionGroups(
+    options: ReadonlyArray<CvcEnumOption<unknown>>
+  ): CvcEnumOptionGroup<unknown>[] {
+    let groups = this.enumGroupCache.get(options)
+    if (!groups) {
+      groups = groupEnumOptions(options)
+      this.enumGroupCache.set(options, groups)
+    }
+    return groups
   }
 
   /**

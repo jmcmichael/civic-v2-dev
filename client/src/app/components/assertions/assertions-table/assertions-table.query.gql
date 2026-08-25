@@ -76,6 +76,7 @@ fragment AssertionBrowseFields on Assertion {
     id
     name
     link
+    flagged
     parsedName {
       ...MolecularProfileParsedName
     }
