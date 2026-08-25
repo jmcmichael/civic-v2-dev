@@ -113,6 +113,8 @@ export function sourceSuggestionsTableConfig(
         labelIcon: 'civic-comment',
         tooltip: 'Submitter Comment',
         width: '40px',
+        // a narrow single-icon column: widening only pads the comment icon
+        resizable: false,
         align: 'center',
         cell: {
           kind: 'custom',

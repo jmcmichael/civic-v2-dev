@@ -54,27 +54,42 @@ const POPOVER_PAGE = 10
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nz-tag
-      class="count-tag"
-      [class.has-popover]="popoverEnabled()"
-      nz-popover
-      #popover="nzPopover"
-      [nzPopoverContent]="
-        popoverEnabled() && !suspended() ? content : undefined
-      "
-      nzPopoverPlacement="left"
-      nzPopoverTrigger="hover"
-      (nzPopoverVisibleChange)="onVisibleChange($event)">
-      @if (icon(); as glyph) {
+    <!-- a zero count is an absence, not a collection: no chip, no icon -->
+    @if ((count() ?? 0) === 0) {
+      <span
+        class="zero-count"
+        nz-typography
+        nzType="secondary"
+        >0</span
+      >
+    } @else {
+      <nz-tag
+        class="count-tag"
+        [class.has-popover]="popoverEnabled()"
+        nz-popover
+        #popover="nzPopover"
+        [nzPopoverContent]="
+          popoverEnabled() && !suspended() ? content : undefined
+        "
+        nzPopoverPlacement="left"
+        nzPopoverTrigger="hover"
+        (nzPopoverVisibleChange)="onVisibleChange($event)">
         <span
-          class="count-tag-icon"
-          nz-icon
-          [nzType]="glyph"
-          nzTheme="twotone"
-          [nzTwotoneColor]="iconColor()"></span>
-      }
-      <span class="count-tag-count">{{ display() }}</span>
-    </nz-tag>
+          class="entity-count"
+          nz-typography
+          nzType="secondary">
+          <strong>{{ display() }}</strong>
+        </span>
+        @if (icon(); as glyph) {
+          <span
+            class="entity-icon"
+            nz-icon
+            [nzType]="glyph"
+            nzTheme="twotone"
+            [nzTwotoneColor]="iconColor()"></span>
+        }
+      </nz-tag>
+    }
 
     <ng-template #content>
       <div
@@ -102,27 +117,45 @@ const POPOVER_PAGE = 10
   styles: `
     :host {
       display: block;
-    }
-    .count-tag {
-      /* inline-block, not flex: a flex tag synthesizes its own baseline
-         and sits ~1px off the row's inline-block tags (the full-width tag
-         lesson); the count floats right instead */
-      width: 100%;
-      /* ant's default 0 7px reads chunky beside the row's trimmed entity
-         tags; match their density */
-      padding: 0 4px;
-      margin-inline-end: 0;
-      text-align: left;
-    }
-    .count-tag-icon {
-      /* keep the glyph inside the tag's 20px line box: its own line box
-         collapsed, nudged to the text's optical center */
-      margin-right: 2px;
+      /* the tag is the host's only content, and overflow-hidden moves an
+         inline-block's baseline to its bottom margin edge — a live line
+         box would add descender space under the tag, growing the 28px
+         virtual rows. No line box, no gap. */
       line-height: 0;
-      vertical-align: -0.175em;
+      /* a content-sized chip, centered in its column like the tag-list
+         overflow tags it mirrors */
+      text-align: center;
     }
-    .count-tag-count {
-      float: right;
+    /* The collection tag's [+][count][icon] chip, without the plus — the
+       same metrics as collection-tag.component.less so count cells and
+       tag-list overflow tags read as one vocabulary. */
+    .count-tag {
+      margin: 0;
+      padding: 0;
+      margin-inline-end: 0;
+      /* a boundary transfer can squeeze the column to the 40px floor;
+         the count clips rather than wrapping under the icon */
+      white-space: nowrap;
+      overflow: hidden;
+      vertical-align: top;
+    }
+    .count-tag .entity-count,
+    .count-tag .entity-icon {
+      display: inline-block;
+      line-height: 1;
+    }
+    .count-tag .entity-count {
+      margin: -3px 0;
+      padding: 3px 4px 3px 5px;
+    }
+    .count-tag .entity-icon {
+      margin: -3px 1px -4px -1px;
+      padding: 3px 3px 3px 0;
+    }
+    .zero-count {
+      display: inline-block;
+      line-height: 20px;
+      vertical-align: top;
     }
     .count-tag.has-popover {
       cursor: help;

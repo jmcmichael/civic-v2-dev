@@ -38,10 +38,14 @@ import { AssertionsBrowseGQL } from './assertions-table.query.gql.generated'
  * subscription was init-only in effect too (it mutated fields without
  * refetching).
  */
-const FILTER_PARAMS: ReadonlyArray<[param: string, columnKey: string]> = [
-  ['assertionType', 'assertionType'],
-  ['assertionDirection', 'assertionDirection'],
-  ['significance', 'significance'],
+const FILTER_PARAMS: ReadonlyArray<
+  [param: string, columnKey: string, multi?: boolean]
+> = [
+  // the attribute columns are multi-select filters: a singular URL param
+  // (the producer's link contract is unchanged) seeds a one-value array
+  ['assertionType', 'assertionType', true],
+  ['assertionDirection', 'assertionDirection', true],
+  ['significance', 'significance', true],
   ['molecularProfileName', 'molecularProfile'],
   ['diseaseName', 'disease'],
 ]
@@ -218,7 +222,10 @@ export class CvcAssertionsTableComponent {
   protected readonly paramSettings: Maybe<CvcTableSettings> = (() => {
     const params = this.route.snapshot.queryParamMap
     const filters = FILTER_PARAMS.filter(([param]) => params.get(param)).map(
-      ([param, key]) => ({ key, value: params.get(param) })
+      ([param, key, multi]) => ({
+        key,
+        value: multi ? [params.get(param)] : params.get(param),
+      })
     )
     return filters.length ? { filters } : undefined
   })()

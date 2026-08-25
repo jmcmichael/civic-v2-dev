@@ -104,7 +104,12 @@ const AMP_LEVEL_OPTIONS: CvcEnumOption<AmpLevel>[] = [
   AmpLevel.TierIiLevelC,
   AmpLevel.TierIiLevelD,
   AmpLevel.TierIii,
-].map((value) => ({ label: AMP_FORMAT.transform(value, 'verbose'), value }))
+].map((value) => ({
+  label: AMP_FORMAT.transform(value, 'verbose'),
+  // the icon-select's collapsed state — 'IA', as the ACAT cells render
+  shortLabel: AMP_FORMAT.transform(value, 'compact'),
+  value,
+}))
 
 /**
  * The query variables a host page scopes the table with: at most one entity
@@ -261,7 +266,7 @@ export function assertionsTableConfig(
       },
       {
         key: 'assertionType',
-        label: 'AT',
+        label: 'ATYP',
         tooltip: 'Assertion Type',
         width: '60px',
         align: 'center',
@@ -274,13 +279,15 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.AssertionType },
         filter: {
           kind: 'enum',
-          var: 'assertionType',
+          var: 'assertionTypes',
           options: ASSERTION_TYPE_OPTIONS,
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
         key: 'assertionDirection',
-        label: 'AD',
+        label: 'ADIR',
         tooltip: 'Assertion Direction',
         width: '60px',
         align: 'center',
@@ -293,13 +300,15 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.AssertionDirection },
         filter: {
           kind: 'enum',
-          var: 'assertionDirection',
+          var: 'assertionDirections',
           options: enumFilterOptions(EvidenceDirection),
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
         key: 'significance',
-        label: 'S',
+        label: 'ASIG',
         tooltip: 'Significance',
         width: '60px',
         align: 'center',
@@ -312,15 +321,19 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.Significance },
         filter: {
           kind: 'enum',
-          var: 'significance',
+          var: 'significances',
           options: SIGNIFICANCE_OPTIONS,
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {
         key: 'ampLevel',
-        label: 'CAT',
+        label: 'ACAT',
         tooltip: 'AMP/ASCO/CAP Category',
         width: '60px',
+        // a narrow fixed-tag column: widening only pads the compact tag
+        resizable: false,
         align: 'center',
         fixed: 'right',
         emptyValue: 'not-applicable',
@@ -338,10 +351,13 @@ export function assertionsTableConfig(
         sort: { column: AssertionSortColumns.AmpLevel },
         filter: {
           kind: 'enum',
-          var: 'ampLevel',
+          var: 'ampLevels',
           options: AMP_LEVEL_OPTIONS,
-          // AMP tiers have no civic-* icon set
+          // AMP tiers have no civic-* icon set: the icon-select collapses
+          // to each option's compact shortLabel instead
           showIcons: false,
+          control: 'icon-select',
+          multiple: true,
         },
       },
       {

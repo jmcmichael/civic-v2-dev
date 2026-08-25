@@ -16,15 +16,15 @@ export type AssertionsBrowseQueryVariables = Types.Exact<{
   id?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   ids?: Types.InputMaybe<Array<Types.Scalars['Int']['input']> | Types.Scalars['Int']['input']>;
   summary?: Types.InputMaybe<Types.Scalars['String']['input']>;
-  assertionDirection?: Types.InputMaybe<Types.EvidenceDirection>;
-  significance?: Types.InputMaybe<Types.AssertionSignificance>;
-  assertionType?: Types.InputMaybe<Types.EvidenceType>;
+  assertionDirections?: Types.InputMaybe<Array<Types.EvidenceDirection> | Types.EvidenceDirection>;
+  significances?: Types.InputMaybe<Array<Types.AssertionSignificance> | Types.AssertionSignificance>;
+  assertionTypes?: Types.InputMaybe<Array<Types.EvidenceType> | Types.EvidenceType>;
   variantId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   molecularProfileId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   evidenceId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   molecularProfileName?: Types.InputMaybe<Types.Scalars['String']['input']>;
   sortBy?: Types.InputMaybe<Types.AssertionSort>;
-  ampLevel?: Types.InputMaybe<Types.AmpLevel>;
+  ampLevels?: Types.InputMaybe<Array<Types.AmpLevel> | Types.AmpLevel>;
   organization?: Types.InputMaybe<Types.OrganizationFilter>;
   userId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   phenotypeId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -86,7 +86,7 @@ export const AssertionBrowseFieldsFragmentDoc = gql`
 }
     ${MolecularProfileParsedNameFragmentDoc}`;
 export const AssertionsBrowseDocument = gql`
-    query AssertionsBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $therapyInteractionType: TherapyInteraction, $id: Int, $ids: [Int!], $summary: String, $assertionDirection: EvidenceDirection, $significance: AssertionSignificance, $assertionType: EvidenceType, $variantId: Int, $molecularProfileId: Int, $evidenceId: Int, $molecularProfileName: String, $sortBy: AssertionSort, $ampLevel: AmpLevel, $organization: OrganizationFilter, $userId: Int, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $status: EvidenceStatusFilter, $approvingOrganizations: OrganizationFilter) {
+    query AssertionsBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $therapyInteractionType: TherapyInteraction, $id: Int, $ids: [Int!], $summary: String, $assertionDirections: [EvidenceDirection!], $significances: [AssertionSignificance!], $assertionTypes: [EvidenceType!], $variantId: Int, $molecularProfileId: Int, $evidenceId: Int, $molecularProfileName: String, $sortBy: AssertionSort, $ampLevels: [AmpLevel!], $organization: OrganizationFilter, $userId: Int, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $status: EvidenceStatusFilter, $approvingOrganizations: OrganizationFilter) {
   assertions(
     first: $first
     last: $last
@@ -98,13 +98,13 @@ export const AssertionsBrowseDocument = gql`
     id: $id
     ids: $ids
     summary: $summary
-    assertionDirection: $assertionDirection
-    significance: $significance
-    assertionType: $assertionType
+    assertionDirections: $assertionDirections
+    significances: $significances
+    assertionTypes: $assertionTypes
     variantId: $variantId
     molecularProfileId: $molecularProfileId
     sortBy: $sortBy
-    ampLevel: $ampLevel
+    ampLevels: $ampLevels
     molecularProfileName: $molecularProfileName
     evidenceId: $evidenceId
     organization: $organization

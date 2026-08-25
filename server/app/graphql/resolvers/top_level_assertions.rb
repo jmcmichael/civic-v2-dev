@@ -64,6 +64,9 @@ class Resolvers::TopLevelAssertions < GraphQL::Schema::Resolver
   option(:therapy_interaction_type, type: Types::TherapyInteractionType, description: "Filtering on how an assertion's multiple therapies interact.") do |scope, value|
     scope.where(therapy_interaction_type: value)
   end
+  option(:therapy_interaction_types, type: [ Types::TherapyInteractionType ], description: "Filtering on how an assertion's multiple therapies interact; values are ORed. Use instead of (not alongside) therapyInteractionType.") do |scope, value|
+    scope.where(therapy_interaction_type: value)
+  end
   option(:molecular_profile_name, type: GraphQL::Types::String, description: "Substring filtering on molecular profile name") do |scope, value|
     results = Searchkick.search(
                   value,
@@ -84,13 +87,25 @@ class Resolvers::TopLevelAssertions < GraphQL::Schema::Resolver
   option(:assertion_type, type: Types::EvidenceTypeType, description: "Filtering on the assertion type.") do |scope, value|
     scope.where(assertion_type: value)
   end
+  option(:assertion_types, type: [ Types::EvidenceTypeType ], description: "Filtering on assertion type; values are ORed. Use instead of (not alongside) assertionType.") do |scope, value|
+    scope.where(assertion_type: value)
+  end
   option(:assertion_direction, type: Types::EvidenceDirectionType, description: "Filtering on the assertion direction.") do |scope, value|
+    scope.where(assertion_direction: value)
+  end
+  option(:assertion_directions, type: [ Types::EvidenceDirectionType ], description: "Filtering on assertion direction; values are ORed. Use instead of (not alongside) assertionDirection.") do |scope, value|
     scope.where(assertion_direction: value)
   end
   option(:significance, type: Types::AssertionSignificanceType, description: "Filtering on the assertion's significance.") do |scope, value|
     scope.where(significance: value)
   end
+  option(:significances, type: [ Types::AssertionSignificanceType ], description: "Filtering on the assertion's significance; values are ORed. Use instead of (not alongside) significance.") do |scope, value|
+    scope.where(significance: value)
+  end
   option(:amp_level, type: Types::AmpLevelType, description: "Filtering on the AMP/ASCO/CAP category.") do |scope, value|
+    scope.where(amp_level: value)
+  end
+  option(:amp_levels, type: [ Types::AmpLevelType ], description: "Filtering on AMP/ASCO/CAP category; values are ORed. Use instead of (not alongside) ampLevel.") do |scope, value|
     scope.where(amp_level: value)
   end
   option(:phenotype_id, type: GraphQL::Types::Int, description: "Exact match filtering of the assertions based on the internal CIViC phenotype id") do |scope, value|

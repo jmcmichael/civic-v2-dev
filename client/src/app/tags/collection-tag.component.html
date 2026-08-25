@@ -26,12 +26,14 @@
       nzType="secondary">
       <strong>{{ refs().length }}</strong>
     </span>
-    <span
-      class="entity-icon"
-      nz-icon
-      [nzType]="icons()[0].icon"
-      nzTheme="twotone"
-      [nzTwotoneColor]="icons()[0].color"></span>
+    @if (showIcon()) {
+      <span
+        class="entity-icon"
+        nz-icon
+        [nzType]="icons()[0].icon"
+        nzTheme="twotone"
+        [nzTwotoneColor]="icons()[0].color"></span>
+    }
   }
 </nz-tag>
 

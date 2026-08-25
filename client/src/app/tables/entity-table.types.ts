@@ -48,6 +48,14 @@ export interface CvcColumn<
    * not from this value.
    */
   width: string
+  /**
+   * Overrides the kind-based drag-resize default: icon-only `enum-tag`
+   * columns and the `select` column hold their configured width (widening
+   * one only pads its icon until tags can disclose text labels at width),
+   * everything else resizes. Set `false` on other narrow fixed-tag columns
+   * of the same shape — e.g. a compact `text-tag` category column.
+   */
+  resizable?: boolean
   /** `th`/`td` `nzAlign`; same union as ng-zorro's */
   align?: 'left' | 'center' | 'right'
   /**
@@ -147,9 +155,31 @@ export type CvcCellSpec<TRow> =
   | CvcEnumTagCell<TRow>
   | CvcTextTagCell<TRow>
   | CvcTextCell<TRow>
+  | CvcNumberCell<TRow>
   | CvcExternalLinkCell<TRow>
   | CvcCountTagCell<TRow>
   | CvcCustomCell<TRow>
+
+/**
+ * A numeric value the table formats itself (locale grouping, tabular
+ * figures) — unlike `text`, whose accessor delivers finished strings.
+ */
+export interface CvcNumberCell<TRow> {
+  kind: 'number'
+  /** styles for this cell's `td`, layered over the column's `styles.cell` */
+  style?: CvcCellStyle<TRow>
+  value: (row: TRow) => Maybe<number>
+  /**
+   * Align the column on the decimal point: every value renders with the
+   * highest fraction precision among the LOADED rows' values, whole
+   * numbers zero-filled to match (891 → '891.00' beside 406.25), in
+   * tabular figures so every digit — and so every separator — shares one
+   * width. Right-alignment completes the effect: pair with
+   * `align: 'right'`. Precision can only grow as pages load, so rows
+   * never reflow back.
+   */
+  decimalAlign?: boolean
+}
 
 /** row checkbox; the table owns the selection, the column just marks the slot */
 export interface CvcSelectCell {
@@ -455,6 +485,14 @@ export interface CvcEnumOption<TValue = string | number> {
   label: string
   value: TValue
   /**
+   * Compact rendering for the icon-select's collapsed state when the enum
+   * has no civic icon set (`showIcons: false`) — the AMP category filter
+   * collapses to 'IA' while its option list reads 'Tier I - Level A', the
+   * way its cells already do. Without it the collapsed state falls back to
+   * `label`.
+   */
+  shortLabel?: string
+  /**
    * Section heading this option renders under, in both filter controls: the
    * funnel's dropdown menu (`nz-menu-group`) and the `'select'` control
    * (`nz-option-group`). Contiguous options sharing a `group` form one
@@ -475,12 +513,24 @@ export interface CvcEnumFilter<
   options: ReadonlyArray<CvcEnumOption<TValue>>
   /**
    * How the filter renders in the filter row. `'funnel'` (default):
-   * ng-zorro's `nz-filter-trigger` icon with a dropdown menu — for narrow
-   * icon columns (the evidence attribute columns). `'select'`: a full
-   * `nz-select` in the filter row, the way the legacy tables rendered their
-   * enum filters — for columns wide enough to show one (users' Role et al.).
+   * ng-zorro's `nz-filter-trigger` icon with a dropdown menu. `'select'`: a
+   * full `nz-select` in the filter row, the way the legacy tables rendered
+   * their enum filters — for columns wide enough to show one (users' Role
+   * et al.). `'icon-select'`: the narrow attribute columns' control — an
+   * always-visible select collapsed to a single glyph: an 'All' prompt when
+   * clear, the selected value's civic icon (label in a tooltip) plus
+   * ng-zorro's clear circle-x when set; see CvcEnumIconSelectComponent.
    */
-  control?: 'funnel' | 'select'
+  control?: 'funnel' | 'select' | 'icon-select'
+  /**
+   * The icon-select accepts several values at once (`nzMode="multiple"`),
+   * emitting a non-empty array (empty selections normalize to null). The
+   * filter's `var` must then name one of the server's plural, array-typed
+   * args (`assertionTypes` et al.), whose values OR together — the
+   * singular args reject list-typed variables. Funnel/select controls
+   * ignore this flag.
+   */
+  multiple?: boolean
   /** the select control's placeholder; unused by the funnel */
   placeholder?: string
   /**

@@ -8,12 +8,12 @@ query EvidenceBrowse(
   $id: Int
   $ids: [Int!]
   $description: String
-  $evidenceLevel: EvidenceLevel
-  $evidenceDirection: EvidenceDirection
-  $significance: EvidenceSignificance
-  $evidenceType: EvidenceType
-  $evidenceRating: Int
-  $variantOrigin: VariantOrigin
+  $evidenceLevels: [EvidenceLevel!]
+  $evidenceDirections: [EvidenceDirection!]
+  $significances: [EvidenceSignificance!]
+  $evidenceTypes: [EvidenceType!]
+  $evidenceRatings: [Int!]
+  $variantOrigins: [VariantOrigin!]
   $variantId: Int
   $molecularProfileId: Int
   $assertionId: Int
@@ -38,12 +38,12 @@ query EvidenceBrowse(
     id: $id
     ids: $ids
     description: $description
-    evidenceLevel: $evidenceLevel
-    evidenceDirection: $evidenceDirection
-    significance: $significance
-    evidenceType: $evidenceType
-    evidenceRating: $evidenceRating
-    variantOrigin: $variantOrigin
+    evidenceLevels: $evidenceLevels
+    evidenceDirections: $evidenceDirections
+    significances: $significances
+    evidenceTypes: $evidenceTypes
+    evidenceRatings: $evidenceRatings
+    variantOrigins: $variantOrigins
     variantId: $variantId
     molecularProfileId: $molecularProfileId
     assertionId: $assertionId

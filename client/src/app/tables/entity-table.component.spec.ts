@@ -15,7 +15,10 @@ import { EvidenceManagerGQL } from '@app/forms/types/evidence-select/evidence-ma
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
-import { CvcEntityTableComponent } from './entity-table.component'
+import {
+  CvcEntityTableComponent,
+  resizeColumnWidths,
+} from './entity-table.component'
 import { entityTableConfig, EntityTableSpec } from './entity-table-config'
 import { SORT_DESCEND_FIRST } from './entity-table.types'
 
@@ -430,12 +433,142 @@ describe('cvc-entity-table', () => {
 
     expect(width()).toBe('200px')
 
-    // what (nzResizeEnd) reports; fractional px are rounded
+    // without measurable geometry (no th element — jsdom's permanent
+    // condition) the emitted width stores directly; fractional px round
     table.onColumnResize('name', 262.4)
     expect(width()).toBe('262px')
 
     table.onResetColumns()
     expect(width()).toBe('200px')
+  })
+
+  describe('resizeColumnWidths (the boundary-transfer resize model)', () => {
+    const measured = () => [
+      { key: 'a', rendered: 100, resizable: true },
+      { key: 'b', rendered: 300, resizable: true },
+      { key: 'x', rendered: 60, resizable: false },
+      { key: 'c', rendered: 200, resizable: true },
+    ]
+
+    it('transfers the delta to the next resizable neighbor, total constant', () => {
+      // narrowing b by 60 skips non-resizable x; c absorbs the freed space
+      const widths = resizeColumnWidths(measured(), 'b', 240)!
+      expect([...widths]).toEqual([
+        ['a', '100px'],
+        ['b', '240px'],
+        ['x', '60px'],
+        ['c', '260px'],
+      ])
+    })
+
+    it('clamps widening at the neighbor floor', () => {
+      // c can give up 200 − 40 = 160 of the 180 requested
+      const widths = resizeColumnWidths(measured(), 'b', 480)!
+      expect(widths.get('b')).toBe('460px')
+      expect(widths.get('c')).toBe('40px')
+    })
+
+    it('changes only the dragged column when nothing resizable lies right of it', () => {
+      const widths = resizeColumnWidths(measured(), 'c', 150)!
+      expect(widths.get('c')).toBe('150px')
+      expect(widths.get('b')).toBe('300px')
+    })
+
+    it('declines without full geometry or a known key', () => {
+      expect(resizeColumnWidths(measured(), 'nope', 100)).toBeNull()
+      const unmeasured = measured().map((c) =>
+        c.key === 'x' ? { ...c, rendered: 0 } : c
+      )
+      expect(resizeColumnWidths(unmeasured, 'b', 240)).toBeNull()
+    })
+  })
+
+  it('eats the click a resize drag synthesizes before it can reach the sort', async () => {
+    fixture.componentInstance.spec.set(buildSpec())
+    await settle()
+    const th = document.createElement('th')
+    let sortClicks = 0
+    th.addEventListener('click', () => sortClicks++) // ng-zorro's bubble-phase sort trigger
+
+    table.onColumnResize('name', 250, th)
+    th.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(sortClicks).toBe(0)
+
+    // the trap is one-shot and disarms on the next macrotask — later
+    // genuine header clicks sort normally
+    await new Promise((r) => setTimeout(r, 0))
+    th.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    expect(sortClicks).toBe(1)
+  })
+
+  it('exempts icon-only enum-tag columns and the select column from resizing', async () => {
+    fixture.componentInstance.spec.set(buildSpec())
+    await settle()
+    const col = (key: string) => table.columns().find((c) => c.key === key)!
+
+    expect(table.isResizable(col('name'))).toBe(true)
+    expect(table.isResizable(col('selected'))).toBe(false)
+    expect(
+      table.isResizable({
+        ...col('name'),
+        cell: { kind: 'enum-tag', value: () => undefined },
+      })
+    ).toBe(false)
+    // an explicit config flag beats the kind-based default in both directions
+    expect(table.isResizable({ ...col('name'), resizable: false })).toBe(false)
+    expect(
+      table.isResizable({
+        ...col('name'),
+        resizable: true,
+        cell: { kind: 'enum-tag', value: () => undefined },
+      })
+    ).toBe(true)
+  })
+
+  it('zero-fills decimal-aligned numbers to the loaded rows’ precision', async () => {
+    fixture.componentInstance.spec.set(buildSpec())
+    await settle()
+    const scoreCol = {
+      ...table.columns().find((c) => c.key === 'name')!,
+      key: 'score',
+      cell: {
+        kind: 'number' as const,
+        value: (r: Row) => [891, 406.25, 462.5][r.id - 1],
+        decimalAlign: true,
+      },
+    }
+    // the column's precision is its loaded rows' max fraction digits...
+    const withScore = {
+      ...buildSpec(),
+      columns: [...buildSpec().columns, scoreCol],
+    }
+    fixture.componentInstance.spec.set(withScore)
+    await settle()
+    expect(table.decimalPrecision().get('score')).toBe(2)
+    // ...and every value zero-fills to it, locale-grouped
+    expect(table.formatNumber(scoreCol, 891)).toBe('891.00')
+    expect(table.formatNumber(scoreCol, 406.25)).toBe('406.25')
+    // a non-aligned number cell formats freely
+    expect(
+      table.formatNumber(
+        { ...scoreCol, cell: { kind: 'number', value: () => 1 } },
+        1234.5
+      )
+    ).toBe('1,234.5')
+  })
+
+  it('renders no handle where no boundary can transfer — the table edges stay fixed', async () => {
+    fixture.componentInstance.spec.set(buildSpec())
+    await settle()
+    const col = (key: string) => table.columns().find((c) => c.key === key)!
+
+    // name has a resizable partner to its right (rating) — handle
+    expect(table.hasResizeHandle(col('name'))).toBe(true)
+    // rating is the rightmost resizable column: dragging its right edge
+    // could only change the total width — no handle
+    expect(table.hasResizeHandle(col('rating'))).toBe(false)
+    // non-resizable columns never get one
+    expect(table.hasResizeHandle(col('selected'))).toBe(false)
   })
 
   it('cycles descend-first when the column declares it', () => {

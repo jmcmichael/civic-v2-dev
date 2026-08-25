@@ -222,7 +222,10 @@ export class CvcEntityStreamQuery {
    * fetch extends the set far enough for any contiguous range the scroller
    * asks for. A short or empty resolution — past the end of a fully-loaded
    * connection, or across a variables change — is how the scroller learns
-   * the range is exhausted.
+   * the range is exhausted, so a resolution must never be short for a page
+   * that did arrive: the fetch promise settles with the network result
+   * while the merged list lands through the cache broadcast a tick later,
+   * and this waits for the appended edges before slicing.
    */
   async getRange(
     index: number,
@@ -241,6 +244,29 @@ export class CvcEntityStreamQuery {
       after: edges.length > 0 ? edges[edges.length - 1].cursor : undefined,
     })
     if (this.generation !== generation) return []
+    await this.settleAppend(edges.length, generation)
+    if (this.generation !== generation) return []
     return slice()
+  }
+
+  /**
+   * Waits until the loaded edges extend past `previousLength` — the page
+   * landing through the cache broadcast — bounded so a page that appends
+   * nothing (a stale `hasNextPage` at the true end of the set) resolves
+   * rather than hangs.
+   */
+  private async settleAppend(
+    previousLength: number,
+    generation: number
+  ): Promise<void> {
+    const APPEND_SETTLE_TRIES = 50
+    const APPEND_SETTLE_INTERVAL_MS = 10
+    for (let attempt = 0; attempt < APPEND_SETTLE_TRIES; attempt++) {
+      if (this.generation !== generation) return
+      if (this.edges().length > previousLength) return
+      await new Promise((resolve) =>
+        setTimeout(resolve, APPEND_SETTLE_INTERVAL_MS)
+      )
+    }
   }
 }
