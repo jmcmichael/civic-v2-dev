@@ -81,10 +81,27 @@
                         [nzPlaceHolder]="filter.placeholder ?? ''"
                         [ngModel]="filterValue(col.key)"
                         (ngModelChange)="onFilterChange(col, $event)">
-                        @for (option of filter.options; track option.value) {
-                          <nz-option
-                            [nzValue]="option.value"
-                            [nzLabel]="option.label" />
+                        <!-- index tracking: a grouped enum may repeat a value
+                             under several headings (significance's NA) -->
+                        @for (
+                          group of enumOptionGroups(filter.options);
+                          track $index
+                        ) {
+                          @if (group.title) {
+                            <nz-option-group [nzLabel]="group.title">
+                              @for (option of group.options; track $index) {
+                                <nz-option
+                                  [nzValue]="option.value"
+                                  [nzLabel]="option.label" />
+                              }
+                            </nz-option-group>
+                          } @else {
+                            @for (option of group.options; track $index) {
+                              <nz-option
+                                [nzValue]="option.value"
+                                [nzLabel]="option.label" />
+                            }
+                          }
                         }
                       </nz-select>
                     } @else {
@@ -223,20 +240,29 @@
               @case ('text-tag') {
                 @let text = cell.text(row);
                 @if (text) {
-                  <!-- the icon is the whole cell: these columns are 40px and
-                         the text is a full evidence description, so it lives in
-                         the tooltip -->
+                  <!-- without a label accessor the icon is the whole cell:
+                         these columns are 40px and the text is a full evidence
+                         description, so it lives in the tooltip. With one, the
+                         tag shows the compact label and the tooltip expands it
+                         (the AMP category's 'IA' -> 'Tier I - Level A'). -->
                   <nz-tag
                     nz-tooltip
                     [nzTooltipTitle]="isScrolling() ? null : text"
                     class="text-tag-cell">
-                    <span
-                      nz-icon
-                      nzType="align-left"
-                      nzTheme="outline"></span>
+                    @if (cell.label; as label) {
+                      {{ label(row) }}
+                    } @else {
+                      <span
+                        nz-icon
+                        nzType="align-left"
+                        nzTheme="outline"></span>
+                    }
                   </nz-tag>
                 } @else {
+                  <!-- small mode, like enum-tag: text-tag columns are the
+                       40-60px attribute columns -->
                   <cvc-empty-value
+                    cvcDisplayMode="small"
                     [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
                 }
               }
