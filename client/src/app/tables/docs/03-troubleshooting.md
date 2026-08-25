@@ -243,6 +243,16 @@ access to the component) — same suspend rule applies.
 - **Contract tests report inapplicable behaviours as skipped** (`ctx.skip`
   with a reason). Two skips are expected today; a growing skip count means a
   config quietly stopped exercising a behaviour — investigate, don't accept.
+- **`connection` must appear before `columns` in the config literal**, or
+  every column's `(row) => ...` accessor silently infers `row: unknown` and
+  every downstream property collapses to the same generic error the manager
+  configs warn about (`'row' is of type 'unknown'` everywhere, `EntityTableSpec<unknown>`
+  at every call site that reads the resulting spec). `TNode` is inferred from
+  `connection`'s return type, and TypeScript resolves an object literal's
+  properties in source order — `columns` earlier in the literal gets checked
+  before `TNode` exists to contextually type it. Every shipped config
+  (`variants-table.config.ts` et al.) puts `connection` first; match that
+  order rather than rediscovering why.
 - **The two scroll directives coexist**: `cvcTableScrollObserver` (this
   library, reports) vs the app-wide `cvcTableScroll`
   (`app/directives/table-scroll/`, calls `fetchMore` itself, used by the 17

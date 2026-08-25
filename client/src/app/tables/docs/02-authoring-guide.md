@@ -280,6 +280,11 @@ Using the variant manager as the template (it is the smaller of the two):
    testable with `TestBed.inject(MyTableGQL)` and carries no injection of its
    own.
 
+   Keep `connection` **before** `columns`, as above — `columns`' accessors
+   need `TNode` (inferred from `connection`'s return) already resolved to
+   type-check; reversing the order collapses inference for the whole literal
+   (docs/03-troubleshooting.md, "Odds and ends").
+
 3. **Facade component.** A thin standalone component owning the spec and the
    host-facing vocabulary:
 

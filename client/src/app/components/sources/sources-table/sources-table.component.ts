@@ -1,243 +1,84 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
   TemplateRef,
+  computed,
+  inject,
+  input,
 } from '@angular/core'
-import { ApolloQueryResult } from '@apollo/client/core'
-import {
-  buildSortParams,
-  SortDirectionEvent,
-} from '@app/core/utilities/datatable-helpers'
-import { ScrollEvent } from '@app/directives/table-scroll/table-scroll.directive'
-import {
-  BrowseSourceRowFieldsFragment,
-  BrowseSourcesGQL,
-  BrowseSourcesQuery,
-  BrowseSourcesQueryVariables,
-} from './sources-table.query.gql.generated'
-import {
-  BrowseSourceConnection,
-  Maybe,
-  PageInfo,
-  SortDirection,
-  SourceSource,
-  SourcesSortColumns,
-} from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  skip,
-  takeWhile,
-  withLatestFrom,
-} from 'rxjs/operators'
-import { pluck } from 'rxjs-etc/operators'
+import { CvcTableDownloaderComponent } from '@app/components/shared/table-downloader/table-downloader.component'
+import { Maybe } from '@app/generated/civic.apollo.types'
+import { CvcEntityTableComponent } from '@app/tables'
+import { sourcesTableConfig } from './sources-table.config'
+import { BrowseSourcesGQL } from './sources-table.query.gql.generated'
 
-export interface SourcesTableUserFilters {
-  citationIdInput?: Maybe<string>
-  authorInput?: Maybe<string>
-  journalInput?: Maybe<string>
-  nameInput?: Maybe<string>
-  sourceTypeInput?: Maybe<SourceSource>
-  yearInput?: Maybe<string>
-  openAccessInput?: Maybe<boolean>
-}
-
-@UntilDestroy()
+/**
+ * Browse-table facade over `cvc-entity-table`: keeps the legacy selector and
+ * the input surface its 3 embed sites bind (`ids` at query-search,
+ * `clinicalTrialId`+`cvcHeight` at clinical-trials-summary, neither at
+ * sources-home), while the table itself is configuration — see
+ * `sources-table.config.ts`.
+ *
+ * Both scope inputs feed the spec through a `computed`, so either changing
+ * (query-search re-running, or a route-reused clinical-trials-summary
+ * rebinding `[clinicalTrialId]`) re-queries through the table's normal
+ * debounced-variables path — no `ngOnChanges` refetch plumbing, and no
+ * chance of the legacy `clinicalTrialId`-goes-stale bug documented in the
+ * (now-deleted) characterization spec: the computed always reflects the
+ * current signals, full stop.
+ *
+ * `cvcHeight` was a legacy `number` (the one embed site passes a bare `400`)
+ * rather than every other migrated table's `string`; kept as `number` here
+ * to match the embed site literally, and stringified to px for
+ * `cvc-entity-table`'s `[height]`.
+ *
+ * Defaults to `800px`, matching every other migrated facade — tried leaving
+ * it unset first (the legacy table's own no-`cvcHeight` behavior was to
+ * auto-measure the viewport via `cvcAutoHeightTarget`, a fundamentally
+ * different, JS-driven mechanism `cvc-entity-table` doesn't have), and
+ * confirmed live on :4201 that an unset `[height]` collapses the virtual
+ * scroll viewport to 0px — rows are in the DOM (`innerText` has them) but
+ * nothing is visible. `cvc-entity-table`'s flex-fill default apparently
+ * needs a height-bounded ancestor none of this table's 3 embed sites
+ * provide; every other facade already discovered this and defaults too.
+ *
+ * The legacy `initialUserFilters`/`initialPageSize` inputs had no consumers
+ * (grepped across the app) and are dropped, matching the precedent set by
+ * the other migrated tables.
+ */
 @Component({
   selector: 'cvc-sources-table',
-  templateUrl: './sources-table.component.html',
-  styleUrls: ['./sources-table.component.less'],
+  imports: [CvcEntityTableComponent, CvcTableDownloaderComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  template: `
+    <cvc-entity-table
+      #table
+      [spec]="spec()"
+      [titleTemplate]="cvcTitleTemplate()"
+      [height]="heightPx()">
+      <cvc-table-downloader
+        cvcTableToolbarExtra
+        [vars]="table.queryVars()"
+        tableName="sources" />
+    </cvc-entity-table>
+  `,
 })
-export class CvcSourcesTableComponent implements OnInit, OnChanges {
-  @Input() ids: Maybe<number[]>
-  @Input() cvcHeight?: number
-  @Input() clinicalTrialId: Maybe<number>
-  @Input() cvcTitleTemplate: Maybe<TemplateRef<void>>
-  @Input() cvcTitle: Maybe<string>
-  @Input() initialPageSize = 35
-  @Input()
-  set initialUserFilters(f: Maybe<SourcesTableUserFilters>) {
-    // assign any attributes in filters object to this class
-    if (f) Object.assign(this, f)
-  }
+export class CvcSourcesTableComponent {
+  private readonly gql = inject(BrowseSourcesGQL)
 
-  // SOURCE STREAMS
-  scrollEvent$: BehaviorSubject<ScrollEvent>
-  sortChange$: Subject<SortDirectionEvent>
-  filterChange$: Subject<void>
+  readonly ids = input<Maybe<number[]>>()
+  readonly clinicalTrialId = input<Maybe<number>>()
+  readonly cvcTitle = input<Maybe<string>>()
+  readonly cvcTitleTemplate = input<Maybe<TemplateRef<void>>>()
+  /** explicit body height in px, e.g. `cvcHeight="400"`; default matches the legacy table's 800px */
+  readonly cvcHeight = input<Maybe<number>>()
 
-  // INTERMEDIATE STREAMS
-  queryRef!: QueryRef<BrowseSourcesQuery, BrowseSourcesQueryVariables>
-  result$!: Observable<ApolloQueryResult<BrowseSourcesQuery>>
-  connection$!: Observable<BrowseSourceConnection>
+  protected readonly heightPx = computed(() => `${this.cvcHeight() ?? 800}px`)
 
-  // PRESENTATION STREAMS
-  pageInfo$!: Observable<PageInfo>
-  initialLoading$!: Observable<boolean>
-  moreLoading$!: Observable<boolean>
-  row$!: Observable<Maybe<BrowseSourceRowFieldsFragment>[]>
-  scrollIndex$: Subject<number>
-  noMoreRows$: BehaviorSubject<boolean>
-
-  // need a static var for scrolling state b/c sub/unsub in
-  // virtual scroll rows degrades performance
-  isScrolling = false
-  // filters
-  citationIdInput: Maybe<string>
-  authorInput: Maybe<string>
-  yearInput: Maybe<string>
-  journalInput: Maybe<string>
-  nameInput: Maybe<string>
-  sourceTypeInput: Maybe<SourceSource>
-  openAccessInput?: Maybe<boolean>
-
-  sortColumns: typeof SourcesSortColumns = SourcesSortColumns
-
-  constructor(
-    private gql: BrowseSourcesGQL,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.noMoreRows$ = new BehaviorSubject<boolean>(false)
-    this.scrollEvent$ = new BehaviorSubject<ScrollEvent>('stop')
-    this.sortChange$ = new Subject<SortDirectionEvent>()
-    this.filterChange$ = new Subject<void>()
-    this.scrollIndex$ = new Subject<number>()
-  }
-
-  ngOnInit() {
-    this.queryRef = this.gql.watch({
-      variables: {
-        ids: this.ids,
-        first: this.initialPageSize,
-        clinicalTrialId: this.clinicalTrialId,
-        sortBy: {
-          column: SourcesSortColumns.EvidenceCount,
-          direction: SortDirection.Desc,
-        },
-      },
+  protected readonly spec = computed(() =>
+    sourcesTableConfig(this.gql, this.cvcTitle(), {
+      ids: this.ids(),
+      clinicalTrialId: this.clinicalTrialId(),
     })
-
-    this.result$ = this.queryRef.valueChanges
-
-    // toggles table overlay 'Loading...' spinner
-    this.initialLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      takeWhile((l) => l !== false, true)
-    ) // only activate on 1st true/false sequence
-
-    // toggles table header 'Loading...' tag
-    this.moreLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      skip(2)
-    ) // skip 1st true/false sequence
-
-    this.connection$ = this.result$.pipe(
-      pluck('data', 'browseSources'),
-      filter(isNonNulled)
-    ) as Observable<BrowseSourceConnection>
-
-    // entity row nodes
-    this.row$ = this.connection$.pipe(
-      pluck('edges'),
-      filter(isNonNulled),
-      map((edges) => edges.map((e) => e.node))
-    )
-
-    // provided to table-scroll directive for fetchMore queries
-    this.pageInfo$ = this.connection$.pipe(
-      pluck('pageInfo'),
-      filter(isNonNulled)
-    )
-
-    // refetch when column sort changes
-    this.sortChange$
-      .pipe(untilDestroyed(this))
-      .subscribe((e: SortDirectionEvent) => {
-        this.queryRef.refetch({ sortBy: buildSortParams(e) })
-      })
-
-    // refresh when filters change
-    this.filterChange$
-      .pipe(debounceTime(500), untilDestroyed(this))
-      .subscribe(() => {
-        this.refresh()
-      })
-
-    // for every onScrolled event, convert to bool & set isScrolling
-    this.scrollEvent$
-      .pipe(
-        map((e: ScrollEvent) => (e === 'stop' ? false : true)),
-        distinctUntilChanged(),
-        untilDestroyed(this)
-      )
-      .subscribe((e) => {
-        this.isScrolling = e
-        this.cdr.detectChanges()
-      })
-
-    // emit event from noMoreRow$ if hasNextPage false
-    this.scrollEvent$
-      .pipe(
-        filter((e) => e === 'bottom'),
-        withLatestFrom(this.pageInfo$),
-        map(([_, pageInfo]: [ScrollEvent, PageInfo]) => pageInfo),
-        untilDestroyed(this)
-      )
-      .subscribe((pageInfo: PageInfo) => {
-        if (!pageInfo.hasNextPage) {
-          this.noMoreRows$.next(true)
-          this.cdr.detectChanges()
-
-          // need to send a followup 'false' here or else
-          // ng won't interpret subsequent 'true' events as changes
-          setInterval(() => this.noMoreRows$.next(false))
-        }
-      })
-  } // ngOnInit()
-
-  refresh() {
-    if (!this.queryRef) return
-    this.queryRef
-      .refetch({
-        ids: this.ids,
-        citationId: this.citationIdInput ? +this.citationIdInput : undefined,
-        author: this.authorInput,
-        year: this.yearInput ? +this.yearInput : undefined,
-        journal: this.journalInput,
-        name: this.nameInput,
-        sourceType: this.sourceTypeInput,
-        openAccess: this.openAccessInput,
-      })
-      .then(() => this.scrollIndex$.next(0))
-
-    this.cdr.detectChanges()
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('ids' in changes) {
-      this.refresh()
-    }
-  }
-
-  trackByIndex(
-    _: number,
-    data: Maybe<BrowseSourceRowFieldsFragment>
-  ): Maybe<number> {
-    return data?.id
-  }
+  )
 }

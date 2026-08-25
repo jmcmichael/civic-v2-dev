@@ -1,199 +1,52 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
   TemplateRef,
+  computed,
+  inject,
+  input,
 } from '@angular/core'
-import { ApolloQueryResult } from '@apollo/client/core'
-import {
-  buildSortParams,
-  SortDirectionEvent,
-} from '@app/core/utilities/datatable-helpers'
-import { ScrollEvent } from '@app/directives/table-scroll/table-scroll.directive'
-import {
-  CommentBrowseFieldsFragment,
-  CommentsBrowseGQL,
-  CommentsBrowseQuery,
-  CommentsBrowseQueryVariables,
-} from './comments-table.query.gql.generated'
-import {
-  CommentConnection,
-  DateSortColumns,
-  Maybe,
-  PageInfo,
-  SortDirection,
-} from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { QueryRef } from 'apollo-angular'
-import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { isNonNulled } from 'rxjs-etc'
-import {
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  map,
-  skip,
-  takeWhile,
-  withLatestFrom,
-} from 'rxjs/operators'
-import { pluck } from 'rxjs-etc/operators'
+import { Maybe } from '@app/generated/civic.apollo.types'
+import { CvcEntityTableComponent } from '@app/tables'
+import { commentsTableConfig } from './comments-table.config'
+import { CommentsBrowseGQL } from './comments-table.query.gql.generated'
 
-@UntilDestroy()
+/**
+ * Browse-table facade over `cvc-entity-table`: keeps the legacy selector and
+ * the input surface its 1 embed site binds (`ids`, `cvcTitle`), while the
+ * table itself is configuration — see `comments-table.config.ts`.
+ *
+ * The `ids` scope input feeds the spec through a `computed`, so an embed
+ * changing it (query-search re-runs) re-queries through the table's normal
+ * debounced-variables path — no `ngOnChanges` refetch plumbing.
+ *
+ * No downloader: the legacy table never had one. The legacy
+ * `initialPageSize` input had no consumers (grepped across the app) and is
+ * dropped, matching the precedent set by the other migrated tables.
+ */
 @Component({
   selector: 'cvc-comments-table',
-  templateUrl: './comments-table.component.html',
-  styleUrls: ['./comments-table.component.less'],
+  imports: [CvcEntityTableComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: false,
+  template: `
+    <cvc-entity-table
+      [spec]="spec()"
+      [titleTemplate]="cvcTitleTemplate()"
+      [height]="cvcHeight() ?? '800px'" />
+  `,
 })
-export class CvcCommentsTableComponent implements OnInit, OnChanges {
-  @Input() ids: Maybe<number[]>
-  @Input() cvcHeight?: number
-  @Input() cvcTitleTemplate: Maybe<TemplateRef<void>>
-  @Input() cvcTitle: Maybe<string>
-  @Input() initialPageSize = 35
+export class CvcCommentsTableComponent {
+  private readonly gql = inject(CommentsBrowseGQL)
 
-  // SOURCE STREAMS
-  scrollEvent$: BehaviorSubject<ScrollEvent>
-  sortChange$: Subject<SortDirectionEvent>
-  filterChange$: Subject<void>
+  readonly ids = input<Maybe<number[]>>()
+  readonly cvcTitle = input<Maybe<string>>()
+  readonly cvcTitleTemplate = input<Maybe<TemplateRef<void>>>()
+  /** explicit body height; the default matches the legacy table's 800px */
+  readonly cvcHeight = input<Maybe<string>>()
 
-  // INTERMEDIATE STREAMS
-  queryRef!: QueryRef<CommentsBrowseQuery, CommentsBrowseQueryVariables>
-  result$!: Observable<ApolloQueryResult<CommentsBrowseQuery>>
-  connection$!: Observable<CommentConnection>
-
-  // PRESENTATION STREAMS
-  pageInfo$!: Observable<PageInfo>
-  initialLoading$!: Observable<boolean>
-  moreLoading$!: Observable<boolean>
-  row$!: Observable<Maybe<CommentBrowseFieldsFragment>[]>
-  scrollIndex$: Subject<number>
-  noMoreRows$: BehaviorSubject<boolean>
-
-  isScrolling = false
-
-  sortColumns: typeof DateSortColumns = DateSortColumns
-
-  constructor(
-    private gql: CommentsBrowseGQL,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.noMoreRows$ = new BehaviorSubject<boolean>(false)
-    this.scrollEvent$ = new BehaviorSubject<ScrollEvent>('stop')
-    this.sortChange$ = new Subject<SortDirectionEvent>()
-    this.filterChange$ = new Subject<void>()
-    this.scrollIndex$ = new Subject<number>()
-  }
-
-  ngOnInit() {
-    this.queryRef = this.gql.watch({
-      variables: {
-        ids: this.ids,
-        first: this.initialPageSize,
-        sortBy: {
-          column: DateSortColumns.Created,
-          direction: SortDirection.Desc,
-        },
-      },
+  protected readonly spec = computed(() =>
+    commentsTableConfig(this.gql, this.cvcTitle(), {
+      ids: this.ids(),
     })
-
-    this.result$ = this.queryRef.valueChanges
-
-    this.initialLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      takeWhile((l) => l !== false, true)
-    )
-
-    this.moreLoading$ = this.result$.pipe(
-      pluck('loading'),
-      distinctUntilChanged(),
-      skip(2)
-    )
-
-    this.connection$ = this.result$.pipe(
-      pluck('data', 'comments'),
-      filter(isNonNulled)
-    ) as Observable<CommentConnection>
-
-    this.row$ = this.connection$.pipe(
-      pluck('edges'),
-      filter(isNonNulled),
-      map((edges) =>
-        edges.map((e) => e.node as Maybe<CommentBrowseFieldsFragment>)
-      )
-    )
-
-    this.pageInfo$ = this.connection$.pipe(
-      pluck('pageInfo'),
-      filter(isNonNulled)
-    )
-
-    this.sortChange$
-      .pipe(untilDestroyed(this))
-      .subscribe((e: SortDirectionEvent) => {
-        this.queryRef.refetch({ sortBy: buildSortParams(e) })
-      })
-
-    this.filterChange$
-      .pipe(debounceTime(500), untilDestroyed(this))
-      .subscribe(() => {
-        this.refresh()
-      })
-
-    this.scrollEvent$
-      .pipe(
-        map((e: ScrollEvent) => (e === 'stop' ? false : true)),
-        distinctUntilChanged(),
-        untilDestroyed(this)
-      )
-      .subscribe((e) => {
-        this.isScrolling = e
-        this.cdr.detectChanges()
-      })
-
-    this.scrollEvent$
-      .pipe(
-        filter((e) => e === 'bottom'),
-        withLatestFrom(this.pageInfo$),
-        map(([_, pageInfo]: [ScrollEvent, PageInfo]) => pageInfo),
-        untilDestroyed(this)
-      )
-      .subscribe((pageInfo: PageInfo) => {
-        if (!pageInfo.hasNextPage) {
-          this.noMoreRows$.next(true)
-          this.cdr.detectChanges()
-          setInterval(() => this.noMoreRows$.next(false))
-        }
-      })
-  }
-
-  refresh() {
-    if (!this.queryRef) return
-    this.queryRef
-      .refetch({
-        ids: this.ids,
-      })
-      .then(() => this.scrollIndex$.next(0))
-
-    this.cdr.detectChanges()
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if ('ids' in changes) {
-      this.refresh()
-    }
-  }
-
-  trackByIndex(
-    _: number,
-    data: Maybe<CommentBrowseFieldsFragment>
-  ): Maybe<number> {
-    return data?.id
-  }
+  )
 }
