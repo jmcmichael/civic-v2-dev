@@ -23,7 +23,11 @@ import { NzTableFilterList, NzTableSortOrder } from 'ng-zorro-antd/table'
  * layout lives on the column itself, so one `<th>` and one `<td>` serve every
  * column and the union is narrowed once, at the point it actually varies.
  */
-export interface CvcColumn<TRow, TVars = unknown, TSortColumn extends string = string> {
+export interface CvcColumn<
+  TRow,
+  TVars = unknown,
+  TSortColumn extends string = string,
+> {
   /** stable identity: addresses the column in prefs, filters and data-column */
   key: string
   label: string
@@ -72,7 +76,14 @@ export interface CvcSelectCell {
   kind: 'select'
 }
 
-/** one or more `cvc-tag`s, overflowing into a `cvc-collection-tag` */
+/**
+ * one or more `cvc-tag`s, overflowing into a `cvc-collection-tag`
+ *
+ * There is deliberately no `showStatus`. Both manager configs set one and both
+ * types files declared one, but no template ever read it — `cvc-tag` applies its
+ * deprecated/flagged/status classes from the cached entity unconditionally. It
+ * was dead config in the originals; it is not carried forward.
+ */
 export interface CvcEntityTagCell<TRow> {
   kind: 'entity-tag'
   /** a single ref, a list, or nothing */
@@ -81,8 +92,6 @@ export interface CvcEntityTagCell<TRow> {
   maxTags?: number
   truncateLabel?: CvcTagLabelMax
   fullWidth?: boolean
-  /** render the entity's status styling (deprecated, flagged, …) */
-  showStatus?: boolean
   popoverPlacement?: PopoverPlacement
 }
 
@@ -90,6 +99,13 @@ export interface CvcEntityTagCell<TRow> {
 export interface CvcEnumTagCell<TRow> {
   kind: 'enum-tag'
   value: (row: TRow) => Maybe<string>
+  /**
+   * Tooltip text for the tag. An accessor rather than a flag because the
+   * expansion is entity-specific — the evidence manager pipes its enums through
+   * `evidenceEnumDisplay` to turn `PREDICTIVE` into a sentence, and a generic
+   * table cannot know which pipe an enum wants.
+   */
+  tooltip?: (row: TRow) => Maybe<string>
   /** false renders just the icon, for narrow columns */
   showLabel?: boolean
   /** override when the tag cannot infer an icon from the value */

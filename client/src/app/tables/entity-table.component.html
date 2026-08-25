@@ -1,0 +1,361 @@
+<nz-card
+  class="cvc-entity-table"
+  [nzTitle]="cardTitle"
+  [nzExtra]="toolbar"
+  nzSize="small">
+  <nz-table
+    data-testid="entity-table"
+    class="cvc-entity-table__body"
+    [nzData]="rows()"
+    [nzScroll]="{ x: '800px', y: height() ?? '100%' }"
+    [nzVirtualItemSize]="28"
+    [nzVirtualForTrackBy]="trackById"
+    nzSize="small"
+    [nzFrontPagination]="false"
+    [nzShowPagination]="false"
+    [nzLoading]="loading() && !isFetchingMore()"
+    cvcTableScrollObserver
+    [pageInfo]="pageInfo()"
+    [fetchCount]="spec().pageSize"
+    [scrollToIndex]="scrollToIndex()"
+    (scrollPhase)="onScrollPhase($event)"
+    (fetchRequest)="onFetchRequest($event)">
+    <thead>
+      <!-- HEADERS. One <th>, because layout lives on the column and only the
+           cell's contents vary by kind. -->
+      <tr class="col-header-row">
+        @for (col of visibleColumns(); track col.key) {
+          <th
+            data-testid="column-header"
+            [attr.data-column]="col.key"
+            [nzColumnKey]="col.key"
+            [nzWidth]="col.width"
+            [nzAlign]="col.align ?? 'left'"
+            [nzLeft]="stickyLeft(col)"
+            [nzRight]="stickyRight(col)"
+            [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
+            [class.ant-table-cell-fix-right-first]="isFirstRight(col)"
+            [nzShowSort]="!!col.sort && !col.sort.disabled"
+            [nzSortFn]="!!col.sort && !col.sort.disabled"
+            [nzSortOrder]="sortOrderFor(col)"
+            (nzSortOrderChange)="onSortChange(col, $event)">
+            <span
+              class="col-header-label"
+              nz-tooltip
+              [nzTooltipTitle]="col.tooltip">
+              {{ col.label }}
+            </span>
+          </th>
+        }
+      </tr>
+
+      <!-- FILTERS. A second row inside thead, as ant expects. -->
+      <tr class="filter-row">
+        @for (col of visibleColumns(); track col.key) {
+          <th
+            data-testid="column-filter"
+            [attr.data-column]="col.key"
+            [nzColumnKey]="col.key"
+            [nzWidth]="col.width"
+            [nzAlign]="col.align ?? 'left'"
+            [nzLeft]="stickyLeft(col)"
+            [nzRight]="stickyRight(col)"
+            [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
+            [class.ant-table-cell-fix-right-first]="isFirstRight(col)"
+            class="attribute-filter">
+            @if (col.filter; as filter) {
+              @switch (filter.kind) {
+                @case ('enum') {
+                  <nz-filter-trigger
+                    [nzActive]="filterValue(col.key) !== null"
+                    [nzDropdownMenu]="enumMenu"
+                    #enumTrigger="nzFilterTrigger">
+                    <span
+                      nz-icon
+                      nzType="filter"
+                      nzTheme="fill"></span>
+                  </nz-filter-trigger>
+                  <nz-dropdown-menu #enumMenu="nzDropdownMenu">
+                    <cvc-enum-filter-menu
+                      [options]="filter.options"
+                      [selected]="filterValue(col.key)"
+                      (selectedChange)="
+                        onFilterChange(col, $event);
+                        enumTrigger.nzVisible = false
+                      " />
+                  </nz-dropdown-menu>
+                }
+                @default {
+                  <cvc-table-filter-input
+                    [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
+                    [placeholder]="filter.placeholder"
+                    [value]="$any(filterValue(col.key))"
+                    (valueChange)="onFilterChange(col, $event)" />
+                }
+              }
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      <ng-template
+        nz-virtual-scroll
+        let-row>
+        <tr
+          data-testid="row"
+          class="data-row"
+          [attr.data-row-id]="row.id">
+          @for (col of visibleColumns(); track col.key) {
+            <td
+              data-testid="cell"
+              [attr.data-column]="col.key"
+              [nzAlign]="col.align ?? 'left'"
+              [nzLeft]="stickyLeft(col)"
+              [nzRight]="stickyRight(col)"
+              [class.ant-table-cell-fix-left-last]="isLastLeft(col)"
+              [class.ant-table-cell-fix-right-first]="isFirstRight(col)">
+              <!-- bound to a local so the discriminant narrows reliably -->
+              @let cell = col.cell;
+              @switch (cell.kind) {
+                @case ('select') {
+                  <label
+                    nz-checkbox
+                    data-testid="row-select"
+                    [ngModel]="isSelected(row)"
+                    (ngModelChange)="onRowSelectedChange(row, $event)"></label>
+                }
+
+                @case ('entity-tag') {
+                  @let refs = cell.ref(row);
+                  @if (refs | isArray) {
+                    @let list = $any(refs);
+                    @if (list.length > 0) {
+                      <cvc-tag-list
+                        [refs]="list.slice(0, cell.maxTags ?? list.length)"
+                        [emphasize]="$any(filterValue(col.key))"
+                        [popover]="!isScrolling()"
+                        [popoverPlacement]="cell.popoverPlacement ?? 'top'"
+                        [fullWidth]="cell.fullWidth ?? false"
+                        [truncate]="cell.truncateLabel" />
+                      @if (cell.maxTags && list.length > cell.maxTags) {
+                        <cvc-collection-tag
+                          [refs]="list.slice(cell.maxTags)"
+                          [emphasize]="$any(filterValue(col.key))"
+                          [popover]="!isScrolling()" />
+                      }
+                    } @else {
+                      <cvc-empty-value
+                        [cvcEmptyCategory]="
+                          col.emptyValue ?? 'not-applicable'
+                        " />
+                    }
+                  } @else if (refs) {
+                    <cvc-tag
+                      [ref]="$any(refs)"
+                      [emphasize]="$any(filterValue(col.key))"
+                      [popover]="!isScrolling()"
+                      [popoverPlacement]="cell.popoverPlacement ?? 'top'"
+                      [fullWidth]="cell.fullWidth ?? false"
+                      [truncate]="cell.truncateLabel" />
+                  } @else {
+                    <cvc-empty-value
+                      [cvcEmptyCategory]="col.emptyValue ?? 'not-applicable'" />
+                  }
+                }
+
+                @case ('enum-tag') {
+                  @let value = cell.value(row);
+                  @if (value) {
+                    <cvc-attribute-tag
+                      [cvcFullWidth]="true"
+                      cvcContext="compact"
+                      [cvcAttrValue]="$any(value)"
+                      [cvcShowLabel]="cell.showLabel ?? true"
+                      [cvcTooltip]="
+                        isScrolling()
+                          ? undefined
+                          : (cell.tooltip?.(row) ?? undefined)
+                      " />
+                  } @else {
+                    <cvc-empty-value
+                      [cvcEmptyCategory]="col.emptyValue ?? 'unspecified'"
+                      cvcDisplayMode="small" />
+                  }
+                }
+
+                @case ('text-tag') {
+                  @let text = cell.text(row);
+                  @if (text) {
+                    <nz-tag
+                      nz-tooltip
+                      [nzTooltipTitle]="isScrolling() ? null : text">
+                      {{ text }}
+                    </nz-tag>
+                  } @else {
+                    <cvc-empty-value
+                      [cvcEmptyCategory]="col.emptyValue ?? 'unspecified'" />
+                  }
+                }
+
+                @case ('text') {
+                  <!-- empty segments mean there was nothing to show; the
+                       accessor's own emptiness rules live in textSegments -->
+                  @let segments = textSegments(col, row);
+                  @if (segments.length) {
+                    <span class="text-cell">
+                      @for (segment of segments; track $index) {
+                        <span [class.typeahead-match]="segment.highlight">{{
+                          segment.text
+                        }}</span>
+                      }
+                    </span>
+                  } @else {
+                    <cvc-empty-value
+                      [cvcEmptyCategory]="col.emptyValue ?? 'unspecified'" />
+                  }
+                }
+
+                @case ('custom') {
+                  @if (templateFor(col.key); as tpl) {
+                    <ng-container
+                      *ngTemplateOutlet="
+                        tpl;
+                        context: { $implicit: row, row: row, column: col }
+                      "></ng-container>
+                  }
+                }
+              }
+            </td>
+          }
+        </tr>
+      </ng-template>
+    </tbody>
+  </nz-table>
+</nz-card>
+
+<ng-template #cardTitle>
+  <span>{{ spec().title ?? '' }}</span>
+</ng-template>
+
+<!-- TOOLBAR: counts, request errors, reset and the visible-columns panel -->
+<ng-template #toolbar>
+  <nz-row [nzGutter]="8">
+    <nz-col nzFlex="auto">
+      @if (isFetchingMore()) {
+        <nz-tag nzColor="processing">
+          <span
+            nz-icon
+            nzType="sync"
+            nzSpin></span>
+          <span>Loading…</span>
+        </nz-tag>
+      }
+      @if (noMoreRows()) {
+        <nz-tag nzColor="default">No more rows</nz-tag>
+      }
+    </nz-col>
+
+    <nz-col nzFlex="auto">
+      @if (requestError(); as errors) {
+        @if (errors.query?.length) {
+          <nz-tag
+            nzColor="error"
+            style="margin-left: 12px">
+            <span
+              nz-icon
+              nzType="question-circle"
+              nzTheme="outline"></span>
+            <span
+              nz-tooltip
+              [nzTooltipTitle]="errorList"
+              [nzTooltipTitleContext]="{ $implicit: errors.query }"
+              style="cursor: help">
+              Query Error{{ (errors.query?.length ?? 0) > 1 ? 's' : '' }}
+            </span>
+          </nz-tag>
+        }
+        @if (errors.network) {
+          <nz-tag
+            nzColor="error"
+            style="margin-left: 12px">
+            <span
+              nz-tooltip
+              [nzTooltipTitle]="errors.network.message"
+              style="cursor: help">
+              <span nz-typography><strong>Network Error</strong></span>
+            </span>
+          </nz-tag>
+        }
+      }
+    </nz-col>
+
+    <nz-col nzFlex="auto">
+      @if (displayedTotal(); as total) {
+        <span
+          data-testid="row-count"
+          class="table-counts"
+          nz-typography
+          nzType="secondary">
+          {{ rows().length | number }} of {{ total | number }} displayed
+        </span>
+      }
+    </nz-col>
+
+    <nz-col nzFlex="35px">
+      <nz-space-compact>
+        <button
+          nz-button
+          type="button"
+          nzType="default"
+          nzSize="small"
+          data-testid="filter-reset"
+          nz-tooltip
+          nzTooltipTitle="Reset filters"
+          (click)="onResetFilters()">
+          <span
+            nz-icon
+            nzType="retweet"
+            nzTheme="outline"></span>
+        </button>
+        <button
+          nz-button
+          nz-popover
+          type="button"
+          nzType="default"
+          nzSize="small"
+          data-testid="column-prefs-trigger"
+          nzPopoverTitle="Visible Columns"
+          [nzPopoverContent]="prefsPopover"
+          nzPopoverTrigger="click">
+          <span
+            nz-icon
+            nzType="setting"
+            nzTheme="outline"></span>
+        </button>
+      </nz-space-compact>
+
+      <ng-template #prefsPopover>
+        <div
+          data-testid="column-prefs-panel"
+          class="prefs-popover">
+          <!-- ng-zorro 22 splits these: nzOptions supplies the list, ngModel
+               carries only the checked values -->
+          <nz-checkbox-group
+            [nzOptions]="columnPrefs()"
+            [ngModel]="checkedPrefs()"
+            (ngModelChange)="onPrefsChange($event)"></nz-checkbox-group>
+        </div>
+      </ng-template>
+    </nz-col>
+  </nz-row>
+</ng-template>
+
+<ng-template
+  #errorList
+  let-errors>
+  @for (error of errors; track $index) {
+    <div>{{ error.message }}</div>
+  }
+</ng-template>

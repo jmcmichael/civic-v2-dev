@@ -68,5 +68,7 @@ export function connectionNodes<TNode>(
   connection: Maybe<CvcConnection<TNode>>
 ): TNode[] {
   if (!connection) return []
-  return connection.edges.map((edge) => edge.node).filter((n): n is TNode => n != null)
+  return connection.edges
+    .map((edge) => edge.node)
+    .filter((n): n is TNode => n != null)
 }

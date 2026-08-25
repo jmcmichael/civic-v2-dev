@@ -1,0 +1,130 @@
+// The card-in-a-table conventions both managers imported: zero card-body
+// padding, nowrap header and data cells, and the filter row's tighter padding.
+// Shared rather than copied, so the two tables cannot drift apart on them.
+@import 'themes/overrides/card-table.overrides.less';
+
+// Sizing is CSS, not JavaScript.
+//
+// `nzScroll.y` is not a measurement API — ng-zorro writes it straight onto the
+// virtual-scroll viewport's `style.height`, so it accepts any CSS length,
+// including `100%`. The three directives that used to compute that number
+// (`cvcAutoHeightCard`, `cvcAutoHeightTable`, and a one-shot
+// `checkViewportSize()`) were racing on independent schedules to derive
+// something CSS can state directly; `cvcAutoHeightTable` had no ResizeObserver
+// at all, so when it lost that race the wrong height stuck until a window
+// resize. The min-heights sprinkled on some browse tables exist to make the
+// losing case survivable.
+//
+// `min-height: 0` is the load-bearing declaration. A flex item will not shrink
+// below its content height without it, which is exactly the overlarge-table
+// symptom that stack was fighting.
+// A flex column rather than a block, so the card stretches to fill a host that
+// a parent has given a definite height. That is the whole chain: drawer height
+// -> host -> card -> card body -> table -> `nzScroll.y: 100%`.
+// (Overrides the plain `display: block` in the import above.)
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.cvc-entity-table {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+
+  // nz-card renders the body as a plain block; the table has to be able to
+  // shrink inside it for the percentage height to resolve
+  ::ng-deep .ant-card-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+}
+
+// nz-table nests four plain-block wrappers between its host and the virtual
+// scroll viewport:
+//
+//   nz-table.ant-table-wrapper
+//     nz-spin.ant-spin-nested-loading
+//       div.ant-spin-container
+//         div.ant-table
+//           nz-table-inner-scroll.ant-table-container
+//             cdk-virtual-scroll-viewport   <- nzScroll.y lands here
+//
+// Each is `height: auto`, so a definite height on the host stops dead at the
+// first of them and the viewport's `height: 100%` resolves against auto — i.e.
+// to 0. Measured: host 377px, every wrapper 58px, viewport 0px, and CDK then
+// renders a handful of rows into a container nobody can see. Worse, a
+// zero-height viewport reads as already scrolled to the bottom, so the scroll
+// observer immediately asks for a second page.
+//
+// Making the whole chain a flex column carries the height through to the one
+// element that needs it. This is the caveat 01-virtual-scroll-sizing.md flagged
+// as unproven; it is now proven, and it needs these five rules.
+.cvc-entity-table__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  ::ng-deep {
+    .ant-spin-nested-loading,
+    .ant-spin-container,
+    .ant-table,
+    .ant-table-container {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      // both axes: `min-height: 0` lets the chain shrink vertically, and
+      // `min-width: 0` stops a table wider than its container from pushing the
+      // whole flex item past the container's edge instead of scrolling inside
+      // it. A flex item defaults to `min-width: auto`, i.e. "never smaller than
+      // my content", which is not what a horizontally scrolling table wants.
+      min-height: 0;
+      min-width: 0;
+    }
+
+    // The two header rows keep their natural height. As an ordinary flex item
+    // this is `flex: 0 1 auto` — shrinkable — so it loses its fight with the
+    // viewport for vertical space and, being `overflow: hidden`, silently clips
+    // the filter row rather than overflowing visibly.
+    .ant-table-header {
+      flex: none;
+    }
+
+    // the header is fixed above it; the viewport takes what is left
+    cdk-virtual-scroll-viewport {
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+  }
+}
+
+.col-header-label {
+  white-space: nowrap;
+}
+
+// the checkbox in the select column sits too close to the table edge otherwise
+// — carried from the identical rule in both managers' stylesheets
+tr.data-row td:first-of-type {
+  padding-left: 6px;
+}
+
+.text-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prefs-popover {
+  max-width: 240px;
+
+  ::ng-deep .ant-checkbox-group-item {
+    display: block;
+    margin-right: 0;
+  }
+}

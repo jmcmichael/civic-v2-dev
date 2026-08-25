@@ -45,6 +45,13 @@ const SCROLL_DEBOUNCE_MS = 300
  * `cvcTableScroll` calls `fetchMore` itself; it stays until the browse tables
  * move onto this table, at which point it goes too.)
  *
+ * The selector is `cvcTableScrollObserver`, not `cvcTableScroll`, because that
+ * one is the app-wide directive's and eighteen modules still import it. Two
+ * directives matching one `nz-table` would both run, and the older one would
+ * try to `fetchMore` on a QueryRef this table owns. The names are also not
+ * aliased: this is an implementation detail of `cvc-entity-table`, so its
+ * bindings are read in exactly one template and gain nothing from a prefix.
+ *
  * Two behaviours differ deliberately from the directives it replaces:
  *
  * 1. Bottom detection reads the current offset instead of comparing successive
@@ -54,30 +61,22 @@ const SCROLL_DEBOUNCE_MS = 300
  * 2. A fetch is not re-requested for a cursor already in flight, so the looser
  *    trigger above cannot turn into a burst of duplicate pages.
  */
-@Directive({ selector: '[cvcTableScroll]' })
-export class CvcTableScrollDirective {
+@Directive({ selector: '[cvcTableScrollObserver]' })
+export class CvcTableScrollObserverDirective {
   private readonly host = inject(NzTableComponent<unknown>, { host: true })
   private readonly destroyRef = inject(DestroyRef)
 
   /** how close to the end, in px, counts as "at the bottom" */
-  readonly targetHeight = input(DEFAULT_TARGET_HEIGHT, {
-    alias: 'cvcTableScrollTargetHeight',
-  })
+  readonly targetHeight = input(DEFAULT_TARGET_HEIGHT)
   /** rows per page; only consulted when a fetch is actually requested */
-  readonly fetchCount = input(50, { alias: 'cvcTableScrollFetchCount' })
+  readonly fetchCount = input(50)
   /** the current connection's page info; without it nothing is ever fetched */
-  readonly pageInfo = input<Maybe<PageInfo>>(undefined, {
-    alias: 'cvcTableScrollPageInfo',
-  })
+  readonly pageInfo = input<Maybe<PageInfo>>(undefined)
   /** set to send the viewport back to a row, e.g. row 0 after a refetch */
-  readonly scrollToIndex = input<Maybe<number>>(undefined, {
-    alias: 'cvcTableScrollToIndex',
-  })
+  readonly scrollToIndex = input<Maybe<number>>(undefined)
 
-  // named for their binding rather than aliased: @angular-eslint/no-output-rename
-  // is an error, and an alias here bought nothing the member name cannot
-  readonly cvcTableScrollPhase = output<CvcScrollEvent>()
-  readonly cvcTableScrollFetch = output<CvcScrollFetch>()
+  readonly scrollPhase = output<CvcScrollEvent>()
+  readonly fetchRequest = output<CvcScrollFetch>()
 
   /** the cursor a fetch has already been requested for, to avoid re-asking */
   private requestedCursor?: string
@@ -109,21 +108,29 @@ export class CvcTableScrollDirective {
           leading: true,
           trailing: true,
         }),
-        tap(() => this.cvcTableScrollPhase.emit('scroll')),
+        tap(() => this.scrollPhase.emit('scroll')),
         debounceTime(SCROLL_DEBOUNCE_MS),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe(() => this.cvcTableScrollPhase.emit('stop'))
+      .subscribe(() => this.scrollPhase.emit('stop'))
 
     scrolled
       .pipe(
+        // An unmeasured viewport reports zero distance to the bottom, so it
+        // reads as "already scrolled to the end" and would ask for a page
+        // before the user has done anything. A table mounting inside a drawer
+        // does spend a frame at zero height, and the resize that fixes it emits
+        // a scroll event — so this is reachable, even though the doubled first
+        // page that prompted the guard turned out to have a different cause
+        // (variables never reaching `watch`).
+        filter(() => viewport.getViewportSize() > 0),
         map(() => viewport.measureScrollOffset('bottom')),
         filter((offset) => offset < this.targetHeight()),
         throttleTime(LOAD_THROTTLE_MS),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
-        this.cvcTableScrollPhase.emit('bottom')
+        this.scrollPhase.emit('bottom')
         this.requestFetch()
       })
   }
@@ -179,7 +186,7 @@ export class CvcTableScrollDirective {
     )
     if (!fetch) return
     this.requestedCursor = fetch.after
-    this.cvcTableScrollFetch.emit(fetch)
+    this.fetchRequest.emit(fetch)
   }
 }
 
