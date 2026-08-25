@@ -4,7 +4,6 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  OnDestroy,
   OnInit,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
@@ -36,7 +35,7 @@ import { evidenceReviseFields } from './evidence-revise.form.config'
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class CvcEvidenceReviseForm implements OnInit, AfterViewInit, OnDestroy {
+export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
   @Input() evidenceId!: number
   model?: EvidenceReviseModel
   form: UntypedFormGroup
@@ -108,9 +107,5 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit, OnDestroy {
         { input: input }
       )
     }
-  }
-
-  ngOnDestroy(): void {
-    this.options.formState.onDestroy()
   }
 }

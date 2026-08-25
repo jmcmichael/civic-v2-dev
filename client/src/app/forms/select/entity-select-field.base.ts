@@ -8,12 +8,13 @@ import {
   untracked,
   viewChild,
 } from '@angular/core'
-import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop'
+import { rxResource } from '@angular/core/rxjs-interop'
+import { debouncedSignal } from '@app/core/utilities/debounced-signal'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { BATCHED } from '@app/graphql/graphql.module'
 import { EntityTagRef, TaggableTypename } from '@app/tags'
 import { FieldTypeConfig } from '@ngx-formly/core'
-import { Observable, debounceTime, forkJoin, map, of } from 'rxjs'
+import { Observable, forkJoin, map, of } from 'rxjs'
 import { CvcFieldBase } from './field.base'
 import { CvcEntitySelectResult, EntitySelectSpec } from './entity-select-config'
 import {
@@ -67,8 +68,9 @@ export abstract class CvcEntitySelectFieldBase<
   readonly search = signal<Maybe<string>>(undefined)
 
   /** the search string the current results correspond to */
-  protected readonly searchTerm = toSignal(
-    toObservable(this.search).pipe(debounceTime(SEARCH_DEBOUNCE_MS))
+  protected readonly searchTerm = debouncedSignal(
+    this.search,
+    SEARCH_DEBOUNCE_MS
   )
 
   /**

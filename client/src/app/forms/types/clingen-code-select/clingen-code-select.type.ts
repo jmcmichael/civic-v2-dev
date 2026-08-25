@@ -40,8 +40,7 @@ export type CvcClingenCodeSelectFieldProps = CvcTypeGatedSelectFieldProps
 // NOTE: any multi-select field must have the string 'multi' in its type name,
 // as UI logic (currently in base-field) depends on its presence to differentiate
 // field types in some expressions
-export interface CvcClingenCodeSelectFieldConfig
-  extends FormlyFieldConfig<CvcClingenCodeSelectFieldProps> {
+export interface CvcClingenCodeSelectFieldConfig extends FormlyFieldConfig<CvcClingenCodeSelectFieldProps> {
   type:
     | 'clingen-code-select'
     | 'clingen-code-multi-select'
@@ -158,7 +157,7 @@ export class CvcClingenCodeSelectField extends CvcTypeGatedSelectFieldBase<
     if (active !== this.exclusiveActive) {
       this.exclusiveActive = active
       this.applyDescription()
-      this.cdr.markForCheck()
+      this.markDirty()
     }
 
     if (exclusive !== undefined && ids.length > 1) {

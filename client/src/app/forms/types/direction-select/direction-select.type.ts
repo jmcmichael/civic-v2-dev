@@ -108,8 +108,7 @@ export interface CvcDirectionSelectFieldProps extends CvcEnumSelectFieldProps {
   requireTypePromptFn: (entityName: string) => string
 }
 
-export interface CvcDirectionSelectFieldConfig
-  extends FormlyFieldConfig<CvcDirectionSelectFieldProps> {
+export interface CvcDirectionSelectFieldConfig extends FormlyFieldConfig<CvcDirectionSelectFieldProps> {
   type: 'direction-select' | Type<CvcDirectionSelectField>
 }
 
@@ -180,28 +179,27 @@ export class CvcDirectionSelectField extends CvcEnumSelectFieldBase<
     })
   }
 
-  private describe(
-    entityType?: EntityType,
-    direction?: EntityDirection
-  ): void {
+  private describe(entityType?: EntityType, direction?: EntityDirection): void {
     const state = this.state!
     if (!entityType) {
-      this.props.disabled = true
-      this.props.description = this.props.requireTypePromptFn(state.entityName)
-      this.props.extraType = 'prompt'
-      this.markDirty()
+      this.applyProps({
+        disabled: true,
+        description: this.props.requireTypePromptFn(state.entityName),
+        extraType: 'prompt',
+      })
       return
     }
 
-    this.props.disabled = false
     this.placeholder.set(
       this.props.placeholderFn(state.entityName, formatEvidenceEnum(entityType))
     )
     const text: Maybe<string> = direction
       ? optionText[state.entityName]?.[entityType]?.[direction]
       : undefined
-    this.props.description = text
-    this.props.extraType = text ? 'description' : undefined
-    this.markDirty()
+    this.applyProps({
+      disabled: false,
+      description: text,
+      extraType: text ? 'description' : undefined,
+    })
   }
 }

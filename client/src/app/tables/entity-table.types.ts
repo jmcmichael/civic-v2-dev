@@ -7,6 +7,7 @@ import {
   PopoverPlacement,
   TaggableTypename,
 } from '@app/tags'
+import { PolymorpheusContent } from '@taiga-ui/polymorpheus'
 import { NzTableSortOrder } from 'ng-zorro-antd/table'
 
 /**
@@ -42,17 +43,18 @@ export interface CvcColumn<
   key: string
   label: string
   /**
-   * Passed to `th[nzWidth]`; use px, e.g. '215px' — sticky offsets for
-   * pinned columns are computed arithmetically from these.
+   * Passed to `th[nzWidth]`; px recommended, e.g. '215px'. Seeds the
+   * colgroup — pinned-column offsets come from ng-zorro's measured widths,
+   * not from this value.
    */
   width: string
   /** `th`/`td` `nzAlign`; same union as ng-zorro's */
   align?: 'left' | 'center' | 'right'
   /**
-   * Pins the column while the table scrolls horizontally. Rendered as a
-   * computed CSS length on `nzLeft`/`nzRight` (`NzCellFixedDirective`) —
-   * deliberately never the boolean auto-measure mode; see
-   * `CvcEntityTableComponent.stickyOffsets`.
+   * Pins the column while the table scrolls horizontally, via ng-zorro's
+   * boolean `nzLeft`/`nzRight` auto-measurement. Keep pinned columns
+   * contiguous at their edge, and never wrap the virtual-scroll body in
+   * `<tbody>` (docs/03-troubleshooting.md §11).
    */
   fixed?: 'left' | 'right'
   /** initial visibility; the preferences panel toggles it thereafter */
@@ -79,8 +81,8 @@ export interface CvcColumn<
  * Every variant reads its data through an accessor checked against `TRow`,
  * never by indexing `row[col.key]` — a column's data need not share its key.
  *
- * An `<ng-template cvcCell="key">` in the host overrides whatever is declared
- * here, for the cases no built-in kind covers.
+ * For the cases no built-in kind covers, `kind: 'custom'` carries its own
+ * rendering as polymorpheus content declared right in the config.
  */
 export type CvcCellSpec<TRow> =
   | CvcSelectCell
@@ -88,7 +90,7 @@ export type CvcCellSpec<TRow> =
   | CvcEnumTagCell<TRow>
   | CvcTextTagCell<TRow>
   | CvcTextCell<TRow>
-  | CvcCustomCell
+  | CvcCustomCell<TRow>
 
 /** row checkbox; the table owns the selection, the column just marks the slot */
 export interface CvcSelectCell {
@@ -173,9 +175,34 @@ export interface CvcTextCell<TRow> {
   highlight?: boolean
 }
 
-/** drawn entirely by an `<ng-template cvcCell="key">` in the host */
-export interface CvcCustomCell {
+/** what custom-cell content receives — as template context or via injection */
+export interface CvcCellContext<TRow> {
+  $implicit: TRow
+  row: TRow
+  column: CvcColumn<TRow, any, string>
+}
+
+/**
+ * Drawn entirely by the polymorpheus `content` declared here — in the
+ * config, where `TRow` is already inferred, so the content is typed with no
+ * string rendezvous and no type-carrier bindings.
+ *
+ * Three authoring styles, by preference:
+ * - a **handler** `(ctx) => string` for computed one-off text;
+ * - a **component** (`new PolymorpheusComponent(MyCell)`) — the context
+ *   arrives via `injectContext<CvcCellContext<Row>>()` and is also written
+ *   onto same-named inputs (`row`, `column`);
+ * - a **TemplateRef**, for hosts that want markup: grab one with
+ *   `viewChild` in the facade. Prefer the first two — the polymorpheus
+ *   outlet types template contexts weakly.
+ *
+ * A custom cell owns its whole rendering, including its empty state — the
+ * shared empty-value and filter-highlight handling do not apply.
+ * `entityTableConfig` throws in dev mode when `content` is missing.
+ */
+export interface CvcCustomCell<TRow> {
   kind: 'custom'
+  content: PolymorpheusContent<CvcCellContext<TRow>>
 }
 
 /**
@@ -261,9 +288,6 @@ export interface CvcEnumFilter<
   kind: 'enum'
   options: ReadonlyArray<CvcEnumOption<TValue>>
 }
-
-/** a column's current filter value, keyed by column */
-export type CvcFilterState = Readonly<Record<string, unknown>>
 
 /** the active sort, or none; `order` is ng-zorro's three-valued sort union */
 export interface CvcSortState {

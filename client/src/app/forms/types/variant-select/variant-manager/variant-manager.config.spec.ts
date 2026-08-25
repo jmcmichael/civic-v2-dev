@@ -7,7 +7,11 @@ import {
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
-import { describeEntityTableContract } from '@app/testing/entity-table.harness'
+import {
+  describeEntityTableContract,
+  specCell,
+  specColumn,
+} from '@app/testing/entity-table.harness'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { variantManagerConfig } from './variant-manager.config'
 import {
@@ -102,11 +106,7 @@ describe('variantManagerConfig', () => {
     spec = variantManagerConfig(TestBed.inject(VariantManagerGQL))
   })
 
-  const column = (key: string) => {
-    const found = spec.columns.find((c) => c.key === key)
-    expect(found, `no column keyed '${key}'`).toBeTruthy()
-    return found!
-  }
+  const column = (key: string) => specColumn(spec, key)
 
   it('routes every filter to a variable the query declares', () => {
     // the compiler already pins this via `filter.var: keyof TVars`; asserting
@@ -147,29 +147,30 @@ describe('variantManagerConfig', () => {
   })
 
   describe('cell accessors', () => {
-    const cellOf = (key: string) => column(key).cell as any
+    const entityTag = (key: string) => specCell(spec, key, 'entity-tag')
+    const textCell = (key: string) => specCell(spec, key, 'text')
 
     it('addresses the variant and feature by cache identity alone', () => {
       // cvc-tag reads name and link from the cache, never from the ref, so the
       // old row projection's copies of them were dead weight
-      expect(cellOf('variant').ref(ROW)).toEqual({
+      expect(entityTag('variant').ref(ROW)).toEqual({
         __typename: 'Variant',
         id: 12,
       })
-      expect(cellOf('feature').ref(ROW)).toEqual({
+      expect(entityTag('feature').ref(ROW)).toEqual({
         __typename: 'Feature',
         id: 5,
       })
     })
 
     it('passes nested entities through untouched', () => {
-      expect(cellOf('diseases').ref(ROW)).toBe(ROW.diseases)
-      expect(cellOf('therapies').ref(ROW)).toBe(ROW.therapies)
+      expect(entityTag('diseases').ref(ROW)).toBe(ROW.diseases)
+      expect(entityTag('therapies').ref(ROW)).toBe(ROW.therapies)
     })
 
     it('plucks alias names, replacing the objectKey indirection', () => {
-      expect(cellOf('aliases').text(ROW)).toEqual(['RS113488022'])
-      expect(cellOf('aliases').highlight).toBe(true)
+      expect(textCell('aliases').text(ROW)).toEqual(['RS113488022'])
+      expect(textCell('aliases').highlight).toBe(true)
     })
   })
 

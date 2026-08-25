@@ -1,6 +1,6 @@
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { TaggableTypename } from '@app/tags'
-import { Apollo, Query } from 'apollo-angular'
+import { Apollo } from 'apollo-angular'
 import { Observable } from 'rxjs'
 import { CvcSelectEntityName } from './select.types'
 
@@ -11,21 +11,14 @@ export interface CvcEntitySelectResult {
   readonly name: string
 }
 
-/** Any generated apollo-angular query service. */
-export type AnyQuery = Query<any, any>
-
-/**
- * Query type extraction. `Q extends Query<infer D, any>` cannot recover the
- * data type — TData sits in invariant positions on Query and the inference
- * collapses to never — so the data type comes from fetch()'s return instead,
- * where it is covariant. Variables do infer from the class directly.
- */
-export type QueryData<Q extends AnyQuery> =
-  ReturnType<Q['fetch']> extends Observable<Apollo.QueryResult<infer D>>
-    ? D
-    : never
-export type QueryVars<Q extends AnyQuery> =
-  Q extends Query<any, infer V> ? V : never
+// Re-exported from their neutral home so existing importers keep working;
+// the definitions live in core because tables' config factory shares them.
+export {
+  type AnyQuery,
+  type QueryData,
+  type QueryVars,
+} from '@app/core/utilities/query-types'
+import { AnyQuery, QueryData, QueryVars } from '@app/core/utilities/query-types'
 
 /**
  * Structural subset of a generated query service used at runtime. Sidesteps

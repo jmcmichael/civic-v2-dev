@@ -11,8 +11,12 @@ import {
 import { Signal, WritableSignal, computed, signal } from '@angular/core'
 import { CvcInputEnum } from '../forms.types'
 import { assertionSubmitFieldsDefaults } from '../models/assertion-submit.model'
-import { EntityName, BaseState } from './base.state'
-import { EvidenceRequires } from './evidence.state'
+import {
+  BaseState,
+  EntityEnums,
+  EntityName,
+  EntityRequires,
+} from './base.state'
 
 /** Keyed by each field's formly `key`; the field owns its entry. */
 export type AssertionFields = {
@@ -40,18 +44,10 @@ export type AssertionFields = {
   comment: WritableSignal<Maybe<string>>
 }
 
-/** Derived from the chosen assertion type; nothing pushes into these. */
-export type AssertionEnums = {
-  entityType: Signal<CvcInputEnum[]>
-  significance: Signal<CvcInputEnum[]>
-  direction: Signal<CvcInputEnum[]>
-  interaction: Signal<CvcInputEnum[]>
-}
-
 class AssertionState extends BaseState {
   fields: AssertionFields
-  enums: AssertionEnums
-  requires: EvidenceRequires
+  enums: EntityEnums
+  requires: EntityRequires
 
   constructor() {
     super(EntityName.ASSERTION)
@@ -82,33 +78,11 @@ class AssertionState extends BaseState {
       comment: signal<Maybe<string>>(undefined),
     }
 
-    // Everything below derives from the chosen assertion type via `computed`:
-    // no push, no ordering, and no way for two writers to disagree.
-    const entityType = this.fields.assertionType
-    const forType = <T>(f: (at: AssertionType) => T, fallback: T): Signal<T> =>
-      computed(() => {
-        const at = entityType()
-        return at ? f(at) : fallback
-      })
-
-    this.enums = {
-      entityType: signal(this.getTypeOptions()),
-      significance: forType((at) => this.getSignificanceOptions(at), []),
-      direction: forType((at) => this.getDirectionOptions(at), []),
-      interaction: signal(this.getInteractionOptions()),
-    }
-
-    this.requires = {
-      requiresDisease: forType((at) => this.requiresDisease(at), false),
-      requiresTherapy: forType((at) => this.requiresTherapy(at), false),
-      requiresClingenCodes: forType(
-        (at) => this.requiresClingenCodes(at),
-        false
-      ),
-      requiresAcmgCodes: forType((at) => this.requiresAcmgCodes(at), false),
-      requiresAmpLevel: forType((at) => this.requiresAmpLevel(at), false),
-      allowsFdaApproval: forType((at) => this.allowsFdaApproval(at), false),
-    }
+    // Everything below derives from the chosen assertion type via `computed`
+    // (see BaseState.forType): no push, no ordering, and no way for two
+    // writers to disagree.
+    this.enums = this.buildEnums(this.fields.assertionType)
+    this.requires = this.buildRequires(this.fields.assertionType)
 
     this.validStates.set(AssertionType.Predictive, {
       entityType: AssertionType.Predictive,

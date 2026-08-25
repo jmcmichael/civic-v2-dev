@@ -13,6 +13,7 @@ import {
   SyncOutline,
 } from '@ant-design/icons-angular/icons'
 import {
+  CvcCellSpec,
   CvcEntityTableComponent,
   CvcPageInfo,
   CvcSpecColumn,
@@ -49,15 +50,61 @@ export const TABLE_ICONS = [
   ...civicIcons,
 ]
 
+/**
+ * The one host every table spec mounts: binds a spec signal and the two-way
+ * selection. Exported so `entity-table.component.spec.ts` and the contract
+ * share a single host rather than each declaring an identical copy.
+ */
 @Component({
   imports: [CvcEntityTableComponent],
   template: `<cvc-entity-table
     [spec]="spec()"
     [(selectedIds)]="selected" />`,
 })
-class TableHostComponent<TRow extends { id: number }> {
+export class TableHostComponent<TRow extends { id: number }> {
   readonly spec = signal<EntityTableSpec<TRow>>(undefined as never)
   selected: number[] = []
+}
+
+/**
+ * Flushes the query debounce and re-renders. `fixture.whenStable()` never
+ * resolves in these TestBeds — a zone macrotask stays pending — so waits are
+ * manual. The 400 ms default clears the component's 300 ms QUERY_DEBOUNCE_MS.
+ */
+export async function settleTable(
+  fixture: ComponentFixture<unknown>,
+  ms = 400
+): Promise<void> {
+  fixture.detectChanges()
+  await new Promise((resolve) => setTimeout(resolve, ms))
+  fixture.detectChanges()
+}
+
+/** the column keyed `key` in a spec, asserting it exists */
+export function specColumn<TRow extends { id: number }>(
+  spec: EntityTableSpec<TRow>,
+  key: string
+): CvcSpecColumn<TRow> {
+  const found = spec.columns.find((column) => column.key === key)
+  expect(found, `no column keyed '${key}'`).toBeTruthy()
+  return found!
+}
+
+/**
+ * The cell of the column keyed `key`, narrowed to the kind the test expects —
+ * a wrong kind fails the assertion instead of erasing to `any`.
+ */
+export function specCell<
+  TRow extends { id: number },
+  K extends CvcCellSpec<TRow>['kind'],
+>(
+  spec: EntityTableSpec<TRow>,
+  key: string,
+  kind: K
+): Extract<CvcCellSpec<TRow>, { kind: K }> {
+  const cell = specColumn(spec, key).cell
+  expect(cell.kind, `column '${key}' cell kind`).toBe(kind)
+  return cell as Extract<CvcCellSpec<TRow>, { kind: K }>
 }
 
 export interface EntityTableContractConfig<TRow extends { id: number }> {
@@ -179,11 +226,7 @@ export async function createEntityTableHarness<TRow extends { id: number }>(
       operations
         .filter((op) => op.operationName === config.operationName)
         .map((op) => op.variables),
-    async settle(ms = 400) {
-      fixture.detectChanges()
-      await new Promise((r) => setTimeout(r, ms))
-      fixture.detectChanges()
-    },
+    settle: (ms?: number) => settleTable(fixture, ms),
     column(key) {
       const found = table.columns().find((c) => c.key === key)
       expect(found, `no column keyed '${key}'`).toBeTruthy()

@@ -149,21 +149,40 @@ dedup being too weak.
 - `nzSortFn` is `true` = "server contract"; local array sorting is never
   correct here since rows are one page of a larger set.
 
-## 11. Pinned-column misalignment
+## 11. Pinned-column misalignment — the `<tbody>` trap
 
-We do not use ng-zorro's `nzLeft="true"` auto-measurement — its per-row
-coordination never reached these cells (everything resolved to `left: 0` and
-stacked). Offsets are **computed** from declared px widths in
-`resolveStickyOffsets` (`sticky-offsets.ts`), and the edge-shadow classes are
-applied manually. So:
+Pinned offsets are ng-zorro's own: boolean `nzLeft`/`nzRight`, widths from
+the table's hidden measure row, edge-shadow classes applied by
+`NzTrDirective`. **The one rule that keeps this working: never wrap the
+body's `nz-virtual-scroll` template in `<tbody>`** — even though ng-zorro's
+own virtual-scroll demo shows one.
 
-- pinned columns need px widths (anything else parses to 0 and shifts every
-  offset after it);
-- hiding a pinned column via prefs recomputes offsets automatically — but if
-  you add a new visibility mechanism, make sure it flows through
-  `visibleColumns()`;
-- a string `nzLeft` is what _disables_ ng-zorro's auto mode (`isAutoLeft` is
-  only true for `''`/`true`) — that is intentional, keep passing lengths.
+Why (root-caused live against ng-zorro 22.0.6): in virtual mode `nz-table`
+never places its projected content — the viewport supplies its own `<tbody>`
+— but Angular still _instantiates_ projected content in the declaring view.
+A user `<tbody>` therefore becomes a live, **detached** `NzTbodyComponent`
+sharing the table's `NzTableStyleService`. Its measure row observes
+parentless `<td>`s, whose ResizeObserver notifications report every width as
+0, and it emits that all-zeros array into the service ~1 ms _after_ the real
+measure row emits the true widths. Last write wins: every auto cell is
+written `left/right: 0px` and the pinned columns stack at the edges. The
+colgroup still looks right — its stream falls back to declared `nzWidth`s on
+zero measurements; the offset stream has no such fallback — which is what
+makes the symptom look like anything but a width problem.
+
+If every pinned column suddenly sits at `0px`: someone re-added the wrapper
+(or introduced any other never-placed `tbody` into the table's content). The
+golden 'pinned columns hold their measured offsets' fails on exactly this.
+
+The legacy browse tables (outside this library) all follow the demo pattern
+and ship this bug today; migrating them onto `cvc-entity-table` fixes it per
+table. Other notes:
+
+- keep pinned columns contiguous at their edge — ng-zorro sums only the
+  _pinned_ cells' measured widths on each side;
+- hiding a column via prefs re-measures automatically (the offsets follow
+  the real rendered widths, which may stretch beyond the declared px when
+  the table does not overflow).
 
 ## 12. Settings injection subtleties
 
@@ -194,14 +213,17 @@ after it.
 
 ## 14. Custom cells
 
-- A misspelled `cvcCell` key = silently blank cell (`@case ('custom')` has
-  no else branch). Check against the config's `key`.
-- `let-row` is only typed because `[cvcCellOf]="spec()"` gives the
-  directive's generic something to infer from; the input's value is never
-  read. Removing "the redundant binding" un-types every template.
-- The guard only works because the selector is the structural
-  `ng-template[cvcCell]` — Angular consults `ngTemplateContextGuard` under
-  `strictTemplates` on structural directives only.
+- Content is declared in the config (`cell: { kind: 'custom', content }`),
+  typed against `TRow` there; a missing `content` throws from
+  `entityTableConfig` in dev mode.
+- The polymorpheus outlet types a **template** arm's context weakly
+  (`$implicit` narrows to `never` for object contexts) — prefer the handler
+  or component arms, which are fully typed.
+- A component arm reads its context via
+  `injectContext<CvcCellContext<Row>>()`, and the outlet also writes context
+  keys onto same-named inputs (`row`, `column`).
+- A custom cell renders nothing but its content: no shared empty-value
+  fallback, no filter highlighting. That is the trade for full control.
 
 ## 15. Odds and ends
 
@@ -216,10 +238,9 @@ after it.
 - **`totalCount` means opposite things** across the schema: post-filter on
   plain connections, pre-filter on `Browse*` (which add `filteredCount`).
   Never read either directly — use `displayedCount()`.
-- **Contract tests skip silently** when a config lacks the column under test
-  (`if (!column) return` sites in the harness) — a config change can delete
-  coverage with a green tick. When removing a column, check what the
-  contract was covering through it.
+- **Contract tests report inapplicable behaviours as skipped** (`ctx.skip`
+  with a reason). Two skips are expected today; a growing skip count means a
+  config quietly stopped exercising a behaviour — investigate, don't accept.
 - **The two scroll directives coexist**: `cvcTableScrollObserver` (this
   library, reports) vs the app-wide `cvcTableScroll`
   (`app/directives/table-scroll/`, calls `fetchMore` itself, used by the 17
@@ -234,6 +255,52 @@ after it.
 - **Codegen:** `yarn generate-apollo` after `.gql` edits (no server needed);
   never run `generate-apollo:full` (needs the Rails server; schema dumps are
   run manually).
+
+## Live-probing the table in a real browser
+
+The method that root-caused §11, kept here because it generalises to any
+"works in specs, wrong on screen" problem. jsdom cannot answer layout or
+vendor-internals questions; a throwaway Playwright spec against the running
+dev server can, in seconds per iteration.
+
+1. **Throwaway spec.** Drop a `client/e2e/probe.spec.ts`; `npx playwright
+test e2e/probe.spec.ts` attaches to the dev server already running on
+   `127.0.0.1:4200` (`reuseExistingServer`). `console.log('PROBE ' +
+JSON.stringify(data))` in the test, `| grep PROBE` on the run. Delete the
+   spec when the question is answered.
+2. **Reaching the table:** `/assertions/add` renders the evidence manager
+   without a session — click the button named `/manager/i`, wait for
+   `[data-testid="row"]`. Address everything through the `data-testid` /
+   `data-column` contract.
+3. **Angular's dev-mode `ng` global** (inside `page.evaluate`):
+   `ng.getComponent(el)` and `ng.getDirectives(el)` give live instances —
+   including private members, so a vendor service like `nzTableStyleService`
+   is reachable from its component. `ng.getOwningComponent(el)` names the
+   component whose _template declared_ an element (this is what unmasked the
+   detached tbody's owner), and `ng.getHostElement(cmp)` works even for
+   components whose host was never attached to the document.
+4. **Reading a subject's current value** without disturbing it: subscribe,
+   capture, unsubscribe — `ReplaySubject`/`BehaviorSubject` hand the latest
+   value to a late subscriber synchronously.
+5. **Finding a writer:** wrap the subject —
+   `const orig = subj.next.bind(subj); subj.next = v => { log(v, new
+Error().stack); orig(v) }` — every emission arrives with a stack trace
+   that names the caller (dev builds keep real names).
+6. **Fingerprinting instances:** patch the class prototype through any live
+   instance (`Object.getPrototypeOf(ng.getComponent(el))`) and log
+   `ng.getHostElement(this).isConnected` + an ancestor chain per call. To
+   patch _before_ a component is born, patch on one instance, then destroy
+   and re-create the UI (close/reopen the manager) so the new instance runs
+   through it — or poll every few ms for the element and hook on sight.
+7. **Timelines beat states.** Stamp everything with `performance.now()`
+   relative to one `t0` and log into a single `window.__log` array: a
+   MutationObserver for element births, your own `ResizeObserver` alongside
+   the vendor's, and the patched subjects — ordering ambiguities (the §11
+   race was two writes 0.8 ms apart) only show up on one merged timeline.
+8. **Prove the build before trusting the probe.** A template edit needs the
+   dev server to rebuild before the probe sees it; add a temporary sentinel
+   attribute (`data-probe="exp-…"`) and `waitForSelector` it. Two rounds of
+   this investigation were nearly wasted on a stale build.
 
 ## Tips
 

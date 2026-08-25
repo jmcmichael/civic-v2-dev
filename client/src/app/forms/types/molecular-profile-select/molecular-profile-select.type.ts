@@ -1,6 +1,5 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Type,
   computed,
@@ -69,8 +68,9 @@ export type CvcMolecularProfileSelectFieldProps = CvcEntitySelectFieldProps
 // NOTE: any multi-select field must have the string 'multi' in its type name,
 // as UI logic (currently in base-field) depends on its presence to differentiate
 // field types in some expressions
-export interface CvcMolecularProfileSelectFieldConfig
-  extends FormlyFieldConfig<Partial<CvcMolecularProfileSelectFieldProps>> {
+export interface CvcMolecularProfileSelectFieldConfig extends FormlyFieldConfig<
+  Partial<CvcMolecularProfileSelectFieldProps>
+> {
   type:
     | 'molecular-profile-select'
     | 'molecular-profile-multi-select'
@@ -118,7 +118,6 @@ export class CvcMolecularProfileSelectField extends CvcEntitySelectFieldBase<
 > {
   private readonly typeaheadGQL = inject(MolecularProfileSelectTypeaheadGQL)
   private readonly tagGQL = inject(MolecularProfileSelectTagGQL)
-  private readonly cdr = inject(ChangeDetectorRef)
 
   protected readonly select = entitySelectConfig({
     entityName: {
@@ -182,7 +181,7 @@ export class CvcMolecularProfileSelectField extends CvcEntitySelectFieldBase<
       if (this.props.description === description) return
       this.props.description = description
       // the form-field wrapper renders the description, not this component
-      this.cdr.markForCheck()
+      this.markDirty()
     })
   }
 

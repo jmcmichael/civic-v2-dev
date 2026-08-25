@@ -11,7 +11,12 @@ import {
 import { Signal, WritableSignal, computed, signal } from '@angular/core'
 import { CvcInputEnum } from '../forms.types'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
-import { BaseState, EntityName } from './base.state'
+import {
+  BaseState,
+  EntityEnums,
+  EntityName,
+  EntityRequires,
+} from './base.state'
 
 /** Keyed by each field's formly `key`; the field owns its entry. */
 export type EvidenceFields = {
@@ -34,27 +39,10 @@ export type EvidenceFields = {
   comment: WritableSignal<Maybe<string>>
 }
 
-/** Derived from the chosen evidence type; nothing pushes into these. */
-export type EvidenceEnums = {
-  entityType: Signal<CvcInputEnum[]>
-  significance: Signal<CvcInputEnum[]>
-  direction: Signal<CvcInputEnum[]>
-  interaction: Signal<CvcInputEnum[]>
-}
-
-export type EvidenceRequires = {
-  requiresDisease: Signal<boolean>
-  requiresTherapy: Signal<boolean>
-  requiresClingenCodes: Signal<boolean>
-  requiresAcmgCodes: Signal<boolean>
-  requiresAmpLevel: Signal<boolean>
-  allowsFdaApproval: Signal<boolean>
-}
-
 class EvidenceState extends BaseState {
   fields: EvidenceFields
-  enums: EvidenceEnums
-  requires: EvidenceRequires
+  enums: EntityEnums
+  requires: EntityRequires
 
   constructor() {
     super(EntityName.EVIDENCE)
@@ -81,33 +69,11 @@ class EvidenceState extends BaseState {
       comment: signal<Maybe<string>>(undefined),
     }
 
-    // Everything below derives from the chosen evidence type via `computed`:
-    // no push, no ordering, and no way for two writers to disagree.
-    const entityType = this.fields.evidenceType
-    const forType = <T>(f: (et: EvidenceType) => T, fallback: T): Signal<T> =>
-      computed(() => {
-        const et = entityType()
-        return et ? f(et) : fallback
-      })
-
-    this.enums = {
-      entityType: signal(this.getTypeOptions()),
-      significance: forType((et) => this.getSignificanceOptions(et), []),
-      direction: forType((et) => this.getDirectionOptions(et), []),
-      interaction: signal(this.getInteractionOptions()),
-    }
-
-    this.requires = {
-      requiresDisease: forType((et) => this.requiresDisease(et), false),
-      requiresTherapy: forType((et) => this.requiresTherapy(et), false),
-      requiresClingenCodes: forType(
-        (et) => this.requiresClingenCodes(et),
-        false
-      ),
-      requiresAcmgCodes: forType((et) => this.requiresAcmgCodes(et), false),
-      requiresAmpLevel: forType((et) => this.requiresAmpLevel(et), false),
-      allowsFdaApproval: forType((et) => this.allowsFdaApproval(et), false),
-    }
+    // Everything below derives from the chosen evidence type via `computed`
+    // (see BaseState.forType): no push, no ordering, and no way for two
+    // writers to disagree.
+    this.enums = this.buildEnums(this.fields.evidenceType)
+    this.requires = this.buildRequires(this.fields.evidenceType)
 
     this.validStates.set(EvidenceType.Predictive, {
       entityType: EvidenceType.Predictive,

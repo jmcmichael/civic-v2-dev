@@ -4,7 +4,6 @@ import {
   ChangeDetectorRef,
   Component,
   Input,
-  OnDestroy,
   OnInit,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
@@ -40,9 +39,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class CvcAssertionReviseForm
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
   @Input() assertionId!: number
 
   model?: AssertionReviseModel
@@ -112,9 +109,5 @@ export class CvcAssertionReviseForm
           console.error(error)
         },
       })
-  }
-
-  ngOnDestroy(): void {
-    this.options.formState.onDestroy()
   }
 }

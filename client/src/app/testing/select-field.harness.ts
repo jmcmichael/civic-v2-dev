@@ -1,7 +1,4 @@
-import { OverlayContainer } from '@angular/cdk/overlay'
 import { Type, signal } from '@angular/core'
-import { ComponentFixture } from '@angular/core/testing'
-import { By } from '@angular/platform-browser'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { provideRouter } from '@angular/router'
 import { CvcSelectFieldsRegistryModule } from '@app/forms/select/select-fields.registry.module'
@@ -19,35 +16,17 @@ import {
   MockGraphqlOperation,
   provideMockApollo,
 } from './apollo-test.providers'
-import {
-  FormlyTestHostComponent,
-  createFieldTestHost,
-} from './formly-test.host'
+import { FieldHarnessCore, fieldHarnessCore } from './field-harness-core'
+import { createFieldTestHost } from './formly-test.host'
 
 /** Everything a spec needs to drive one mounted entity-select field. */
-export interface SelectFieldHarness {
-  fixture: ComponentFixture<FormlyTestHostComponent>
+export interface SelectFieldHarness extends FieldHarnessCore {
   /** every GraphQL operation the field has issued, in order */
   operations: MockGraphqlOperation[]
-  /**
-   * Flushes pending macrotasks and re-renders. `fixture.whenStable()` never
-   * resolves in this TestBed (a zone macrotask stays pending), so waits are
-   * manual; the default clears the typeahead's 300ms debounce.
-   */
-  settle(ms?: number): Promise<void>
-  openDropdown(): void
   type(text: string): void
-  /** the rendered dropdown options, which live in the cdk overlay container */
-  optionItems(): HTMLElement[]
-  /** the entity select's selected-item element */
-  selectedItem(): HTMLElement
   callsTo(operationName: string): MockGraphqlOperation[]
-  control(): import('@angular/forms').AbstractControl
-  /** the field component instance */
-  field<T>(fieldType: Type<T>): T
   /** what a quick-add form emits once it has created an entity */
   quickAdd(fieldType: Type<unknown>, value: number | number[]): void
-  destroy(): void
 }
 
 export interface SelectFieldHarnessConfig {
@@ -113,10 +92,6 @@ export async function createSelectFieldHarness(
     ],
   })
 
-  const overlay = fixture.debugElement.injector
-    .get(OverlayContainer)
-    .getContainerElement()
-
   /**
    * The field's entity select, which is not always its only one — source,
    * feature and variant selects each render a parameter picker alongside it.
@@ -127,43 +102,26 @@ export async function createSelectFieldHarness(
     fixture.nativeElement.querySelector('nz-select')
 
   const harness: SelectFieldHarness = {
-    fixture,
+    // 400 ms default settle: the typeahead debounces 300 ms
+    ...fieldHarnessCore(fixture, {
+      key: config.key,
+      select: entitySelect,
+      settleMs: 400,
+    }),
     operations,
-    async settle(ms = 400) {
-      fixture.detectChanges()
-      await new Promise((r) => setTimeout(r, ms))
-      fixture.detectChanges()
-      await new Promise((r) => setTimeout(r, 0))
-      fixture.detectChanges()
-    },
-    openDropdown() {
-      entitySelect().click()
-      fixture.detectChanges()
-    },
     type(text: string) {
       const input = entitySelect().querySelector('input') as HTMLInputElement
       input.value = text
       input.dispatchEvent(new Event('input', { bubbles: true }))
       fixture.detectChanges()
     },
-    optionItems: () =>
-      Array.from(overlay.querySelectorAll('nz-option-item')) as HTMLElement[],
-    selectedItem: () =>
-      entitySelect().querySelector('.ant-select-selection-item') as HTMLElement,
     callsTo: (operationName) =>
       operations.filter((o) => o.operationName === operationName),
-    control: () => fixture.componentInstance.form.get(config.key)!,
-    field: <T>(fieldType: Type<T>) =>
-      fixture.debugElement.query(By.directive(fieldType as Type<any>))
-        .componentInstance as T,
     quickAdd(fieldType, value) {
       const instance = this.field(fieldType) as unknown as {
         onEntityCreated(v: number | number[]): void
       }
       instance.onEntityCreated(value)
-    },
-    destroy() {
-      fixture.debugElement.injector.get(OverlayContainer).ngOnDestroy()
     },
   }
 

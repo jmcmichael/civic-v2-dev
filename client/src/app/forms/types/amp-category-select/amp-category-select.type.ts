@@ -64,11 +64,9 @@ export type CvcAmpCategorySelectFieldOptions = Partial<
   FieldTypeConfig<CvcAmpCategorySelectFieldProps>
 >
 
-export interface CvcAmpCategorySelectFieldProps
-  extends CvcEnumSelectFieldProps {}
+export interface CvcAmpCategorySelectFieldProps extends CvcEnumSelectFieldProps {}
 
-export interface CvcAmpCategorySelectFieldConfig
-  extends FormlyFieldConfig<CvcAmpCategorySelectFieldProps> {
+export interface CvcAmpCategorySelectFieldConfig extends FormlyFieldConfig<CvcAmpCategorySelectFieldProps> {
   type: 'amp-category-select' | Type<CvcAmpCategorySelectField>
 }
 
@@ -104,7 +102,7 @@ export class CvcAmpCategorySelectField extends CvcEnumSelectFieldBase<
 
   override ngOnInit(): void {
     super.ngOnInit()
-    this.optionValues.set(OPTION_ORDER)
+    this.setOptions(OPTION_ORDER)
 
     const requires = this.state?.requires.requiresAmpLevel
     if (!requires) {
@@ -135,19 +133,20 @@ export class CvcAmpCategorySelectField extends CvcEnumSelectFieldBase<
 
   private applyGate(isRequired: boolean, value?: AmpLevel): void {
     if (!isRequired) {
-      this.props.required = false
-      this.props.disabled = true
-      this.props.description = REQUIRES_TYPE_PROMPT
-      this.props.extraType = 'prompt'
+      this.applyProps({
+        required: false,
+        disabled: true,
+        description: REQUIRES_TYPE_PROMPT,
+        extraType: 'prompt',
+      })
       if (value !== undefined) this.resetField()
     } else {
-      this.props.required = true
-      this.props.disabled = false
-      this.props.description = value
-        ? optionText.get(value)
-        : CLASSIFICATION_PROMPT
-      this.props.extraType = 'description'
+      this.applyProps({
+        required: true,
+        disabled: false,
+        description: value ? optionText.get(value) : CLASSIFICATION_PROMPT,
+        extraType: 'description',
+      })
     }
-    this.markDirty()
   }
 }

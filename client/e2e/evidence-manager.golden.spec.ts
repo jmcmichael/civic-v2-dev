@@ -126,6 +126,63 @@ test('hiding a column via the preferences panel removes its header', async ({
 })
 
 /**
+ * Guards ng-zorro's boolean nzLeft/nzRight measurement pipeline end-to-end.
+ * The offsets come from a hidden measure row; the historical failure mode is
+ * every offset landing at 0px so the pinned columns stack — which is exactly
+ * what happens if anyone re-adds a <tbody> wrapper around the table's
+ * nz-virtual-scroll template (ng-zorro's own demo shows one; in virtual mode
+ * it becomes a detached measure row that reports all-zero widths over the
+ * real ones). Width-agnostic on purpose: each offset must equal the measured
+ * width of the pinned cells between it and its edge.
+ */
+test('pinned columns hold their measured offsets', async ({ page }) => {
+  await openManager(page)
+
+  const header = (column: string) =>
+    page.locator(`[data-testid="column-header"][data-column="${column}"]`)
+
+  // offsets are applied asynchronously by the measure pipeline
+  await expect
+    .poll(() => header('id').evaluate((el) => el.style.left), {
+      timeout: 10_000,
+    })
+    .not.toBe('')
+
+  const selectedWidth = await header('selected').evaluate((el) =>
+    Math.floor(el.getBoundingClientRect().width)
+  )
+  const idLeft = await header('id').evaluate((el) => el.style.left)
+  expect(Number.parseInt(idLeft, 10)).toBe(selectedWidth)
+  expect(idLeft).not.toBe('0px')
+
+  // edge shadows are ng-zorro's own list logic, applied per row
+  await expect(header('id')).toHaveClass(/ant-table-cell-fix-left-last/)
+  await expect(header('description')).toHaveClass(
+    /ant-table-cell-fix-right-first/
+  )
+
+  // the innermost right-pinned column sits on the edge; the outermost is
+  // offset by the sum of the measured widths after it
+  const rightPinned = [
+    'evidenceType',
+    'evidenceLevel',
+    'evidenceDirection',
+    'significance',
+    'evidenceRating',
+  ]
+  let expected = 0
+  for (const column of rightPinned) {
+    expected += await header(column).evaluate((el) =>
+      Math.floor(el.getBoundingClientRect().width)
+    )
+  }
+  const descriptionRight = await header('description').evaluate(
+    (el) => el.style.right
+  )
+  expect(Number.parseInt(descriptionRight, 10)).toBe(expected)
+})
+
+/**
  * Guards the reset button's full contract: a reset must clear the query AND
  * the filter inputs. The two can disagree whenever a filter's value has more
  * than one home — a config object the inputs read and a subject the query
