@@ -18,14 +18,23 @@
         [nzPopoverContent]="additionalTagPopover"
         nzPopoverPlacement="top"
         nzPopoverTrigger="hover">
-        +
-        @if (matchedHiddenCount > 0) {
-          <span>
-            {{ matchedHiddenCount }}
-            of
-          </span>
-        }
-        {{ hiddenCount }}
+        <span
+          class="plus-sign"
+          nz-typography
+          nzType="secondary">
+          <strong>+</strong>
+        </span>
+        <span
+          class="overflow-count"
+          nz-typography
+          nzType="secondary">
+          <strong>
+            @if (matchedHiddenCount > 0) {
+              {{ matchedHiddenCount }} of
+            }
+            {{ hiddenCount }}
+          </strong>
+        </span>
       </nz-tag>
     }
   </span>

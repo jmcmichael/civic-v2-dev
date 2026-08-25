@@ -9295,6 +9295,11 @@ type Query {
     ampLevel: AmpLevel
 
     """
+    Filtering on AMP/ASCO/CAP category; values are ORed. Use instead of (not alongside) ampLevel.
+    """
+    ampLevels: [AmpLevel!]
+
+    """
     Filter AIDs by Organizations that have approved them. Specifying multiple
     IDs will return Assertions approved by any of the Organizations.
     """
@@ -9306,9 +9311,19 @@ type Query {
     assertionDirection: EvidenceDirection
 
     """
+    Filtering on assertion direction; values are ORed. Use instead of (not alongside) assertionDirection.
+    """
+    assertionDirections: [EvidenceDirection!]
+
+    """
     Filtering on the assertion type.
     """
     assertionType: EvidenceType
+
+    """
+    Filtering on assertion type; values are ORed. Use instead of (not alongside) assertionType.
+    """
+    assertionTypes: [EvidenceType!]
 
     """
     Returns the elements in the list that come before the specified cursor.
@@ -9376,6 +9391,11 @@ type Query {
     significance: AssertionSignificance
 
     """
+    Filtering on the assertion's significance; values are ORed. Use instead of (not alongside) significance.
+    """
+    significances: [AssertionSignificance!]
+
+    """
     Columm and direction to sort evidence on.
     """
     sortBy: AssertionSort
@@ -9399,6 +9419,12 @@ type Query {
     Filtering on how an assertion's multiple therapies interact.
     """
     therapyInteractionType: TherapyInteraction
+
+    """
+    Filtering on how an assertion's multiple therapies interact; values are
+    ORed. Use instead of (not alongside) therapyInteractionType.
+    """
+    therapyInteractionTypes: [TherapyInteraction!]
 
     """
     Substring filtering on therapy name.
@@ -10108,9 +10134,19 @@ type Query {
     evidenceDirection: EvidenceDirection
 
     """
+    Filtering on evidence direction; values are ORed. Use instead of (not alongside) evidenceDirection.
+    """
+    evidenceDirections: [EvidenceDirection!]
+
+    """
     Filtering on the evidence level.
     """
     evidenceLevel: EvidenceLevel
+
+    """
+    Filtering on evidence level; values are ORed. Use instead of (not alongside) evidenceLevel.
+    """
+    evidenceLevels: [EvidenceLevel!]
 
     """
     Filtering on the evidence rating. Valid values: 1, 2, 3, 4, 5
@@ -10118,9 +10154,20 @@ type Query {
     evidenceRating: Int
 
     """
+    Filtering on evidence rating; values are ORed. Valid values: 1, 2, 3, 4, 5.
+    Use instead of (not alongside) evidenceRating.
+    """
+    evidenceRatings: [Int!]
+
+    """
     Filtering on the evidence type.
     """
     evidenceType: EvidenceType
+
+    """
+    Filtering on evidence type; values are ORed. Use instead of (not alongside) evidenceType.
+    """
+    evidenceTypes: [EvidenceType!]
 
     """
     Returns the first _n_ elements from the list.
@@ -10168,6 +10215,11 @@ type Query {
     significance: EvidenceSignificance
 
     """
+    Filtering on evidence significance; values are ORed. Use instead of (not alongside) significance.
+    """
+    significances: [EvidenceSignificance!]
+
+    """
     Columm and direction to sort evidence on.
     """
     sortBy: EvidenceSort
@@ -10193,6 +10245,12 @@ type Query {
     therapyInteractionType: TherapyInteraction
 
     """
+    Filtering on how an evidence item's multiple therapies interact; values are
+    ORed. Use instead of (not alongside) therapyInteractionType.
+    """
+    therapyInteractionTypes: [TherapyInteraction!]
+
+    """
     Substring filtering on therapy name.
     """
     therapyName: String
@@ -10211,6 +10269,11 @@ type Query {
     Filtering on the evidence variant origin.
     """
     variantOrigin: VariantOrigin
+
+    """
+    Filtering on evidence variant origin; values are ORed. Use instead of (not alongside) variantOrigin.
+    """
+    variantOrigins: [VariantOrigin!]
   ): EvidenceItemConnection!
 
   """

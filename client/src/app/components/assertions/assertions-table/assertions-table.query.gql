@@ -9,15 +9,15 @@ query AssertionsBrowse(
   $id: Int
   $ids: [Int!]
   $summary: String
-  $assertionDirection: EvidenceDirection
-  $significance: AssertionSignificance
-  $assertionType: EvidenceType
+  $assertionDirections: [EvidenceDirection!]
+  $significances: [AssertionSignificance!]
+  $assertionTypes: [EvidenceType!]
   $variantId: Int
   $molecularProfileId: Int
   $evidenceId: Int
   $molecularProfileName: String
   $sortBy: AssertionSort
-  $ampLevel: AmpLevel
+  $ampLevels: [AmpLevel!]
   $organization: OrganizationFilter
   $userId: Int
   $phenotypeId: Int
@@ -37,13 +37,13 @@ query AssertionsBrowse(
     id: $id
     ids: $ids
     summary: $summary
-    assertionDirection: $assertionDirection
-    significance: $significance
-    assertionType: $assertionType
+    assertionDirections: $assertionDirections
+    significances: $significances
+    assertionTypes: $assertionTypes
     variantId: $variantId
     molecularProfileId: $molecularProfileId
     sortBy: $sortBy
-    ampLevel: $ampLevel
+    ampLevels: $ampLevels
     molecularProfileName: $molecularProfileName
     evidenceId: $evidenceId
     organization: $organization

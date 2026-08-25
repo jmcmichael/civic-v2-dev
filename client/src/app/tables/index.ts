@@ -25,6 +25,7 @@ export { CvcEntityTableComponent } from './entity-table.component'
 export type { CvcTableRequestError } from './entity-table-query'
 export { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
 export { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
+export { CvcEnumIconSelectComponent } from './filters/enum-icon-select.component'
 export {
   CvcTableScrollObserverDirective,
   nextFetch,

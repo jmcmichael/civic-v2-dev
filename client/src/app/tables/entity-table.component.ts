@@ -76,6 +76,7 @@ import {
 } from './entity-table.types'
 import { CvcEnumOptionGroup, groupEnumOptions } from './enum-filter-options'
 import { CvcEnumFilterMenuComponent } from './filters/enum-filter-menu.component'
+import { CvcEnumIconSelectComponent } from './filters/enum-icon-select.component'
 import { CvcTableFilterInputComponent } from './filters/table-filter-input.component'
 import {
   CvcScrollEvent,
@@ -112,6 +113,65 @@ const LABEL_ICON_COLORS: Record<string, string> = {
 /** the filter-state key of a column's extraFilter (see CvcColumn.extraFilter) */
 function extraKey(key: string): string {
   return `${key}:extra`
+}
+
+/** fraction digits of a number's plain decimal rendering, capped at 4 —
+ * float artifacts past that are noise, not precision */
+function fractionDigits(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  const rendered = String(value)
+  const dot = rendered.indexOf('.')
+  return dot < 0 ? 0 : Math.min(rendered.length - dot - 1, 4)
+}
+
+/** the floor a drag-resize can shrink any column to; mirrors `[nzMinWidth]` */
+const MIN_COLUMN_PX = 40
+
+/** a visible column's identity + measured header width, as `resizeColumnWidths` input */
+export interface CvcMeasuredColumn {
+  key: string
+  resizable: boolean
+  /** currently rendered header-cell width; ≤0 means geometry is unmeasurable */
+  rendered: number
+}
+
+/**
+ * The boundary-transfer resize model: dragging a column's right edge moves
+ * the boundary it shares with the next resizable column, so space transfers
+ * between the two and the total width stays constant. Every column is
+ * returned frozen at its rendered width — the table stretches specified
+ * widths to fill its container, and only a sum-preserving write renders
+ * exactly as specified. Widening clamps at the neighbor's floor; with no
+ * resizable column to the right, only the dragged column changes (the
+ * stretch redistributes the difference). Returns null — caller falls back
+ * to a raw single-column write — when the key is unknown or any column is
+ * unmeasured (jsdom).
+ */
+export function resizeColumnWidths(
+  columns: ReadonlyArray<CvcMeasuredColumn>,
+  key: string,
+  emitted: number
+): ReadonlyMap<string, string> | null {
+  const at = columns.findIndex((column) => column.key === key)
+  if (at < 0) return null
+  if (columns.some((column) => !(column.rendered > 0))) return null
+  const dragged = columns[at]
+  const neighbor = columns.slice(at + 1).find((column) => column.resizable)
+  const widths = new Map(columns.map((column) => [column.key, column.rendered]))
+  let target = Math.max(MIN_COLUMN_PX, emitted)
+  if (neighbor) {
+    const delta = target - dragged.rendered
+    const applied =
+      delta > 0
+        ? Math.max(0, Math.min(delta, neighbor.rendered - MIN_COLUMN_PX))
+        : delta
+    target = dragged.rendered + applied
+    widths.set(neighbor.key, neighbor.rendered - applied)
+  }
+  widths.set(key, target)
+  return new Map(
+    [...widths].map(([colKey, width]) => [colKey, `${Math.round(width)}px`])
+  )
 }
 
 /** a CvcCellStyle resolved against its row; null when it yields nothing */
@@ -155,6 +215,7 @@ const AUTO_HEIGHT_FALLBACK = '800px'
     CvcCollectionTagComponent,
     CvcCountTagCellComponent,
     CvcEnumFilterMenuComponent,
+    CvcEnumIconSelectComponent,
     CvcPipesModule,
     CvcTableFilterInputComponent,
     CvcTableScrollObserverDirective,
@@ -253,7 +314,7 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   protected readonly defaultEmptyValue = DEFAULT_EMPTY_VALUE
 
   /** five glyphs for a count column's stacked header icon */
-  protected readonly iconStack = [0, 1, 2, 3, 4]
+  protected readonly iconStack = [0, 1, 2]
 
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
@@ -344,19 +405,125 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     })
   })
 
-  /** a header drag-resize landing (nzResizeEnd); session state, not config */
-  onColumnResize(key: string, width: number | undefined): void {
+  /**
+   * A header drag-resize landing (nzResizeEnd); session state, not config.
+   *
+   * Resizing is a boundary transfer: the drag moves the edge between the
+   * dragged column and its next resizable neighbor, so space shifts between
+   * the two and the total stays constant — see `resizeColumnWidths`. Every
+   * visible column is frozen at its currently rendered width in the same
+   * update, because the table stretches specified widths to fill its
+   * container (`min-width: 100%`): with the rendered sum preserved, no
+   * re-scaling occurs and both the dragged column's width and its dropped
+   * edge land exactly. Without measurable geometry (jsdom) the emitted
+   * width stores directly.
+   *
+   * The header cell also gets a one-shot click trap so the click a drag
+   * synthesizes never reaches ng-zorro's sort trigger on the same th
+   * (upstream: NG-ZORRO/ng-zorro-antd#7562). The cell is resolved from the
+   * host DOM by column key; `thEl` is a test seam.
+   */
+  onColumnResize(
+    key: string,
+    width: number | undefined,
+    thEl?: HTMLElement
+  ): void {
     if (!width) return
+    const th =
+      thEl ??
+      this.hostRef.nativeElement.querySelector<HTMLElement>(
+        `th[data-column="${CSS.escape(key)}"]`
+      ) ??
+      undefined
+    if (th) this.suppressNextHeaderClick(th)
+    const transferred = resizeColumnWidths(this.measuredColumns(th), key, width)
     this.widthOverrides.update((current) => {
       const next = new Map(current)
-      next.set(key, `${Math.round(width)}px`)
+      if (transferred) {
+        for (const [colKey, colWidth] of transferred) next.set(colKey, colWidth)
+      } else {
+        next.set(key, `${Math.round(width)}px`)
+      }
       return next
     })
+  }
+
+  /** the visible columns with their currently rendered header-cell widths
+   * (0 when unmeasurable, which `resizeColumnWidths` treats as no-geometry) */
+  private measuredColumns(th?: HTMLElement): CvcMeasuredColumn[] {
+    const row = th?.closest('tr')
+    return this.visibleColumns().map((column) => ({
+      key: column.key,
+      resizable: this.isResizable(column),
+      rendered:
+        row
+          ?.querySelector(`th[data-column="${CSS.escape(column.key)}"]`)
+          ?.getBoundingClientRect().width ?? 0,
+    }))
+  }
+
+  /**
+   * Ending a resize drag over the header cell synthesizes a click on it —
+   * ng-zorro's sort trigger, so an un-trapped resize also cycles the sort.
+   * A one-shot capture-phase listener eats that click before ng-zorro's
+   * bubble-phase handler; the click (if any — drops outside the th produce
+   * none) dispatches before timeouts run, so a 0ms removal disarms the trap
+   * before it could swallow a genuine later click.
+   */
+  private suppressNextHeaderClick(thEl: HTMLElement): void {
+    const suppress = (event: Event) => {
+      event.preventDefault()
+      event.stopImmediatePropagation()
+    }
+    thEl.addEventListener('click', suppress, { capture: true, once: true })
+    setTimeout(
+      () => thEl.removeEventListener('click', suppress, { capture: true }),
+      0
+    )
   }
 
   readonly visibleColumns = computed(() =>
     this.columns().filter((column) => !column.hidden)
   )
+
+  /**
+   * Per-column max fraction digits across the loaded rows, for
+   * decimal-aligned number cells (CvcNumberCell.decimalAlign). Loading
+   * more pages can only raise a column's precision, so settled rows never
+   * reflow back to fewer digits.
+   */
+  readonly decimalPrecision = computed<ReadonlyMap<string, number>>(() => {
+    const map = new Map<string, number>()
+    const rows = this.rows()
+    for (const column of this.visibleColumns()) {
+      const cell = column.cell
+      if (cell.kind !== 'number' || !cell.decimalAlign) continue
+      let precision = 0
+      for (const row of rows) {
+        const value = cell.value(row)
+        if (value === null || value === undefined) continue
+        precision = Math.max(precision, fractionDigits(value))
+      }
+      map.set(column.key, precision)
+    }
+    return map
+  })
+
+  /** locale-grouped number; decimal-aligned columns zero-fill every value
+   * to the column's shared precision (891 → '891.00' beside 406.25) */
+  formatNumber(column: CvcSpecColumn<TRow>, value: number): string {
+    const cell = column.cell
+    const digits =
+      cell.kind === 'number' && cell.decimalAlign
+        ? (this.decimalPrecision().get(column.key) ?? 0)
+        : undefined
+    return digits === undefined
+      ? value.toLocaleString()
+      : value.toLocaleString(undefined, {
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits,
+        })
+  }
 
   /**
    * Whether the filter row renders at all. A table whose visible columns
@@ -454,6 +621,35 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   sortOrderFor(column: CvcSpecColumn<TRow>): NzTableSortOrder {
     const sort = this.effectiveSort()
     return sort?.key === column.key ? sort.order : null
+  }
+
+  /**
+   * Icon-only enum-tag columns hold their configured width: widening one
+   * would only pad an icon until tags can disclose text labels when their
+   * column is wide enough (a planned width-aware tag-label feature), and
+   * the select checkbox column is structural. Every other column
+   * drag-resizes, unless its config sets `resizable` explicitly.
+   */
+  isResizable(column: CvcSpecColumn<TRow>): boolean {
+    return (
+      column.resizable ??
+      (column.cell.kind !== 'enum-tag' && column.cell.kind !== 'select')
+    )
+  }
+
+  /**
+   * Whether the column's header renders a resize handle: resizing is a
+   * boundary transfer, so a handle needs a resizable partner somewhere to
+   * the column's right. The rightmost resizable column therefore has no
+   * handle — its right edge is the table's own edge, and dragging it could
+   * only change the total width (shrinking the sum below the container and
+   * re-stretching every column). The table's outer edges stay fixed.
+   */
+  hasResizeHandle(column: CvcSpecColumn<TRow>): boolean {
+    if (!this.isResizable(column)) return false
+    const visible = this.visibleColumns()
+    const at = visible.findIndex((c) => c.key === column.key)
+    return visible.slice(at + 1).some((c) => this.isResizable(c))
   }
 
   // ------------------------------------------------------------ query state
@@ -930,12 +1126,17 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       const value = values.get(column.key)
       if (filter && value !== null && value !== undefined && value !== '') {
         if (filter.kind === 'enum') {
-          const option = filter.options.find((o) => o.value === value)
+          // a multi filter holds an array; each value reads through its
+          // option label and the row joins them (values OR on the wire)
+          const labelFor = (v: unknown) =>
+            filter.options.find((o) => o.value === v)?.label ?? String(v)
           rows.push({
             key: column.key,
             field: column.tooltip || column.label,
             comparison: 'is',
-            display: option?.label ?? String(value),
+            display: Array.isArray(value)
+              ? value.map(labelFor).join(', ')
+              : labelFor(value),
           })
         } else {
           rows.push({
@@ -993,6 +1194,16 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
           const column = columns.find((c) => c.key === change.key)
           if (!column?.filter) continue
 
+          // a multi enum filter's state is an array — seed it whole (a
+          // scalar becomes a one-value array); single-valued filters
+          // unwrap a one-value array the way URL params arrive
+          if (column.filter.kind === 'enum' && column.filter.multiple) {
+            const values = (
+              Array.isArray(change.value) ? change.value : [change.value]
+            ).filter((v) => v !== null && v !== undefined)
+            next.set(column.key, values.length ? values : null)
+            continue
+          }
           const value = Array.isArray(change.value)
             ? change.value[0]
             : change.value

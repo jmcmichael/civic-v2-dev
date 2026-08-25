@@ -21,11 +21,25 @@ the component and template should rarely need edits.
 
 ### Change a column's layout
 
-Users can drag-resize any column live: every header carries an
+Users can drag-resize columns live: resizable headers carry an
 `nz-resizable` right handle (`nzMinWidth` 40, preview line while
-dragging). Resizes are session state in the table's `widthOverrides` —
-the config's `width` stays the source of truth, and the settings
-popover's Reset Columns restores it along with visibility.
+dragging). A resize is a **boundary transfer**: the drag moves the edge
+the column shares with its next resizable neighbor, so space shifts
+between the two, the total stays constant, and the edge lands exactly at
+the drop point (`resizeColumnWidths` — every visible column is frozen at
+its rendered width in the same write, because the table stretches
+specified widths to fill its container and only a sum-preserving write
+renders exactly). A handle renders only where a boundary can transfer:
+the rightmost resizable column has none — its right edge is the
+table's own edge, which stays fixed. Resizes are session state in the table's
+`widthOverrides` — the config's `width` stays the source of truth, and
+the settings popover's Reset Columns restores it along with visibility.
+
+Icon-only `enum-tag` columns and the select column are not resizable —
+widening one only pads its icon until tags can disclose labels at width.
+Mark other narrow fixed-tag columns (a compact `text-tag` category
+column, a single-icon custom cell) `resizable: false`; the flag also
+overrides the kind-based default in either direction.
 
 `width`, `align`, `fixed`, `hidden`, `tooltip`, `emptyValue` are plain column
 fields — edit them in the manager's `*.config.ts`. Two constraints:
@@ -39,6 +53,16 @@ fields — edit them in the manager's `*.config.ts`. Two constraints:
   each one, so a non-pinned column interleaved into a pinned run mis-stacks.
 - Never wrap the body's `nz-virtual-scroll` template in `<tbody>` (see
   troubleshooting §11 — it silently zeroes every pinned offset).
+
+### Number columns
+
+`kind: 'number'` delivers the raw value and lets the table format it
+(locale grouping, tabular figures). `decimalAlign: true` aligns the
+column on the decimal point: every value renders at the highest fraction
+precision among the loaded rows — whole numbers zero-fill (891 →
+'891.00' beside 406.25) — so with `align: 'right'` the separators stack.
+Precision only grows as pages load; rows never reflow back. MP's Score
+is the reference use.
 
 ### Style a column
 
@@ -68,6 +92,27 @@ false` drops the icon for enums without a civic set). Set
 `placeholder` as short as possible — the convention is `'Any'` — and size
 the column to the smallest px width that fits the header label and that
 prompt (90px fits 'Type'/'Role' + 'Any').
+
+Narrow attribute columns (icon-only `enum-tag` cells) instead set
+`control: 'icon-select'` — `cvc-enum-icon-select`, an always-visible
+select collapsed to a single glyph: an `All` prompt when clear, the
+standard icon + label option list open, and the selected value's civic
+icon (label in its tooltip) with ng-zorro's circle-x clear — shown
+whenever a value is set — once chosen. No arrow — the prompt is the
+affordance. Enums without a civic icon set (`showIcons: false`) collapse
+to each option's `shortLabel` instead: assertions' AMP category shows
+'IA' the way its cells do, with 'Tier I - Level A' in the option list
+and tooltip.
+
+An icon-select may declare `multiple: true`: selections collapse to bare
+glyphs side by side (three, then `+N`), deselection happens in the
+option list, and the circle-x clears the set. Empty selections emit
+null, never `[]`. The filter's `var` must then name one of the server's
+PLURAL array args (`assertionTypes`, `evidenceLevels`, …) whose values
+OR together — the singular args reject list-typed variables, and both
+forms must never be sent together (they AND). Settings-seeded values
+pass through whole for multi filters; a scalar seed becomes a one-value
+array (the assertions facade's URL params).
 
 A column may also declare `extraFilter` — a second, funnel-only enum filter
 rendered beside its primary filter control (the legacy managers'

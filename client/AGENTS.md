@@ -40,7 +40,22 @@ Conventions every table config follows:
 - Enum filters: funnel icon by default (plain menu items: civic icon +
   label; options may declare a `group` for sectioned menus/selects);
   `control: 'select'` on columns wide enough, prompt `'Any'`, column sized
-  to fit label + prompt (~90px).
+  to fit label + prompt (~90px); `control: 'icon-select'` on icon-only
+  attribute columns — single-glyph select: 'All' prompt, selected icon +
+  persistent circle-x clear, no arrow; iconless enums collapse to
+  `shortLabel` (AMP's 'IA'); `multiple: true` = bare-glyph multi (3 then
+  +N) on the server's PLURAL array args (values OR; never send singular
+  and plural together).
+- Count cells: collection-tag chip vocabulary ([count][icon], no plus),
+  zero renders as a bare '0'; entity-column overflow chips drop the icon
+  (same-type tags precede them); `kind: 'number'` + `decimalAlign` for
+  decimal-point-aligned numeric columns (MP Score).
+- Attribute columns: 4-char labels (ATYP/ADIR/ASIG/ACAT, ELVL/ETYP/EDIR/
+  ESIG/VORI/ERTG), icon-only `enum-tag` cells, non-resizable (kind default;
+  `resizable: false` for ACAT/DSC-shaped narrow tag columns). Column
+  resize elsewhere is a boundary transfer — edge lands at the drop point,
+  next resizable neighbor absorbs the delta; the rightmost resizable
+  column has no handle (table edges stay fixed).
 - `[height]`: explicit px | `'auto'` (viewport-fit minus measured layout
   padding — browse facades default to it) | omitted = flex-fill inside a
   height-bounded ancestor (form managers). Never reintroduce the legacy

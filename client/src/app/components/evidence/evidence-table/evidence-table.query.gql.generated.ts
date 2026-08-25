@@ -15,12 +15,12 @@ export type EvidenceBrowseQueryVariables = Types.Exact<{
   id?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   ids?: Types.InputMaybe<Array<Types.Scalars['Int']['input']> | Types.Scalars['Int']['input']>;
   description?: Types.InputMaybe<Types.Scalars['String']['input']>;
-  evidenceLevel?: Types.InputMaybe<Types.EvidenceLevel>;
-  evidenceDirection?: Types.InputMaybe<Types.EvidenceDirection>;
-  significance?: Types.InputMaybe<Types.EvidenceSignificance>;
-  evidenceType?: Types.InputMaybe<Types.EvidenceType>;
-  evidenceRating?: Types.InputMaybe<Types.Scalars['Int']['input']>;
-  variantOrigin?: Types.InputMaybe<Types.VariantOrigin>;
+  evidenceLevels?: Types.InputMaybe<Array<Types.EvidenceLevel> | Types.EvidenceLevel>;
+  evidenceDirections?: Types.InputMaybe<Array<Types.EvidenceDirection> | Types.EvidenceDirection>;
+  significances?: Types.InputMaybe<Array<Types.EvidenceSignificance> | Types.EvidenceSignificance>;
+  evidenceTypes?: Types.InputMaybe<Array<Types.EvidenceType> | Types.EvidenceType>;
+  evidenceRatings?: Types.InputMaybe<Array<Types.Scalars['Int']['input']> | Types.Scalars['Int']['input']>;
+  variantOrigins?: Types.InputMaybe<Array<Types.VariantOrigin> | Types.VariantOrigin>;
   variantId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   molecularProfileId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
   assertionId?: Types.InputMaybe<Types.Scalars['Int']['input']>;
@@ -89,7 +89,7 @@ export const EvidenceGridFieldsFragmentDoc = gql`
 }
     ${MolecularProfileParsedNameFragmentDoc}`;
 export const EvidenceBrowseDocument = gql`
-    query EvidenceBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $id: Int, $ids: [Int!], $description: String, $evidenceLevel: EvidenceLevel, $evidenceDirection: EvidenceDirection, $significance: EvidenceSignificance, $evidenceType: EvidenceType, $evidenceRating: Int, $variantOrigin: VariantOrigin, $variantId: Int, $molecularProfileId: Int, $assertionId: Int, $organization: OrganizationFilter, $userId: Int, $sortBy: EvidenceSort, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $sourceId: Int, $clinicalTrialId: Int, $molecularProfileName: String, $status: EvidenceStatusFilter) {
+    query EvidenceBrowse($first: Int, $last: Int, $before: String, $after: String, $diseaseName: String, $therapyName: String, $id: Int, $ids: [Int!], $description: String, $evidenceLevels: [EvidenceLevel!], $evidenceDirections: [EvidenceDirection!], $significances: [EvidenceSignificance!], $evidenceTypes: [EvidenceType!], $evidenceRatings: [Int!], $variantOrigins: [VariantOrigin!], $variantId: Int, $molecularProfileId: Int, $assertionId: Int, $organization: OrganizationFilter, $userId: Int, $sortBy: EvidenceSort, $phenotypeId: Int, $diseaseId: Int, $therapyId: Int, $sourceId: Int, $clinicalTrialId: Int, $molecularProfileName: String, $status: EvidenceStatusFilter) {
   evidenceItems(
     first: $first
     last: $last
@@ -100,12 +100,12 @@ export const EvidenceBrowseDocument = gql`
     id: $id
     ids: $ids
     description: $description
-    evidenceLevel: $evidenceLevel
-    evidenceDirection: $evidenceDirection
-    significance: $significance
-    evidenceType: $evidenceType
-    evidenceRating: $evidenceRating
-    variantOrigin: $variantOrigin
+    evidenceLevels: $evidenceLevels
+    evidenceDirections: $evidenceDirections
+    significances: $significances
+    evidenceTypes: $evidenceTypes
+    evidenceRatings: $evidenceRatings
+    variantOrigins: $variantOrigins
     variantId: $variantId
     molecularProfileId: $molecularProfileId
     assertionId: $assertionId

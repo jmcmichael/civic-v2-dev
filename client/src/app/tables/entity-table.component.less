@@ -2,6 +2,9 @@
 // padding, nowrap header and data cells, and the filter row's tighter padding.
 // Shared rather than copied, so the two tables cannot drift apart on them.
 @import 'themes/overrides/card-table.overrides.less';
+// variables only (reference emits no rules): the icon-stack ring matches
+// the live theme's th background rather than a hardcoded copy of it
+@import (reference) 'ng-zorro-antd/style/themes/compact.less';
 
 // Sizing is CSS, not JavaScript.
 //
@@ -96,12 +99,54 @@
     cdk-virtual-scroll-viewport {
       flex: 1 1 auto;
       min-height: 0;
+      // No elastic overscroll: the body is the only real horizontal
+      // scroller — the header is scrollLeft-synced, which clamps at the
+      // edges — so the platform rubber-band would shear the body rows
+      // past a header that cannot follow. Suppressing the bounce keeps
+      // the two in step at the scroll extremes.
+      overscroll-behavior-x: none;
     }
   }
 }
 
 .col-header-label {
   white-space: nowrap;
+}
+
+// tabular figures give every digit one width, so a decimal-aligned number
+// column's zero-filled values line their separators up under right
+// alignment (see CvcNumberCell.decimalAlign)
+.number-cell.decimal-aligned {
+  font-variant-numeric: tabular-nums;
+}
+
+// A resize handle authored inside a sortable th gets wrapped by ng-zorro's
+// sort addon, and antd positions the title span — which would anchor the
+// absolutely-positioned handle ~14px shy of the column's true edge, buried
+// under the sort hit area. Neutralizing the wrappers re-anchors it to the
+// th itself (positioned by nz-resizable), so the handle sits on the real
+// column divider at full header height.
+th[nz-resizable] ::ng-deep {
+  .ant-table-column-sorters,
+  .ant-table-column-title {
+    position: static;
+  }
+}
+
+// Sort carets follow the column title instead of floating at the header
+// cell's far edge (antd's space-between default), keeping them visually
+// bound to the label and clear of the resize handle on the column divider.
+// A centered header keeps title + caret centered as a unit.
+th ::ng-deep {
+  .ant-table-column-sorters {
+    justify-content: flex-start;
+  }
+  .ant-table-column-title {
+    flex: none;
+  }
+}
+th.th-center ::ng-deep .ant-table-column-sorters {
+  justify-content: center;
 }
 
 // the checkbox in the select column sits too close to the table edge otherwise
@@ -138,21 +183,21 @@ tr.data-row td:first-of-type {
   margin-right: 4px;
 }
 
-// count-column headers: five entity glyphs slid behind one another,
-// avatar-group style — each on a white disc with a 1px white ring so the
-// overlaps read as separate coins
+// count-column headers: three entity glyphs slid behind one another,
+// avatar-group style — each on a disc with a 1px ring in the header row's
+// own background (@table-header-bg) so the overlaps read as separate coins
 .header-icon-stack {
   display: inline-flex;
 
   .stacked-icon {
-    background: #fff;
+    background: @table-header-bg;
     border-radius: 50%;
-    box-shadow: 0 0 0 1px #fff;
+    box-shadow: 0 0 0 1px @table-header-bg;
   }
 
   .stacked-icon + .stacked-icon {
-    // glyphs render at 12px (1em); -8px leaves a ~4px visible step
-    margin-left: -8px;
+    // glyphs render at 12px (1em); -6px leaves a ~6px visible step
+    margin-left: -6px;
   }
 }
 
