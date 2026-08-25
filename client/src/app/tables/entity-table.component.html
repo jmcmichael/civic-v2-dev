@@ -74,6 +74,7 @@
                   <nz-dropdown-menu #enumMenu="nzDropdownMenu">
                     <cvc-enum-filter-menu
                       [options]="filter.options"
+                      [showIcons]="filter.showIcons ?? true"
                       [selected]="filterValue(col.key)"
                       (selectedChange)="
                         onFilterChange(col, $event);
@@ -152,17 +153,23 @@
                         col.emptyValue ?? defaultEmptyValue
                       " />
                   }
-                } @else if (refs.single; as ref) {
-                  <cvc-tag
-                    [ref]="ref"
-                    [emphasize]="textFilterValue(col.key)"
-                    [popover]="!isScrolling()"
-                    [popoverPlacement]="cell.popoverPlacement ?? 'top'"
-                    [fullWidth]="cell.fullWidth ?? false"
-                    [truncate]="cell.truncateLabel" />
                 } @else {
-                  <cvc-empty-value
-                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
+                  <!-- nested rather than `@else if (…; as ref)`: the eslint
+                       template parser rejects `as` off the primary block -->
+                  @if (refs.single; as ref) {
+                    <cvc-tag
+                      [ref]="ref"
+                      [emphasize]="textFilterValue(col.key)"
+                      [popover]="!isScrolling()"
+                      [popoverPlacement]="cell.popoverPlacement ?? 'top'"
+                      [fullWidth]="cell.fullWidth ?? false"
+                      [truncate]="cell.truncateLabel" />
+                  } @else {
+                    <cvc-empty-value
+                      [cvcEmptyCategory]="
+                        col.emptyValue ?? defaultEmptyValue
+                      " />
+                  }
                 }
               }
 
@@ -224,6 +231,21 @@
                 }
               }
 
+              @case ('external-link') {
+                @let href = cell.href(row);
+                @if (href) {
+                  <cvc-link-tag
+                    [href]="href"
+                    [tooltip]="cell.tooltip"
+                    [iconName]="cell.iconName">
+                    {{ cell.text?.(row) ?? href }}
+                  </cvc-link-tag>
+                } @else {
+                  <cvc-empty-value
+                    [cvcEmptyCategory]="col.emptyValue ?? defaultEmptyValue" />
+                }
+              }
+
               @case ('custom') {
                 <!-- the content is declared in the config, typed against
                        TRow there; a custom cell owns its whole rendering,
@@ -243,7 +265,11 @@
 </nz-card>
 
 <ng-template #cardTitle>
-  <span>{{ spec().title ?? '' }}</span>
+  @if (titleTemplate(); as title) {
+    <ng-container [ngTemplateOutlet]="title" />
+  } @else {
+    <span>{{ spec().title ?? '' }}</span>
+  }
 </ng-template>
 
 <!-- TOOLBAR: counts, request errors, reset and the visible-columns panel -->
@@ -308,6 +334,11 @@
           {{ rows().length | number }} of {{ total | number }} displayed
         </span>
       }
+    </nz-col>
+
+    <!-- host-supplied toolbar content (downloaders, scope menus) -->
+    <nz-col>
+      <ng-content select="[cvcTableToolbarExtra]" />
     </nz-col>
 
     <nz-col nzFlex="35px">

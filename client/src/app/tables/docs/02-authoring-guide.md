@@ -198,7 +198,9 @@ cell: {
   `PolymorpheusComponent`, or a `TemplateRef` (grab one with `viewChild` in
   the facade). Prefer handler/component: the outlet types template contexts
   weakly.
-- The context is `{ $implicit: row, row, column }`.
+- The context is `{ $implicit: row, row, column, isScrolling }` — suspend any
+  popover/tooltip the cell renders while `isScrolling` is true, the way the
+  built-in tag kinds do (§ Scroll etiquette below).
 - A custom cell owns its whole rendering, including its empty state — it
   opts out of the shared filter-highlighting and empty-value handling, so
   prefer a built-in kind when one fits.
@@ -311,6 +313,29 @@ Using the variant manager as the template (it is the smaller of the two):
    host must give it a definite height (the managers' drawer does; see the
    facade `.less` files for the `flex` + `min-height: 0` + `min-width: 0`
    passthrough). Alternatively pass a fixed `[height]="'400px'"`.
+
+   **Card chrome.** Two hooks for hosts whose cards carry more than a title
+   string (the browse tables' downloaders and scope menus):
+
+   ```html
+   <ng-template #cardTitle
+     ><i
+       nz-icon
+       nzType="pie-chart"></i>
+     Variants</ng-template
+   >
+   <cvc-entity-table
+     [spec]="spec()"
+     [titleTemplate]="cardTitle">
+     <cvc-table-downloader
+       cvcTableToolbarExtra
+       [tableName]="'variants'" />
+   </cvc-entity-table>
+   ```
+
+   `[titleTemplate]` replaces the `spec().title` text; anything marked
+   `cvcTableToolbarExtra` is projected into the card-extra toolbar row,
+   between the row counts and the reset/preferences buttons.
 
 5. **Config spec.** Copy the shape of `variant-manager.config.spec.ts`:
    the filter declared∧used invariant, sort-members assertion, accessor
