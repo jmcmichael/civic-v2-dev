@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Type,
-  effect,
-} from '@angular/core'
+import { ChangeDetectionStrategy, Component, Type, effect } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { CvcFieldBase } from '@app/forms/select'
 import { CvcFormFieldExtraType } from '@app/forms/wrappers/form-field/form-field.wrapper'
@@ -20,14 +15,12 @@ export type CvcFdaRegulatoryApprovalCheckboxFieldOptions = Partial<
   FieldTypeConfig<CvcFdaRegulatoryApprovalCheckboxFieldProps>
 >
 
-export interface CvcFdaRegulatoryApprovalCheckboxFieldProps
-  extends FormlyFieldProps {
+export interface CvcFdaRegulatoryApprovalCheckboxFieldProps extends FormlyFieldProps {
   indeterminate?: boolean
   extraType?: CvcFormFieldExtraType
 }
 
-export interface CvcFdaRegulatoryApprovalCheckboxFieldConfig
-  extends FormlyFieldConfig<CvcFdaRegulatoryApprovalCheckboxFieldProps> {
+export interface CvcFdaRegulatoryApprovalCheckboxFieldConfig extends FormlyFieldConfig<CvcFdaRegulatoryApprovalCheckboxFieldProps> {
   type:
     | 'fda-regulatory-approval-checkbox'
     | Type<CvcFdaRegulatoryApprovalCheckboxField>
@@ -66,7 +59,7 @@ export class CvcFdaRegulatoryApprovalCheckboxField extends CvcFieldBase<
    * loaded. That matters here because the `else` branch clears the control.
    */
   private connectApproval(): void {
-    const allowsApproval = this.state?.requires.allowsFdaApproval
+    const allowsApproval = this.state?.requires?.allowsFdaApproval
     if (!allowsApproval) return
     effect(
       () => {

@@ -10,7 +10,7 @@ import {
   signal,
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { BaseState } from '@app/forms/states/base.state'
+import { EntityFormState } from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core'
 
@@ -44,7 +44,7 @@ export abstract class CvcFieldBase<
   readonly value: Signal<Maybe<V>> = this.currentValue.asReadonly()
 
   /** the form state this field belongs to, when its form provides one */
-  protected state?: BaseState
+  protected state?: EntityFormState
 
   ngOnInit(): void {
     const initial = this.formControl.value as Maybe<V>
@@ -70,7 +70,9 @@ export abstract class CvcFieldBase<
   protected connectStateField(): void {
     const formState = this.field.options?.formState
     if (!formState?.fields) return
-    this.state = formState as BaseState
+    // the one typed-cast point: formly types formState `any`, so this is
+    // where the form's word is taken that it installed an EntityFormState
+    this.state = formState as EntityFormState
 
     const key = String(this.field.key)
     const stateField = this.state.fields[key]
@@ -117,6 +119,33 @@ export abstract class CvcFieldBase<
    */
   protected markDirty(): void {
     this.cdr.markForCheck()
+  }
+
+  /**
+   * Shows the configured `props.description` only while the field is empty —
+   * once a value is selected, the help text has done its job. Call from the
+   * constructor: the effect's first run lands after the initial change
+   * detection, by which point formly has merged the configured description
+   * into props, so capturing it on that first run is sound even when the
+   * model arrived prepopulated.
+   */
+  protected connectEmptyDescription(): void {
+    let initial: Maybe<string>
+    let captured = false
+    effect(
+      () => {
+        if (!captured) {
+          initial = this.props.description
+          captured = true
+        }
+        const description = this.value() ? undefined : initial
+        if (this.props.description === description) return
+        // cast: props patches against a generic FC only resolve in concrete
+        // subclasses; `description` exists on every FormlyFieldProps
+        this.applyProps({ description } as Partial<FC['props']>)
+      },
+      { injector: this.injector }
+    )
   }
 
   /**

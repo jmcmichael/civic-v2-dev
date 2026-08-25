@@ -12,6 +12,7 @@ import {
   CvcEnumSelectFieldBase,
   CvcEnumSelectFieldProps,
 } from '@app/forms/select'
+import { fieldOf } from '@app/forms/states/base.state'
 import { Maybe, TherapyInteraction } from '@app/generated/civic.apollo.types'
 import {
   FieldTypeConfig,
@@ -79,16 +80,11 @@ export class CvcInteractionSelectField extends CvcEnumSelectFieldBase<
 
   override ngOnInit(): void {
     super.ngOnInit()
-    if (this.state) {
-      if (!this.state.enums.interaction) {
-        console.error(
-          `${this.field.id} could not find form state's interaction to populate select.`
-        )
-      } else {
-        this.connectStateEnum(this.state.enums.interaction)
-      }
+    const state = this.state
+    if (state?.enums) {
+      this.connectStateEnum(state.enums.interaction)
     } else {
-      // forms without a state object (source submit) offer every interaction
+      // forms without an entity state (source submit) offer every interaction
       this.setOptions(Object.values(TherapyInteraction))
     }
 
@@ -111,7 +107,8 @@ export class CvcInteractionSelectField extends CvcEnumSelectFieldBase<
    * the form has one, otherwise the sibling `therapyIds` control.
    */
   private therapyIdSignal(): Maybe<Signal<Maybe<number[]>>> {
-    if (this.state) return this.state.fields.therapyIds
+    const state = this.state
+    if (state?.enums) return fieldOf<number[]>(state, 'therapyIds')
     const control = this.form.get('therapyIds')
     return control
       ? toSignal(control.valueChanges.pipe(startWith(control.value)), {

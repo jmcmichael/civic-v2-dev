@@ -1,11 +1,7 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Type,
-  effect,
-} from '@angular/core'
+import { ChangeDetectionStrategy, Component, Type, effect } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { CvcFieldBase } from '@app/forms/select'
+import { fieldOf } from '@app/forms/states/base.state'
 import { CvcFormFieldExtraType } from '@app/forms/wrappers/form-field/form-field.wrapper'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import {
@@ -20,17 +16,13 @@ export type CvcFdaCompanionTestCheckboxFieldOptions = Partial<
   FieldTypeConfig<CvcFdaCompanionTestCheckboxFieldProps>
 >
 
-export interface CvcFdaCompanionTestCheckboxFieldProps
-  extends FormlyFieldProps {
+export interface CvcFdaCompanionTestCheckboxFieldProps extends FormlyFieldProps {
   indeterminate?: boolean
   extraType?: CvcFormFieldExtraType
 }
 
-export interface CvcFdaCompanionTestCheckboxFieldConfig
-  extends FormlyFieldConfig<CvcFdaCompanionTestCheckboxFieldProps> {
-  type:
-    | 'fda-companion-test-checkbox'
-    | Type<CvcFdaCompanionTestCheckboxField>
+export interface CvcFdaCompanionTestCheckboxFieldConfig extends FormlyFieldConfig<CvcFdaCompanionTestCheckboxFieldProps> {
+  type: 'fda-companion-test-checkbox' | Type<CvcFdaCompanionTestCheckboxField>
 }
 
 const DEFAULT_DESCRIPTION =
@@ -63,7 +55,10 @@ export class CvcFdaCompanionTestCheckboxField extends CvcFieldBase<
 
   /** see the sibling approval checkbox: no barrier needed, effects flush late */
   private connectRegulatoryApproval(): void {
-    const regulatoryApproval = this.state?.fields.fdaRegulatoryApproval
+    const regulatoryApproval = fieldOf<boolean>(
+      this.state,
+      'fdaRegulatoryApproval'
+    )
     if (!regulatoryApproval) return
     effect(
       () => {

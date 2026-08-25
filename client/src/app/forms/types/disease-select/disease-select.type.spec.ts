@@ -1,7 +1,10 @@
+import { EvidenceState } from '@app/forms/states/evidence.state'
+import { EvidenceType } from '@app/generated/civic.apollo.types'
 import { MockGraphqlOperation } from '@app/testing/apollo-test.providers'
 import {
   createSelectFieldHarness,
   describeEntitySelectContract,
+  describeTypeGateContract,
 } from '@app/testing/select-field.harness'
 import { describe, expect, it } from 'vitest'
 import { CvcDiseaseSelectField } from './disease-select.type'
@@ -45,6 +48,20 @@ describe('CvcDiseaseSelectField', () => {
     searchVars: (name) => ({ name }),
     tagVars: (id) => ({ id }),
     searchTerm: 'mel',
+  })
+
+  describeTypeGateContract({
+    fieldType: CvcDiseaseSelectField,
+    type: 'disease-select',
+    key: 'diseaseId',
+    respond,
+    formState: () => new EvidenceState(),
+    typeKey: 'evidenceType',
+    requiredType: EvidenceType.Predictive,
+    excludedType: EvidenceType.Functional,
+    requiresKey: 'requiresDisease',
+    value: MELANOMA.id,
+    excludedPhrase: 'does not include associated diseases',
   })
 
   it('renders each option as a tag plus its DOID and alias metadata', async () => {

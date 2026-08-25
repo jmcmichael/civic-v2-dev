@@ -8,14 +8,14 @@ import {
   TherapyInteraction,
   VariantOrigin,
 } from '@app/generated/civic.apollo.types'
-import { Signal, WritableSignal, computed, signal } from '@angular/core'
-import { CvcInputEnum } from '../forms.types'
+import { WritableSignal, signal } from '@angular/core'
 import { evidenceItemSubmitFieldsDefaults } from '../models/evidence-submit.model'
 import {
   BaseState,
   EntityEnums,
   EntityName,
   EntityRequires,
+  EntityType,
 } from './base.state'
 
 /** Keyed by each field's formly `key`; the field owns its entry. */
@@ -40,9 +40,10 @@ export type EvidenceFields = {
 }
 
 class EvidenceState extends BaseState {
-  fields: EvidenceFields
-  enums: EntityEnums
-  requires: EntityRequires
+  readonly fields: EvidenceFields
+  readonly enums: EntityEnums
+  readonly requires: EntityRequires
+  readonly typeField: WritableSignal<Maybe<EntityType>>
 
   constructor() {
     super(EntityName.EVIDENCE)
@@ -68,6 +69,8 @@ class EvidenceState extends BaseState {
       description: signal<Maybe<string>>(undefined),
       comment: signal<Maybe<string>>(undefined),
     }
+
+    this.typeField = this.fields.evidenceType
 
     // Everything below derives from the chosen evidence type via `computed`
     // (see BaseState.forType): no push, no ordering, and no way for two

@@ -15,6 +15,7 @@ import {
   CvcSelectMessagesComponent,
   entitySelectConfig,
 } from '@app/forms/select'
+import { EntityRequires } from '@app/forms/states/base.state'
 import { AssertionFields, Maybe } from '@app/generated/civic.apollo.types'
 import { CvcTagComponent } from '@app/tags'
 import {
@@ -69,7 +70,7 @@ const SYNCHRONIZED_FIELD_TO_COL = new Map<keyof AssertionFields, string>([
 ])
 
 /** manager columns shown/hidden in step with whether their field is required */
-const REQUIRED_FIELD_TO_COL = new Map<string, string>([
+const REQUIRED_FIELD_TO_COL = new Map<string, keyof EntityRequires>([
   ['disease', 'requiresDisease'],
   ['therapies', 'requiresTherapy'],
 ])
@@ -188,25 +189,22 @@ export class CvcEvidenceSelectField extends CvcEntitySelectFieldBase<
    */
   private connectTableSettings(): void {
     const state = this.state
-    if (!state) return
+    // only an entity state carries the requires map the preferences follow
+    if (!state?.requires) return
+    const requires = state.requires
 
-    // a form may declare either map without the other, so neither is assumed
-    const fields = state.fields ?? {}
-    const requires = state.requires ?? {}
-
-    const filterSources: [string, Signal<any>][] = []
+    const filterSources: [string, Signal<unknown>][] = []
     SYNCHRONIZED_FIELD_TO_COL.forEach((column, field) => {
-      const source = fields[field]
+      const source = state.fields[field]
       if (source) filterSources.push([column, source])
     })
 
     const prefSources: [string, Signal<boolean>][] = []
     REQUIRED_FIELD_TO_COL.forEach((requiresKey, column) => {
-      const source = requires[requiresKey]
-      if (source) prefSources.push([column, source])
+      prefSources.push([column, requires[requiresKey]])
     })
 
-    if (filterSources.length === 0 || prefSources.length === 0) return
+    if (filterSources.length === 0) return
 
     this.tableSettings = computed<EvidenceManagerSettings>(() => ({
       filters: filterSources.map(([column, value]) => ({

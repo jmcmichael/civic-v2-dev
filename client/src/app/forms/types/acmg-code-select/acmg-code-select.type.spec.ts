@@ -1,9 +1,11 @@
+import { AssertionState } from '@app/forms/states/assertion.state'
+import { AssertionType } from '@app/generated/civic.apollo.types'
 import { MockGraphqlOperation } from '@app/testing/apollo-test.providers'
 import {
   createSelectFieldHarness,
   describeEntitySelectContract,
+  describeTypeGateContract,
 } from '@app/testing/select-field.harness'
-import { signal } from '@angular/core'
 import { describe, expect, it } from 'vitest'
 import { CvcAcmgCodeSelectField } from './acmg-code-select.type'
 
@@ -48,6 +50,20 @@ describe('CvcAcmgCodeSelectField', () => {
     hasQuickAdd: false,
   })
 
+  describeTypeGateContract({
+    fieldType: CvcAcmgCodeSelectField,
+    type: 'acmg-code-select',
+    key: 'acmgCodeIds',
+    respond,
+    formState: () => new AssertionState(),
+    typeKey: 'assertionType',
+    requiredType: AssertionType.Predisposing,
+    excludedType: AssertionType.Predictive,
+    requiresKey: 'requiresAcmgCodes',
+    value: PVS1.id,
+    excludedPhrase: 'does not include associated ACMG/AMP Code(s)',
+  })
+
   it('renders each code with its description', async () => {
     const h = await createSelectFieldHarness({
       type: 'acmg-code-select',
@@ -62,27 +78,6 @@ describe('CvcAcmgCodeSelectField', () => {
       .join('|')
     expect(text).toContain('PVS1')
     expect(text).toContain('Null variant in a LOF gene')
-    h.destroy()
-  })
-
-  it('gates on the form entity type like the other coded fields', async () => {
-    const h = await createSelectFieldHarness({
-      type: 'acmg-code-multi-select',
-      key: 'acmgCodeIds',
-      respond,
-      formState: {
-        entityName: 'Assertion',
-        requires: { requiresAcmgCodes: signal(false) },
-        fields: {
-          assertionType: signal(undefined),
-          acmgCodeIds: signal(undefined),
-        },
-      },
-    })
-    await h.settle()
-    const props = h.field(CvcAcmgCodeSelectField).props
-    expect(props.disabled).toBe(true)
-    expect(props.description).toContain('Select an Assertion Type')
     h.destroy()
   })
 })

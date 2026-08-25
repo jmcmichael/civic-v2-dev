@@ -18,7 +18,8 @@ import { NzSelectModule } from 'ng-zorro-antd/select'
 const optionText: Record<string, string> = {
   DIAGNOSTIC:
     "Evidence pertains to a variant's impact on patient diagnosis (cancer subtype).",
-  PREDICTIVE: "Evidence pertains to a variant's effect on therapeutic response.",
+  PREDICTIVE:
+    "Evidence pertains to a variant's effect on therapeutic response.",
   PROGNOSTIC:
     "Evidence pertains to a variant's impact on disease progression, severity, or patient survival.",
   PREDISPOSING:
@@ -40,8 +41,7 @@ export interface CvcEntityTypeSelectFieldProps extends CvcEnumSelectFieldProps {
   entityName: CvcSelectEntityName
 }
 
-export interface CvcEntityTypeSelectFieldConfig
-  extends FormlyFieldConfig<CvcEntityTypeSelectFieldProps> {
+export interface CvcEntityTypeSelectFieldConfig extends FormlyFieldConfig<CvcEntityTypeSelectFieldProps> {
   type: 'type-select' | Type<CvcEntityTypeSelectField>
 }
 
@@ -81,9 +81,9 @@ export class CvcEntityTypeSelectField extends CvcEnumSelectFieldBase<
     this.connectValueDescription()
 
     const state = this.state
-    if (!state) {
+    if (!state?.enums) {
       console.error(
-        `${this.field.id} requires a form state to configure itself, none was found.`
+        `${this.field.id} requires an entity form state to configure itself, none was found.`
       )
       return
     }
@@ -95,12 +95,6 @@ export class CvcEntityTypeSelectField extends CvcEnumSelectFieldBase<
     this.props.label = this.props.label?.replace(ENTITY_NAME, state.entityName)
     this.props.tooltip = `Type of clinical outcome associated with the ${state.entityName} statement.`
 
-    if (!state.enums.entityType) {
-      console.error(
-        `${this.field.id} could not find state's enums.entityType to populate its select options.`
-      )
-      return
-    }
     this.connectStateEnum(state.enums.entityType)
   }
 

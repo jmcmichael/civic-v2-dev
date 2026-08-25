@@ -17,8 +17,10 @@ import {
   CvcEntityTableComponent,
   CvcPageInfo,
   CvcSpecColumn,
+  CvcTableSettings,
   EntityTableSpec,
 } from '@app/tables'
+import { Maybe } from '@app/generated/civic.apollo.types'
 import { civicIcons } from '@app/icons-provider.module'
 import { readCachedEntity } from '@app/tags'
 import { Apollo } from 'apollo-angular'
@@ -59,10 +61,12 @@ export const TABLE_ICONS = [
   imports: [CvcEntityTableComponent],
   template: `<cvc-entity-table
     [spec]="spec()"
+    [settings]="settings()"
     [(selectedIds)]="selected" />`,
 })
 export class TableHostComponent<TRow extends { id: number }> {
   readonly spec = signal<EntityTableSpec<TRow>>(undefined as never)
+  readonly settings = signal<Maybe<CvcTableSettings>>(undefined)
   selected: number[] = []
 }
 
@@ -70,6 +74,14 @@ export class TableHostComponent<TRow extends { id: number }> {
  * Flushes the query debounce and re-renders. `fixture.whenStable()` never
  * resolves in these TestBeds — a zone macrotask stays pending — so waits are
  * manual. The 400 ms default clears the component's 300 ms QUERY_DEBOUNCE_MS.
+ */
+/*
+ * Real timers on purpose. A fake-timer settle was tried (vi.useFakeTimers
+ * with only the timer fns faked + advanceTimersByTimeAsync here): the
+ * contract's opening query then never reaches the link — under zone.js the
+ * debounce's timer lands on a zone-captured native setTimeout, out of the
+ * fake clock's reach — so the waits stay real. Revisit only alongside a
+ * zoneless test setup or Angular's own fakeAsync/tick.
  */
 export async function settleTable(
   fixture: ComponentFixture<unknown>,

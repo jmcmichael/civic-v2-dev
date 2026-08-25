@@ -11,7 +11,11 @@ import {
   CvcEnumSelectFieldBase,
   CvcEnumSelectFieldProps,
 } from '@app/forms/select'
-import { EntitySignificance, EntityType } from '@app/forms/states/base.state'
+import {
+  EntityName,
+  EntitySignificance,
+  EntityType,
+} from '@app/forms/states/base.state'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import {
   FieldTypeConfig,
@@ -161,48 +165,42 @@ export class CvcSignificanceSelectField extends CvcEnumSelectFieldBase<
   override ngOnInit(): void {
     super.ngOnInit()
     const state = this.state
-    if (!state) {
+    if (!state?.enums) {
       console.error(
-        `${this.field.id} requires a form state to populate its options, none was found.`
+        `${this.field.id} requires an entity form state to populate its options, none was found.`
       )
       this.placeholder.set('ERROR: Form state not found')
       return
     }
 
     this.placeholder.set(this.props.placeholderFn(state.entityName))
-
-    if (!state.enums.significance) {
-      console.error(
-        `${this.field.id} could not find form state's enums.significance to populate select.`
-      )
-    } else {
-      this.connectStateEnum(state.enums.significance)
-    }
+    this.connectStateEnum(state.enums.significance)
 
     const entityType = this.connectEntityTypeGate()
-    effect(() => this.describe(entityType(), this.selected()), {
-      injector: this.injector,
-    })
+    effect(
+      () => this.describe(state.entityName, entityType(), this.selected()),
+      { injector: this.injector }
+    )
   }
 
   private describe(
+    entityName: EntityName,
     entityType?: EntityType,
     significance?: EntitySignificance
   ): void {
-    const state = this.state!
     if (!entityType) {
       this.applyProps({
         disabled: true,
         required: false,
-        description: this.props.requireTypePromptFn(state.entityName),
+        description: this.props.requireTypePromptFn(entityName),
         extraType: 'prompt',
       })
       return
     }
 
-    this.placeholder.set(this.props.placeholderFn(state.entityName))
+    this.placeholder.set(this.props.placeholderFn(entityName))
     const text: Maybe<string> = significance
-      ? optionText[state.entityName]?.[entityType]?.[significance]
+      ? optionText[entityName]?.[entityType]?.[significance]
       : undefined
     this.applyProps({
       disabled: false,

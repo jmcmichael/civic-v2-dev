@@ -3,7 +3,6 @@ import {
   Component,
   Type,
   computed,
-  effect,
   inject,
 } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
@@ -120,9 +119,6 @@ export class CvcSourceSelectField extends CvcEntitySelectFieldBase<
     () => this.props.placeholder || `Search ${this.paramName()} Sources`
   )
 
-  /** props.description is help text for an empty field; captured in ngOnInit */
-  private initialDescription: Maybe<string>
-
   defaultOptions: CvcSourceSelectFieldOptions = {
     props: {
       entityName: { singular: 'Source', plural: 'Sources' },
@@ -137,20 +133,7 @@ export class CvcSourceSelectField extends CvcEntitySelectFieldBase<
   constructor() {
     super()
     this.setSourceType(DEFAULT_SOURCE_TYPE)
-    // Effects created here first run after the initial change detection, so
-    // ngOnInit has already captured the description by the time this reads it.
-    effect(() => {
-      const description = this.value() ? undefined : this.initialDescription
-      if (this.props.description === description) return
-      this.props.description = description
-      // the form-field wrapper renders the description, not this component
-      this.markDirty()
-    })
-  }
-
-  override ngOnInit(): void {
-    super.ngOnInit()
-    this.initialDescription = this.props.description
+    this.connectEmptyDescription()
   }
 
   /** drives both the typeahead parameter and the wording of every message */

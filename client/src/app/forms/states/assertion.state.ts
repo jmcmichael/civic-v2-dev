@@ -8,14 +8,14 @@ import {
   TherapyInteraction,
   AmpLevel,
 } from '@app/generated/civic.apollo.types'
-import { Signal, WritableSignal, computed, signal } from '@angular/core'
-import { CvcInputEnum } from '../forms.types'
+import { WritableSignal, signal } from '@angular/core'
 import { assertionSubmitFieldsDefaults } from '../models/assertion-submit.model'
 import {
   BaseState,
   EntityEnums,
   EntityName,
   EntityRequires,
+  EntityType,
 } from './base.state'
 
 /** Keyed by each field's formly `key`; the field owns its entry. */
@@ -40,14 +40,16 @@ export type AssertionFields = {
   acmgCodeIds: WritableSignal<Maybe<number[]>>
   clingenCodeIds: WritableSignal<Maybe<number[]>>
   nccnGuidelineVersion: WritableSignal<Maybe<string>>
+  summary: WritableSignal<Maybe<string>>
   description: WritableSignal<Maybe<string>>
   comment: WritableSignal<Maybe<string>>
 }
 
 class AssertionState extends BaseState {
-  fields: AssertionFields
-  enums: EntityEnums
-  requires: EntityRequires
+  readonly fields: AssertionFields
+  readonly enums: EntityEnums
+  readonly requires: EntityRequires
+  readonly typeField: WritableSignal<Maybe<EntityType>>
 
   constructor() {
     super(EntityName.ASSERTION)
@@ -74,9 +76,15 @@ class AssertionState extends BaseState {
       acmgCodeIds: signal(def.acmgCodeIds),
       clingenCodeIds: signal(def.clingenCodeIds),
       nccnGuidelineVersion: signal(def.nccnGuidelineVersion),
+      // summary had no slot for years and connectStateField warned on every
+      // assertion-form load; the field's key is 'summary' in both the submit
+      // and revise configs
+      summary: signal<Maybe<string>>(undefined),
       description: signal<Maybe<string>>(undefined),
       comment: signal<Maybe<string>>(undefined),
     }
+
+    this.typeField = this.fields.assertionType
 
     // Everything below derives from the chosen assertion type via `computed`
     // (see BaseState.forType): no push, no ordering, and no way for two

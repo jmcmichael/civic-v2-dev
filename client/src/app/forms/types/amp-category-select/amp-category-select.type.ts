@@ -104,21 +104,16 @@ export class CvcAmpCategorySelectField extends CvcEnumSelectFieldBase<
     super.ngOnInit()
     this.setOptions(OPTION_ORDER)
 
-    const requires = this.state?.requires.requiresAmpLevel
-    if (!requires) {
-      if (this.state) {
-        console.warn(
-          `${this.field.id} field's form provides a state, but could not find requiresAmpLevel to attach.`
-        )
-      }
+    const isRequired = this.state?.requires?.requiresAmpLevel
+    if (!isRequired) {
+      // no entity state → the field simply isn't gated in this form
       this.connectValueDescription()
       return
     }
 
     // one effect owns description, extraType, required and disabled together,
     // so no two writers can race on description
-    const isRequired = requires
-    effect(() => this.applyGate(isRequired() ?? false, this.selected()), {
+    effect(() => this.applyGate(isRequired(), this.selected()), {
       injector: this.injector,
     })
   }
