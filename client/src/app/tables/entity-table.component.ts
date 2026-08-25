@@ -62,10 +62,13 @@ import { CvcColumnFilterExtraDirective } from './column-filter-extra.directive'
 import { CvcSpecColumn, EntityTableSpec } from './entity-table-config'
 import { CvcEntityTableQuery } from './entity-table-query'
 import {
+  CvcAppliedFilter,
   CvcCellContext,
+  CvcCellStyle,
   CvcEntityTagCell,
   CvcEnumOption,
   CvcSortState,
+  CvcStyle,
   CvcTableSettings,
   DEFAULT_EMPTY_VALUE,
 } from './entity-table.types'
@@ -102,6 +105,15 @@ const LABEL_ICON_COLORS: Record<string, string> = {
   'civic-revision': getEntityColor('Revision'),
   'civic-source': getEntityColor('Source'),
   'civic-variant': getEntityColor('Variant'),
+}
+
+/** a CvcCellStyle resolved against its row; null when it yields nothing */
+function resolveCellStyle<TRow>(
+  style: CvcCellStyle<TRow> | undefined,
+  row: TRow
+): CvcStyle | null {
+  if (!style) return null
+  return (typeof style === 'function' ? style(row) : style) ?? null
 }
 
 /** `height: 'auto'` floor — a viewport too short to be useful still scrolls */
@@ -235,6 +247,21 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   /** the entity color a header's `labelIcon` fills its twotone with */
   protected labelIconColor(icon: string): string {
     return LABEL_ICON_COLORS[icon] ?? getEntityColor('Greyscale')
+  }
+
+  /**
+   * The data cell's `ngStyle`: the column's `styles.cell` with the cell
+   * SPEC's own `style` layered over it — a kind overrides its column. Both
+   * halves may be row-driven (statuses, heatmaps; see style-helpers.ts).
+   */
+  protected cellStyle(col: CvcSpecColumn<TRow>, row: TRow): CvcStyle | null {
+    const column = resolveCellStyle(col.styles?.cell, row)
+    const spec = resolveCellStyle(
+      (col.cell as { style?: CvcCellStyle<TRow> }).style,
+      row
+    )
+    if (!column && !spec) return null
+    return { ...column, ...spec }
   }
 
   /**
@@ -799,6 +826,54 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   readonly settingsTitle = computed(
     () => `${this.spec().entity ?? 'Table'} Settings`
   )
+
+  /** titles the filter popover: "Assertion Table Filters"… */
+  readonly filtersTitle = computed(
+    () => `${this.spec().entity ?? 'Entity'} Table Filters`
+  )
+
+  /**
+   * The global filter popover's rows: every column filter currently
+   * applied, in column order. Enum values render their option's label
+   * (grouped enums may repeat a value across sections — the label is the
+   * same wherever it appears); text and numeric filters render the typed
+   * value. Sort state is deliberately absent: the popover manages filters,
+   * the headers show sort.
+   */
+  readonly appliedFilters = computed<CvcAppliedFilter[]>(() => {
+    const values = this.filterValues()
+    const rows: CvcAppliedFilter[] = []
+    for (const column of this.columns()) {
+      const filter = column.filter
+      if (!filter) continue
+      const value = values.get(column.key)
+      if (value === null || value === undefined || value === '') continue
+
+      if (filter.kind === 'enum') {
+        const option = filter.options.find((o) => o.value === value)
+        rows.push({
+          key: column.key,
+          field: column.tooltip || column.label,
+          comparison: 'is',
+          display: option?.label ?? String(value),
+        })
+      } else {
+        rows.push({
+          key: column.key,
+          field: column.tooltip || column.label,
+          comparison: filter.kind === 'numeric' ? 'is' : 'contains',
+          display: String(value),
+        })
+      }
+    }
+    return rows
+  })
+
+  /** clears one applied filter, by its column key (a popover row's remove) */
+  onRemoveFilter(key: string): void {
+    const column = this.columns().find((c) => c.key === key)
+    if (column) this.onFilterChange(column, null)
+  }
 
   /**
    * Applies filters and visibility pushed in by a host.
