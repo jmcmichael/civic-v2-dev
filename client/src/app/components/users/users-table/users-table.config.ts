@@ -59,18 +59,15 @@ export function usersTableConfig(
       {
         key: 'user',
         label: 'User',
-        width: '200px',
+        width: '120px',
         fixed: 'left',
         cell: {
           kind: 'custom',
           content: new PolymorpheusComponent(CvcUserCellComponent),
         },
-      },
-      {
-        key: 'name',
-        label: 'Name',
-        width: '150px',
-        cell: { kind: 'text', text: (row) => row.name ?? undefined },
+        // the legacy Name column folded in here per review: the tag already
+        // shows the username, so this column carries its sort and filter,
+        // and the cell highlights the active filter via ctx.filterText()
         sort: { column: UsersSortColumns.Name },
         filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
       },
@@ -92,11 +89,13 @@ export function usersTableConfig(
       {
         key: 'role',
         label: 'Role',
-        width: '80px',
+        width: '130px',
         cell: { kind: 'text', text: (row) => enumToTitle.transform(row.role) },
         sort: { column: UsersSortColumns.Role },
         filter: {
           kind: 'enum',
+          control: 'select',
+          placeholder: 'Select Role',
           var: 'role',
           options: USER_ROLE_OPTIONS,
         },
@@ -117,9 +116,10 @@ export function usersTableConfig(
       },
       {
         key: 'evidenceCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '75px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceCount },
@@ -127,9 +127,10 @@ export function usersTableConfig(
       },
       {
         key: 'revisionCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Revision Count',
-        width: '75px',
+        labelIcon: 'civic-revision',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.revisionCount },

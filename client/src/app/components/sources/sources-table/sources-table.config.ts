@@ -3,7 +3,11 @@ import {
   SourceSource,
   SourcesSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig, enumFilterOptions } from '@app/tables'
+import {
+  entityTableConfig,
+  enumFilterOptions,
+  SORT_DESCEND_FIRST,
+} from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcSourceAuthorsCellComponent } from './sources-table-authors-cell.component'
 import { CvcSourceOpenAccessCellComponent } from './sources-table-open-access-cell.component'
@@ -93,7 +97,7 @@ export function sourcesTableConfig(
       {
         key: 'citation',
         label: 'Citation',
-        width: '400px',
+        width: '250px',
         fixed: 'left',
         cell: {
           kind: 'entity-tag',
@@ -109,18 +113,21 @@ export function sourcesTableConfig(
             citation: row.citation,
             sourceType: row.sourceType,
           }),
-          truncateLabel: '350px',
+          // no truncateLabel: fullWidth bounds the label at the cell edge,
+          // where the tag's own overflow ellipsis takes over
+          fullWidth: true,
           popoverPlacement: 'right',
         },
       },
       {
         key: 'name',
         label: 'Name',
-        width: '200px',
+        width: '350px',
         cell: {
           kind: 'text',
           text: (row) => row.name ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         sort: { column: SourcesSortColumns.Name },
         filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
@@ -143,11 +150,13 @@ export function sourcesTableConfig(
       {
         key: 'sourceType',
         label: 'Type',
-        width: '75px',
+        width: '130px',
         cell: { kind: 'text', text: (row) => row.displayType ?? undefined },
         sort: { column: SourcesSortColumns.SourceType },
         filter: {
           kind: 'enum',
+          control: 'select',
+          placeholder: 'Select Type',
           var: 'sourceType',
           options: enumFilterOptions(SourceSource),
           showIcons: false,
@@ -176,7 +185,11 @@ export function sourcesTableConfig(
         key: 'journal',
         label: 'Journal',
         width: '150px',
-        cell: { kind: 'text', text: (row) => row.journal ?? undefined },
+        cell: {
+          kind: 'text',
+          text: (row) => row.journal ?? undefined,
+          tooltip: true,
+        },
         sort: { column: SourcesSortColumns.Journal },
         filter: {
           kind: 'text',
@@ -202,26 +215,32 @@ export function sourcesTableConfig(
       },
       {
         key: 'evidenceItemCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '75px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
         sort: {
           column: SourcesSortColumns.EvidenceCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
         key: 'sourceSuggestionCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Suggestion Count',
-        width: '75px',
+        labelIcon: 'civic-queue',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.sourceSuggestionCount },
-        sort: { column: SourcesSortColumns.SuggestionCount },
+        sort: {
+          column: SourcesSortColumns.SuggestionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

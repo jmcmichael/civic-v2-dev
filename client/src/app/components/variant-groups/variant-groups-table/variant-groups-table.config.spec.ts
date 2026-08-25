@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { VariantGroupsSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
   describeEntityTableContract,
@@ -123,6 +124,35 @@ describe('variantGroupsTableConfig', () => {
       ['variantNames', 'variantNames'],
       ['featureNames', 'featureNames'],
     ])
+  })
+
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of ['variantCount', 'evidenceItemCount']) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
+  })
+
+  it('discloses the full variant list in a hover tooltip, as legacy did', () => {
+    expect(column('variantNames').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['variantCount', 'civic-variant'],
+      ['evidenceItemCount', 'civic-evidence'],
+    ])
+  })
+
+  it('discloses its clip-prone text columns in hover tooltips', () => {
+    expect(column('featureNames').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
   })
 
   it('offers a sorter only where the legacy table did', () => {

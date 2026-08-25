@@ -72,9 +72,12 @@ Almost always height, not data. The chain that must hold:
   viewport are all made flex columns with `min-height: 0` in
   `entity-table.component.less` — every rule in that chain is load-bearing.
 - `nzScroll.y` is **not a measurement API** — ng-zorro writes it verbatim to
-  the viewport's `style.height`, which is why `'100%'` works. Do not
-  reintroduce the browse tables' auto-height directives here; they compute
-  the number in JS on racing schedules.
+  the viewport's `style.height`, which is why `'100%'` works. For a page
+  with no height-bounded ancestor, pass `[height]="'auto'"` — the
+  component's own measured viewport-fit (ViewportRuler + ResizeObserver,
+  bottom reserve from the layout's computed styles). Do not reintroduce the
+  legacy `cvcAutoHeightCard`/`cvcAutoHeightTable` directives; they compute
+  window math on racing schedules and ignore layout padding.
 - A zero-height viewport also _reads as scrolled-to-bottom_, which is why
   the scroll directive guards `getViewportSize() > 0` before bottom
   detection — remove that and a hidden/drawer-mounted table fetches page two

@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { ClinicalTrialSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
   describeEntityTableContract,
@@ -120,6 +121,28 @@ describe('clinicalTrialsTableConfig', () => {
     ).toEqual([
       ['nctId', 'nctId'],
       ['name', 'name'],
+    ])
+  })
+
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of ['sourceCount', 'evidenceCount']) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
+  })
+
+  it('discloses the full trial name in a hover tooltip, as legacy did', () => {
+    expect(column('name').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['sourceCount', 'civic-source'],
+      ['evidenceCount', 'civic-evidence'],
     ])
   })
 

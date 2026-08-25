@@ -61,6 +61,13 @@ export interface CvcColumn<
   hidden?: boolean
   /** tooltip on the column label */
   tooltip?: string
+  /**
+   * nz icon rendered before the label — the entity glyph the legacy count
+   * headers carried (`civic-evidence` + "Count"), which is what tells four
+   * columns all labelled "Count" apart at a glance. Registered app-wide
+   * with the rest of the civic set; `TABLE_ICONS` covers specs.
+   */
+  labelIcon?: string
   /** keep the column out of the visible-columns panel, e.g. the select column */
   omitFromPrefs?: boolean
   /**
@@ -174,6 +181,15 @@ export interface CvcTextCell<TRow> {
   text: (row: TRow) => Maybe<string | number | ReadonlyArray<string>>
   /** emphasise the active filter substring within the value */
   highlight?: boolean
+  /**
+   * Disclose the full text in a hover tooltip — for columns whose values
+   * routinely outrun the column width (a comment body, a citation-length
+   * name). The tooltip is suspended while the viewport scrolls, the same
+   * rule every built-in kind's popover/tooltip follows. Off by default:
+   * most text cells fit, and a tooltip that restates a short value is
+   * noise.
+   */
+  tooltip?: boolean
 }
 
 /**
@@ -204,9 +220,17 @@ export interface CvcCellContext<TRow> {
    * cell that renders its own popover/tooltip should suspend it while this
    * is true, the way the built-in `entity-tag`/`enum-tag`/`text-tag` kinds
    * do (docs/03-troubleshooting.md §13) — nothing else exposes that state
-   * to config-authored content.
+   * to config-authored content. A live getter, not a snapshot.
    */
   isScrolling: boolean
+  /**
+   * The column's live text-filter value, for match emphasis — what the
+   * built-in kinds get via `[emphasize]`/highlighting. A function so even a
+   * held context reads the current value (per review direction: the users
+   * table's User tag highlights the active name filter; this supersedes the
+   * earlier "custom cells have no filter hook by design" stance).
+   */
+  filterText: () => Maybe<string>
 }
 
 /**
@@ -248,7 +272,25 @@ export interface CvcColumnSort<TSortColumn extends string> {
   default?: NzTableSortOrder
   /** render the column without a sorter (`nzShowSort` false) */
   disabled?: boolean
+  /**
+   * The order a header click cycles through, as `th[nzSortDirections]`.
+   * Omitted, ng-zorro's ascend-first default applies. Count and score
+   * columns want `SORT_DESCEND_FIRST` — the first question a count column
+   * answers is "which has the most", and every legacy browse table cycled
+   * those columns descend-first.
+   */
+  directions?: NzTableSortOrder[]
 }
+
+/**
+ * Descend-first click cycling for count/score columns — the order every
+ * legacy browse table declared on them via `[nzSortDirections]`.
+ */
+export const SORT_DESCEND_FIRST: NzTableSortOrder[] = [
+  'descend',
+  'ascend',
+  null,
+]
 
 /**
  * A column's filter control, rendered in a second `thead` row (ant's
@@ -314,6 +356,16 @@ export interface CvcEnumFilter<
 > extends CvcFilterBase<TVars> {
   kind: 'enum'
   options: ReadonlyArray<CvcEnumOption<TValue>>
+  /**
+   * How the filter renders in the filter row. `'funnel'` (default):
+   * ng-zorro's `nz-filter-trigger` icon with a dropdown menu — for narrow
+   * icon columns (the evidence attribute columns). `'select'`: a full
+   * `nz-select` in the filter row, the way the legacy tables rendered their
+   * enum filters — for columns wide enough to show one (users' Role et al.).
+   */
+  control?: 'funnel' | 'select'
+  /** the select control's placeholder; unused by the funnel */
+  placeholder?: string
   /**
    * Render the menu's attribute tags without icons. Set `false` for enums
    * with no `civic-*` icon set (e.g. `VariantCategories`) — the tag's

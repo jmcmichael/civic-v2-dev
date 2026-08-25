@@ -16,6 +16,21 @@ import { BrowseMolecularProfilesFieldsFragment } from './molecular-profile-table
   selector: 'cvc-molecular-profile-name-cell',
   imports: [CvcMolecularProfileTagModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // subject-column tag: block display at full cell width, the same
+  // treatment the entity-tag kind's `fullWidth` gives generic subject
+  // columns (the bespoke tag this cell wraps has no such input)
+  styles: `
+    /* the wrapped tag's host is inline-block (shrink-to-fit), so a bare
+       width: 100% on the inner nz-tag would resolve against it circularly;
+       blocking host + tag makes the cell the containing block */
+    :host,
+    :host > * {
+      display: block;
+    }
+    :host ::ng-deep nz-tag {
+      width: 100%;
+    }
+  `,
   template: `
     <cvc-molecular-profile-tag
       [molecularProfile]="$any(ctx.row)"

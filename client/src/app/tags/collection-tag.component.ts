@@ -34,8 +34,14 @@ import { CvcTagListComponent } from './tag-list.component'
 })
 export class CvcCollectionTagComponent {
   readonly refs = input.required<EntityTagRef[]>()
-  /** above this many entities, show a count and one icon instead of all icons */
-  readonly maxIcons = input<number>(5)
+  /**
+   * Above this many entities, show a count and one icon instead of the
+   * stacked per-entity icons. Defaults to 0 — count mode everywhere — per
+   * review: the stacks drew attention away from the numbered tags. The
+   * stacking (avatar-group pileup, see the .less) stays available for
+   * callers that opt in.
+   */
+  readonly maxIcons = input<number>(0)
   readonly emphasize = input<string | undefined>(undefined)
   readonly popover = input<boolean | undefined>(undefined)
 

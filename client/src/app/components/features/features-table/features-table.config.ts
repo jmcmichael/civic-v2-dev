@@ -4,7 +4,7 @@ import {
   FeaturesSortColumns,
   Maybe,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { BrowseFeaturesGQL } from './features-table.query.gql.generated'
 
 const titlecase = new TitleCasePipe()
@@ -74,6 +74,7 @@ export function featuresTableConfig(
             deprecated: row.deprecated,
             featureType: row.featureInstanceType,
           }),
+          fullWidth: true,
           popoverPlacement: 'right',
         },
         sort: { column: FeaturesSortColumns.FeatureName },
@@ -91,6 +92,7 @@ export function featuresTableConfig(
         cell: {
           kind: 'text',
           text: (row) => titlecase.transform(row.fullName) ?? undefined,
+          tooltip: true,
         },
         sort: { column: FeaturesSortColumns.FeatureFullName },
         filter: {
@@ -102,7 +104,7 @@ export function featuresTableConfig(
       {
         key: 'featureInstanceType',
         label: 'Type',
-        width: '70px',
+        width: '130px',
         cell: {
           kind: 'text',
           text: (row) =>
@@ -110,6 +112,8 @@ export function featuresTableConfig(
         },
         filter: {
           kind: 'enum',
+          control: 'select',
+          placeholder: 'Select Type',
           var: 'featureType',
           options: FEATURE_TYPE_OPTIONS,
           showIcons: false,
@@ -123,6 +127,7 @@ export function featuresTableConfig(
           kind: 'text',
           text: (row) => row.featureAliases ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -162,43 +167,60 @@ export function featuresTableConfig(
       },
       {
         key: 'molecularProfileCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Molecular Profile Count',
-        width: '75px',
+        labelIcon: 'civic-molecularprofile',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.molecularProfileCount },
-        sort: { column: FeaturesSortColumns.MolecularProfileCount },
+        sort: {
+          column: FeaturesSortColumns.MolecularProfileCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'variantCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Variant Count',
-        width: '75px',
+        labelIcon: 'civic-variant',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
-        sort: { column: FeaturesSortColumns.VariantCount, default: 'descend' },
+        sort: {
+          column: FeaturesSortColumns.VariantCount,
+          default: 'descend',
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'evidenceItemCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '75px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
-        sort: { column: FeaturesSortColumns.EvidenceItemCount },
+        sort: {
+          column: FeaturesSortColumns.EvidenceItemCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'assertionCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Assertion Count',
-        width: '75px',
+        labelIcon: 'civic-assertion',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: FeaturesSortColumns.AssertionCount },
+        sort: {
+          column: FeaturesSortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

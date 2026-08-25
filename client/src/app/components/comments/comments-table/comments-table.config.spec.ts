@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { DateSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
   describeEntityTableContract,
@@ -84,6 +85,17 @@ describe('commentsTableConfig', () => {
 
   it('has no filters at all, matching the legacy table', () => {
     expect(spec.columns.some((c) => c.filter)).toBe(false)
+  })
+
+  it('cycles Created descend-first, as the legacy table did', () => {
+    expect(column('createdAt').sort?.directions).toEqual(SORT_DESCEND_FIRST)
+  })
+
+  it('discloses the full comment text in a hover tooltip, as legacy did', () => {
+    expect(column('commentText').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
   })
 
   it('offers a sorter only on Created', () => {

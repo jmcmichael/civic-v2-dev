@@ -1,5 +1,5 @@
 import { DiseasesSortColumns, Maybe } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcDiseaseFeaturesCellComponent } from './diseases-table-features-cell.component'
 import { DiseaseBrowseGQL } from './diseases-table.query.gql.generated'
@@ -49,6 +49,7 @@ export function diseasesTableConfig(
             link: row.link,
             deprecated: row.deprecated,
           }),
+          fullWidth: true,
           popoverPlacement: 'right',
         },
         sort: { column: DiseasesSortColumns.Name },
@@ -61,7 +62,11 @@ export function diseasesTableConfig(
         fixed: 'left',
         cell: {
           kind: 'external-link',
-          href: (row) => row.diseaseUrl,
+          // gated on doid, not just diseaseUrl: the external-link kind
+          // falls back to rendering the href itself when `text` yields
+          // nothing, so a row with a url but no doid would show the raw
+          // url where the legacy table showed its empty state
+          href: (row) => (row.doid ? row.diseaseUrl : undefined),
           text: (row) => (row.doid ? `DOID:${row.doid}` : undefined),
           tooltip: 'View on disease-ontology.org',
         },
@@ -76,6 +81,7 @@ export function diseasesTableConfig(
           kind: 'text',
           text: (row) => row.diseaseAliases ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -99,46 +105,60 @@ export function diseasesTableConfig(
       },
       {
         key: 'featureCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Feature Count',
-        width: '75px',
+        labelIcon: 'civic-feature',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.featureCount },
-        sort: { column: DiseasesSortColumns.FeatureCount },
+        sort: {
+          column: DiseasesSortColumns.FeatureCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'variantCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Variant Count',
-        width: '75px',
+        labelIcon: 'civic-variant',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
-        sort: { column: DiseasesSortColumns.VariantCount },
+        sort: {
+          column: DiseasesSortColumns.VariantCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
       {
         key: 'evidenceItemCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '75px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
         sort: {
           column: DiseasesSortColumns.EvidenceItemCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
         key: 'assertionCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Assertion Count',
-        width: '75px',
+        labelIcon: 'civic-assertion',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.assertionCount },
-        sort: { column: DiseasesSortColumns.AssertionCount },
+        sort: {
+          column: DiseasesSortColumns.AssertionCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

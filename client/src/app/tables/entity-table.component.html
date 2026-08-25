@@ -7,7 +7,7 @@
     data-testid="entity-table"
     class="cvc-entity-table__body"
     [nzData]="rows()"
-    [nzScroll]="{ x: '800px', y: height() ?? '100%' }"
+    [nzScroll]="{ x: '800px', y: bodyHeight() }"
     [nzVirtualItemSize]="28"
     [nzVirtualForTrackBy]="trackById"
     nzSize="small"
@@ -36,11 +36,19 @@
             [nzShowSort]="!!col.sort && !col.sort.disabled"
             [nzSortFn]="!!col.sort && !col.sort.disabled"
             [nzSortOrder]="sortOrderFor(col)"
+            [nzSortDirections]="col.sort?.directions ?? defaultSortDirections"
             (nzSortOrderChange)="onSortChange(col, $event)">
             <span
               class="col-header-label"
               nz-tooltip
               [nzTooltipTitle]="col.tooltip">
+              @if (col.labelIcon; as icon) {
+                <span
+                  nz-icon
+                  [nzType]="icon"
+                  nzTheme="twotone"
+                  [nzTwotoneColor]="labelIconColor(icon)"></span>
+              }
               {{ col.label }}
             </span>
           </th>
@@ -48,52 +56,72 @@
       </tr>
 
       <!-- FILTERS. A second row inside thead, as ant expects. -->
-      <tr class="filter-row">
-        @for (col of visibleColumns(); track col.key) {
-          <th
-            data-testid="column-filter"
-            [attr.data-column]="col.key"
-            [nzColumnKey]="col.key"
-            [nzWidth]="col.width"
-            [nzAlign]="col.align ?? 'left'"
-            [nzLeft]="col.fixed === 'left'"
-            [nzRight]="col.fixed === 'right'"
-            class="attribute-filter">
-            @if (col.filter; as filter) {
-              @switch (filter.kind) {
-                @case ('enum') {
-                  <nz-filter-trigger
-                    [nzActive]="filterValue(col.key) !== null"
-                    [nzDropdownMenu]="enumMenu"
-                    #enumTrigger="nzFilterTrigger">
-                    <span
-                      nz-icon
-                      nzType="filter"
-                      nzTheme="fill"></span>
-                  </nz-filter-trigger>
-                  <nz-dropdown-menu #enumMenu="nzDropdownMenu">
-                    <cvc-enum-filter-menu
-                      [options]="filter.options"
-                      [showIcons]="filter.showIcons ?? true"
-                      [selected]="filterValue(col.key)"
-                      (selectedChange)="
-                        onFilterChange(col, $event);
-                        enumTrigger.nzVisible = false
-                      " />
-                  </nz-dropdown-menu>
-                }
-                @default {
-                  <cvc-table-filter-input
-                    [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
-                    [placeholder]="filter.placeholder"
-                    [value]="filterBoxValue(col.key)"
-                    (valueChange)="onFilterChange(col, $event)" />
+      @if (hasFilterRow()) {
+        <tr class="filter-row">
+          @for (col of visibleColumns(); track col.key) {
+            <th
+              data-testid="column-filter"
+              [attr.data-column]="col.key"
+              [nzColumnKey]="col.key"
+              [nzWidth]="col.width"
+              [nzAlign]="col.align ?? 'left'"
+              [nzLeft]="col.fixed === 'left'"
+              [nzRight]="col.fixed === 'right'"
+              class="attribute-filter">
+              @if (col.filter; as filter) {
+                @switch (filter.kind) {
+                  @case ('enum') {
+                    @if (filter.control === 'select') {
+                      <!-- the legacy tables' idiom, for columns wide enough
+                           to show it; the funnel is for narrow icon columns -->
+                      <nz-select
+                        class="enum-filter-select"
+                        nzSize="small"
+                        nzAllowClear
+                        [nzPlaceHolder]="filter.placeholder ?? ''"
+                        [ngModel]="filterValue(col.key)"
+                        (ngModelChange)="onFilterChange(col, $event)">
+                        @for (option of filter.options; track option.value) {
+                          <nz-option
+                            [nzValue]="option.value"
+                            [nzLabel]="option.label" />
+                        }
+                      </nz-select>
+                    } @else {
+                      <nz-filter-trigger
+                        [nzActive]="filterValue(col.key) !== null"
+                        [nzDropdownMenu]="enumMenu"
+                        #enumTrigger="nzFilterTrigger">
+                        <span
+                          nz-icon
+                          nzType="filter"
+                          nzTheme="fill"></span>
+                      </nz-filter-trigger>
+                      <nz-dropdown-menu #enumMenu="nzDropdownMenu">
+                        <cvc-enum-filter-menu
+                          [options]="filter.options"
+                          [showIcons]="filter.showIcons ?? true"
+                          [selected]="filterValue(col.key)"
+                          (selectedChange)="
+                            onFilterChange(col, $event);
+                            enumTrigger.nzVisible = false
+                          " />
+                      </nz-dropdown-menu>
+                    }
+                  }
+                  @default {
+                    <cvc-table-filter-input
+                      [kind]="filter.kind === 'numeric' ? 'numeric' : 'text'"
+                      [placeholder]="filter.placeholder"
+                      [value]="filterBoxValue(col.key)"
+                      (valueChange)="onFilterChange(col, $event)" />
+                  }
                 }
               }
-            }
-          </th>
-        }
-      </tr>
+            </th>
+          }
+        </tr>
+      }
     </thead>
 
     <!-- Deliberately NOT wrapped in <tbody>, although ng-zorro's own
@@ -218,7 +246,10 @@
                        accessor's own emptiness rules live in textSegments -->
                 @let segments = textSegments(col, row);
                 @if (segments.length) {
-                  <span class="text-cell">
+                  <span
+                    class="text-cell"
+                    nz-tooltip
+                    [nzTooltipTitle]="textTooltip(col, row)">
                     @for (segment of segments; track $index) {
                       <span [class.typeahead-match]="segment.highlight">{{
                         segment.text
@@ -269,6 +300,16 @@
     <ng-container [ngTemplateOutlet]="title" />
   } @else {
     <span>{{ spec().title ?? '' }}</span>
+  }
+  <!-- counts read as part of the title, not as a toolbar control -->
+  @if (displayedTotal(); as total) {
+    <span
+      data-testid="row-count"
+      class="table-counts"
+      nz-typography
+      nzType="secondary">
+      {{ rows().length | number }} of {{ total | number }} displayed
+    </span>
   }
 </ng-template>
 
@@ -321,18 +362,6 @@
             </span>
           </nz-tag>
         }
-      }
-    </nz-col>
-
-    <nz-col nzFlex="auto">
-      @if (displayedTotal(); as total) {
-        <span
-          data-testid="row-count"
-          class="table-counts"
-          nz-typography
-          nzType="secondary">
-          {{ rows().length | number }} of {{ total | number }} displayed
-        </span>
       }
     </nz-col>
 

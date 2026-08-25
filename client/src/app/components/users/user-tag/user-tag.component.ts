@@ -7,7 +7,7 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core'
-import { PopoverPlacement } from '@app/tags'
+import { LabelSegment, PopoverPlacement, labelSegments } from '@app/tags'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { NzPopoverDirective } from 'ng-zorro-antd/popover'
 
@@ -45,6 +45,8 @@ export class CvcUserTagComponent implements AfterViewInit {
   get user(): TagLinkableUser {
     return this._user
   }
+  /** emphasise this substring in the display name (a live filter value) */
+  @Input() matchingText?: Maybe<string>
   @Input() linked?: boolean = true
   @Input() enablePopover?: boolean = true
   @Input() popoverPlacement: PopoverPlacement = 'top'
@@ -53,6 +55,10 @@ export class CvcUserTagComponent implements AfterViewInit {
   popover: NzPopoverDirective | undefined
 
   icon!: string
+
+  segments(): LabelSegment[] {
+    return labelSegments(this.user.displayName, this.matchingText ?? undefined)
+  }
 
   updatePopoverPosition() {
     if (this.popover) {

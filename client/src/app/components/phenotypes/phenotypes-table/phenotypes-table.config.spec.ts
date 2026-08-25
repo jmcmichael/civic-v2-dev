@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 import { PhenotypeSortColumns } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
@@ -124,6 +125,21 @@ describe('phenotypesTableConfig', () => {
     ).toEqual([
       ['name', 'name'],
       ['hpoId', 'hpoId'],
+    ])
+  })
+
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of ['evidenceCount', 'assertionCount']) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['evidenceCount', 'civic-evidence'],
+      ['assertionCount', 'civic-assertion'],
     ])
   })
 

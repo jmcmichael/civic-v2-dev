@@ -2,7 +2,7 @@ import {
   Maybe,
   VariantGroupsSortColumns,
 } from '@app/generated/civic.apollo.types'
-import { entityTableConfig } from '@app/tables'
+import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
 import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
 import { CvcVariantGroupNameCellComponent } from './variant-groups-table-name-cell.component'
 import { BrowseVariantGroupsGQL } from './variant-groups-table.query.gql.generated'
@@ -47,6 +47,7 @@ export function variantGroupsTableConfig(
         cell: {
           kind: 'text',
           text: (row) => row.variantNames ?? undefined,
+          tooltip: true,
           highlight: true,
         },
         filter: {
@@ -63,6 +64,7 @@ export function variantGroupsTableConfig(
           kind: 'text',
           text: (row) => row.featureNames ?? undefined,
           highlight: true,
+          tooltip: true,
         },
         filter: {
           kind: 'text',
@@ -72,26 +74,32 @@ export function variantGroupsTableConfig(
       },
       {
         key: 'variantCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Variant Count',
-        width: '75px',
+        labelIcon: 'civic-variant',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.variantCount },
         sort: {
           column: VariantGroupsSortColumns.VariantCount,
           default: 'descend',
+          directions: SORT_DESCEND_FIRST,
         },
       },
       {
         key: 'evidenceItemCount',
-        label: 'Count',
+        label: '',
         tooltip: 'Evidence Count',
-        width: '75px',
+        labelIcon: 'civic-evidence',
+        width: '55px',
         fixed: 'right',
         align: 'right',
         cell: { kind: 'text', text: (row) => row.evidenceItemCount },
-        sort: { column: VariantGroupsSortColumns.EvidenceItemCount },
+        sort: {
+          column: VariantGroupsSortColumns.EvidenceItemCount,
+          directions: SORT_DESCEND_FIRST,
+        },
       },
     ],
   })

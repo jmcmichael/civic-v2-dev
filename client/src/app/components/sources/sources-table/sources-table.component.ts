@@ -73,7 +73,10 @@ export class CvcSourcesTableComponent {
   /** explicit body height in px, e.g. `cvcHeight="400"`; default matches the legacy table's 800px */
   readonly cvcHeight = input<Maybe<number>>()
 
-  protected readonly heightPx = computed(() => `${this.cvcHeight() ?? 800}px`)
+  protected readonly heightPx = computed(() => {
+    const height = this.cvcHeight()
+    return height ? `${height}px` : 'auto'
+  })
 
   protected readonly spec = computed(() =>
     sourcesTableConfig(this.gql, this.cvcTitle(), {

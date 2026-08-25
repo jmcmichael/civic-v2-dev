@@ -26,6 +26,19 @@ export type TagInfo = {
   matchText?: string
 }
 
+/**
+ * The template-outlet context for one tag. Built once per input change and
+ * held on the component: an inline `{ tagType, tag }` literal in the template
+ * is a NEW object every change-detection pass, and `NgTemplateOutlet`
+ * recreates its embedded view when the context object's identity changes —
+ * destroying every tag component (and killing any popover it was about to
+ * open, or had open) on every CD tick of the host.
+ */
+export type TagOutletContext = {
+  tagType: Maybe<SupportedPileupTags>
+  tag: TagInfo
+}
+
 function populateMatchText(input: Maybe<TagInfo[]>): Maybe<TagInfo[]> {
   return input?.map((t) => {
     if (!t.matchText) {
@@ -56,8 +69,13 @@ export class CvcTagOverflowComponent implements OnChanges {
 
   displayedTags?: TagInfo[]
   hiddenTags?: TagInfo[]
+  /** stable outlet contexts — see `TagOutletContext` for why these exist */
+  displayedContexts?: TagOutletContext[]
+  hiddenContexts?: TagOutletContext[]
   hiddenCount?: number
   matchedHiddenCount: number = 0
+
+  trackByTagId = (_index: number, ctx: TagOutletContext): number => ctx.tag.id
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -74,6 +92,14 @@ export class CvcTagOverflowComponent implements OnChanges {
     this.displayedTags = this.tags?.slice(0, this.maxDisplayCount)
     this.hiddenTags = this.tags?.slice(this.maxDisplayCount)
     this.hiddenCount = this.hiddenTags?.length
+    this.displayedContexts = this.displayedTags?.map((tag) => ({
+      tagType: this.tagType,
+      tag,
+    }))
+    this.hiddenContexts = this.hiddenTags?.map((tag) => ({
+      tagType: this.tagType,
+      tag,
+    }))
 
     if (this.matchingText) {
       this.matchedHiddenCount = 0

@@ -3,6 +3,7 @@ import {
   SourceSource,
   SourcesSortColumns,
 } from '@app/generated/civic.apollo.types'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
 import {
@@ -144,6 +145,35 @@ describe('sourcesTableConfig', () => {
       ['journal', 'journal'],
       ['openAccess', 'openAccess'],
     ])
+  })
+
+  it('cycles its count columns descend-first, as the legacy table did', () => {
+    for (const key of ['evidenceItemCount', 'sourceSuggestionCount']) {
+      expect(column(key).sort?.directions).toEqual(SORT_DESCEND_FIRST)
+    }
+  })
+
+  it('discloses the full source name in a hover tooltip, as legacy did', () => {
+    expect(column('name').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
+  })
+
+  it('prefixes its count headers with entity icons, as the legacy table did', () => {
+    expect(
+      spec.columns.filter((c) => c.labelIcon).map((c) => [c.key, c.labelIcon])
+    ).toEqual([
+      ['evidenceItemCount', 'civic-evidence'],
+      ['sourceSuggestionCount', 'civic-queue'],
+    ])
+  })
+
+  it('discloses its clip-prone text columns in hover tooltips', () => {
+    expect(column('journal').cell).toMatchObject({
+      kind: 'text',
+      tooltip: true,
+    })
   })
 
   it('offers a sorter only where the legacy table did', () => {

@@ -36,6 +36,11 @@ fields — edit them in the manager's `*.config.ts`. Two constraints:
 
 ### Change a filter
 
+Enum filters render as the funnel-icon dropdown by default; set
+`control: 'select'` (with a `placeholder`) on columns wide enough to show
+the full inline `nz-select` — the legacy tables' idiom (users' Role,
+features'/sources'/variants' Type).
+
 The filter's `var` must be a variable **of that table's query** — it is typed
 `keyof TVars`, so a wrong name will not compile. If the variable genuinely
 does not exist yet, the fix starts server-side (add the resolver `option`,
@@ -72,6 +77,11 @@ do not declare `sort: {}` hoping for the best; `sortBy: { column: undefined }`
 fails the whole query (the `aliases` column in the variant manager documents
 this). Adding a sort column is a server change: see `2f035db5f` for the
 pattern, including the correlated-subquery approach for has-many sorts.
+
+A count or score column should also declare
+`directions: SORT_DESCEND_FIRST` — the first question such a column
+answers is "which has the most", and every legacy browse table cycled
+them descend-first. Omitted, ng-zorro's ascend-first click cycle applies.
 
 ### Edit the query itself
 
@@ -121,6 +131,10 @@ Checklist:
 - **The field must be in the query.** Add it to `*.query.gql` +
   `yarn generate-apollo` or the accessor will not compile.
 - `key` must be unique — `entityTableConfig` throws in dev mode otherwise.
+- A count column labelled just "Count" should set `labelIcon` to its
+  entity's civic glyph (`'civic-evidence'` etc., rendered twotone) — the
+  icon is what tells four "Count" headers apart, as every legacy browse
+  table did.
 - If the rows are denormalised (`Browse*`) and the new column is an
   `entity-tag`, it needs a `seed` (see §3 below).
 - New enum-tag values may resolve **civic icons** the test harness must know:
@@ -198,7 +212,10 @@ cell: {
   `PolymorpheusComponent`, or a `TemplateRef` (grab one with `viewChild` in
   the facade). Prefer handler/component: the outlet types template contexts
   weakly.
-- The context is `{ $implicit: row, row, column, isScrolling }` — suspend any
+- The context is `{ $implicit: row, row, column, isScrolling, filterText }`
+  — `filterText()` is the column's live text-filter value, for match
+  emphasis the way built-in kinds highlight (the users table's User tag is
+  the worked example) — and suspend any
   popover/tooltip the cell renders while `isScrolling` is true, the way the
   built-in tag kinds do (§ Scroll etiquette below).
 - A custom cell owns its whole rendering, including its empty state — it
@@ -314,10 +331,15 @@ Using the variant manager as the template (it is the smaller of the two):
    than `[(selectedIds)]="cvcSelectedIds"`; the banana box compiles but IDE
    analysis flags writing to a readonly signal property.
 
-4. **Height context.** The table fills its container via a flex chain — the
-   host must give it a definite height (the managers' drawer does; see the
-   facade `.less` files for the `flex` + `min-height: 0` + `min-width: 0`
-   passthrough). Alternatively pass a fixed `[height]="'400px'"`.
+4. **Height context.** Three modes on `[height]`: a fixed CSS length
+   (`'400px'` — detail-page embeds); `'auto'` — fit the visible viewport,
+   stopping at the page layout's measured bottom padding rather than the
+   window edge (what browse-table home pages want; the facades default to
+   it when the host passes no `cvcHeight`); or omitted — fill a
+   height-bounded ancestor via the flex chain (the managers' drawer does;
+   see the facade `.less` files for the `flex` + `min-height: 0` +
+   `min-width: 0` passthrough). With no bounded ancestor the omitted mode
+   collapses to zero height — use `'auto'`.
 
    **Card chrome.** Two hooks for hosts whose cards carry more than a title
    string (the browse tables' downloaders and scope menus):

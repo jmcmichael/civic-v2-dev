@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing'
+import { SORT_DESCEND_FIRST } from '@app/tables'
 import {
   EvidenceDirection,
   EvidenceLevel,
@@ -167,6 +168,12 @@ describe('evidenceTableConfig', () => {
       // the browse query's own name for the manager's `rating`
       ['evidenceRating', 'evidenceRating'],
     ])
+  })
+
+  it('cycles the rating column descend-first, as the legacy table did', () => {
+    expect(column('evidenceRating').sort?.directions).toEqual(
+      SORT_DESCEND_FIRST
+    )
   })
 
   it('offers a sorter on every sortable column', () => {
