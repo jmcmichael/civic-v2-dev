@@ -23,3 +23,13 @@
     transition: transform 0.2s linear;
   }
 }
+
+// The drawer is the definite height the table resolves `nzScroll.y: 100%`
+// against. The manager used to hardcode `y: '200px'` — about seven rows — with
+// nothing above it stating a height at all, so a percentage had nothing to
+// resolve to. Stating it once here sizes the card, the table and the virtual
+// scroll viewport together.
+.manager-drawer {
+  display: flex;
+  height: 420px;
+}

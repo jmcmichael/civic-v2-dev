@@ -47,7 +47,7 @@ import {
   CvcRegionVariantSelectForm,
   RegionVariantSelectModalData,
 } from './region-variant-select/region-variant-select.form'
-import { CvcVariantManagerModule } from './variant-manager/variant-manager.module'
+import { CvcVariantManagerComponent } from './variant-manager/variant-manager.component'
 import { CvcVariantQuickAddForm } from './variant-quick-add/variant-quick-add.form'
 import {
   VariantSelectTagGQL,
@@ -138,7 +138,7 @@ interface VariantBuilderResult {
     CvcSelectAddFormComponent,
     CvcSelectMessagesComponent,
     CvcVariantQuickAddForm,
-    CvcVariantManagerModule,
+    CvcVariantManagerComponent,
   ],
   templateUrl: './variant-select.type.html',
   styleUrl: './variant-select.type.less',

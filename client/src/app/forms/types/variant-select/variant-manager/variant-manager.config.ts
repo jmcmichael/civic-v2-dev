@@ -1,226 +1,192 @@
-import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
-import { CvcInputEnum } from '@app/forms/forms.types'
 import { VariantsSortColumns } from '@app/generated/civic.apollo.types'
-import { NzTableFilterList } from 'ng-zorro-antd/table'
-import { BehaviorSubject, Observable } from 'rxjs'
-import { EnumWrapper } from 'ts-enum-util'
+import { entityTableConfig } from '@app/tables'
+import { writeCachedEntity } from '@app/tags'
+import { Apollo } from 'apollo-angular'
 import {
-  CvcFilterChange,
-  CvcSortChange,
-  hasFilterOptions,
-  hasSortOptions,
-  VariantManagerColKey,
-  VariantManagerColQueryMap,
-  VariantManagerColSortMap,
-  VariantManagerTableConfig,
-} from './variant-manager.types'
+  VariantManagerFieldsFragment,
+  VariantManagerGQL,
+} from './variant-manager.query.gql.generated'
 
-// export enum VariantsSortColumns {
-//   DiseaseName = 'diseaseName',
-//   EntrezSymbol = 'entrezSymbol',
-//   TherapyName = 'therapyName',
-//   VariantName = 'variantName'
-// }
-
-export const columnKeyToSortColumnMap: VariantManagerColSortMap = {
-  diseases: VariantsSortColumns.DiseaseName,
-  feature: VariantsSortColumns.FeatureName,
-  therapies: VariantsSortColumns.TherapyName,
-  variant: VariantsSortColumns.VariantName,
-}
-
-// entity browse query vars include filter vars for values
-// not part of the evidence row model, this maps between
-// the columnKey and entity browse query variable
-export const columnKeyToQueryVariableMap: VariantManagerColQueryMap = {
-  diseases: 'diseaseName',
-  therapies: 'therapyName',
-  variant: 'variantName',
-  feature: 'featureName',
-  aliases: 'variantAlias',
-}
-
-// column keys included here will be hidden in preference panel, preventing
-// defaults from being changed by the user
-export const omittedFromPrefs: VariantManagerColKey[] = ['selected', 'id']
-
-// NOTE: implementing this separate config file as a class b/c it would be good
-// to move the additional onSortChanges, onFilterChange array config into
-// the class in a future refactor
-export class VariantManagerConfig {
-  config: VariantManagerTableConfig
-  sortStreams: Observable<CvcSortChange>[]
-  filterStreams: Observable<CvcFilterChange>[]
-
-  constructor() {
-    this.sortStreams = []
-    this.filterStreams = []
-
-    this.config = this.configureColumnStreams([
+/**
+ * The variant manager's table, as configuration.
+ *
+ * Replaces `VariantManagerConfig` — a class that built a column array, then
+ * walked it attaching a `BehaviorSubject` to every sort and filter, and
+ * published two arrays of streams for the component to `combineLatest`. The
+ * column array is all that is left; the streams were the mechanism by which a
+ * filter's value lived in a mutated config object, which is why resetting the
+ * table never cleared its own inputs.
+ *
+ * Three lookup tables also go, replaced by fields the compiler checks:
+ *
+ * - `columnKeyToSortColumnMap` -> `sort.column`, typed `VariantsSortColumns`
+ * - `columnKeyToQueryVariableMap` -> `filter.var`, typed `keyof` this query's
+ *   variables
+ * - `omittedFromPrefs` -> the per-column `omitFromPrefs` flag
+ *
+ * That retypes one live bug out of existence: `aliases` declared `sort: {}`
+ * with no entry in the sort map, so clicking its sorter sent
+ * `sortBy: { column: undefined }` against a non-null `VariantsSort.column` and
+ * failed the whole query. There is no alias member in `VariantsSortColumns` —
+ * the column is not sortable, and now cannot claim to be.
+ */
+export function variantManagerConfig(query: VariantManagerGQL, apollo: Apollo) {
+  return entityTableConfig({
+    title: 'Use checkboxes to select or deselect Variants',
+    query,
+    // the managers sent no `first` at all, so the first page silently took the
+    // server's default of 100 while every page after it was 50
+    pageSize: 50,
+    connection: (data) => data?.browseVariants,
+    seedCache: (rows) => rows.forEach((row) => seedRowEntities(apollo, row)),
+    columns: [
       {
+        // no label: the header is 25px wide, so any text is clipped to a
+        // fragment. The old config said 'Select' and never rendered it — the
+        // select column had its own <th> branch with no label at all.
         key: 'selected',
-        label: 'Select',
-        type: 'select',
+        label: '',
         width: '25px',
         align: 'center',
-        fixedLeft: true,
-        checkbox: {
-          th: {
-            showCheckbox: false,
-          },
-          td: {
-            showCheckbox: true,
-          },
-        },
-      },
-      {
-        key: 'id',
-        label: 'ID',
-        hidden: true,
-        type: 'hidden',
-        width: '0px',
+        fixed: 'left',
+        omitFromPrefs: true,
+        cell: { kind: 'select' },
       },
       {
         key: 'variant',
         label: 'Variant',
-        type: 'entity-tag',
         width: '215px',
-        context: 'variant',
-        fixedLeft: true,
-        showStatus: true,
-        tag: {
+        fixed: 'left',
+        emptyValue: 'unspecified',
+        // identity only: cvc-tag renders from the Apollo cache, so the name and
+        // link the old row projection carried here were never read. The manager
+        // seeds Variant:<id> from the row instead.
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => ({ __typename: 'Variant' as const, id: row.id }),
           fullWidth: true,
           truncateLabel: '200px',
         },
-        sort: {
-          default: 'ascend',
-        },
+        sort: { column: VariantsSortColumns.VariantName, default: 'ascend' },
         filter: {
-          inputType: 'default',
-          options: [{ key: 'Filter Variant Name', value: null }],
+          kind: 'text',
+          var: 'variantName',
+          placeholder: 'Filter Variant Name',
         },
       },
       {
         key: 'aliases',
         label: 'Aliases',
-        type: 'default',
         width: '150px',
-        objectKey: 'name',
-        sort: {},
+        emptyValue: 'unspecified',
+        cell: {
+          kind: 'text',
+          text: (row) => row.aliases.map((alias) => alias.name),
+          highlight: true,
+        },
+        // no VariantsSortColumns member exists for aliases; see the class note
         filter: {
-          inputType: 'default',
-          options: [{ key: 'Filter Aliases', value: null }],
+          kind: 'text',
+          var: 'variantAlias',
+          placeholder: 'Filter Aliases',
         },
       },
       {
         key: 'feature',
         label: 'Feature',
-        type: 'entity-tag',
         width: '135px',
-        tag: {
+        emptyValue: 'unspecified',
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => ({ __typename: 'Feature' as const, id: row.featureId }),
           truncateLabel: '125px',
         },
-        sort: {},
+        sort: { column: VariantsSortColumns.FeatureName },
         filter: {
-          inputType: 'default',
-          options: [{ key: 'Filter Feature Name', value: null }],
+          kind: 'text',
+          var: 'featureName',
+          placeholder: 'Filter Feature Name',
         },
       },
       {
         key: 'diseases',
         label: 'Diseases',
-        type: 'entity-tag',
         width: '250px',
-        sort: {},
-        tag: {
+        emptyValue: 'unspecified',
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => row.diseases,
           maxTags: 1,
           truncateLabel: '175px',
         },
+        sort: { column: VariantsSortColumns.DiseaseName },
         filter: {
-          inputType: 'default',
-          typename: 'Disease',
-          options: [
-            {
-              key: 'Filter Disease Names',
-              value: null,
-            },
-          ],
+          kind: 'text',
+          var: 'diseaseName',
+          placeholder: 'Filter Disease Names',
+          entityTypename: 'Disease',
         },
       },
       {
         key: 'therapies',
         label: 'Therapies',
-        type: 'entity-tag',
         width: '275px',
-        sort: {},
-        tag: {
+        emptyValue: 'unspecified',
+        cell: {
+          kind: 'entity-tag',
+          ref: (row) => row.therapies,
           maxTags: 2,
           truncateLabel: '150px',
         },
+        sort: { column: VariantsSortColumns.TherapyName },
         filter: {
-          inputType: 'default',
-          typename: 'Therapy',
-          options: [
-            {
-              key: 'Filter Therapy Names',
-              value: null,
-            },
-          ],
+          kind: 'text',
+          var: 'therapyName',
+          placeholder: 'Filter Therapy Names',
+          entityTypename: 'Therapy',
         },
       },
-    ])
-  }
+    ],
+  })
+}
 
-  get() {
-    return this.config
-  }
-
-  getSortStreams() {
-    return this.sortStreams
-  }
-
-  getFilterStreams() {
-    return this.filterStreams
-  }
-
-  private getAttributeFilters(
-    attrEnums: EnumWrapper,
-    byDefault?: CvcInputEnum
-  ): NzTableFilterList {
-    const filters = attrEnums.getValues().map((value) => {
-      return {
-        text: formatEvidenceEnum(value),
-        value: value,
-        byDefault: byDefault === value,
-      }
-    })
-    return filters
-  }
-
-  private configureColumnStreams(
-    config: VariantManagerTableConfig
-  ): VariantManagerTableConfig {
-    config.forEach((colConfig) => {
-      const col = colConfig
-      if (hasSortOptions(col)) {
-        col.sort.changes = new BehaviorSubject<CvcSortChange>({
-          key: col.key,
-          value: col.sort.default ?? null,
-        })
-        this.sortStreams.push(
-          // opt.sort.changes.pipe(tag(`${opt.key} sort changes`))
-          col.sort.changes
-        )
-      }
-      if (hasFilterOptions(col)) {
-        const defaultValue = col.filter.options.find((o) => o.byDefault)?.value
-        col.filter.changes = new BehaviorSubject<CvcFilterChange>({
-          key: col.key,
-          value: defaultValue ?? null,
-        })
-        this.filterStreams.push(col.filter.changes)
-      }
-    })
-    return config
-  }
+/**
+ * Writes a row's variant and feature into the cache under the fragments
+ * `cvc-tag` reads them from.
+ *
+ * Without this the Variant and Feature columns render `#<id>` skeletons:
+ * `browseVariants` normalises to `BrowseVariant:<id>`, so `Variant:<id>` and
+ * `Feature:<id>` are cache misses. Diseases and Therapies come back as real
+ * nested entities and have always rendered — the contrast is the whole
+ * diagnosis.
+ *
+ * Both writes must satisfy their fragment exactly; `watchFragment` treats one
+ * missing field as an incomplete entity and the tag stays a skeleton.
+ * `category` stands in for the feature's `featureType`, since
+ * `VariantCategories` and `FeatureInstanceTypes` have identical members and a
+ * variant's category is its feature's type. That avoids removing an unread
+ * field from the shared `LinkableFeature` fragment — nothing reads
+ * `featureType` off it; it exists only to make `complete` true.
+ */
+function seedRowEntities(
+  apollo: Apollo,
+  row: VariantManagerFieldsFragment
+): void {
+  writeCachedEntity(apollo, 'Variant', {
+    __typename: 'Variant',
+    id: row.id,
+    name: row.name,
+    link: row.link,
+    flagged: row.flagged,
+    deprecated: row.deprecated,
+  })
+  writeCachedEntity(apollo, 'Feature', {
+    __typename: 'Feature',
+    id: row.featureId,
+    name: row.featureName,
+    link: row.featureLink,
+    flagged: row.featureFlagged,
+    deprecated: row.featureDeprecated,
+    featureType: row.category,
+  })
 }

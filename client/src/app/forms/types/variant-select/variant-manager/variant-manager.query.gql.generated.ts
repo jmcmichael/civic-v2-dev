@@ -2,7 +2,7 @@
 import * as Types from '../../../../generated/civic.apollo.types';
 
 import { gql } from 'apollo-angular';
-import { BrowseVariantsFieldsFragmentDoc } from '../../../../components/variants/variants-table/variants-table.query.gql.generated';
+import { LinkableTherapyFragmentDoc, LinkableDiseaseFragmentDoc } from '../../../../tags/linkable.fragments.gql.generated';
 import { Injectable } from '@angular/core';
 import * as Apollo from 'apollo-angular';
 export type VariantManagerQueryVariables = Types.Exact<{
@@ -21,35 +21,35 @@ export type VariantManagerQueryVariables = Types.Exact<{
 }>;
 
 
-export type VariantManagerQuery = { __typename: 'Query', browseVariants: { __typename: 'BrowseVariantConnection', totalCount: number, filteredCount: number, pageCount: number, pageInfo: { __typename: 'PageInfo', endCursor?: string | undefined, hasNextPage: boolean, startCursor?: string | undefined, hasPreviousPage: boolean }, edges: Array<{ __typename: 'BrowseVariantEdge', cursor: string, node?: { __typename: 'BrowseVariant', id: number, name: string, link: string, featureId: number, featureName: string, featureLink: string, category: Types.VariantCategories, evidenceItemCount: number, featureDeprecated: boolean, featureFlagged: boolean, deprecated: boolean, flagged: boolean, diseases: Array<{ __typename: 'Disease', id: number, name: string, link: string, deprecated: boolean }>, therapies: Array<{ __typename: 'Therapy', id: number, name: string, link: string, deprecated: boolean }>, aliases: Array<{ __typename: 'VariantAlias', name: string }>, variantTypes: Array<{ __typename: 'LinkableVariantType', id: number, name: string, link: string }> } | undefined }> } };
+export type VariantManagerQuery = { __typename: 'Query', browseVariants: { __typename: 'BrowseVariantConnection', totalCount: number, filteredCount: number, pageCount: number, pageInfo: { __typename: 'PageInfo', endCursor?: string | undefined, hasNextPage: boolean, startCursor?: string | undefined, hasPreviousPage: boolean }, edges: Array<{ __typename: 'BrowseVariantEdge', cursor: string, node?: { __typename: 'BrowseVariant', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, category: Types.VariantCategories, featureId: number, featureName: string, featureLink: string, featureDeprecated: boolean, featureFlagged: boolean, diseases: Array<{ __typename: 'Disease', id: number, name: string, link: string, deprecated: boolean }>, therapies: Array<{ __typename: 'Therapy', id: number, name: string, link: string, deprecated: boolean }>, aliases: Array<{ __typename: 'VariantAlias', name: string }> } | undefined }> } };
 
-export type VariantManagerFieldsFragment = { __typename: 'BrowseVariant', id: number, name: string, link: string, featureId: number, featureName: string, featureLink: string, diseases: Array<{ __typename: 'Disease', id: number, name: string, link: string, deprecated: boolean }>, therapies: Array<{ __typename: 'Therapy', id: number, name: string, link: string, deprecated: boolean }>, aliases: Array<{ __typename: 'VariantAlias', name: string }> };
+export type VariantManagerFieldsFragment = { __typename: 'BrowseVariant', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, category: Types.VariantCategories, featureId: number, featureName: string, featureLink: string, featureDeprecated: boolean, featureFlagged: boolean, diseases: Array<{ __typename: 'Disease', id: number, name: string, link: string, deprecated: boolean }>, therapies: Array<{ __typename: 'Therapy', id: number, name: string, link: string, deprecated: boolean }>, aliases: Array<{ __typename: 'VariantAlias', name: string }> };
 
 export const VariantManagerFieldsFragmentDoc = gql`
     fragment VariantManagerFields on BrowseVariant {
   id
   name
   link
+  deprecated
+  flagged
+  category
   featureId
   featureName
   featureLink
+  featureDeprecated
+  featureFlagged
   diseases {
-    id
-    name
-    link
-    deprecated
+    ...LinkableDisease
   }
   therapies {
-    id
-    name
-    link
-    deprecated
+    ...LinkableTherapy
   }
   aliases {
     name
   }
 }
-    `;
+    ${LinkableDiseaseFragmentDoc}
+${LinkableTherapyFragmentDoc}`;
 export const VariantManagerDocument = gql`
     query VariantManager($variantName: String, $featureName: String, $diseaseName: String, $therapyName: String, $variantAlias: String, $variantTypeId: Int, $variantGroupId: Int, $sortBy: VariantsSort, $first: Int, $last: Int, $before: String, $after: String) {
   browseVariants(
@@ -75,7 +75,7 @@ export const VariantManagerDocument = gql`
     edges {
       cursor
       node {
-        ...BrowseVariantsFields
+        ...VariantManagerFields
       }
     }
     totalCount
@@ -83,7 +83,7 @@ export const VariantManagerDocument = gql`
     pageCount
   }
 }
-    ${BrowseVariantsFieldsFragmentDoc}`;
+    ${VariantManagerFieldsFragmentDoc}`;
 
   @Injectable({
     providedIn: 'root'

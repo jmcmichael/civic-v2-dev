@@ -16,9 +16,17 @@ import { CvcColumn } from './entity-table.types'
  * uses it. Mirrors `CvcSelectQuery`, but over `watch` rather than `fetch`: the
  * table holds one long-lived QueryRef so `fetchMore` can append pages into the
  * same cache entry.
+ *
+ * `watch` takes an **options object**, not variables. The three sibling APIs
+ * disagree and it is worth stating once: `refetch(vars)` is positional,
+ * `fetchMore({ variables })` and `watch({ variables })` are not. Declaring this
+ * as `watch(variables?: TVars)` — as an earlier draft did — compiles perfectly
+ * and silently sends no variables at all, because every key of a variables
+ * object is simply an unrecognised option. The table then gets the server's
+ * default page size instead of its own.
  */
 export interface CvcTableQuery<TData, TVars extends OperationVariables> {
-  watch(variables?: TVars, options?: unknown): QueryRef<TData, TVars>
+  watch(options?: { variables?: TVars }): QueryRef<TData, TVars>
 }
 
 /**
@@ -35,6 +43,8 @@ export interface EntityTableConfig<
   TNode,
   TSortColumn extends string,
 > {
+  /** shown in the card header; omit for an untitled table */
+  title?: string
   /** the generated *GQL service; TData and TVars are inferred from it */
   query: TQuery
   /** picks the connection out of the query result */
@@ -55,15 +65,47 @@ export interface EntityTableConfig<
    * these, so a column filter cannot silently widen the table's scope.
    */
   scope?: Partial<QueryVars<TQuery>>
+  /**
+   * Called with each page of rows as it arrives, to project entities the query
+   * denormalised back into the cache.
+   *
+   * `cvc-tag` renders from the Apollo cache alone, keyed `__typename:id`. A
+   * `Browse*` row flattens its entities into scalar columns — `BrowseVariant`
+   * carries `featureId`/`featureName`/`featureLink` rather than a `feature`
+   * object — so it normalises to `BrowseVariant:<id>` and no `Variant:<id>` or
+   * `Feature:<id>` entry is ever written. Tags for those columns then render as
+   * `#<id>` skeletons even though the names are in the response.
+   *
+   * Use `writeCachedEntity` here; it satisfies the right fragment and refuses
+   * to overwrite an entity a real query already cached. Nothing else belongs in
+   * this hook — it runs on every page, and it is not a place for state the
+   * table should own.
+   */
+  seedCache?: (rows: ReadonlyArray<TNode>) => void
 }
+
+/**
+ * A column as it appears once `entityTableConfig` has erased the query types.
+ *
+ * `CvcColumn`'s own defaults are not this: `TVars` defaults to `unknown`, which
+ * is what a column looks like before a config binds it to a query. Anything
+ * reading columns *off a spec* wants this shape.
+ */
+export type CvcSpecColumn<TNode> = CvcColumn<
+  TNode,
+  Record<string, unknown>,
+  string
+>
 
 /** An EntityTableConfig with its query type parameters erased. */
 export interface EntityTableSpec<TNode> {
+  title?: string
   query: CvcTableQuery<unknown, Record<string, unknown>>
   connection: (data: unknown) => Maybe<CvcConnection<TNode>>
   columns: CvcColumn<TNode, Record<string, unknown>, string>[]
   pageSize: number
   scope: Record<string, unknown>
+  seedCache?: (rows: ReadonlyArray<TNode>) => void
 }
 
 /** matches the server's own default, so behaviour is unchanged when unset */

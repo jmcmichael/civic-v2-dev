@@ -110,7 +110,9 @@ describe('entityTableConfig', () => {
 })
 
 describe('displayedCount', () => {
-  function connection(over: Partial<CvcConnection<unknown>>): CvcConnection<unknown> {
+  function connection(
+    over: Partial<CvcConnection<unknown>>
+  ): CvcConnection<unknown> {
     return {
       edges: [],
       pageInfo: { hasNextPage: false, hasPreviousPage: false },
@@ -126,9 +128,9 @@ describe('displayedCount', () => {
   it('prefers filteredCount, because Browse* totalCount ignores filters', () => {
     // Browse* connections: totalCount is "regardless of any filtering", so
     // reading it would overstate the result by the size of the whole table
-    expect(displayedCount(connection({ totalCount: 11190, filteredCount: 1488 }))).toBe(
-      1488
-    )
+    expect(
+      displayedCount(connection({ totalCount: 11190, filteredCount: 1488 }))
+    ).toBe(1488)
   })
 
   it('has no count before a connection arrives', () => {
