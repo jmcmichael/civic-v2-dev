@@ -54,6 +54,8 @@
       [nzDisabled]="!selectableItem()"
       [nzChecked]="isSelected()"
       (nzCheckedChange)="setSelected($event)"></label>
+  } @else if (hasSelectRail()) {
+    <span class="select-spacer"></span>
   }
   @if (hasToggleRail()) {
     @if (expandable()) {

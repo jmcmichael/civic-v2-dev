@@ -41,6 +41,7 @@ export function myStreamConfig(options: {
       extra: new PolymorpheusComponent(MyDateComponent),   // optional header-trailing
       footer: …,                                // optional, below detail
       selectable: (item) => item.status === 'NEW',  // omit for no selection UI
+      selectionVisible: (item) => !item.resolved,   // optional: absent vs disabled box
       kinds: {
         SomeKind: {
           expandable: true,

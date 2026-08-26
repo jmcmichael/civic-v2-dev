@@ -114,6 +114,15 @@ export interface CvcStreamItemSpec<TItem> {
    * `selectedIds` model.
    */
   selectable?: (item: TItem) => boolean
+  /**
+   * Which items render a selection checkbox at all — the absent-vs-disabled
+   * distinction `selectable` alone cannot make: a disabled box (with
+   * `selectTooltip` saying why) reads as "not now", an absent one as
+   * "never", e.g. an already-resolved revision. Only consulted when
+   * `selectable` is present; defaults to every item. Hidden boxes keep a
+   * spacer so summaries stay aligned down the list.
+   */
+  selectionVisible?: (item: TItem) => boolean
   /** the tooltip an item's selection checkbox shows, enabled or not */
   selectTooltip?: (item: TItem) => Maybe<string>
   /** content rendered below the summary/detail, e.g. a resolution note */

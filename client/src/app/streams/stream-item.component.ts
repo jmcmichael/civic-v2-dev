@@ -103,8 +103,15 @@ export class CvcStreamItemComponent<TItem> {
     this.state.expandedIds().has(this.id())
   )
 
-  protected readonly showSelectBox = computed(
+  /** whether the stream renders selection UI at all */
+  protected readonly hasSelectRail = computed(
     () => this.itemSpec().selectable !== undefined
+  )
+  /** whether THIS item's checkbox exists; see `selectionVisible` in the spec */
+  protected readonly showSelectBox = computed(
+    () =>
+      this.hasSelectRail() &&
+      (this.itemSpec().selectionVisible?.(this.item()) ?? true)
   )
   protected readonly selectableItem = computed(
     () => this.itemSpec().selectable?.(this.item()) ?? false

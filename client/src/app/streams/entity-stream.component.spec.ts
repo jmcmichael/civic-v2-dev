@@ -259,6 +259,38 @@ describe('CvcEntityStreamComponent (button mode)', () => {
     await vi.waitFor(() => expect(host.selected).toEqual([1]))
   })
 
+  it('removes the checkbox where selectionVisible refuses, keeping a spacer', async () => {
+    await mount(
+      makeSpec({
+        item: {
+          id: (item: TestItem) => item.id,
+          kind: () => 'row',
+          summary: (ctx: CvcStreamItemContext<TestItem>) => ctx.item.name,
+          selectable: () => true,
+          selectionVisible: (item: TestItem) => item.id !== 2,
+        },
+      })
+    )
+    ref.emit(
+      connection([
+        { id: 1, name: 'first' },
+        { id: 2, name: 'second' },
+      ])
+    )
+
+    await vi.waitFor(() =>
+      expect(
+        (fixture.nativeElement as HTMLElement).querySelectorAll(
+          'label.select input'
+        )
+      ).toHaveLength(1)
+    )
+    // item 2 keeps the rail's width without offering selection
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.select-spacer')
+    ).toHaveLength(1)
+  })
+
   it('lazily loads and renders an expandable kind detail component', async () => {
     @Component({ template: `<span class="dummy-detail">detail body</span>` })
     class DummyDetail {}
