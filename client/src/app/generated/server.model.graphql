@@ -1744,7 +1744,7 @@ type BrowseUser {
   orcid: String
   organizations: [Organization!]!
   organizationsWithApprovalPrivileges: [Organization!]!
-  profileImagePath(size: Int = 64): String
+  profileImagePath(size: Int = 56): String
   ranks: Ranks!
   revisionCount: Int!
   role: UserRole!
@@ -6979,7 +6979,7 @@ type LeaderboardOrganization {
   name: String!
   orgAndSuborgsStatsHash: Stats!
   orgStatsHash: Stats!
-  profileImagePath(size: Int = 64): String
+  profileImagePath(size: Int = 56): String
   rank: Int!
   ranks: Ranks!
   subGroups: [Organization!]!
@@ -7122,7 +7122,7 @@ type LeaderboardUser {
   orcid: String
   organizations: [Organization!]!
   organizationsWithApprovalPrivileges: [Organization!]!
-  profileImagePath(size: Int = 64): String
+  profileImagePath(size: Int = 56): String
   rank: Int!
   ranks: Ranks!
   role: UserRole!
@@ -8312,7 +8312,9 @@ type Mutation {
   ): UpdateCoiPayload
 
   """
-  Mark one or more notifications as read/unread. The notification IDs provided must belong to the requesting user.
+  Mark notifications as read/unread — either an explicit list of IDs, or every
+  notification matching a filter set (the notification stream's
+  select-all-matching). The notifications must belong to the requesting user.
   """
   updateNotificationStatus(
     """
@@ -8586,6 +8588,47 @@ type NotificationEdge {
   node: Notification
 }
 
+"""
+The notification stream's filter vocabulary, for mutations that apply to every
+matching notification. Mirrors Resolvers::Notifications' options — keep the two in sync.
+"""
+input NotificationFilter {
+  """
+  Limit to notifications whose event performed this action.
+  """
+  eventType: EventAction
+
+  """
+  Include already-read notifications; defaults to unread only, matching the stream's default view.
+  """
+  includeRead: Boolean = false
+
+  """
+  Limit to notifications with this reason.
+  """
+  notificationReason: NotificationReason
+
+  """
+  Limit to notifications whose event belongs to this organization.
+  """
+  organizationId: Int
+
+  """
+  Limit to notifications whose event originated from, or is about, this entity.
+  """
+  originatingObject: SubscribableInput
+
+  """
+  Limit to notifications originated by this user.
+  """
+  originatingUserId: Int
+
+  """
+  Limit to notifications from this subscription.
+  """
+  subscriptionId: Int
+}
+
 enum NotificationReason {
   MENTION
   SUBSCRIPTION
@@ -8828,7 +8871,7 @@ type Organization {
   name: String!
   orgAndSuborgsStatsHash: Stats!
   orgStatsHash: Stats!
-  profileImagePath(size: Int = 64): String
+  profileImagePath(size: Int = 56): String
   ranks: Ranks!
   subGroups: [Organization!]!
   url: String!
@@ -14340,9 +14383,14 @@ input UpdateNotificationStatusInput {
   clientMutationId: String
 
   """
-  A list of one or more Notification IDs.
+  Apply to every notification of the requesting user matching these filters. Provide exactly one of ids or filters.
   """
-  ids: [Int!]!
+  filters: NotificationFilter
+
+  """
+  A list of one or more Notification IDs. Provide exactly one of ids or filters.
+  """
+  ids: [Int!]
 
   """
   The new status of the selected notifications.
@@ -14360,9 +14408,14 @@ type UpdateNotificationStatusPayload {
   clientMutationId: String
 
   """
-  A list of the notifications in their new state.
+  The notifications in their new state. Empty for a filters-mode update — refetch the stream for the new set.
   """
   notifications: [Notification!]!
+
+  """
+  How many notifications changed status.
+  """
+  updatedCount: Int!
 }
 
 type UpdateSourceSuggestionStatusActivity implements ActivityInterface {
@@ -14511,7 +14564,7 @@ type User {
   orcid: String
   organizations: [Organization!]!
   organizationsWithApprovalPrivileges: [Organization!]!
-  profileImagePath(size: Int = 64): String
+  profileImagePath(size: Int = 56): String
   ranks: Ranks!
   role: UserRole!
   statsHash: Stats!
