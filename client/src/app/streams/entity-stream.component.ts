@@ -196,12 +196,23 @@ export class CvcEntityStreamComponent<TItem extends { id: number }> {
     return height
   })
 
-  /** everything the query runs with; scope wins collisions with filters */
-  private readonly queryVars = computed<Record<string, unknown>>(() => ({
-    first: this.spec().pageSize,
-    ...this.filters(),
-    ...this.spec().scope,
-  }))
+  /**
+   * Everything the query runs with; scope wins collisions with filters.
+   * Undefined-valued keys are dropped here rather than trusted away: the
+   * `filters` contract says a cleared filter leaves the request, and a
+   * facade passing `{ status: undefined }` should not put a literal
+   * undefined on the wire.
+   */
+  private readonly queryVars = computed<Record<string, unknown>>(() => {
+    const merged: Record<string, unknown> = {
+      first: this.spec().pageSize,
+      ...this.filters(),
+      ...this.spec().scope,
+    }
+    return Object.fromEntries(
+      Object.entries(merged).filter(([, value]) => value !== undefined)
+    )
+  })
 
   constructor() {
     // One debounced driver for the whole query. The JSON identity matters:

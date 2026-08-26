@@ -40,7 +40,7 @@ interface FakeResult {
 class FakeQueryRef {
   readonly valueChanges = new Subject<FakeResult>()
   readonly refetch = vi.fn(
-    (): Promise<FakeResult> =>
+    (_vars?: Record<string, unknown>): Promise<FakeResult> =>
       Promise.resolve({ data: undefined, loading: false })
   )
   readonly fetchMore = vi.fn(
@@ -221,6 +221,38 @@ describe('CvcEntityStreamComponent (button mode)', () => {
     expect(ref.fetchMore).toHaveBeenCalledWith({
       variables: { first: 3, mode: 'TEST', after: 'c1' },
     })
+  })
+
+  it('drops undefined-valued filter keys instead of sending them', async () => {
+    await mount(makeSpec())
+    host.filters.set({ status: 'NEW', cleared: undefined })
+    await vi.waitFor(() => expect(ref.refetch).toHaveBeenCalled())
+
+    const payload = ref.refetch.mock.calls.at(-1)![0] as Record<
+      string,
+      unknown
+    >
+    expect(payload).toEqual({ first: 3, mode: 'TEST', status: 'NEW' })
+    expect(Object.keys(payload)).not.toContain('cleared')
+  })
+
+  it('explicitly clears a dropped filter so refetch cannot resurrect it', async () => {
+    await mount(makeSpec())
+    host.filters.set({ status: 'NEW' })
+    await vi.waitFor(() => expect(ref.refetch).toHaveBeenCalledTimes(1))
+
+    host.filters.set({})
+    await vi.waitFor(() => expect(ref.refetch).toHaveBeenCalledTimes(2))
+
+    // apollo's refetch merges partial variables, so the cleared key must
+    // ride along as an explicit undefined — an absent key would resurrect
+    // the previous value
+    const payload = ref.refetch.mock.calls.at(-1)![0] as Record<
+      string,
+      unknown
+    >
+    expect('status' in payload).toBe(true)
+    expect(payload['status']).toBeUndefined()
   })
 
   it('two-ways selection between the model and item checkboxes', async () => {

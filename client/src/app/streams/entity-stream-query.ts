@@ -138,6 +138,7 @@ export class CvcEntityStreamQuery {
    * and subscribes, every later one refetches through it.
    */
   run(vars: CvcStreamVars): void {
+    const previous = this.lastVars
     this.lastVars = vars
     this.error.set(undefined)
     this.fetchingMore.set(false)
@@ -171,9 +172,19 @@ export class CvcEntityStreamQuery {
       return
     }
 
+    // Apollo's refetch merges partial variables over the previous set —
+    // "if there are missing variables, the previous values of those
+    // variables will be used" — so a key this run dropped must be cleared
+    // with an explicit undefined or its stale value quietly returns. The
+    // legacy revision list's Show Group asymmetry was exactly this merge.
+    const dropped = Object.fromEntries(
+      Object.keys(previous ?? {})
+        .filter((key) => !(key in vars))
+        .map((key) => [key, undefined])
+    )
     this.refetchingState.set(true)
     this.queryRef
-      .refetch(vars)
+      .refetch({ ...dropped, ...vars })
       .then((value) => {
         if (value.error) this.error.set(splitError(value.error))
         this.options.onRefetch?.()
