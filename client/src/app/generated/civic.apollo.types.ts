@@ -4705,7 +4705,11 @@ export type Mutation = {
   unsubscribe?: Maybe<UnsubscribePayload>;
   /** Update the currently logged in User's Conflict of Interest statement */
   updateCoi?: Maybe<UpdateCoiPayload>;
-  /** Mark one or more notifications as read/unread. The notification IDs provided must belong to the requesting user. */
+  /**
+   * Mark notifications as read/unread — either an explicit list of IDs, or every
+   * notification matching a filter set (the notification stream's
+   * select-all-matching). The notifications must belong to the requesting user.
+   */
   updateNotificationStatus?: Maybe<UpdateNotificationStatusPayload>;
   /** Update the status of a SourceSuggestion by ID. The user updating the SourceSuggestion must be signed in. */
   updateSourceSuggestionStatus?: Maybe<UpdateSourceSuggestionStatusPayload>;
@@ -5147,6 +5151,27 @@ export type NotificationEdge = {
   cursor: Scalars['String']['output'];
   /** The item at the end of the edge. */
   node?: Maybe<Notification>;
+};
+
+/**
+ * The notification stream's filter vocabulary, for mutations that apply to every
+ * matching notification. Mirrors Resolvers::Notifications' options — keep the two in sync.
+ */
+export type NotificationFilter = {
+  /** Limit to notifications whose event performed this action. */
+  eventType?: InputMaybe<EventAction>;
+  /** Include already-read notifications; defaults to unread only, matching the stream's default view. */
+  includeRead?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Limit to notifications with this reason. */
+  notificationReason?: InputMaybe<NotificationReason>;
+  /** Limit to notifications whose event belongs to this organization. */
+  organizationId?: InputMaybe<Scalars['Int']['input']>;
+  /** Limit to notifications whose event originated from, or is about, this entity. */
+  originatingObject?: InputMaybe<SubscribableInput>;
+  /** Limit to notifications originated by this user. */
+  originatingUserId?: InputMaybe<Scalars['Int']['input']>;
+  /** Limit to notifications from this subscription. */
+  subscriptionId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export enum NotificationReason {
@@ -8465,8 +8490,10 @@ export type UpdateCoiPayload = {
 export type UpdateNotificationStatusInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
-  /** A list of one or more Notification IDs. */
-  ids: Array<Scalars['Int']['input']>;
+  /** Apply to every notification of the requesting user matching these filters. Provide exactly one of ids or filters. */
+  filters?: InputMaybe<NotificationFilter>;
+  /** A list of one or more Notification IDs. Provide exactly one of ids or filters. */
+  ids?: InputMaybe<Array<Scalars['Int']['input']>>;
   /** The new status of the selected notifications. */
   newStatus: ReadStatus;
 };
@@ -8476,8 +8503,10 @@ export type UpdateNotificationStatusPayload = {
   __typename: 'UpdateNotificationStatusPayload';
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: Maybe<Scalars['String']['output']>;
-  /** A list of the notifications in their new state. */
+  /** The notifications in their new state. Empty for a filters-mode update — refetch the stream for the new set. */
   notifications: Array<Notification>;
+  /** How many notifications changed status. */
+  updatedCount: Scalars['Int']['output'];
 };
 
 export type UpdateSourceSuggestionStatusActivity = ActivityInterface & {

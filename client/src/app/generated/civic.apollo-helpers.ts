@@ -2772,10 +2772,11 @@ export type UpdateCoiPayloadFieldPolicy = {
 	clientMutationId?: FieldPolicy<any> | FieldReadFunction<any>,
 	coiStatement?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type UpdateNotificationStatusPayloadKeySpecifier = ('clientMutationId' | 'notifications' | UpdateNotificationStatusPayloadKeySpecifier)[];
+export type UpdateNotificationStatusPayloadKeySpecifier = ('clientMutationId' | 'notifications' | 'updatedCount' | UpdateNotificationStatusPayloadKeySpecifier)[];
 export type UpdateNotificationStatusPayloadFieldPolicy = {
 	clientMutationId?: FieldPolicy<any> | FieldReadFunction<any>,
-	notifications?: FieldPolicy<any> | FieldReadFunction<any>
+	notifications?: FieldPolicy<any> | FieldReadFunction<any>,
+	updatedCount?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type UpdateSourceSuggestionStatusActivityKeySpecifier = ('createdAt' | 'events' | 'id' | 'note' | 'organization' | 'parsedNote' | 'sourceSuggestion' | 'subject' | 'user' | 'verbiage' | UpdateSourceSuggestionStatusActivityKeySpecifier)[];
 export type UpdateSourceSuggestionStatusActivityFieldPolicy = {
