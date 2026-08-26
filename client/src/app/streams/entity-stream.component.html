@@ -46,11 +46,13 @@
               } @else {
                 <div
                   class="stream-body stream-list"
+                  [@.disabled]="refetching()"
                   [style.height]="bodyHeight() ?? null"
                   [style.overflow-y]="bodyHeight() ? 'auto' : null">
                   @for (edge of edges(); track edge.cursor) {
                     @if (edge.node; as node) {
                       <cvc-stream-item
+                        @streamLeave
                         [item]="node"
                         [itemSpec]="spec().item" />
                     }

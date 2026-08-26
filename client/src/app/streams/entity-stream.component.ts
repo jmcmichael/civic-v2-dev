@@ -1,3 +1,4 @@
+import { animate, style, transition, trigger } from '@angular/animations'
 import { ViewportRuler } from '@angular/cdk/scrolling'
 import { DecimalPipe } from '@angular/common'
 import {
@@ -80,6 +81,27 @@ const AUTO_HEIGHT_FALLBACK = '400px'
   templateUrl: './entity-stream.component.html',
   styleUrl: './entity-stream.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    // A 'button'-mode item leaving the list slides out and the list
+    // closes the gap — the affordance for facades that remove single
+    // items in place via a cache write (notifications' mark-read).
+    // Whole-set replacements must not mass-animate, so the list binds
+    // [@.disabled] to `refetching()`: only cache-write removals, which
+    // never pass through a refetch, play it.
+    trigger('streamLeave', [
+      transition(':leave', [
+        style({ overflow: 'hidden' }),
+        animate(
+          '200ms ease-in',
+          style({ opacity: 0, transform: 'translateX(-40px)' })
+        ),
+        animate(
+          '180ms ease-out',
+          style({ height: 0, paddingTop: 0, paddingBottom: 0 })
+        ),
+      ]),
+    ]),
+  ],
   providers: [CvcStreamScrollState, CvcStreamState],
   imports: [
     DecimalPipe,
