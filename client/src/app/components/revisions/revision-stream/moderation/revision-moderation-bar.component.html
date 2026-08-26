@@ -1,0 +1,144 @@
+<nz-space nzDirection="horizontal">
+  <span *nzSpaceItem>
+    @if (state.viewer()?.signedIn) {
+      <ng-container *ngTemplateOutlet="submitButton"></ng-container>
+    } @else {
+      <span
+        nz-tooltip
+        nzTooltipTitle="Must be signed in to manage revisions.">
+        <ng-container *ngTemplateOutlet="submitButton"></ng-container>
+      </span>
+    }
+  </span>
+  @if (state.totalErrorCount() > 0) {
+    <span
+      *nzSpaceItem
+      nz-icon
+      nzType="exclamation-circle"
+      nzTheme="twotone"
+      nzTwotoneColor="red"
+      nz-popover
+      nzPopoverTitle="Selected Revisions would result in an invalid entity"
+      [nzPopoverContent]="validationErrorTemplate"></span>
+  }
+</nz-space>
+
+<ng-template #submitButton>
+  <button
+    nz-button
+    nz-popover
+    nzSize="small"
+    data-testid="revision-review-button"
+    [nzPopoverTitle]="popoverTitle"
+    [nzPopoverVisible]="state.popoverVisible()"
+    (nzPopoverVisibleChange)="state.popoverVisible.set($event)"
+    (click)="state.popoverVisible.set(!state.popoverVisible())"
+    [nzPopoverContent]="popoverContent"
+    [nzPopoverTrigger]="undefined"
+    nzPopoverPlacement="bottom"
+    [disabled]="!state.canReview()">
+    Review Selected Revisions
+    <span
+      nz-icon
+      nzType="caret-down"
+      nzTheme="outline"></span>
+  </button>
+</ng-template>
+
+<ng-template #popoverTitle>
+  Review Selected Revisions
+  <span [ngStyle]="{ float: 'right' }">
+    <span
+      nz-icon
+      nzType="close"
+      nzTheme="outline"
+      (click)="state.popoverVisible.set(false)"></span>
+  </span>
+</ng-template>
+
+<ng-template #popoverContent>
+  <nz-space nzDirection="vertical">
+    <cvc-comment-input-form
+      [comment]="state.comment()"
+      (commentChange)="state.comment.set($event)"
+      *nzSpaceItem></cvc-comment-input-form>
+    <span *nzSpaceItem>
+      <nz-space>
+        <span *nzSpaceItem>
+          <button
+            type="submit"
+            nz-button
+            [nzLoading]="state.isSubmitting()"
+            cvcOrgSelectorBtn
+            nzSize="small"
+            nzDanger
+            data-testid="revision-reject-button"
+            [disabled]="!state.canReject()"
+            (click)="state.reject()"
+            nz-tooltip
+            [nzTooltipTrigger]="mostRecentOrg() ? 'hover' : null"
+            [nzTooltipTitle]="'For ' + mostRecentOrg()?.name">
+            Reject Revision
+          </button>
+        </span>
+        <span *nzSpaceItem>
+          <button
+            type="submit"
+            nz-button
+            [nzLoading]="state.isSubmitting()"
+            cvcOrgSelectorBtn
+            nzSize="small"
+            data-testid="revision-accept-button"
+            [disabled]="!state.canAccept()"
+            (click)="state.accept()"
+            nz-tooltip
+            [nzTooltipTrigger]="mostRecentOrg() ? 'hover' : null"
+            [nzTooltipTitle]="'For ' + mostRecentOrg()?.name">
+            Accept Revision
+          </button>
+        </span>
+        <span *nzSpaceItem>
+          @if (state.totalErrorCount() > 0) {
+            <span
+              nz-icon
+              nzTwotoneColor="red"
+              nzType="exclamation-circle"
+              nzTheme="twotone"
+              nz-popover
+              nzPopoverTitle="Selected Revisions would result in an invalid entity"
+              [nzPopoverContent]="validationErrorTemplate"></span>
+          }
+        </span>
+      </nz-space>
+    </span>
+  </nz-space>
+</ng-template>
+
+<ng-template #validationErrorTemplate>
+  <nz-space nzDirection="vertical">
+    <span *nzSpaceItem>
+      @if (state.genericErrors().length > 0) {
+        <nz-card nzTitle="Errors">
+          <nz-list nzSize="small">
+            @for (error of state.genericErrors(); track error) {
+              <nz-list-item>{{ error }}</nz-list-item>
+            }
+          </nz-list>
+        </nz-card>
+      }
+    </span>
+    <span *nzSpaceItem>
+      @if (state.validationErrors().length > 0) {
+        <nz-card nzTitle="Validation Errors">
+          <nz-descriptions nzBordered>
+            @for (error of state.validationErrors(); track error.fieldName) {
+              <nz-descriptions-item [nzTitle]="error.fieldName">{{
+                error.error
+              }}</nz-descriptions-item>
+            }
+          </nz-descriptions>
+        </nz-card>
+      }
+    </span>
+  </nz-space>
+</ng-template>

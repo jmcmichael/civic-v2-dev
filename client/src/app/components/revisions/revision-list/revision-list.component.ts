@@ -20,7 +20,7 @@ import {
   ValidateRevisionsForAcceptanceQuery,
   ValidateRevisionsForAcceptanceQueryVariables,
   ValidationErrorFragment,
-} from './revision-endpoints.gql.generated'
+} from '../revision-stream/revision-moderation.gql.generated'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
   Maybe,
