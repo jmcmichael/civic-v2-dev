@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { MolecularProfilesRevisionsPage } from './molecular-profiles-revisions.page'
-import { CvcRevisionsListAndFilterModule } from '@app/components/revisions/revisions-list-and-filter/revisions-list-and-filter.module'
+import { CvcRevisionStream } from '@app/components/revisions/revision-stream/revision-stream.component'
 
 @NgModule({
   declarations: [MolecularProfilesRevisionsPage],
-  imports: [CommonModule, CvcRevisionsListAndFilterModule],
+  imports: [CommonModule, CvcRevisionStream],
   exports: [MolecularProfilesRevisionsPage],
 })
 export class MolecularProfilesRevisionsModule {}

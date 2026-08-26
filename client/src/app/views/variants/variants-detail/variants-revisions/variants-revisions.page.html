@@ -2,8 +2,9 @@
   @for (tab of tabs(); track tab.name) {
     <nz-tab [nzTitle]="tabTitle">
       <nz-template nz-tab>
-        <cvc-revisions-list-and-filter
-          [moderated]="tab.moderated"></cvc-revisions-list-and-filter>
+        <cvc-revision-stream
+          [cvcModerated]="tab.moderated"
+          [cvcModerationRefetch]="tab.moderationRefetch"></cvc-revision-stream>
       </nz-template>
     </nz-tab>
     <ng-template #tabTitle>

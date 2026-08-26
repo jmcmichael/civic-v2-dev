@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VariantsRevisionsPage } from './variants-revisions.page'
-import { CvcRevisionsListAndFilterModule } from '@app/components/revisions/revisions-list-and-filter/revisions-list-and-filter.module'
+import { CvcRevisionStream } from '@app/components/revisions/revision-stream/revision-stream.component'
 import { NzTabsModule } from 'ng-zorro-antd/tabs'
 import { NzBadgeModule } from 'ng-zorro-antd/badge'
 
@@ -11,7 +11,7 @@ import { NzBadgeModule } from 'ng-zorro-antd/badge'
     CommonModule,
     NzTabsModule,
     NzBadgeModule,
-    CvcRevisionsListAndFilterModule,
+    CvcRevisionStream,
   ],
   exports: [VariantsRevisionsPage],
 })
