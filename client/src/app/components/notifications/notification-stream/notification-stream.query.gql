@@ -1,0 +1,81 @@
+# The notification stream's connection document. One query serves the
+# list, the sidebar facets (notificationSubjects/originatingUsers/
+# organizations/eventTypes are connection extras: computed per viewer,
+# filter-independent) and the counts display.
+
+query NotificationStream(
+  $first: Int
+  $last: Int
+  $before: String
+  $after: String
+  $notificationReason: NotificationReason
+  $subscriptionId: Int
+  $originatingObject: SubscribableInput
+  $eventType: EventAction
+  $originatingUserId: Int
+  $organizationId: Int
+  $includeRead: Boolean
+) {
+  notifications(
+    first: $first
+    last: $last
+    before: $before
+    after: $after
+    notificationReason: $notificationReason
+    subscriptionId: $subscriptionId
+    originatingObject: $originatingObject
+    eventType: $eventType
+    originatingUserId: $originatingUserId
+    organizationId: $organizationId
+    includeRead: $includeRead
+  ) {
+    totalCount
+    unreadCount
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+      hasPreviousPage
+    }
+    notificationSubjects {
+      subject {
+        id
+        __typename
+        name
+      }
+      occuranceCount
+    }
+    originatingUsers {
+      id
+      displayName
+    }
+    organizations {
+      id
+      name
+    }
+    eventTypes
+    edges {
+      cursor
+      node {
+        ...notificationStreamItem
+      }
+    }
+  }
+}
+
+fragment notificationStreamItem on Notification {
+  id
+  type
+  seen
+  event {
+    ...eventTimelineNode
+  }
+  subscription {
+    id
+    subscribable {
+      id
+      name
+      __typename
+    }
+  }
+}
