@@ -83,33 +83,3 @@ fragment notificationNode on Notification {
     }
   }
 }
-
-mutation UpdateNotificationStatus($input: UpdateNotificationStatusInput!) {
-  updateNotificationStatus(input: $input) {
-    notifications {
-      ...notificationNode
-    }
-  }
-}
-
-mutation Unsubscribe($input: UnsubscribeInput!) {
-  unsubscribe(input: $input) {
-    unsubscribedEntities {
-      ...subscribable
-    }
-  }
-}
-
-mutation Subscribe($input: SubscribeInput!) {
-  subscribe(input: $input) {
-    subscriptions {
-      id
-    }
-  }
-}
-
-fragment subscribable on Subscribable {
-  id
-  entityType
-  __typename
-}

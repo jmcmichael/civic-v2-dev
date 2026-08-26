@@ -26,7 +26,7 @@ import {
   UnsubscribeGQL,
   UnsubscribeMutation,
   UnsubscribeMutationVariables,
-} from '@app/views/users/users-notifications/users-notifications.query.gql.generated'
+} from '@app/components/notifications/notifications.mutations.gql.generated'
 import { onlyCompleteData, QueryRef } from 'apollo-angular'
 import { filter, Observable, Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'

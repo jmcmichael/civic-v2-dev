@@ -1,0 +1,47 @@
+# Notification and subscription mutations, shared across features: the
+# notification stream's mark read/unread and unsubscribe actions, and the
+# entity-subscription-button's subscribe/unsubscribe. A neutral home so
+# neither feature imports the other's documents.
+#
+# UpdateNotificationStatus selects only { id seen }: the normalized cache
+# updates every rendered copy of the notification from that pair, and the
+# stream removes read items from the unread view itself (D1 cache edit).
+
+mutation UpdateNotificationStatus($input: UpdateNotificationStatusInput!) {
+  updateNotificationStatus(input: $input) {
+    notifications {
+      id
+      seen
+    }
+  }
+}
+
+mutation Unsubscribe($input: UnsubscribeInput!) {
+  unsubscribe(input: $input) {
+    unsubscribedEntities {
+      ...subscribable
+    }
+  }
+}
+
+mutation Subscribe($input: SubscribeInput!) {
+  subscribe(input: $input) {
+    subscriptions {
+      id
+    }
+  }
+}
+
+fragment subscribable on Subscribable {
+  id
+  entityType
+  __typename
+}
+
+# Filters mode: the stream's select-all-matching sweep (server applies
+# the update to every matching notification; the stream refetches after)
+mutation UpdateAllNotificationStatus($input: UpdateNotificationStatusInput!) {
+  updateNotificationStatus(input: $input) {
+    updatedCount
+  }
+}

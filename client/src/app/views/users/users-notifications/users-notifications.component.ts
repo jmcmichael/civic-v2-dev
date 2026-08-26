@@ -18,16 +18,18 @@ import {
   NotificationNodeFragment,
   NotificationOrganizationFragment,
   NotificationOriginatingUsersFragment,
+  UserNotificationsGQL,
+  UserNotificationsQuery,
+  UserNotificationsQueryVariables,
+} from './users-notifications.query.gql.generated'
+import {
   UnsubscribeGQL,
   UnsubscribeMutation,
   UnsubscribeMutationVariables,
   UpdateNotificationStatusGQL,
   UpdateNotificationStatusMutation,
   UpdateNotificationStatusMutationVariables,
-  UserNotificationsGQL,
-  UserNotificationsQuery,
-  UserNotificationsQueryVariables,
-} from './users-notifications.query.gql.generated'
+} from '@app/components/notifications/notifications.mutations.gql.generated'
 import { onlyCompleteData, QueryRef } from 'apollo-angular'
 import { Observable } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
