@@ -80,8 +80,8 @@ Conventions every table config follows:
 
 ## The entity-stream framework (`src/app/streams/`)
 
-One configurable feed drives the activity stream (and next, the revisions
-list). **Read `src/app/streams/docs/01-architecture.md`,
+One configurable feed drives the activity stream and the revision stream
+(`components/revisions/revision-stream/`). **Read `src/app/streams/docs/01-architecture.md`,
 `02-authoring-guide.md`, `03-troubleshooting.md` before touching it** —
 maintained in lockstep with the code.
 
