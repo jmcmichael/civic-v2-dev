@@ -1,0 +1,134 @@
+@if (diffEntry; as entry) {
+  <cvc-revision-list-diff
+    [diffObject]="$any(revision.linkoutData.diffValue)"
+    [entityType]="entry.label">
+    <ng-template
+      #itemTemplate
+      let-item>
+      @switch (entry.tag) {
+        @case ('feature') {
+          <cvc-feature-tag
+            [feature]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+              deprecated: item.deprecated,
+              flagged: item.flagged,
+            }"></cvc-feature-tag>
+        }
+        @case ('partnerFeature') {
+          <cvc-feature-tag
+            [feature]="{
+              id: item.feature.id,
+              name: item.displayName,
+              link: item.link,
+              deprecated: item.deprecated,
+              flagged: item.flagged,
+            }"></cvc-feature-tag>
+        }
+        @case ('source') {
+          <cvc-source-tag [source]="item"></cvc-source-tag>
+        }
+        @case ('disease') {
+          <cvc-disease-tag
+            [disease]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+              deprecated: item.deprecated,
+            }"></cvc-disease-tag>
+        }
+        @case ('molecularProfile') {
+          <cvc-molecular-profile-tag
+            [molecularProfile]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+              deprecated: item.deprecated,
+              flagged: item.flagged,
+            }"></cvc-molecular-profile-tag>
+        }
+        @case ('therapy') {
+          <cvc-therapy-tag
+            [therapy]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+              deprecated: item.deprecated,
+            }"></cvc-therapy-tag>
+        }
+        @case ('variantType') {
+          <cvc-variant-type-tag
+            [variantType]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+            }"></cvc-variant-type-tag>
+        }
+        @case ('phenotype') {
+          <cvc-phenotype-tag
+            [phenotype]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+            }"></cvc-phenotype-tag>
+        }
+        @case ('featureVariant') {
+          <cvc-feature-variant-tag
+            [variant]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+              feature: item.feature,
+              deprecated: item.deprecated,
+              flagged: item.flagged,
+            }"></cvc-feature-variant-tag>
+        }
+        @case ('evidence') {
+          <cvc-evidence-tag
+            [evidence]="{
+              id: item.id,
+              name: item.displayName,
+              link: item.link,
+              status: item.status,
+              flagged: item.flagged,
+            }"></cvc-evidence-tag>
+        }
+        @default {
+          <nz-tag>
+            {{ item.displayName }}
+          </nz-tag>
+        }
+      }
+    </ng-template>
+  </cvc-revision-list-diff>
+} @else {
+  <cvc-revision-value-diff
+    [currentValue]="revision.currentValue"
+    [suggestedValue]="revision.suggestedValue"
+    [left]="$any(revision.linkoutData.diffValue).left"
+    [right]="$any(revision.linkoutData.diffValue).right"
+    [entityType]="revision.linkoutData.name"></cvc-revision-value-diff>
+}
+
+@if (resolved) {
+  <nz-divider></nz-divider>
+  <nz-row>
+    <nz-col nzSpan="16">
+      @if (revision.resolutionActivity?.parsedNote; as note) {
+        <cvc-comment-body [commentBodySegments]="note"></cvc-comment-body>
+      }
+    </nz-col>
+    <nz-col
+      nzSpan="8"
+      nz-typography
+      nzType="secondary"
+      style="text-align: right">
+      {{ revision.status | enumToTitle }} By
+      @if (revision.resolutionActivity?.user; as user) {
+        <cvc-user-tag [user]="user"></cvc-user-tag>
+      }
+      {{ revision.resolutionActivity?.createdAt | timeAgo }}
+    </nz-col>
+  </nz-row>
+}

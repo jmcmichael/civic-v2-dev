@@ -149,13 +149,11 @@ export const CvcTypePolicies: StrictTypedTypePolicies = {
         'organizationId',
         'includeRead',
       ]),
-      revisions: relayStylePagination([
-        'subject',
-        'status',
-        'originatingUserId',
-        'fieldName',
-        'revisionsetId',
-      ]),
+      // the revision stream's field; see paginatedByAllArgs above (the
+      // previous list misspelled revisionSetId as `revisionsetId`, keying
+      // the group filter on nothing, and omitted resolvingUserId — so the
+      // Resolver facet shared one cache entry with the unfiltered set)
+      revisions: paginatedByAllArgs(),
       // the users browse table's field; see paginatedByAllArgs above (the
       // previous list was also missing ids)
       browseUsers: paginatedByAllArgs(),

@@ -1,0 +1,99 @@
+# The revision stream's connection document. One query serves the list,
+# the sidebar facets (uniqueRevisors/uniqueResolvers/revisedFieldNames are
+# connection extras: server-computed per subject, filter-independent) and
+# the counts display; the D4 empty-state branch reads
+# unfilteredCountForSubject.
+
+query RevisionStream(
+  $subject: ModeratedInput
+  $first: Int
+  $last: Int
+  $before: String
+  $after: String
+  $fieldName: String
+  $originatingUserId: Int
+  $resolvingUserId: Int
+  $revisionSetId: Int
+  $status: RevisionStatus
+) {
+  revisions(
+    first: $first
+    last: $last
+    before: $before
+    after: $after
+    fieldName: $fieldName
+    originatingUserId: $originatingUserId
+    resolvingUserId: $resolvingUserId
+    subject: $subject
+    status: $status
+    revisionSetId: $revisionSetId
+  ) {
+    totalCount
+    unfilteredCountForSubject
+    uniqueRevisors {
+      username
+      id
+      profileImagePath(size: 32)
+    }
+    uniqueResolvers {
+      username
+      id
+      profileImagePath(size: 32)
+    }
+    revisedFieldNames {
+      name
+      displayName
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      endCursor
+      startCursor
+    }
+    edges {
+      cursor
+      node {
+        ...revisionStreamItem
+      }
+    }
+  }
+}
+
+fragment revisionStreamItem on Revision {
+  id
+  revisionSetId
+  createdAt
+  fieldName
+  currentValue
+  suggestedValue
+  linkoutData {
+    ...revisionLinkoutData
+  }
+  creationActivity {
+    createdAt
+    user {
+      id
+      displayName
+      role
+    }
+    parsedNote {
+      ...parsedCommentFragment
+    }
+    organization {
+      id
+      name
+    }
+  }
+  resolutionActivity {
+    createdAt
+    user {
+      id
+      displayName
+      role
+    }
+    parsedNote {
+      ...parsedCommentFragment
+    }
+  }
+  status
+}
