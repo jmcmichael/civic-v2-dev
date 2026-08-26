@@ -1,0 +1,109 @@
+<cvc-entity-stream
+  [spec]="spec()"
+  [filters]="filterVars()"
+  [(selectedIds)]="selectedIds">
+  <div cvcStreamBanner>
+    @if (initialLoading()) {
+      <nz-row nzJustify="center">
+        <span
+          nz-icon
+          nzType="loading"
+          style="font-size: 32px"></span>
+      </nz-row>
+    }
+    @for (error of state.errors(); track error) {
+      <nz-alert
+        nzBanner
+        [nzMessage]="error"
+        nzType="error"
+        nzCloseable
+        (nzOnClose)="state.dismissError(error)"></nz-alert>
+    }
+    @if (state.success(); as outcome) {
+      <nz-alert
+        nzBanner
+        nzMessage="Revision(s) successfully {{ outcome }}."
+        nzType="success"
+        nzCloseable
+        (nzOnClose)="state.dismissSuccess()"></nz-alert>
+    }
+  </div>
+  @if (chromeVisible()) {
+    <div cvcStreamHeaderExtra>
+      <cvc-revision-moderation-bar />
+    </div>
+  }
+  @if (chromeVisible()) {
+    <div cvcStreamSidebar>
+      @if (filtersState().revisionSetId; as setId) {
+        <nz-row>
+          <nz-tag
+            nzMode="closeable"
+            data-testid="revision-group-tag"
+            (nzOnClose)="clearGroupFilter()"
+            >Group: {{ setId }}</nz-tag
+          >
+        </nz-row>
+      }
+      @for (epoch of [statusEpoch()]; track epoch) {
+        <cvc-participant-list
+          listTitle="Filter by Revision Status"
+          [preselectedOption]="currentStatusOption()"
+          [participantList]="statuses"
+          (participantSelectedEvent)="onStatusSelected($event)">
+          <ng-template
+            #itemTemplate
+            let-status>
+            <span>{{ status.displayName }}</span>
+          </ng-template>
+        </cvc-participant-list>
+      }
+      <cvc-participant-list
+        listTitle="Filter by Revisor"
+        [participantList]="revisors()"
+        (participantSelectedEvent)="onRevisorSelected($event)">
+        <ng-template
+          #itemTemplate
+          let-user>
+          @if (user.profileImagePath) {
+            <nz-avatar
+              [nzSrc]="user.profileImagePath">
+            </nz-avatar>
+          } @else {
+            <nz-avatar
+              [nzText]="user.username.charAt(0) | uppercase"></nz-avatar>
+          }
+          <span>{{ user.username }}</span>
+        </ng-template>
+      </cvc-participant-list>
+      <cvc-participant-list
+        listTitle="Filter by Field"
+        [participantList]="fields()"
+        (participantSelectedEvent)="onFieldSelected($event)">
+        <ng-template
+          #itemTemplate
+          let-field>
+          <span>{{ field.displayName }}</span>
+        </ng-template>
+      </cvc-participant-list>
+      <cvc-participant-list
+        listTitle="Filter by Resolver"
+        [participantList]="resolvers()"
+        (participantSelectedEvent)="onResolverSelected($event)">
+        <ng-template
+          #itemTemplate
+          let-user>
+          @if (user.profileImagePath) {
+            <nz-avatar
+              [nzSrc]="user.profileImagePath">
+            </nz-avatar>
+          } @else {
+            <nz-avatar
+              [nzText]="user.username.charAt(0) | uppercase"></nz-avatar>
+          }
+          <span>{{ user.username }}</span>
+        </ng-template>
+      </cvc-participant-list>
+    </div>
+  }
+</cvc-entity-stream>

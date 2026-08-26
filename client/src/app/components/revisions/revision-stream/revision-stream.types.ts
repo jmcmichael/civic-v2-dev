@@ -39,3 +39,24 @@ export const revisionStreamDefaultFilters: RevisionStreamFilters = {
   resolvingUserId: undefined,
   revisionSetId: undefined,
 }
+
+/** a status facet option */
+export interface SelectableRevisionStatus {
+  id: number
+  displayName: string
+  value: RevisionStatus
+}
+
+/** a revisor/resolver facet option, from the connection's unique lists */
+export interface UniqueUsers {
+  id: number
+  username: string
+  profileImagePath?: Maybe<string>
+}
+
+/** a field facet option, from the connection's revisedFieldNames */
+export interface SelectableFieldName {
+  id: number
+  name: string
+  displayName: string
+}

@@ -21,11 +21,15 @@ import {
 const gql = { watch: () => ({}) } as unknown as RevisionStreamGQL
 const subject = { id: 1, entityType: ModeratedEntities.EvidenceItem }
 
-function makeSpec(viewer: Partial<RevisionStreamViewer> = {}) {
+function makeSpec(
+  viewer: Partial<RevisionStreamViewer> = {},
+  unfilteredCount: () => number | undefined = () => 40
+) {
   return revisionStreamConfig({
     query: gql,
     scope: { subject },
     viewer: { signedIn: true, isCurator: false, id: 99, ...viewer },
+    unfilteredCount,
   })
 }
 
@@ -89,6 +93,19 @@ describe('revisionStreamConfig', () => {
     expect(editor.item.selectTooltip?.(node)).toBe(SELECTION_TOOLTIPS.enabled)
   })
 
+  it('tells no-revisions-at-all apart from nothing-matches-filters', () => {
+    let count: number | undefined = 40
+    const spec = makeSpec({}, () => count)
+    const empty = spec.emptyState as () => string
+
+    expect(empty()).toBe('No Revisions matching filters')
+    count = 0
+    expect(empty()).toBe('Entity has no Revisions')
+    // a count that has not arrived is not zero
+    count = undefined
+    expect(empty()).toBe('No Revisions matching filters')
+  })
+
   it('maps the connection counts, unfiltered included', () => {
     const spec = makeSpec()
     const connection = {
@@ -102,6 +119,20 @@ describe('revisionStreamConfig', () => {
       unfiltered: 40,
       rows: 2,
     })
+  })
+})
+
+describe('facade compilation surface', () => {
+  it('exports the facade, moderation bar and state', async () => {
+    const { CvcRevisionStream } = await import('./revision-stream.component')
+    const { CvcRevisionModerationBar } = await import(
+      './moderation/revision-moderation-bar.component'
+    )
+    const { RevisionStreamState } = await import('./revision-stream-state')
+
+    expect(CvcRevisionStream).toBeDefined()
+    expect(CvcRevisionModerationBar).toBeDefined()
+    expect(RevisionStreamState).toBeDefined()
   })
 })
 

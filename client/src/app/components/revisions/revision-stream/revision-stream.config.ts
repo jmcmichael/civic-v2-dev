@@ -37,6 +37,13 @@ export function revisionStreamConfig(options: {
   title?: string
   scope: RevisionStreamScope
   viewer: RevisionStreamViewer
+  /**
+   * Live read of the subject's unfiltered revision count, so the empty
+   * state can tell "this entity has no revisions" (the facade also hides
+   * the filter/moderation chrome) from "nothing matches the filters" —
+   * the D4 distinction the legacy truthiness gate conflated.
+   */
+  unfilteredCount: () => Maybe<number>
 }): EntityStreamSpec<RevisionStreamNode> {
   const { viewer } = options
   const selection = (revision: RevisionStreamNode) =>
@@ -61,6 +68,10 @@ export function revisionStreamConfig(options: {
         unfiltered: revisions.unfilteredCountForSubject ?? undefined,
       }
     },
+    emptyState: () =>
+      options.unfilteredCount() === 0
+        ? 'Entity has no Revisions'
+        : 'No Revisions matching filters',
     pagination: 'button',
     item: {
       id: (revision) => revision.id,
