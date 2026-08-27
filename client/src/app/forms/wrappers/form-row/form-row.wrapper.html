@@ -6,20 +6,10 @@
 
     <!-- flex, responsive & indexed col layouts -->
     @if (
-      wrapperOptions.flex ||
-      wrapperOptions.flexIndexed ||
       wrapperOptions.spanIndexed ||
       wrapperOptions.responsive ||
       wrapperOptions.responsiveIndexed
     ) {
-      <!-- flex cols, same flex val for every wrapper col -->
-      @if (wrapperOptions.flex) {
-        @for (field of field.fieldGroup; track field) {
-          <nz-col [nzFlex]="wrapperOptions.flex">
-            <formly-field [field]="field"></formly-field>
-          </nz-col>
-        }
-      }
       <!-- responsive cols -->
       @if (wrapperOptions.responsive) {
         @for (field of field.fieldGroup; track field) {
@@ -52,14 +42,6 @@
             [nzLg]="wrapperOptions.responsiveIndexed[i].lg ?? null"
             [nzXl]="wrapperOptions.responsiveIndexed[i].xl ?? null"
             [nzXXl]="wrapperOptions.responsiveIndexed[i].xxl ?? null">
-            <formly-field [field]="field"></formly-field>
-          </nz-col>
-        }
-      }
-      <!-- indexed flex cols -->
-      @if (wrapperOptions.flexIndexed) {
-        @for (field of field.fieldGroup; track field; let i = $index) {
-          <nz-col [nzFlex]="wrapperOptions.flexIndexed[i]">
             <formly-field [field]="field"></formly-field>
           </nz-col>
         }
