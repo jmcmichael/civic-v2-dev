@@ -7,7 +7,6 @@ import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form
 import { CvcMolecularProfileTagNameModule } from '@app/components/molecular-profiles/molecular-profile-tag-name/molecular-profile-tag-name.module'
 import { CvcFormFieldWrapperModule } from '@app/forms/wrappers/form-field/form-field.module'
 import { CvcMpFinderFieldsModule } from './mp-finder-fields.module'
-import { LetDirective, PushPipe } from '@ngrx/component'
 import { FormlyModule } from '@ngx-formly/core'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -56,7 +55,6 @@ import { MpFinderComponent } from './mp-finder/mp-finder.component'
     CvcMpFinderFieldsModule,
     FormlyModule,
     FormsModule,
-    LetDirective,
     NzAlertModule,
     NzButtonModule,
     NzCheckboxModule,
@@ -71,7 +69,6 @@ import { MpFinderComponent } from './mp-finder/mp-finder.component'
     NzSpaceModule,
     NzTooltipModule,
     NzTypographyModule,
-    PushPipe,
     ReactiveFormsModule,
   ],
   exports: [MpExpressionEditorComponent, MpFinderComponent],
