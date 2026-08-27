@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   Component,
   EventEmitter,
   Input,
@@ -6,6 +10,7 @@ import {
   Output,
   ViewEncapsulation,
   ChangeDetectionStrategy,
+  inject,
 } from '@angular/core'
 
 import { Subject } from 'rxjs'
@@ -25,7 +30,6 @@ import {
 } from '@app/generated/civic.apollo.types'
 
 import { ViewerService, Viewer } from '@app/core/services/viewer/viewer.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 
 @Component({
@@ -36,6 +40,7 @@ import { NetworkErrorsService } from '@app/core/services/network-errors.service'
   standalone: false,
 })
 export class CvcUpdateSourceSuggestionForm implements OnDestroy {
+  private formMutation = inject(FormMutationService)
   @Input() sourceSuggestionId!: number
   @Input() currentStatus!: SourceSuggestionStatus
 
@@ -48,15 +53,15 @@ export class CvcUpdateSourceSuggestionForm implements OnDestroy {
   reason?: string
   newStatus?: SourceSuggestionStatus
 
+  private mutationState?: FormMutationState
   success: boolean = false
-  errorMessages: string[] = []
-  loading: boolean = false
 
-  sourceSuggestionStatusMutator: MutatorWithState<
-    UpdateSourceSuggestionGQL,
-    UpdateSourceSuggestionMutation,
-    UpdateSourceSuggestionMutationVariables
-  >
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   commentText?: string
   constructor(
@@ -72,10 +77,6 @@ export class CvcUpdateSourceSuggestionForm implements OnDestroy {
         this.organizations = v.user?.organizations || []
         this.mostRecentOrg = v.mostRecentOrg
       })
-
-    this.sourceSuggestionStatusMutator = new MutatorWithState(
-      networkErrorService
-    )
   }
 
   selectOrg(org: Organization): void {
@@ -84,7 +85,7 @@ export class CvcUpdateSourceSuggestionForm implements OnDestroy {
 
   updateSourceSuggestionStatus(): void {
     if (this.newStatus) {
-      let state = this.sourceSuggestionStatusMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.updateSuggestionStatusGql,
         {
           input: {
@@ -111,25 +112,12 @@ export class CvcUpdateSourceSuggestionForm implements OnDestroy {
               },
             },
           },
+        },
+        () => {
+          this.resetForm()
+          this.success = true
         }
       )
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        this.resetForm()
-        this.success = true
-      })
-
-      state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((errs) => {
-        if (errs) {
-          this.errorMessages = errs
-        }
-      })
-
-      state.isSubmitting$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((loading) => {
-          this.loading = loading
-        })
     }
   }
 

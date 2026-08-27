@@ -1,10 +1,15 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
   OnInit,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -15,10 +20,6 @@ import {
 } from './gene-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { GeneReviseModel } from '@app/forms/models/gene-revise.model'
 import {
@@ -40,13 +41,9 @@ export class CvcGeneReviseForm implements OnInit, AfterViewInit {
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
-  reviseEvidenceMutator: MutatorWithState<
-    SuggestGeneRevisionGQL,
-    SuggestGeneRevisionMutation,
-    SuggestGeneRevisionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   url?: string
 
   constructor(
@@ -56,7 +53,6 @@ export class CvcGeneReviseForm implements OnInit, AfterViewInit {
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = geneReviseFields
-    this.reviseEvidenceMutator = new MutatorWithState(networkErrorService)
   }
 
   ngOnInit() {
@@ -91,10 +87,9 @@ export class CvcGeneReviseForm implements OnInit, AfterViewInit {
     }
     let input = geneFormModelToReviseInput(this.featureId, model)
     if (input) {
-      this.mutationState = this.reviseEvidenceMutator.mutate(
-        this.submitRevisionsGQL,
-        { input: input }
-      )
+      this.mutationState = this.formMutation.mutate(this.submitRevisionsGQL, {
+        input: input,
+      })
     }
   }
 }

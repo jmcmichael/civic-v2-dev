@@ -1,17 +1,18 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   Component,
   Input,
   OnInit,
   ChangeDetectionStrategy,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { AssertionSubmitModel } from '@app/forms/models/assertion-submit.model'
 import { VariantGroupReviseModel } from '@app/forms/models/variant-group-revise.model'
 import {
@@ -44,13 +45,9 @@ export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 
-  reviseAssertionMutator: MutatorWithState<
-    SuggestVariantGroupRevisionGQL,
-    SuggestVariantGroupRevisionMutation,
-    SuggestVariantGroupRevisionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   url?: string
 
   constructor(
@@ -63,7 +60,6 @@ export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
     // no form state: this form's fields are plain inputs with no cross-field
     // gating
     this.options = {}
-    this.reviseAssertionMutator = new MutatorWithState(this.networkErrorService)
   }
 
   onSubmit(model: any) {
@@ -72,10 +68,9 @@ export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
     }
     let input = variantGroupFormModelToReviseInput(this.variantGroupId, model)
     if (input) {
-      this.mutationState = this.reviseAssertionMutator.mutate(
-        this.submitRevisionsGQL,
-        { input: input }
-      )
+      this.mutationState = this.formMutation.mutate(this.submitRevisionsGQL, {
+        input: input,
+      })
     }
   }
 

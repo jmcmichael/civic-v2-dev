@@ -1,9 +1,14 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   Input,
   OnDestroy,
   OnInit,
+  inject,
 } from '@angular/core'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
@@ -20,7 +25,6 @@ import {
 import { MolecularProfileDetailGQL } from '@app/views/molecular-profiles/molecular-profiles-detail/molecular-profiles-detail.query.gql.generated'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { ActivatedRoute } from '@angular/router'
 import { map, takeUntil } from 'rxjs/operators'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
@@ -34,19 +38,20 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
   standalone: false,
 })
 export class ComplexMolecularProfileDeprecateForm implements OnDestroy, OnInit {
+  private formMutation = inject(FormMutationService)
   @Input() molecularProfileId!: number
 
   private destroy$ = new Subject<void>()
 
-  deprecateComplexMolecularProfileMutator: MutatorWithState<
-    DeprecateComplexMolecularProfileGQL,
-    DeprecateComplexMolecularProfileMutation,
-    DeprecateComplexMolecularProfileMutationVariables
-  >
-
+  private mutationState?: FormMutationState
   success: boolean = false
-  errorMessages: string[] = []
-  mutationLoading$ = new BehaviorSubject(false)
+
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get mutationLoading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   viewer$: Observable<Viewer>
 
@@ -65,9 +70,6 @@ export class ComplexMolecularProfileDeprecateForm implements OnDestroy, OnInit {
     private route: ActivatedRoute,
     private viewerService: ViewerService
   ) {
-    this.deprecateComplexMolecularProfileMutator = new MutatorWithState(
-      networkErrorService
-    )
     this.viewer$ = this.viewerService.viewer$
   }
 
@@ -101,8 +103,6 @@ export class ComplexMolecularProfileDeprecateForm implements OnDestroy, OnInit {
   }
 
   deprecateMolecularProfile(): void {
-    this.errorMessages = []
-
     if (this.reason && this.comment && this.molecularProfileId) {
       let input = {
         deprecationReason: this.reason,
@@ -111,9 +111,7 @@ export class ComplexMolecularProfileDeprecateForm implements OnDestroy, OnInit {
         organizationId: this.selectedOrg?.id,
       }
 
-      this.mutationLoading$.next(true)
-
-      let state = this.deprecateComplexMolecularProfileMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.deprecateComplexMolecularProfileGQL,
         input,
         {
@@ -123,23 +121,12 @@ export class ComplexMolecularProfileDeprecateForm implements OnDestroy, OnInit {
               variables: { molecularProfileId: this.molecularProfileId },
             },
           ],
-        }
-      )
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res) {
+        },
+        () => {
           this.success = true
           this.comment = ''
-          this.mutationLoading$.next(false)
         }
-      })
-
-      state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res.length > 0) {
-          this.errorMessages = res
-          this.mutationLoading$.next(false)
-        }
-      })
+      )
     }
   }
 

@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   Input,
@@ -6,7 +10,6 @@ import {
   signal,
 } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
 import { CvcQuickAddFormBase } from '@app/forms/select/quick-add-form.base'
 import { Maybe } from '@app/generated/civic.apollo.types'
@@ -54,12 +57,6 @@ export class CvcVariantQuickAddForm extends CvcQuickAddFormBase<
 
   private readonly query = inject(QuickAddVariantGQL)
 
-  addVariantMutator = new MutatorWithState<
-    QuickAddVariantGQL,
-    QuickAddVariantMutation,
-    QuickAddVariantMutationVariables
-  >(this.errors)
-
   fields: FormlyFieldConfig[] = [
     {
       key: 'featureId',
@@ -100,7 +97,7 @@ export class CvcVariantQuickAddForm extends CvcQuickAddFormBase<
       )
       return
     }
-    this.mutationState = this.addVariantMutator.mutate(
+    this.mutationState = this.formMutation.mutate(
       this.query,
       {
         name: model.name,

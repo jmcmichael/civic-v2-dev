@@ -1,10 +1,10 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
+import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import {
   assertionSubmitFormInitialModel,
   AssertionSubmitModel,
@@ -34,13 +34,9 @@ export class CvcAssertionSubmitForm {
   state: AssertionState
   options: FormlyFormOptions
 
-  submitAssertionMutator: MutatorWithState<
-    SubmitAssertionGQL,
-    SubmitAssertionMutation,
-    SubmitAssertionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   newAssertionId?: number
   newAssertionUrl?: string
 
@@ -53,14 +49,12 @@ export class CvcAssertionSubmitForm {
     this.fields = assertionSubmitFields
     this.state = new AssertionState()
     this.options = { formState: this.state }
-
-    this.submitAssertionMutator = new MutatorWithState(networkErrorService)
   }
 
   onSubmit(model: AssertionSubmitModel) {
     let input = assertionFormModelToInput(model)
     if (input) {
-      this.mutationState = this.submitAssertionMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.submitAssertionGQL,
         { input: input },
         undefined,

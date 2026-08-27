@@ -1,10 +1,15 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
   OnInit,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -15,10 +20,6 @@ import {
 } from './molecular-profile-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { MolecularProfileReviseModel } from '@app/forms/models/molecular-profile-revise.model'
 import {
@@ -41,13 +42,9 @@ export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
 
-  reviseEvidenceMutator: MutatorWithState<
-    SuggestMolecularProfileRevisionGQL,
-    SuggestMolecularProfileRevisionMutation,
-    SuggestMolecularProfileRevisionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   url?: string
 
   constructor(
@@ -59,7 +56,6 @@ export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
     this.options = { formState: { isSimpleMp: undefined } }
 
     this.fields = molecularProfileReviseFields
-    this.reviseEvidenceMutator = new MutatorWithState(networkErrorService)
   }
 
   ngOnInit(): void {
@@ -99,10 +95,9 @@ export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
       model
     )
     if (input) {
-      this.mutationState = this.reviseEvidenceMutator.mutate(
-        this.submitRevisionsGQL,
-        { input: input }
-      )
+      this.mutationState = this.formMutation.mutate(this.submitRevisionsGQL, {
+        input: input,
+      })
     }
   }
 }

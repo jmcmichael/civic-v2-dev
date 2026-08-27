@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   Input,
@@ -6,7 +10,6 @@ import {
   signal,
 } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
 import { CvcQuickAddFormBase } from '@app/forms/select/quick-add-form.base'
 import {
@@ -72,12 +75,6 @@ export class CvcFeatureQuickAddForm extends CvcQuickAddFormBase<
 
   private readonly query = inject(QuickAddFeatureGQL)
 
-  addFeatureMutator = new MutatorWithState<
-    QuickAddFeatureGQL,
-    QuickAddFeatureMutation,
-    QuickAddFeatureMutationVariables
-  >(this.errors)
-
   fields: FormlyFieldConfig[] = [
     {
       key: 'featureType',
@@ -118,7 +115,7 @@ export class CvcFeatureQuickAddForm extends CvcQuickAddFormBase<
       )
       return
     }
-    this.mutationState = this.addFeatureMutator.mutate(
+    this.mutationState = this.formMutation.mutate(
       this.query,
       {
         name: model.name,

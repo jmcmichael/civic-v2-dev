@@ -1,8 +1,8 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from '@angular/core'
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import {
   AbstractControl,
   ReactiveFormsModule,
@@ -30,10 +30,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { RouterModule } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { NZ_MODAL_DATA, NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
 
@@ -75,20 +71,14 @@ export class CvcFusionSelectForm {
 
   options: FormlyFormOptions
 
-  selectOrCreateFusionMutator: MutatorWithState<
-    SelectOrCreateFusionGQL,
-    SelectOrCreateFusionMutation,
-    SelectOrCreateFusionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
 
   constructor(
     private query: SelectOrCreateFusionGQL,
     private errors: NetworkErrorsService
   ) {
-    this.selectOrCreateFusionMutator = new MutatorWithState(errors)
-
     this.form = new UntypedFormGroup({})
 
     this.model = {
@@ -319,7 +309,7 @@ export class CvcFusionSelectForm {
   }
 
   submitFusion(model: FusionSelectModel): void {
-    this.mutationState = this.selectOrCreateFusionMutator.mutate(
+    this.mutationState = this.formMutation.mutate(
       this.query,
       model,
       {},
@@ -327,7 +317,9 @@ export class CvcFusionSelectForm {
         // destroying the modal with the id IS the result channel: this is
         // modal-only content, so an @Output would have nothing bound to it
         if (data.createFusionFeature?.feature.id) {
-          this.#modal.destroy({ featureId: data.createFusionFeature.feature.id })
+          this.#modal.destroy({
+            featureId: data.createFusionFeature.feature.id,
+          })
         }
       }
     )

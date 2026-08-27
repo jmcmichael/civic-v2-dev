@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
@@ -29,10 +33,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { RouterModule } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { NZ_MODAL_DATA, NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
 import { CvcFeatureTagModule } from '@app/components/features/feature-tag/feature-tag.module'
@@ -80,20 +80,14 @@ export class CvcRegionVariantSelectForm {
 
   options: FormlyFormOptions
 
-  selectOrCreateRegionMutator: MutatorWithState<
-    SelectOrCreateRegionVariantGQL,
-    SelectOrCreateRegionVariantMutation,
-    SelectOrCreateRegionVariantMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
 
   constructor(
     private query: SelectOrCreateRegionVariantGQL,
     errors: NetworkErrorsService
   ) {
-    this.selectOrCreateRegionMutator = new MutatorWithState(errors)
-
     this.form = new UntypedFormGroup({})
 
     this.model = {
@@ -162,7 +156,7 @@ export class CvcRegionVariantSelectForm {
     const featureId = this.nzModalData.feature?.id
 
     if (model && featureId) {
-      this.mutationState = this.selectOrCreateRegionMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.query,
         {
           organizationId: model.organizationId,

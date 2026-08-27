@@ -1,17 +1,18 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
   OnInit,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { EvidenceReviseModel } from '@app/forms/models/evidence-revise.model'
 import { EvidenceState } from '@app/forms/states/evidence.state'
 import {
@@ -45,13 +46,9 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
 
   url?: string
 
-  reviseEvidenceMutator: MutatorWithState<
-    SuggestEvidenceItemRevisionGQL,
-    SuggestEvidenceItemRevisionMutation,
-    SuggestEvidenceItemRevisionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
 
   constructor(
     private revisableFieldsGQL: EvidenceItemRevisableFieldsGQL,
@@ -63,7 +60,6 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
     this.state = new EvidenceState()
     this.state.formMode = 'revise'
     this.options = { formState: this.state }
-    this.reviseEvidenceMutator = new MutatorWithState(networkErrorService)
   }
 
   ngOnInit() {
@@ -98,10 +94,9 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
 
     let input = evidenceFormModelToReviseInput(this.evidenceId, model)
     if (input) {
-      this.mutationState = this.reviseEvidenceMutator.mutate(
-        this.submitRevisionsGQL,
-        { input: input }
-      )
+      this.mutationState = this.formMutation.mutate(this.submitRevisionsGQL, {
+        input: input,
+      })
     }
   }
 }

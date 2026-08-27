@@ -2,46 +2,33 @@ import {
   ChangeDetectionStrategy,
   Component,
   Input,
-  OnInit,
   TemplateRef,
+  effect,
+  inject,
+  signal,
 } from '@angular/core'
 import { Router } from '@angular/router'
-import { MutationState } from '@app/core/utilities/mutation-state-wrapper'
+import { FormMutationState } from '@app/forms/utilities/form-mutation'
 import { Maybe } from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 
-@UntilDestroy()
 @Component({
   selector: 'cvc-form-submission-status-display',
   templateUrl: './form-submission-status-display.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class CvcFormSubmissionStatusDisplayComponent implements OnInit {
-  private _mutationState?: MutationState
+export class CvcFormSubmissionStatusDisplayComponent {
+  private router = inject(Router)
+
+  protected readonly state = signal<Maybe<FormMutationState>>(undefined)
   private currentTimer?: ReturnType<typeof setTimeout>
 
-  @Input() set mutationState(value: Maybe<MutationState>) {
-    this._mutationState = value
+  @Input() set mutationState(value: Maybe<FormMutationState>) {
     if (this.currentTimer) {
       clearTimeout(this.currentTimer)
+      this.currentTimer = undefined
     }
-
-    if (value) {
-      value.submitSuccess$.pipe(untilDestroyed(this)).subscribe((success) => {
-        if (success) {
-          this.currentTimer = setTimeout(() => {
-            if (this.redirectUrl) {
-              this.router.navigateByUrl(this.redirectUrl)
-            }
-          }, 2500)
-        }
-      })
-    }
-  }
-
-  get mutationState(): Maybe<MutationState> {
-    return this._mutationState
+    this.state.set(value)
   }
 
   @Input() entityType?:
@@ -62,7 +49,14 @@ export class CvcFormSubmissionStatusDisplayComponent implements OnInit {
   @Input() successMessage?: TemplateRef<void>
   @Input() redirectUrl?: string
 
-  constructor(private router: Router) {}
-
-  ngOnInit(): void {}
+  constructor() {
+    effect(() => {
+      if (this.state()?.success() && this.redirectUrl) {
+        const url = this.redirectUrl
+        this.currentTimer = setTimeout(() => {
+          this.router.navigateByUrl(url)
+        }, 2500)
+      }
+    })
+  }
 }

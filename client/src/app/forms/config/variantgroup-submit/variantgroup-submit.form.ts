@@ -1,10 +1,10 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core'
+import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { VariantGroupSubmitModel } from '@app/forms/models/variant-group-submit.model'
 import { variantGroupFormModelToInput } from '@app/forms/utilities/variant-group-to-model-fields'
 import {
@@ -30,13 +30,9 @@ export class CvcVariantgroupSubmitForm {
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
-  submitVariantGroupMutator: MutatorWithState<
-    SubmitVariantGroupGQL,
-    SubmitVariantGroupMutation,
-    SubmitVariantGroupMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   newVariantGroupId: Maybe<number>
   newVariantGroupUrl: Maybe<string>
 
@@ -47,14 +43,12 @@ export class CvcVariantgroupSubmitForm {
     this.form = new UntypedFormGroup({})
     this.model = { fields: {} }
     this.fields = variantgroupSuggestFields
-
-    this.submitVariantGroupMutator = new MutatorWithState(networkErrorService)
   }
 
   onSubmit(model: VariantGroupSubmitModel) {
     const input = variantGroupFormModelToInput(model)
     if (input) {
-      this.mutationState = this.submitVariantGroupMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.submitVariantGroupGQL,
         { input: input },
         undefined,

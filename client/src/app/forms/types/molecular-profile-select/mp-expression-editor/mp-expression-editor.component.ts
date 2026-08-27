@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
@@ -9,6 +13,7 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  inject,
 } from '@angular/core'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { CombinedGraphQLErrors } from '@apollo/client/errors'
@@ -20,10 +25,6 @@ import {
   MpParseError,
   parseMolecularProfile,
 } from '@app/core/utilities/molecular-profile-parser'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import {
   QuicksearchQuery,
   QuicksearchQueryVariables,
@@ -81,6 +82,7 @@ type ExampleExpression = {
   standalone: false,
 })
 export class MpExpressionEditorComponent implements AfterViewInit, OnChanges {
+  private formMutation = inject(FormMutationService)
   @Input() cvcPrepopulateWithId: Maybe<number>
   @Output() cvcOnSelect = new EventEmitter<MolecularProfile>()
 
@@ -92,12 +94,7 @@ export class MpExpressionEditorComponent implements AfterViewInit, OnChanges {
   >
   typeaheadQueryRef?: QueryRef<QuicksearchQuery, QuicksearchQueryVariables>
 
-  createMolecularProfileMutator: MutatorWithState<
-    CreateMolecularProfile2GQL,
-    CreateMolecularProfile2Mutation,
-    CreateMolecularProfile2MutationVariables
-  >
-  state?: MutationState
+  state?: FormMutationState
   previewMpName$?: Observable<PreviewMpName2Fragment[]>
   previewMpAlreadyExists$?: Observable<Maybe<LinkableMolecularProfile>>
   previewDeprecatedVariants$?: Observable<LinkableVariantType[]>
@@ -166,9 +163,6 @@ export class MpExpressionEditorComponent implements AfterViewInit, OnChanges {
     private networkErrorService: NetworkErrorsService,
     private viewerService: ViewerService
   ) {
-    this.createMolecularProfileMutator = new MutatorWithState(
-      this.networkErrorService
-    )
     this.onInputChange$ = new BehaviorSubject<Maybe<string>>(undefined)
     this.onAppendInput$ = new Subject<AppendableValue>()
     this.onVariantSelect$ = new Subject<AppendVariant>()
@@ -355,7 +349,7 @@ export class MpExpressionEditorComponent implements AfterViewInit, OnChanges {
         if (!input || input.length === 0) return
         let res = parseMolecularProfile(input)
         if ('errorMessage' in res) return
-        this.state = this.createMolecularProfileMutator.mutate(
+        this.state = this.formMutation.mutate(
           this.createMolecularProfileGql,
           { mpStructure: res, organizationId: this.mostRecentOrgId },
           {},

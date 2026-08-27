@@ -1,10 +1,15 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core'
+import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
+  Component,
+  OnInit,
+  ChangeDetectionStrategy,
+  inject,
+} from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import {
   SourceSuggestionChecksGQL,
   SourceSuggestionChecksQuery,
@@ -37,13 +42,9 @@ export class CvcSourceSubmitForm implements OnInit {
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
-  submitSourceMutator: MutatorWithState<
-    SubmitSourceGQL,
-    SubmitSourceMutation,
-    SubmitSourceMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   newSourceId: Maybe<number>
   selectedSourceId: Maybe<number>
   url?: string
@@ -63,8 +64,6 @@ export class CvcSourceSubmitForm implements OnInit {
     this.form = new UntypedFormGroup({})
     this.model = { fields: {} }
     this.fields = sourceSuggestFields
-
-    this.submitSourceMutator = new MutatorWithState(networkErrorService)
   }
 
   ngOnInit(): void {
@@ -108,7 +107,7 @@ export class CvcSourceSubmitForm implements OnInit {
   onSubmit(model: SourceModel) {
     const input = sourceFormModelToInput(model)
     if (input) {
-      this.mutationState = this.submitSourceMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.submitSourceGQL,
         { input: input },
         undefined,

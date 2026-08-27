@@ -1,8 +1,8 @@
 import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-} from '@angular/core'
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import {
   AbstractControl,
   ReactiveFormsModule,
@@ -26,10 +26,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { RouterModule } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { NZ_MODAL_DATA, NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
 import { CvcOrgSubmitButtonTypeModule } from '@app/forms/types/org-submit-button/org-submit-button.type.module'
@@ -73,20 +69,14 @@ export class CvcRegionSelectForm {
 
   options: FormlyFormOptions
 
-  selectOrCreateRegionMutator: MutatorWithState<
-    SelectOrCreateRegionGQL,
-    SelectOrCreateRegionMutation,
-    SelectOrCreateRegionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
 
   constructor(
     private query: SelectOrCreateRegionGQL,
     private errors: NetworkErrorsService
   ) {
-    this.selectOrCreateRegionMutator = new MutatorWithState(errors)
-
     this.form = new UntypedFormGroup({})
 
     this.model = {
@@ -163,7 +153,7 @@ export class CvcRegionSelectForm {
       )
       return
     }
-    this.mutationState = this.selectOrCreateRegionMutator.mutate(
+    this.mutationState = this.formMutation.mutate(
       this.query,
       {
         cytogeneticRegionId: model.cytogeneticRegionId,
@@ -174,7 +164,9 @@ export class CvcRegionSelectForm {
         // destroying the modal with the id IS the result channel: this is
         // modal-only content, so an @Output would have nothing bound to it
         if (data.createRegionFeature?.feature.id) {
-          this.#modal.destroy({ featureId: data.createRegionFeature.feature.id })
+          this.#modal.destroy({
+            featureId: data.createRegionFeature.feature.id,
+          })
         }
       }
     )

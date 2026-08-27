@@ -1,12 +1,16 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   Component,
   Input,
   OnInit,
   ChangeDetectionStrategy,
+  inject,
 } from '@angular/core'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { FlagFragment } from '@app/components/flags/flag-list-and-filter/flag-list-and-filter.gql.generated'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
@@ -26,31 +30,31 @@ import { Observable } from 'rxjs'
   standalone: false,
 })
 export class CvcFlagResolveForm implements OnInit {
+  private formMutation = inject(FormMutationService)
   @Input() flag!: FlagFragment
   @Input() flagResolvedCallback?: () => void
 
   selectedOrg: Maybe<ViewerOrganizationFragment>
   comment?: string
 
-  errorMessages: string[] = []
-  loading: boolean = false
+  private mutationState?: FormMutationState
   success: boolean = false
   flagResolvePopoverVisible: boolean = false
 
-  viewer$: Observable<Viewer>
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
-  resolveFlagMutator: MutatorWithState<
-    ResolveFlagGQL,
-    ResolveFlagMutation,
-    ResolveFlagMutationVariables
-  >
+  viewer$: Observable<Viewer>
 
   constructor(
     private gql: ResolveFlagGQL,
     private viewerService: ViewerService,
     private networkErrorService: NetworkErrorsService
   ) {
-    this.resolveFlagMutator = new MutatorWithState(this.networkErrorService)
     this.viewer$ = this.viewerService.viewer$
   }
 
@@ -72,34 +76,30 @@ export class CvcFlagResolveForm implements OnInit {
 
   resolveFlag() {
     if (this.comment) {
-      this.errorMessages = []
-      let state = this.resolveFlagMutator.mutate(this.gql, {
-        input: {
-          id: this.flag.id,
-          comment: this.comment,
-          organizationId: this.selectedOrg?.id,
+      this.success = false
+      this.mutationState = this.formMutation.mutate(
+        this.gql,
+        {
+          input: {
+            id: this.flag.id,
+            comment: this.comment,
+            organizationId: this.selectedOrg?.id,
+          },
         },
-      })
-      state.submitSuccess$.pipe(untilDestroyed(this)).subscribe((res) => {
-        if (res) {
+        undefined,
+        () => {
           this.flagResolvePopoverVisible = false
           this.success = true
           if (this.flagResolvedCallback) {
             this.flagResolvedCallback()
           }
         }
-      })
-      state.submitError$.pipe(untilDestroyed(this)).subscribe((res) => {
-        if (res.length > 0) {
-          this.success = false
-          this.errorMessages = res
-        }
-      })
-
-      state.isSubmitting$.pipe(untilDestroyed(this)).subscribe((loading) => {
-        this.loading = loading
-      })
+      )
     }
+  }
+
+  dismissErrors() {
+    this.mutationState = undefined
   }
 
   onSuccessBannerClose() {
