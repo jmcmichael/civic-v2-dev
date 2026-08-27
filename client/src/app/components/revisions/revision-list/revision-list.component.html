@@ -531,14 +531,15 @@
               <nz-space nzDirection="horizontal">
                 <span *nzSpaceItem>
                   <ng-container *ngIf="viewer.signedIn; else notSignedIn">
-                    <ng-template *ngTemplateOutlet="submitButton"></ng-template>
+                    <ng-container
+                      *ngTemplateOutlet="submitButton"></ng-container>
                   </ng-container>
                   <ng-template #notSignedIn>
                     <span
                       nz-tooltip
                       nzTooltipTitle="Must be signed in to manage revisions.">
-                      <ng-template
-                        *ngTemplateOutlet="submitButton"></ng-template>
+                      <ng-container
+                        *ngTemplateOutlet="submitButton"></ng-container>
                     </span>
                   </ng-template>
                   <ng-template #submitButton>
@@ -599,7 +600,6 @@
                           type="submit"
                           nz-button
                           [nzLoading]="isLoading"
-                          cvcOrgSelectorBtn
                           nzSize="small"
                           nzDanger
                           [disabled]="
@@ -621,7 +621,6 @@
                           type="submit"
                           nz-button
                           [nzLoading]="isLoading"
-                          cvcOrgSelectorBtn
                           nzSize="small"
                           [disabled]="
                             !(

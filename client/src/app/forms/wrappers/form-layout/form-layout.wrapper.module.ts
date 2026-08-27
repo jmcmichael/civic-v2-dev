@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { CvcAutoHeightDivModule } from '@app/directives/auto-height-div/auto-height-div.module'
 import { CvcFormDebugComponentModule } from '@app/forms/components/form-debug/form-debug.component.module'
-import { CvcOrgSelectorBtnGroupModule } from '@app/forms/components/org-selector-btn-group/org-selector-btn-group.module'
 import { ConfigOption, FormlyModule } from '@ngx-formly/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzCardModule } from 'ng-zorro-antd/card'
@@ -34,7 +33,6 @@ const wrapperConfig: ConfigOption = {
     NzListModule,
     NzGridModule,
     CvcAutoHeightDivModule,
-    CvcOrgSelectorBtnGroupModule,
     CvcFormDebugComponentModule,
 
     NgxJsonViewerModule, // debug

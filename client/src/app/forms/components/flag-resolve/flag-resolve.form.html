@@ -13,19 +13,19 @@
       viewer.isAdmin ||
       flag.openActivity.user.id === viewer.user?.id
     ) {
-      <ng-template *ngTemplateOutlet="submitButton"></ng-template>
+      <ng-container *ngTemplateOutlet="submitButton"></ng-container>
     } @else {
       <span
         nz-tooltip
         nzTooltipTitle="If you are not an editor, you can only resolve flags you opened.">
-        <ng-template *ngTemplateOutlet="submitButton"></ng-template>
+        <ng-container *ngTemplateOutlet="submitButton"></ng-container>
       </span>
     }
   } @else {
     <span
       nz-tooltip
       nzTooltipTitle="Must be signed in to resolve flag.">
-      <ng-template *ngTemplateOutlet="submitButton"></ng-template>
+      <ng-container *ngTemplateOutlet="submitButton"></ng-container>
     </span>
   }
   <ng-template #submitButton>
@@ -98,7 +98,6 @@
               <button
                 type="submit"
                 nz-button
-                cvcOrgSelectorBtn
                 nzType="primary"
                 nzSize="small"
                 [disabled]="!(comment !== undefined && comment.length >= 10)"
