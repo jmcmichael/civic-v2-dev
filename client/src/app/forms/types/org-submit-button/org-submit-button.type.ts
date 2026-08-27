@@ -1,44 +1,26 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
+  Injector,
   OnInit,
+  Signal,
   Type,
-  ViewChild,
+  inject,
 } from '@angular/core'
-import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
-import {
-  UserMostRecentOrgIdFragmentDoc,
-  ViewerOrganizationFragment,
-} from '@app/core/services/viewer/viewer.service.gql.generated'
+import { toSignal } from '@angular/core/rxjs-interop'
+import { ViewerService } from '@app/core/services/viewer/viewer.service'
+import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import { Maybe } from '@app/generated/civic.apollo.types'
-import { UntilDestroy } from '@ngneat/until-destroy'
+import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import {
   FieldType,
   FieldTypeConfig,
   FormlyFieldConfig,
   FormlyFieldProps,
 } from '@ngx-formly/core'
-import { Apollo } from 'apollo-angular'
-import {
-  auditTime,
-  BehaviorSubject,
-  EMPTY,
-  filter,
-  merge,
-  Observable,
-  startWith,
-  Subject,
-  Subscription,
-  withLatestFrom,
-} from 'rxjs'
+import { auditTime, EMPTY, filter, map, merge, Observable } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
-import {
-  ButtonMutation,
-  CvcOrgSubmitButtonDirective,
-} from './org-submit-button.directive'
 
 interface CvcOrgSubmitButtonProps extends FormlyFieldProps {
   submitLabel: string
@@ -49,7 +31,7 @@ export interface CvcOrgSubmitButtonFieldConfig extends FormlyFieldConfig<CvcOrgS
   type: 'org-submit-button' | Type<CvcOrgSubmitButtonComponent>
 }
 
-@UntilDestroy({ arrayName: 'subscriptions' })
+@UntilDestroy()
 @Component({
   selector: 'cvc-org-submit-button',
   templateUrl: './org-submit-button.type.html',
@@ -59,101 +41,50 @@ export interface CvcOrgSubmitButtonFieldConfig extends FormlyFieldConfig<CvcOrgS
 })
 export class CvcOrgSubmitButtonComponent
   extends FieldType<FieldTypeConfig<CvcOrgSubmitButtonProps>>
-  implements OnInit, AfterViewInit
+  implements OnInit
 {
-  // get a reference to submit button
-  @ViewChild(CvcOrgSubmitButtonDirective, { static: false })
-  button?: CvcOrgSubmitButtonDirective
+  private injector = inject(Injector)
 
-  // SOURCE STREAMS
-  viewer$: Observable<Viewer>
-  menuSelection$: Subject<number> = new Subject()
+  readonly mostRecentOrg: Signal<Maybe<ViewerOrganizationFragment>>
+  formValid!: Signal<boolean>
 
-  organizationId$!: BehaviorSubject<Maybe<number>>
-  selectedOrg$!: Observable<Maybe<ViewerOrganizationFragment>>
-
-  // INTERMEDIATE STREAMS
-  organizations$: Observable<ViewerOrganizationFragment[]>
-  mostRecentOrg$: Observable<Maybe<ViewerOrganizationFragment>>
-
-  // these synchronize submit button & org dropdown button states, styles
-  isDisabled$: Subject<boolean>
-  isHidden$: Subject<boolean>
-  buttonClass$!: BehaviorSubject<string>
-  baseButtonClass = 'org-dropdown-btn'
-
-  subscriptions: Subscription[]
   defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
     props: {
       submitLabel: 'Submit',
     },
   }
 
-  constructor(
-    private viewerService: ViewerService,
-    private cdr: ChangeDetectorRef,
-    private apollo: Apollo
-  ) {
+  constructor(private viewerService: ViewerService) {
     super()
-    this.viewer$ = this.viewerService.viewer$
-    this.organizations$ = this.viewer$.pipe(pluck('organizations'))
-    this.mostRecentOrg$ = this.viewer$.pipe(pluck('mostRecentOrg'))
-    this.isDisabled$ = new Subject()
-    this.isHidden$ = new Subject<boolean>()
-    this.buttonClass$ = new BehaviorSubject<string>(this.baseButtonClass)
-    this.subscriptions = []
+    this.mostRecentOrg = toSignal(
+      this.viewerService.viewer$.pipe(pluck('mostRecentOrg')),
+      { initialValue: undefined }
+    )
   }
 
   ngOnInit(): void {
-    // set defaults
-    // this.props.submitLabel = this.props.submitLabel || defaultOptions.props.submitLabel
-    this.menuSelection$
-      .pipe(withLatestFrom(this.viewer$))
-      .subscribe(([mroId, viewer]: [number, Viewer]) => {
-        if (viewer.signedIn) {
-          this.apollo.client.writeFragment({
-            id: `User:${viewer.user?.id}`,
-            fragment: UserMostRecentOrgIdFragmentDoc,
-            data: {
-              mostRecentOrganizationId: mroId,
-            },
-          })
-        }
-      })
-
-    const formUpdateSub = merge(
-      this.form.statusChanges as Observable<unknown>,
-      (this.field.options?.fieldChanges ?? EMPTY) as Observable<unknown>
+    // form & field attach after construction, hence the injector-scoped toSignal
+    this.formValid = toSignal(
+      merge(
+        this.form.statusChanges as Observable<unknown>,
+        (this.field.options?.fieldChanges ?? EMPTY) as Observable<unknown>
+      ).pipe(
+        auditTime(0),
+        map(() => this.form.valid)
+      ),
+      { initialValue: this.form.valid, injector: this.injector }
     )
-      .pipe(startWith(this.form.status), auditTime(0))
-      .subscribe((_) => this.cdr.detectChanges())
 
-    // set field value to emitted orgId$ updates
-    const mroSub = this.mostRecentOrg$
-      .pipe(pluck('id'), filter(isNonNulled))
+    // keep the field's value synced to the viewer's most recent org
+    this.viewerService.viewer$
+      .pipe(
+        pluck('mostRecentOrg'),
+        filter(isNonNulled),
+        pluck('id'),
+        untilDestroyed(this)
+      )
       .subscribe((id) => {
         this.formControl.setValue(id)
       })
-    this.subscriptions = this.subscriptions.concat([formUpdateSub, mroSub])
-  }
-
-  ngAfterViewInit() {
-    // subscribe to org-submit-button.directive's domChange @Output,
-    // emit mutation events from the appropriate Subjects
-    if (this.button) {
-      if (this.button.domChange) {
-        const sub = this.button.domChange.subscribe((m: ButtonMutation) => {
-          if (m.type === 'class' && typeof m.change === 'string') {
-            // preserve base class by preprending it
-            this.buttonClass$.next(`${this.baseButtonClass} ${m.change}`)
-          } else if (m.type === 'disabled' && typeof m.change === 'boolean') {
-            this.isDisabled$.next(m.change)
-          } else if (m.type === 'hidden' && typeof m.change === 'boolean') {
-            this.isHidden$.next(m.change)
-          }
-        })
-        this.subscriptions.push(sub)
-      }
-    }
   }
 }
