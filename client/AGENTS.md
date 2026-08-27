@@ -150,6 +150,11 @@ maintained in lockstep with the code.
    APIs" table from the GitHub *release notes* (the package ships no
    changelog) and grep templates for each removed input. TS removals fail the
    build; template attributes are the silent class. Swept clean at v22.
+   Rendered-DOM changes are silent the same way: zorro 21 switched the
+   form-label tooltip icon from `<span class="anticon">` to `<nz-icon>`,
+   deadening every element-qualified `span.anticon` selector (form-field
+   wrapper lost its icon margin and state recoloring). Style icon selectors
+   by class (`.anticon`) or tag (`nz-icon`), never element-qualified spans.
 
 ## Testing
 
