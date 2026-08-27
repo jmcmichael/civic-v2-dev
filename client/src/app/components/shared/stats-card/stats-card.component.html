@@ -100,7 +100,7 @@
 <ng-template #activityDetails>
   <nz-card
     nzSize="small"
-    nzBorderless
+    [nzBordered]="false"
     [nzExtra]="cvcSubGroupStats ? subGroupsSwitch : undefined"
     nzTitle="Activity Details">
     <ng-template #subGroupsSwitch>
