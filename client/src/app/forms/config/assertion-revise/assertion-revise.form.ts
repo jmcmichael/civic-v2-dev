@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
@@ -42,7 +42,7 @@ import {
 export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
   @Input() assertionId!: number
 
-  model?: AssertionReviseModel
+  readonly model = signal<AssertionReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
   state: AssertionState
@@ -61,8 +61,7 @@ export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: AssertionRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestAssertionRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = assertionReviseFields
@@ -97,11 +96,10 @@ export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const assertion = data?.assertion
           if (assertion) {
-            this.model = {
+            this.model.set({
               id: assertion.id,
               fields: assertionToModelFields(assertion),
-            }
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

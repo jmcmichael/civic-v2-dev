@@ -7,20 +7,22 @@
     Revision(s) submitted! You will be redirected to the Revisions page or can
     view them <a href="{{ url }}">here.</a>
   </ng-template>
-  @if (model && fields) {
-    <form
-      nz-form
-      nzLayout="vertical"
-      [formGroup]="form"
-      (ngSubmit)="onSubmit(model)">
-      <formly-form
-        [form]="form"
-        [fields]="fields"
-        [model]="model"
-        [options]="{}"
-        (modelChange)="model = $event">
-      </formly-form>
-    </form>
+  @if (model(); as m) {
+    @if (fields; as f) {
+      <form
+        nz-form
+        nzLayout="vertical"
+        [formGroup]="form"
+        (ngSubmit)="onSubmit(m)">
+        <formly-form
+          [form]="form"
+          [fields]="f"
+          [model]="m"
+          [options]="{}"
+          (modelChange)="model.set($event)">
+        </formly-form>
+      </form>
+    }
   } @else {
     Loading Variant...
   }

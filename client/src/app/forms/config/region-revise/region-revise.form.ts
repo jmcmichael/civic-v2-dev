@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -36,7 +36,7 @@ import { regionReviseFields } from './region-revise.form.config'
 })
 export class CvcRegionReviseForm implements OnInit, AfterViewInit {
   @Input() featureId!: number
-  model?: RegionReviseModel
+  readonly model = signal<RegionReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
@@ -52,8 +52,7 @@ export class CvcRegionReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: RegionRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestRegionRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = regionReviseFields
@@ -72,11 +71,10 @@ export class CvcRegionReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const feature = data?.feature
           if (feature) {
-            this.model = {
+            this.model.set({
               id: feature.id,
               fields: regionToModelFields(feature),
-            }
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

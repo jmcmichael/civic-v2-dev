@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -36,7 +36,7 @@ import { molecularProfileReviseFields } from './molecular-profile-revise.form.co
 })
 export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
   @Input() molecularProfileId!: number
-  model?: MolecularProfileReviseModel
+  readonly model = signal<MolecularProfileReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
@@ -53,7 +53,6 @@ export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: MolecularProfileRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestMolecularProfileRevisionGQL,
-    private cdr: ChangeDetectorRef,
     networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
@@ -77,11 +76,10 @@ export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
           if (molecularProfile) {
             this.options.formState.isSimpleMp = !molecularProfile.isComplex
 
-            this.model = {
+            this.model.set({
               id: molecularProfile.id,
               fields: molecularProfileToModelFields(molecularProfile),
-            }
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

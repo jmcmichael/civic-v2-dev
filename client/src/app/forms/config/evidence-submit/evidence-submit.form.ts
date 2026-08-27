@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   OnDestroy,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
@@ -49,7 +49,7 @@ import { ActivatedRoute } from '@angular/router'
   standalone: false,
 })
 export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
-  model?: EvidenceSubmitModel
+  readonly model = signal<EvidenceSubmitModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
   state: EvidenceState
@@ -87,7 +87,6 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
     private submitEvidenceGQL: SubmitEvidenceItemGQL,
     private existingEvidenceGQL: ExistingEvidenceCountGQL,
     private fullyCuratedSourceGQL: FullyCuratedSourceGQL,
-    private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     networkErrorService: NetworkErrorsService
   ) {
@@ -101,7 +100,7 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
         this.existingEvidenceId = +params.existingEvidenceId
         this.state.formMode = 'clone'
       } else {
-        this.model = { fields: {} }
+        this.model.set({ fields: {} })
       }
     })
   }
@@ -137,12 +136,10 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
           next: ({ data }) => {
             const evidenceItem = data?.evidenceItem
             if (evidenceItem) {
-              this.model = {
-                fields: evidenceToModelFields(evidenceItem),
-              }
+              const fields = evidenceToModelFields(evidenceItem)
               //clear statement on cloned EIDs
-              this.model.fields.description = undefined
-              this.cdr.detectChanges()
+              fields.description = undefined
+              this.model.set({ fields })
             }
           },
           error: (error) => {
