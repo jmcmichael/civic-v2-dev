@@ -175,6 +175,11 @@ export class CvcMolecularProfileSelectField extends CvcEntitySelectFieldBase<
 
   protected toggleEditor(): void {
     this.editorOpen.update((open) => !open)
+    // a cleared field shows its required error; opening the editor is the fix
+    // in progress, so the error styling stands down until the next touch
+    if (this.editorOpen() && this.formControl.invalid) {
+      this.formControl.markAsUntouched()
+    }
   }
 
   /**
