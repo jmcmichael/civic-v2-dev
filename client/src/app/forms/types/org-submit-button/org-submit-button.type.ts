@@ -138,7 +138,7 @@ export class CvcOrgSubmitButtonComponent
   }
 
   ngAfterViewInit() {
-    // subscribe to org-selector-btn.directive's domChange @Output,
+    // subscribe to org-submit-button.directive's domChange @Output,
     // emit mutation events from the appropriate Subjects
     if (this.button) {
       if (this.button.domChange) {

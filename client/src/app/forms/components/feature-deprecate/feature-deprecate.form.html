@@ -71,19 +71,18 @@
           <ng-container *ngrxLet="viewer$ as viewer">
             <cvc-form-buttons>
               @if (viewer.signedIn && viewer.isEditor) {
-                <ng-template *ngTemplateOutlet="submitButton"></ng-template>
+                <ng-container *ngTemplateOutlet="submitButton"></ng-container>
               } @else {
                 <span
                   nz-tooltip
                   nzTooltipTitle="Must be signed in and an editor to deprecate Features.">
-                  <ng-template *ngTemplateOutlet="submitButton"></ng-template>
+                  <ng-container *ngTemplateOutlet="submitButton"></ng-container>
                 </span>
               }
               <ng-template #submitButton>
                 <button
                   type="submit"
                   nz-button
-                  cvcOrgSelectorBtn
                   nzType="primary"
                   nzSize="small"
                   [disabled]="
