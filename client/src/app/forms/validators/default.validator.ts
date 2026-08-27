@@ -9,31 +9,31 @@ export const defaultMessages = [
   {
     name: 'minLength',
     message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a minimum length of ${ffc.templateOptions?.minLength}.`
+      return `This field has a minimum length of ${ffc.props?.minLength}.`
     },
   },
   {
     name: 'maxLength',
     message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a maximum length of ${ffc.templateOptions?.maxLength}.`
+      return `This field has a maximum length of ${ffc.props?.maxLength}.`
     },
   },
   {
     name: 'min',
     message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a minimum value of ${ffc.templateOptions?.min}.`
+      return `This field has a minimum value of ${ffc.props?.min}.`
     },
   },
   {
     name: 'max',
     message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a maximum value of ${ffc.templateOptions?.max}.`
+      return `This field has a maximum value of ${ffc.props?.max}.`
     },
   },
   {
     name: 'pattern',
     message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field's value must fit the pattern ${ffc.templateOptions?.pattern}.`
+      return `This field's value must fit the pattern ${ffc.props?.pattern}.`
     },
   },
   {

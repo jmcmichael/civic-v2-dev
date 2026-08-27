@@ -9,7 +9,7 @@ import { FieldType } from '@ngx-formly/core'
 })
 export class SearchButtonType extends FieldType<any> {
   defaultOptions = {
-    templateOptions: {
+    props: {
       submitLabel: 'Search',
       submitSize: 'small',
     },
