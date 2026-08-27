@@ -20,7 +20,8 @@
     span.label {
       color: @label-color;
     }
-    span.anticon path {
+    // zorro 21+ renders the label tooltip icon as <nz-icon>, not <span>
+    .anticon path {
       color: @icon-color;
     }
   }
@@ -45,8 +46,8 @@
       span.label {
         color: @field-default-label-color;
       }
-      ::ng-deep span.anticon {
-        margin-left: 0.25em;
+      ::ng-deep .anticon {
+        margin-left: 0.5em;
         path {
           color: @field-default-icon-color;
         }
@@ -63,7 +64,7 @@
         color: @field-required-label-color;
         font-weight: 600;
       }
-      span.anticon path {
+      .anticon path {
         color: @field-required-icon-color;
       }
     }
