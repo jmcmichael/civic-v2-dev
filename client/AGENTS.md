@@ -143,6 +143,13 @@ maintained in lockstep with the code.
    `nz-avatar` binding) — `cvc-user-tag`/`cvc-organization-tag` render no
    avatar, so image fields on tag-only users are dead weight. URLs are
    stable per blob+size (server proxy mode), so identical fetches are free.
+9. **zorro majors remove deprecated `@Input`s, and templates fail silently**:
+   the attribute becomes inert (unknown plain attributes don't error) and the
+   component reverts to default behavior — e.g. `nzBorderless` → double border
+   on mp-select. On every zorro major bump, take the "Remove the following
+   APIs" table from the GitHub *release notes* (the package ships no
+   changelog) and grep templates for each removed input. TS removals fail the
+   build; template attributes are the silent class. Swept clean at v22.
 
 ## Testing
 
