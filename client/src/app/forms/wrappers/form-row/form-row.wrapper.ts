@@ -29,11 +29,9 @@ export type FormRowOptions = {
   // nz-col's nzSpan, nzXs - nzXXl config applied to every field
   span?: string | number | null
   responsive?: ResponsiveColConfig
-  flex?: string | number | null
   // nz-col's nzXs - nzXXl applied iteratively to each field
   spanIndexed?: string[] | number[] | null
   responsiveIndexed?: ResponsiveColConfig[]
-  flexIndexed?: string[] | number[] | null
   // NOTE: spanIndexed and responsiveIndexed arrays will iteratively
   // populate each fields' nz-col container attributes.
   // e.g. spanIndexed[0] value will set the nzSpan attribute of
