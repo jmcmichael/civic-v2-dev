@@ -7,7 +7,7 @@
     [formGroup]="form"
     nz-form
     nzLayout="horizontal"
-    (ngSubmit)="onSubmit$.next(model)">
+    (ngSubmit)="onSubmit(model)">
     <nz-row [nzGutter]="[0, 0]">
       <nz-col nzSpan="24">
         <formly-form

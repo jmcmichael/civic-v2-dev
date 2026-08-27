@@ -15,7 +15,7 @@
     nz-form
     nzLayout="horizontal"
     [formGroup]="form"
-    (ngSubmit)="onSubmit$.next(model)">
+    (ngSubmit)="submitSourceStub()">
     <nz-row [nzGutter]="[0, 0]">
       <nz-col nzSpan="24">
         <formly-form

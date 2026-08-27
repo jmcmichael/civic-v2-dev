@@ -29,7 +29,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzFormModule, NzFormLayoutType } from 'ng-zorro-antd/form'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { Subject, map, tap } from 'rxjs'
+import { map, tap } from 'rxjs'
 import { SourceSelectTagDocument } from '../source-select.query.gql.generated'
 import {
   QuickAddSourceCheckCitationGQL,
@@ -113,8 +113,6 @@ export class CvcSourceQuickAddForm implements OnInit, OnChanges {
     { key: 'sourceType', props: { hidden: true } },
   ]
 
-  onSubmit$ = new Subject<SourceQuickAddModel>()
-
   /** the remote citation lookup, undefined until the first result arrives */
   protected readonly checkResult = signal<Maybe<CitationCheckResult>>(undefined)
   protected readonly display = signal<SourceQuickAddDisplay>({
@@ -148,12 +146,6 @@ export class CvcSourceQuickAddForm implements OnInit, OnChanges {
   >
 
   citationString?: string
-
-  constructor() {
-    this.onSubmit$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.submitSourceStub())
-  }
 
   ngOnInit(): void {
     if (

@@ -1,4 +1,4 @@
-@if (formMessage().message; as message) {
+@if (formMessage(); as message) {
   <span>{{ message }}</span>
 }
 <cvc-form-submission-status-display
@@ -9,7 +9,7 @@
   <ng-template #success>{{ successMessage }}</ng-template>
   <form
     [formGroup]="form"
-    (ngSubmit)="onSubmit$.next(model)">
+    (ngSubmit)="onSubmit(model)">
     <nz-row [nzGutter]="[0, 0]">
       <nz-col nzSpan="24">
         <formly-form

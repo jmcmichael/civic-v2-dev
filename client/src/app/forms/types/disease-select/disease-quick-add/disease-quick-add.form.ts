@@ -1,38 +1,23 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-  inject,
-} from '@angular/core'
-import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
+import { ReactiveFormsModule } from '@angular/forms'
+import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
-import { NoStateFormOptions } from '@app/forms/states/base.state'
+import { CvcQuickAddFormBase } from '@app/forms/select/quick-add-form.base'
+import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
+import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzFormModule } from 'ng-zorro-antd/form'
+import { NzGridModule } from 'ng-zorro-antd/grid'
 import {
   QuickAddDiseaseGQL,
   QuickAddDiseaseMutation,
   QuickAddDiseaseMutationVariables,
 } from './disease-quick-add.query.gql.generated'
-import { Maybe, Disease } from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
-import { NzButtonModule } from 'ng-zorro-antd/button'
-import { NzFormLayoutType, NzFormModule } from 'ng-zorro-antd/form'
-import { NzGridModule } from 'ng-zorro-antd/grid'
-import { BehaviorSubject, Subject } from 'rxjs'
 
 type DiseaseQuickAddModel = {
   name?: string
   doid?: string
 }
 
-@UntilDestroy()
 @Component({
   selector: 'cvc-disease-quick-add-form',
   standalone: true,
@@ -47,94 +32,52 @@ type DiseaseQuickAddModel = {
     CvcFormSubmissionStatusDisplayModule,
   ],
 })
-export class CvcDiseaseQuickAddForm {
-  @Input()
-  set cvcSearchString(str: string) {
-    if (!str) return
-    this.searchString$.next(str)
-  }
+export class CvcDiseaseQuickAddForm extends CvcQuickAddFormBase<
+  DiseaseQuickAddModel,
+  number
+> {
+  model: DiseaseQuickAddModel = { name: '' }
 
-  @Output() cvcOnCreate = new EventEmitter<number>()
-  model: QuickAddDiseaseMutationVariables
-  form: UntypedFormGroup
-  fields: FormlyFieldConfig[]
-  options: NoStateFormOptions
-  formLayout: NzFormLayoutType
+  private readonly query = inject(QuickAddDiseaseGQL)
 
-  // SOURCE STREAMS
-  onSubmit$: Subject<DiseaseQuickAddModel>
-  searchString$: BehaviorSubject<Maybe<string>>
-
-  // PRESENTATION STREAMS
-  addDiseaseMutator: MutatorWithState<
+  addDiseaseMutator = new MutatorWithState<
     QuickAddDiseaseGQL,
     QuickAddDiseaseMutation,
     QuickAddDiseaseMutationVariables
-  >
+  >(this.errors)
 
-  mutationState?: MutationState
-  successMessage?: string
-
-  private readonly query = inject(QuickAddDiseaseGQL)
-  private readonly errors = inject(NetworkErrorsService)
-
-  constructor() {
-    // configure form
-    this.form = new UntypedFormGroup({})
-    this.model = { name: '' }
-    this.formLayout = 'horizontal'
-    this.options = { formState: { formLayout: this.formLayout } }
-
-    this.onSubmit$ = new Subject<DiseaseQuickAddModel>()
-    this.searchString$ = new BehaviorSubject<Maybe<string>>(undefined)
-
-    this.addDiseaseMutator = new MutatorWithState(this.errors)
-
-    this.fields = [
-      {
-        key: 'doid',
-        type: 'base-input',
-        props: {
-          label: 'DOID',
-          keydown: (k, e) => {
-            if (e.code === 'Tab') {
-              e.stopPropagation()
-            }
-          },
+  fields: FormlyFieldConfig[] = [
+    {
+      key: 'doid',
+      type: 'base-input',
+      props: {
+        label: 'DOID',
+        keydown: (_k, e) => {
+          if (e.code === 'Tab') {
+            e.stopPropagation()
+          }
         },
       },
-      {
-        key: 'name',
-        props: {
-          hidden: true,
-          required: true,
-        },
+    },
+    {
+      key: 'name',
+      props: {
+        hidden: true,
+        required: true,
       },
-    ]
+    },
+  ]
 
-    this.searchString$
-      .pipe(untilDestroyed(this))
-      .subscribe((str: Maybe<string>) => {
-        if (!str) return
-        this.model.name = str
-      })
-
-    // handle submit events from form
-    this.onSubmit$.pipe(untilDestroyed(this)).subscribe((model) => {
-      this.submitDisease(model)
-    })
-  }
-
-  submitDisease(model: DiseaseQuickAddModel) {
+  onSubmit(model: DiseaseQuickAddModel) {
     if (!model.name) {
       console.error(
-        `disease-quick-add form submitDisease requires model with valid name.`
+        `disease-quick-add form onSubmit requires model with valid name.`
       )
       return
     }
     this.mutationState = this.addDiseaseMutator.mutate(
       this.query,
-      this.model,
+      { name: model.name, doid: model.doid },
       {},
       (data) => {
         if (data.addDisease) {
