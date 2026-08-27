@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
@@ -37,7 +37,7 @@ import { evidenceReviseFields } from './evidence-revise.form.config'
 })
 export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
   @Input() evidenceId!: number
-  model?: EvidenceReviseModel
+  readonly model = signal<EvidenceReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
   state: EvidenceState
@@ -56,8 +56,7 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: EvidenceItemRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestEvidenceItemRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = evidenceReviseFields
@@ -79,13 +78,10 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const evidenceItem = data?.evidenceItem
           if (evidenceItem) {
-            this.model = {
+            this.model.set({
               id: evidenceItem.id,
               fields: evidenceToModelFields(evidenceItem),
-            }
-            // TODO: figure out if model can be assigned w/o detectChanges() here,
-            // like with a model$ BehaviorSubject?
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -46,7 +46,7 @@ import { FactorReviseModel } from '@app/forms/models/factor-revise.model'
 })
 export class CvcFactorReviseForm implements OnInit, AfterViewInit {
   @Input() featureId!: number
-  model?: FactorReviseModel
+  readonly model = signal<FactorReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
@@ -62,8 +62,7 @@ export class CvcFactorReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: FactorRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestFactorRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = factorReviseFields
@@ -84,11 +83,10 @@ export class CvcFactorReviseForm implements OnInit, AfterViewInit {
           if (feature) {
             let fields = factorToModelFields(feature)
             if (fields) {
-              this.model = {
+              this.model.set({
                 id: feature.id,
                 fields: fields,
-              }
-              this.cdr.detectChanges()
+              })
             }
           }
         },

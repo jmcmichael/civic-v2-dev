@@ -50,19 +50,19 @@
     </ng-template>
     <br />
   }
-  @if (model) {
+  @if (model(); as m) {
     <form
       nz-form
       nzLayout="vertical"
       [formGroup]="form"
-      (ngSubmit)="onSubmit(model)">
+      (ngSubmit)="onSubmit(m)">
       <formly-form
         [form]="form"
         [fields]="fields"
-        [model]="model"
+        [model]="m"
         [options]="options"
         style="width: 100%"
-        (modelChange)="model = $event; onModelChange($event)">
+        (modelChange)="model.set($event); onModelChange($event)">
       </formly-form>
     </form>
   } @else {

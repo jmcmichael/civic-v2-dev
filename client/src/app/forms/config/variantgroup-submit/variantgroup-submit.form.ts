@@ -1,8 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  ChangeDetectionStrategy,
-} from '@angular/core'
+import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
@@ -46,8 +42,7 @@ export class CvcVariantgroupSubmitForm {
 
   constructor(
     private submitVariantGroupGQL: SubmitVariantGroupGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.model = { fields: {} }

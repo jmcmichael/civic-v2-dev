@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
@@ -36,7 +36,7 @@ import {
 })
 export class CvcFactorVariantReviseForm implements OnInit, AfterViewInit {
   @Input() variantId!: number
-  model?: FactorVariantReviseModel
+  readonly model = signal<FactorVariantReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
@@ -52,8 +52,7 @@ export class CvcFactorVariantReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: FactorVariantRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestFactorVariantRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = factorVariantReviseFields
@@ -72,11 +71,10 @@ export class CvcFactorVariantReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const variant = data?.variant
           if (variant && variant.__typename == 'FactorVariant') {
-            this.model = {
+            this.model.set({
               id: variant.id,
               fields: factorVariantToModelFields(variant),
-            }
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

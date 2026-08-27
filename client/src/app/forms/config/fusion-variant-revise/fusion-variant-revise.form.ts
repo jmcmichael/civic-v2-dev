@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
@@ -37,7 +37,7 @@ import {
 })
 export class CvcFusionVariantReviseForm implements OnInit, AfterViewInit {
   @Input() variantId!: number
-  model?: FusionVariantReviseModel
+  readonly model = signal<FusionVariantReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields?: FormlyFieldConfig[]
 
@@ -53,8 +53,7 @@ export class CvcFusionVariantReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: FusionVariantRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestFusionVariantRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.reviseVariantMutator = new MutatorWithState(networkErrorService)
@@ -82,15 +81,15 @@ export class CvcFusionVariantReviseForm implements OnInit, AfterViewInit {
             const threePrimeDisabled =
               variant.feature.featureInstance.threePrimePartnerStatus !=
               FusionPartnerStatus.Known
+            // fields must be assigned before the model signal fires the repaint
             this.fields = fusionVariantReviseFields(
               fivePrimeDisabled,
               threePrimeDisabled
             )
-            this.model = {
+            this.model.set({
               id: variant.id,
               fields: fusionVariantToModelFields(variant),
-            }
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

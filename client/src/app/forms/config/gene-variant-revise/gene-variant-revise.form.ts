@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -36,7 +36,7 @@ import {
 })
 export class CvcGeneVariantReviseForm implements OnInit, AfterViewInit {
   @Input() variantId!: number
-  model?: GeneVariantReviseModel
+  readonly model = signal<GeneVariantReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
@@ -52,8 +52,7 @@ export class CvcGeneVariantReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: GeneVariantRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestGeneVariantRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = geneVariantReviseFields
@@ -72,11 +71,10 @@ export class CvcGeneVariantReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const variant = data?.variant
           if (variant && variant.__typename == 'GeneVariant') {
-            this.model = {
+            this.model.set({
               id: variant.id,
               fields: geneVariantToModelFields(variant),
-            }
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

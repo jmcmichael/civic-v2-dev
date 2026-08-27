@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
   ChangeDetectionStrategy,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
@@ -34,12 +34,12 @@ import { variantgroupSuggestFields } from './variantgroup-revise.form.config'
   selector: 'cvc-variantgroup-revise-form',
   templateUrl: './variantgroup-revise.form.html',
   styleUrls: ['./variantgroup-revise.form.less'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
   @Input() variantGroupId!: number
-  model?: VariantGroupReviseModel
+  readonly model = signal<VariantGroupReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
   options: FormlyFormOptions
@@ -56,8 +56,7 @@ export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: VariantGroupRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestVariantGroupRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = variantgroupSuggestFields
@@ -92,13 +91,10 @@ export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const variantGroup = data?.variantGroup
           if (variantGroup) {
-            this.model = {
+            this.model.set({
               id: variantGroup.id,
               fields: variantGroupToModelFields(variantGroup),
-            }
-            // TODO: figure out if model can be assigned w/o detectChanges() here,
-            // like with a model$ BehaviorSubject?
-            this.cdr.detectChanges()
+            })
           }
         },
         error: (error) => {

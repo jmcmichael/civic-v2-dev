@@ -1,10 +1,10 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   Input,
   OnInit,
+  signal,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -46,7 +46,7 @@ import { FusionReviseModel } from '@app/forms/models/fusion-revise.model'
 })
 export class CvcFusionReviseForm implements OnInit, AfterViewInit {
   @Input() featureId!: number
-  model?: FusionReviseModel
+  readonly model = signal<FusionReviseModel | undefined>(undefined)
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
@@ -62,8 +62,7 @@ export class CvcFusionReviseForm implements OnInit, AfterViewInit {
   constructor(
     private revisableFieldsGQL: FusionRevisableFieldsGQL,
     private submitRevisionsGQL: SuggestFusionRevisionGQL,
-    private networkErrorService: NetworkErrorsService,
-    private cdr: ChangeDetectorRef
+    private networkErrorService: NetworkErrorsService
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = fusionReviseFields
@@ -84,11 +83,10 @@ export class CvcFusionReviseForm implements OnInit, AfterViewInit {
           if (feature) {
             let fields = fusionToModelFields(feature)
             if (fields) {
-              this.model = {
+              this.model.set({
                 id: feature.id,
                 fields: fields,
-              }
-              this.cdr.detectChanges()
+              })
             }
           }
         },
