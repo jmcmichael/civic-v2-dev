@@ -1,50 +1,31 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
   Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
+  inject,
   signal,
 } from '@angular/core'
-import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
-import { NoStateFormOptions } from '@app/forms/states/base.state'
+import { ReactiveFormsModule } from '@angular/forms'
+import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
+import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
+import { CvcQuickAddFormBase } from '@app/forms/select/quick-add-form.base'
+import { Maybe } from '@app/generated/civic.apollo.types'
+import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
+import { NzGridModule } from 'ng-zorro-antd/grid'
+import { VariantIdWithCreationStatus } from '../variant-select.type'
 import {
   QuickAddVariantGQL,
   QuickAddVariantMutation,
   QuickAddVariantMutationVariables,
 } from './variant-quick-add.query.gql.generated'
-import { Maybe } from '@app/generated/civic.apollo.types'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
-import { NzFormLayoutType } from 'ng-zorro-antd/form'
-import { NzGridModule } from 'ng-zorro-antd/grid'
-import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
-import { BehaviorSubject, Subject } from 'rxjs'
-import { VariantIdWithCreationStatus } from '../variant-select.type'
 
-type VariantQuickAddModel = {
-  name?: string
-  featureId?: number
-  organizationId?: number
-}
+type VariantQuickAddModel = Partial<QuickAddVariantMutationVariables>
 
-type VariantQuickAddDisplay = {
-  message?: string
-}
-
-@UntilDestroy()
 @Component({
   selector: 'cvc-variant-quick-add-form',
+  standalone: true,
   templateUrl: './variant-quick-add.form.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     FormlyModule,
@@ -52,142 +33,70 @@ type VariantQuickAddDisplay = {
     CvcFormSubmissionStatusDisplayModule,
   ],
 })
-export class CvcVariantQuickAddForm implements OnChanges {
+export class CvcVariantQuickAddForm extends CvcQuickAddFormBase<
+  VariantQuickAddModel,
+  VariantIdWithCreationStatus
+> {
   @Input()
   set cvcFeatureId(id: Maybe<number>) {
     if (!id) return
-    this.featureId$.next(id)
-  }
-  @Input()
-  set cvcFeatureName(name: Maybe<string>) {
-    if (!name) return
-    this.featureName$.next(name)
+    this.model = { ...this.model, featureId: id }
   }
 
-  @Input()
-  set cvcSearchString(str: string) {
-    if (!str) return
-    this.searchString$.next(str)
-  }
+  model: VariantQuickAddModel = { name: '' }
 
-  @Output() cvcOnCreate = new EventEmitter<VariantIdWithCreationStatus>()
+  /** the inline hint above the form; empty once a variant is created */
+  readonly formMessage = signal<Maybe<string>>(
+    'Variant does not exist, create it?'
+  )
 
-  model: Partial<QuickAddVariantMutationVariables>
-  form: UntypedFormGroup
-  fields: FormlyFieldConfig[]
-  options: NoStateFormOptions
-  formLayout: NzFormLayoutType
+  minNameLength = 3
 
-  queryMutator: MutatorWithState<
+  private readonly query = inject(QuickAddVariantGQL)
+
+  addVariantMutator = new MutatorWithState<
     QuickAddVariantGQL,
     QuickAddVariantMutation,
     QuickAddVariantMutationVariables
-  >
+  >(this.errors)
 
-  // SOURCE STREAMS
-  onSubmit$: Subject<VariantQuickAddModel>
-  featureId$: BehaviorSubject<Maybe<number>>
-  searchString$: BehaviorSubject<Maybe<string>>
-
-  // PRESENTATION STREAMS
-  featureName$: BehaviorSubject<Maybe<string>>
-  /** the inline hint above the form; empty once the name is long enough */
-  readonly formMessage = signal<VariantQuickAddDisplay>({})
-
-  addVariantMutator: MutatorWithState<
-    QuickAddVariantGQL,
-    QuickAddVariantMutation,
-    QuickAddVariantMutationVariables
-  >
-
-  mutationState?: MutationState
-  successMessage?: string
-  minNameLength: number
-
-  constructor(
-    private query: QuickAddVariantGQL,
-    private errors: NetworkErrorsService
-  ) {
-    // configure form
-    this.form = new UntypedFormGroup({})
-    this.model = { name: '' }
-    this.formLayout = 'horizontal'
-    this.options = { formState: { formLayout: this.formLayout } }
-
-    this.onSubmit$ = new Subject<VariantQuickAddModel>()
-    this.searchString$ = new BehaviorSubject<Maybe<string>>(undefined)
-
-    this.featureName$ = new BehaviorSubject<Maybe<string>>(undefined)
-    this.featureId$ = new BehaviorSubject<Maybe<number>>(undefined)
-    this.formMessage.set({
-      message: 'Variant does not exist, create it?',
-    })
-    this.queryMutator = new MutatorWithState(this.errors)
-
-    this.addVariantMutator = new MutatorWithState(this.errors)
-
-    this.minNameLength = 3
-
-    this.fields = [
-      {
-        key: 'featureId',
-        hide: true,
-        props: {
-          required: true,
-        },
+  fields: FormlyFieldConfig[] = [
+    {
+      key: 'featureId',
+      hide: true,
+      props: {
+        required: true,
       },
-      {
-        key: 'name',
-        hide: true,
-        props: {
-          minLength: this.minNameLength,
-          required: true,
-        },
+    },
+    {
+      key: 'name',
+      hide: true,
+      props: {
+        minLength: this.minNameLength,
+        required: true,
       },
-      {
-        key: 'organizationId',
-        type: 'org-submit-button',
-        props: {
-          submitLabel: 'Add Variant',
-        },
+    },
+    {
+      key: 'organizationId',
+      type: 'org-submit-button',
+      props: {
+        submitLabel: 'Add Variant',
       },
-    ]
+    },
+  ]
 
-    // keep form module updated w/ Inputs
-    this.featureId$
-      .pipe(untilDestroyed(this))
-      .subscribe((id: Maybe<number>) => {
-        this.model.featureId = id
-      })
-
-    this.searchString$
-      .pipe(untilDestroyed(this))
-      .subscribe((str: Maybe<string>) => {
-        this.model.name = str
-        if (
-          str === undefined ||
-          (str !== undefined && str.length < this.minNameLength)
-        ) {
-          this.formMessage.set({
-            message: `New Variant name must be at least ${this.minNameLength} characters.`,
-          })
-        } else {
-          this.formMessage.set({
-            message: `Variant '${str}' does not exist, create it?`,
-          })
-        }
-      })
-
-    // handle submit events from form
-    this.onSubmit$.pipe(untilDestroyed(this)).subscribe((model) => {
-      this.submitVariant(model)
-    })
+  protected override onSearchString(str: string): void {
+    this.formMessage.set(
+      str.length < this.minNameLength
+        ? `New Variant name must be at least ${this.minNameLength} characters.`
+        : `Variant '${str}' does not exist, create it?`
+    )
   }
 
-  submitVariant(model: VariantQuickAddModel) {
+  onSubmit(model: VariantQuickAddModel) {
     if (!(model.name && model.featureId)) {
       console.error(
-        `variant-quick-add form submitVariant requires model with valid name and featureId.`
+        `variant-quick-add form onSubmit requires model with valid name and featureId.`
       )
       return
     }
@@ -201,29 +110,12 @@ export class CvcVariantQuickAddForm implements OnChanges {
       {},
       (data) => {
         if (!data.createVariant) return
-        // const vid = data.addVariant.variant.id
-        this.formMessage.set({ message: undefined })
+        this.formMessage.set(undefined)
         this.cvcOnCreate.next({
           id: data.createVariant.variant.id,
           new: data.createVariant.new,
         })
       }
     )
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes.cvcFeatureId) {
-      const st = changes.cvcFeatureId.currentValue
-      this.featureId$.next(st)
-      this.model = { ...this.model, featureId: st }
-    }
-    if (changes.cvcFeatureName) {
-      const id = changes.cvcFeatureName.currentValue
-      this.featureName$.next(id)
-    }
-    /*     if (changes.cvcSearchString) {
-      const name = changes.cvcSearchString.currentValue
-      this.model = { ...this.model, name: name }
-    } */
   }
 }

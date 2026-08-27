@@ -1,7 +1,7 @@
-@if (showForm$ | ngrxPush) {
-  <ng-container *ngrxLet="formMessageDisplay$ as display">
-    <span>{{ display.message }}</span>
-  </ng-container>
+@if (showForm()) {
+  @if (formMessage(); as message) {
+    <span>{{ message }}</span>
+  }
   <cvc-form-submission-status-display
     [mutationState]="mutationState"
     entityType="Feature"
@@ -10,7 +10,7 @@
     <ng-template #success>{{ successMessage }}</ng-template>
     <form
       [formGroup]="form"
-      (ngSubmit)="onSubmit$.next(model)">
+      (ngSubmit)="onSubmit(model)">
       <nz-row [nzGutter]="[0, 0]">
         <nz-col nzSpan="24">
           <formly-form
