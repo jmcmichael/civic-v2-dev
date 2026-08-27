@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
@@ -34,10 +38,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { RouterModule } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { NZ_MODAL_DATA, NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
 import { CvcFeatureTagModule } from '@app/components/features/feature-tag/feature-tag.module'
@@ -108,20 +108,14 @@ export class CvcFusionVariantSelectForm {
 
   options: FormlyFormOptions
 
-  selectOrCreateFusionMutator: MutatorWithState<
-    SelectOrCreateFusionVariantGQL,
-    SelectOrCreateFusionVariantMutation,
-    SelectOrCreateFusionVariantMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
 
   constructor(
     private query: SelectOrCreateFusionVariantGQL,
     errors: NetworkErrorsService
   ) {
-    this.selectOrCreateFusionMutator = new MutatorWithState(errors)
-
     this.form = new UntypedFormGroup({})
 
     this.model = {
@@ -428,7 +422,7 @@ export class CvcFusionVariantSelectForm {
         ensemblVersion: +model.ensemblVersion!,
       }
 
-      this.mutationState = this.selectOrCreateFusionMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.query,
         {
           organizationId: model.organizationId,

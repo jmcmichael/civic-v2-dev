@@ -1,17 +1,18 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
   OnInit,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { EvidenceSubmitModel } from '@app/forms/models/evidence-submit.model'
 import { EvidenceState } from '@app/forms/states/evidence.state'
 import {
@@ -55,13 +56,9 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
   state: EvidenceState
   options: FormlyFormOptions
 
-  submitEvidenceMutator: MutatorWithState<
-    SubmitEvidenceItemGQL,
-    SubmitEvidenceItemMutation,
-    SubmitEvidenceItemMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   newEvidenceId: Maybe<number>
   newEvidenceUrl?: string
 
@@ -94,7 +91,6 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
     this.fields = evidenceSubmitFields
     this.state = new EvidenceState()
     this.options = { formState: this.state }
-    this.submitEvidenceMutator = new MutatorWithState(networkErrorService)
     this.routeSub = this.route.queryParams.subscribe((params) => {
       if (params.existingEvidenceId) {
         this.existingEvidenceId = +params.existingEvidenceId
@@ -155,7 +151,7 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
   onSubmit(model: EvidenceSubmitModel) {
     const input = evidenceFormModelToInput(model)
     if (input) {
-      this.mutationState = this.submitEvidenceMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.submitEvidenceGQL,
         { input: input },
         undefined,

@@ -1,6 +1,9 @@
+import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
 import { CvcQuickAddFormBase } from '@app/forms/select/quick-add-form.base'
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
@@ -40,12 +43,6 @@ export class CvcTherapyQuickAddForm extends CvcQuickAddFormBase<
 
   private readonly query = inject(QuickAddTherapyGQL)
 
-  addTherapyMutator = new MutatorWithState<
-    QuickAddTherapyGQL,
-    QuickAddTherapyMutation,
-    QuickAddTherapyMutationVariables
-  >(this.errors)
-
   fields: FormlyFieldConfig[] = [
     {
       key: 'ncitId',
@@ -75,7 +72,7 @@ export class CvcTherapyQuickAddForm extends CvcQuickAddFormBase<
       )
       return
     }
-    this.mutationState = this.addTherapyMutator.mutate(
+    this.mutationState = this.formMutation.mutate(
       this.query,
       { name: model.name, ncitId: model.ncitId },
       {},

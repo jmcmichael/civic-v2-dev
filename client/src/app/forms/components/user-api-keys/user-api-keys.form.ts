@@ -1,15 +1,15 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   Component,
   OnDestroy,
   signal,
   WritableSignal,
   ChangeDetectionStrategy,
+  inject,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import {
   ApiKeysGQL,
   GenerateApiKeyGQL,
@@ -68,37 +68,35 @@ import { NzMessageService } from 'ng-zorro-antd/message'
   styleUrls: ['./user-api-keys.form.less'],
 })
 export class CvcUserApiKeysForm implements OnDestroy {
-  success: boolean = false
-  errorMessages: string[] = []
-  successMessage: string = ''
-  loading: boolean = false
+  private formMutation = inject(FormMutationService)
+
+  private mutationState?: FormMutationState
+  private pendingMessage: string = ''
+
+  get success(): boolean {
+    return this.mutationState?.success() ?? false
+  }
+  get successMessage(): string {
+    return this.success ? this.pendingMessage : ''
+  }
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   private destroy$ = new Subject<void>()
 
   apiKeys: WritableSignal<ApiKey[]> = signal([])
   newApiKey: WritableSignal<Maybe<ApiKey>> = signal(undefined)
 
-  revokeApiKeyMutator: MutatorWithState<
-    RevokeApiKeyGQL,
-    RevokeApiKeyMutation,
-    RevokeApiKeyMutationVariables
-  >
-
-  generateApiKeyMutator: MutatorWithState<
-    GenerateApiKeyGQL,
-    GenerateApiKeyMutation,
-    GenerateApiKeyMutationVariables
-  >
-
   constructor(
     private generateApiKeyGql: GenerateApiKeyGQL,
     private revokeApiKeyGql: RevokeApiKeyGQL,
     private apiKeysGql: ApiKeysGQL,
-    private message: NzMessageService,
-    networkErrorService: NetworkErrorsService
+    private message: NzMessageService
   ) {
-    this.generateApiKeyMutator = new MutatorWithState(networkErrorService)
-    this.revokeApiKeyMutator = new MutatorWithState(networkErrorService)
     apiKeysGql
       .watch()
       .valueChanges.pipe(onlyCompleteData(), takeUntil(this.destroy$))
@@ -114,7 +112,7 @@ export class CvcUserApiKeysForm implements OnDestroy {
       id: id,
     }
 
-    let state = this.revokeApiKeyMutator.mutate(
+    let state = this.formMutation.mutate(
       this.revokeApiKeyGql,
       { input: input },
       { refetchQueries: [{ query: this.apiKeysGql.document }] }
@@ -125,7 +123,7 @@ export class CvcUserApiKeysForm implements OnDestroy {
   generateKey() {
     let input: GenerateApiKeyInput = {}
 
-    let state = this.generateApiKeyMutator.mutate(
+    let state = this.formMutation.mutate(
       this.generateApiKeyGql,
       { input: input },
       {},
@@ -147,27 +145,9 @@ export class CvcUserApiKeysForm implements OnDestroy {
     }
   }
 
-  manageState(state: MutationState, message: string) {
-    this.errorMessages = []
-
-    state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-      if (res) {
-        this.success = true
-        this.successMessage = message
-      }
-    })
-
-    state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((errs) => {
-      if (errs) {
-        this.errorMessages = errs
-        this.success = false
-        this.successMessage = ''
-      }
-    })
-
-    state.isSubmitting$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
-      this.loading = loading
-    })
+  manageState(state: FormMutationState, message: string) {
+    this.mutationState = state
+    this.pendingMessage = message
   }
 
   ngOnDestroy(): void {

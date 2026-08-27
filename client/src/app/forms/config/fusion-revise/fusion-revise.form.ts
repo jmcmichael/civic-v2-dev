@@ -1,10 +1,15 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
   OnInit,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import {
@@ -15,10 +20,6 @@ import {
 } from './fusion-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   fusionFormModelToReviseInput,
@@ -50,13 +51,9 @@ export class CvcFusionReviseForm implements OnInit, AfterViewInit {
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
-  reviseFusionMutator: MutatorWithState<
-    SuggestFusionRevisionGQL,
-    SuggestFusionRevisionMutation,
-    SuggestFusionRevisionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   url?: string
 
   constructor(
@@ -66,7 +63,6 @@ export class CvcFusionReviseForm implements OnInit, AfterViewInit {
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = fusionReviseFields
-    this.reviseFusionMutator = new MutatorWithState(networkErrorService)
   }
 
   ngOnInit() {
@@ -104,10 +100,9 @@ export class CvcFusionReviseForm implements OnInit, AfterViewInit {
     }
     let input = fusionFormModelToReviseInput(this.featureId, model)
     if (input) {
-      this.mutationState = this.reviseFusionMutator.mutate(
-        this.submitRevisionsGQL,
-        { input: input }
-      )
+      this.mutationState = this.formMutation.mutate(this.submitRevisionsGQL, {
+        input: input,
+      })
     }
   }
 }

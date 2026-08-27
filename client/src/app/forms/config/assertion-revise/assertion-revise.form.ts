@@ -1,17 +1,18 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
   OnInit,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import {
   assertionReviseFormInitialModel,
   AssertionReviseModel,
@@ -50,13 +51,9 @@ export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
 
   url?: string
 
-  reviseAssertionMutator: MutatorWithState<
-    SuggestAssertionRevisionGQL,
-    SuggestAssertionRevisionMutation,
-    SuggestAssertionRevisionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
 
   constructor(
     private revisableFieldsGQL: AssertionRevisableFieldsGQL,
@@ -68,7 +65,6 @@ export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
     this.state = new AssertionState()
     this.state.formMode = 'revise'
     this.options = { formState: this.state }
-    this.reviseAssertionMutator = new MutatorWithState(networkErrorService)
   }
 
   onSubmit(model: AssertionReviseModel) {
@@ -77,10 +73,9 @@ export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
     }
     let input = assertionFormModelToReviseInput(this.assertionId, model)
     if (input) {
-      this.mutationState = this.reviseAssertionMutator.mutate(
-        this.submitRevisionsGQL,
-        { input: input }
-      )
+      this.mutationState = this.formMutation.mutate(this.submitRevisionsGQL, {
+        input: input,
+      })
     }
   }
 

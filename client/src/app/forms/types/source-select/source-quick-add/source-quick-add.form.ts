@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -16,10 +20,6 @@ import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms'
 import { ApolloQueryResult } from '@apollo/client/core'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { formatSourceTypeEnum } from '@app/core/utilities/enum-formatters/format-source-type-enum'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
 import { NoStateFormOptions } from '@app/forms/states/base.state'
 import { Maybe, SourceSource } from '@app/generated/civic.apollo.types'
@@ -120,13 +120,9 @@ export class CvcSourceQuickAddForm implements OnInit, OnChanges {
     showSpinner: true,
   })
 
-  addSourceStubMutator = new MutatorWithState<
-    QuickAddSourceRemoteCitationGQL,
-    QuickAddSourceRemoteCitationMutation,
-    QuickAddSourceRemoteCitationMutationVariables
-  >(this.errors)
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   successMessage?: string
 
   messageOptions: CvcSourceQuickAddMessageOptions = {
@@ -226,7 +222,7 @@ export class CvcSourceQuickAddForm implements OnInit, OnChanges {
     ) {
       return
     }
-    this.mutationState = this.addSourceStubMutator.mutate(
+    this.mutationState = this.formMutation.mutate(
       this.addRemoteCitation,
       {
         input: {

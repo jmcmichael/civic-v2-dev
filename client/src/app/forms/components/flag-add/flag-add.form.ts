@@ -1,12 +1,16 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   Input,
   OnInit,
+  inject,
 } from '@angular/core'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
   FlagEntityGQL,
@@ -29,30 +33,30 @@ import { Observable, Subject } from 'rxjs'
   standalone: false,
 })
 export class CvcFlagAddForm implements OnInit {
+  private formMutation = inject(FormMutationService)
   @Input() flaggable!: FlaggableInput
   @Input() flagAddedCallback?: () => void
 
-  errorMessages: string[] = []
+  private mutationState?: FormMutationState
   success: boolean = false
-  loading: boolean = false
+
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   viewer$: Observable<Viewer>
 
   comment: string = ''
   selectedOrg: Maybe<ViewerOrganizationFragment>
 
-  addFlagMutator: MutatorWithState<
-    FlagEntityGQL,
-    FlagEntityMutation,
-    FlagEntityMutationVariables
-  >
-
   constructor(
     private gql: FlagEntityGQL,
     private viewerService: ViewerService,
     private networkErrorService: NetworkErrorsService
   ) {
-    this.addFlagMutator = new MutatorWithState(this.networkErrorService)
     this.viewer$ = this.viewerService.viewer$
     this.viewerService.viewer$
       .pipe(untilDestroyed(this))
@@ -75,33 +79,24 @@ export class CvcFlagAddForm implements OnInit {
   }
 
   submitFlag() {
-    this.errorMessages = []
-
     let input = {
       comment: this.comment,
       subject: this.flaggable,
       organizationId: this.selectedOrg?.id,
     }
 
-    let state = this.addFlagMutator.mutate(this.gql, { input: input })
-    state.submitSuccess$.pipe(untilDestroyed(this)).subscribe((res) => {
-      if (res) {
+    this.mutationState = this.formMutation.mutate(
+      this.gql,
+      { input: input },
+      undefined,
+      () => {
         if (this.flagAddedCallback) {
           this.flagAddedCallback()
         }
         this.success = true
         this.comment = ''
       }
-    })
-    state.submitError$.pipe(untilDestroyed(this)).subscribe((res) => {
-      if (res.length > 0) {
-        this.errorMessages = res
-      }
-    })
-
-    state.isSubmitting$.pipe(untilDestroyed(this)).subscribe((loading) => {
-      this.loading = loading
-    })
+    )
   }
 
   onSuccessBannerClose() {

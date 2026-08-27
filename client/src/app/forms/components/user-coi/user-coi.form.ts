@@ -1,12 +1,16 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   Component,
   EventEmitter,
   OnDestroy,
   Output,
   ChangeDetectionStrategy,
+  inject,
 } from '@angular/core'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import {
   UpdateCoiGQL,
   UpdateCoiMutation,
@@ -25,65 +29,50 @@ import { takeUntil } from 'rxjs/operators'
   standalone: false,
 })
 export class CvcUserCoiForm implements OnDestroy {
+  private formMutation = inject(FormMutationService)
   @Output() coiUpdatedEvent = new EventEmitter<void>()
 
   coiText: Maybe<string> = undefined
   coiStatus: string = 'noCoi'
 
+  private mutationState?: FormMutationState
   success: boolean = false
-  errorMessages: string[] = []
-  loading: boolean = false
+
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   private destroy$ = new Subject<void>()
-
-  updateCoiMutator: MutatorWithState<
-    UpdateCoiGQL,
-    UpdateCoiMutation,
-    UpdateCoiMutationVariables
-  >
 
   constructor(
     private updateCoiGql: UpdateCoiGQL,
     networkErrorService: NetworkErrorsService
-  ) {
-    this.updateCoiMutator = new MutatorWithState(networkErrorService)
-  }
+  ) {}
 
   updateCoi() {
     if (
       (this.coiStatus === 'coiPresent' && this.coiText) ||
       this.coiStatus === 'noCoi'
     ) {
-      this.errorMessages = []
+      this.success = false
       let coiInput: UpdateCoiInput = {
         coiPresent: this.coiStatus === 'coiPresent' ? true : false,
         statement: this.coiText,
       }
 
-      let state = this.updateCoiMutator.mutate(this.updateCoiGql, {
-        input: coiInput,
-      })
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res) {
+      this.mutationState = this.formMutation.mutate(
+        this.updateCoiGql,
+        { input: coiInput },
+        undefined,
+        () => {
           this.resetForm()
           this.success = true
           this.coiUpdatedEvent.emit()
         }
-      })
-
-      state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((errs) => {
-        if (errs) {
-          this.errorMessages = errs
-          this.success = false
-        }
-      })
-
-      state.isSubmitting$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((loading) => {
-          this.loading = loading
-        })
+      )
     }
   }
 

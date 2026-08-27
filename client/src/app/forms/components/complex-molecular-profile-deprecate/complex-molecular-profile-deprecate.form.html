@@ -59,7 +59,7 @@
     <cvc-comment-input-form [(comment)]="comment"></cvc-comment-input-form>
     <nz-spin
       nzTip="Submitting"
-      [nzSpinning]="mutationLoading$ | ngrxPush">
+      [nzSpinning]="mutationLoading">
       <nz-form-item>
         <nz-form-control>
           <ng-container *ngrxLet="viewer$ as viewer">

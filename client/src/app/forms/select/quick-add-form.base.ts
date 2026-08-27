@@ -1,8 +1,10 @@
 import { Directive, EventEmitter, inject, Input, Output } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { MutationState } from '@app/core/utilities/mutation-state-wrapper'
 import { NoStateFormOptions } from '@app/forms/states/base.state'
+import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { NzFormLayoutType } from 'ng-zorro-antd/form'
 
@@ -36,9 +38,9 @@ export abstract class CvcQuickAddFormBase<
   formLayout: NzFormLayoutType = 'horizontal'
   options: NoStateFormOptions = { formState: { formLayout: this.formLayout } }
 
-  protected readonly errors = inject(NetworkErrorsService)
+  protected readonly formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   successMessage?: string
 
   abstract onSubmit(model: TModel): void

@@ -1,9 +1,14 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   Input,
   OnDestroy,
   OnInit,
+  inject,
 } from '@angular/core'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
@@ -20,7 +25,6 @@ import {
 import { VariantDetailGQL } from '@app/views/variants/variants-detail/variants-detail.query.gql.generated'
 import { Observable, Subject } from 'rxjs'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { ActivatedRoute } from '@angular/router'
 import { map, takeUntil, filter } from 'rxjs/operators'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
@@ -37,22 +41,23 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
   standalone: false,
 })
 export class VariantDeprecateForm implements OnDestroy, OnInit {
+  private formMutation = inject(FormMutationService)
   @Input() variantId!: number
 
   private destroy$ = new Subject<void>()
 
-  deprecateVariantMutator: MutatorWithState<
-    DeprecateVariantGQL,
-    DeprecateVariantMutation,
-    DeprecateVariantMutationVariables
-  >
-
   submittedGeneId: Maybe<number>
   submittedVariantId: Maybe<number>
 
+  private mutationState?: FormMutationState
   success: boolean = false
-  errorMessages: string[] = []
-  loading: boolean = false
+
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   viewer$: Observable<Viewer>
 
@@ -72,7 +77,6 @@ export class VariantDeprecateForm implements OnDestroy, OnInit {
     private route: ActivatedRoute,
     private viewerService: ViewerService
   ) {
-    this.deprecateVariantMutator = new MutatorWithState(networkErrorService)
     this.viewer$ = this.viewerService.viewer$
   }
 
@@ -121,8 +125,6 @@ export class VariantDeprecateForm implements OnDestroy, OnInit {
   }
 
   deprecateVariant(): void {
-    this.errorMessages = []
-
     if (this.reason && this.comment && this.variantId) {
       let input = {
         deprecationReason: this.reason,
@@ -131,7 +133,7 @@ export class VariantDeprecateForm implements OnDestroy, OnInit {
         organizationId: this.selectedOrg?.id,
       }
 
-      let state = this.deprecateVariantMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.deprecateVariantGQL,
         input,
         {
@@ -141,27 +143,12 @@ export class VariantDeprecateForm implements OnDestroy, OnInit {
               variables: { variantId: this.variantId },
             },
           ],
-        }
-      )
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res) {
+        },
+        () => {
           this.success = true
           this.comment = ''
         }
-      })
-
-      state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res.length > 0) {
-          this.errorMessages = res
-        }
-      })
-
-      state.isSubmitting$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((loading) => {
-          this.loading = loading
-        })
+      )
     }
   }
 

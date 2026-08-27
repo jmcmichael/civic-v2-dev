@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   Component,
   EventEmitter,
   Input,
@@ -6,6 +10,7 @@ import {
   Output,
   ViewEncapsulation,
   ChangeDetectionStrategy,
+  inject,
 } from '@angular/core'
 
 import { Subject } from 'rxjs'
@@ -25,7 +30,6 @@ import {
 } from '@app/generated/civic.apollo.types'
 
 import { ViewerService, Viewer } from '@app/core/services/viewer/viewer.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 
@@ -39,20 +43,21 @@ import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
   standalone: false,
 })
 export class CvcCommentAddForm {
+  private formMutation = inject(FormMutationService)
   @Input() subject!: CommentableInput
   @Output() commentAddedEvent = new EventEmitter<void>()
 
   mostRecentOrg!: Maybe<ViewerOrganizationFragment>
 
+  private mutationState?: FormMutationState
   success: boolean = false
-  errorMessages: string[] = []
-  loading: boolean = false
 
-  addCommentMutator: MutatorWithState<
-    AddCommentGQL,
-    AddCommentMutation,
-    AddCommentMutationVariables
-  >
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   commentText?: string
   constructor(
@@ -67,13 +72,11 @@ export class CvcCommentAddForm {
       .subscribe((v: Viewer) => {
         this.mostRecentOrg = v.mostRecentOrg
       })
-
-    this.addCommentMutator = new MutatorWithState(this.networkErrorService)
   }
 
   submitComment(): void {
     if (this.commentText) {
-      this.errorMessages = []
+      this.success = false
       let newCommentInput = {
         body: this.commentText,
         subject: this.subject,
@@ -81,27 +84,15 @@ export class CvcCommentAddForm {
           this.mostRecentOrg === undefined ? undefined : this.mostRecentOrg.id,
       }
 
-      let state = this.addCommentMutator.mutate(this.addCommentGql, {
-        input: newCommentInput,
-      })
-
-      state.submitSuccess$.pipe(untilDestroyed(this)).subscribe((res) => {
-        if (res) {
+      this.mutationState = this.formMutation.mutate(
+        this.addCommentGql,
+        { input: newCommentInput },
+        undefined,
+        () => {
           this.resetForm()
           this.success = true
         }
-      })
-
-      state.submitError$.pipe(untilDestroyed(this)).subscribe((errs) => {
-        if (errs) {
-          this.errorMessages = errs
-          this.success = false
-        }
-      })
-
-      state.isSubmitting$.pipe(untilDestroyed(this)).subscribe((loading) => {
-        this.loading = loading
-      })
+      )
     }
   }
 

@@ -1,18 +1,19 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   Input,
   OnInit,
   signal,
+  inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { RegionVariantReviseModel } from '@app/forms/models/region-variant-revise.model'
 import {
@@ -40,13 +41,9 @@ export class CvcRegionVariantReviseForm implements OnInit, AfterViewInit {
   form: UntypedFormGroup
   fields: FormlyFieldConfig[]
 
-  reviseVariantMutator: MutatorWithState<
-    SuggestRegionVariantRevisionGQL,
-    SuggestRegionVariantRevisionMutation,
-    SuggestRegionVariantRevisionMutationVariables
-  >
+  private formMutation = inject(FormMutationService)
 
-  mutationState?: MutationState
+  mutationState?: FormMutationState
   url?: string
 
   constructor(
@@ -56,7 +53,6 @@ export class CvcRegionVariantReviseForm implements OnInit, AfterViewInit {
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = regionVariantReviseFields
-    this.reviseVariantMutator = new MutatorWithState(networkErrorService)
   }
 
   ngOnInit() {
@@ -91,10 +87,9 @@ export class CvcRegionVariantReviseForm implements OnInit, AfterViewInit {
     }
     let input = regionVariantFormModelToReviseInput(this.variantId, model)
     if (input) {
-      this.mutationState = this.reviseVariantMutator.mutate(
-        this.submitRevisionsGQL,
-        { input: input }
-      )
+      this.mutationState = this.formMutation.mutate(this.submitRevisionsGQL, {
+        input: input,
+      })
     }
   }
 }

@@ -1,9 +1,14 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   ChangeDetectionStrategy,
   Component,
   Input,
   OnDestroy,
   OnInit,
+  inject,
 } from '@angular/core'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
@@ -20,7 +25,6 @@ import {
 import { FeatureDetailGQL } from '@app/views/features/features-detail/features-detail.query.gql.generated'
 import { Observable, Subject } from 'rxjs'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import { RouterModule } from '@angular/router'
 import { map, takeUntil, filter } from 'rxjs/operators'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
@@ -74,19 +78,20 @@ import { LinkableVariant } from '@app/components/variants/variant-tag/variant-ta
   ],
 })
 export class CvcFeatureDeprecateForm implements OnDestroy, OnInit {
+  private formMutation = inject(FormMutationService)
   @Input() featureId!: number
 
   private destroy$ = new Subject<void>()
 
-  deprecateFeatureMutator: MutatorWithState<
-    DeprecateFeatureGQL,
-    DeprecateFeatureMutation,
-    DeprecateFeatureMutationVariables
-  >
-
+  private mutationState?: FormMutationState
   success: boolean = false
-  errorMessages: string[] = []
-  loading: boolean = false
+
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   viewer$: Observable<Viewer>
 
@@ -104,7 +109,6 @@ export class CvcFeatureDeprecateForm implements OnDestroy, OnInit {
     private networkErrorService: NetworkErrorsService,
     private viewerService: ViewerService
   ) {
-    this.deprecateFeatureMutator = new MutatorWithState(networkErrorService)
     this.viewer$ = this.viewerService.viewer$
   }
 
@@ -148,8 +152,6 @@ export class CvcFeatureDeprecateForm implements OnDestroy, OnInit {
   }
 
   deprecateFeature(): void {
-    this.errorMessages = []
-
     if (this.reason && this.comment && this.featureId) {
       let input = {
         deprecationReason: this.reason,
@@ -158,7 +160,7 @@ export class CvcFeatureDeprecateForm implements OnDestroy, OnInit {
         organizationId: this.selectedOrg?.id,
       }
 
-      let state = this.deprecateFeatureMutator.mutate(
+      this.mutationState = this.formMutation.mutate(
         this.deprecateFeatureGQL,
         input,
         {
@@ -168,27 +170,12 @@ export class CvcFeatureDeprecateForm implements OnDestroy, OnInit {
               variables: { featureId: this.featureId },
             },
           ],
-        }
-      )
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res) {
+        },
+        () => {
           this.success = true
           this.comment = ''
         }
-      })
-
-      state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res.length > 0) {
-          this.errorMessages = res
-        }
-      })
-
-      state.isSubmitting$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((loading) => {
-          this.loading = loading
-        })
+      )
     }
   }
 

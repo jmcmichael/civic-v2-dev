@@ -1,4 +1,8 @@
 import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
+import {
   Component,
   EventEmitter,
   Input,
@@ -6,9 +10,9 @@ import {
   OnInit,
   Output,
   ChangeDetectionStrategy,
+  inject,
 } from '@angular/core'
 import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
 import {
   toNullableInput,
   toNullableString,
@@ -37,20 +41,21 @@ import { map, takeUntil } from 'rxjs/operators'
   standalone: false,
 })
 export class CvcUserProfileForm implements OnInit, OnDestroy {
+  private formMutation = inject(FormMutationService)
   @Input() user!: UserDetailFieldsFragment
   @Output() profileUpdatedEvent = new EventEmitter<void>()
 
+  private mutationState?: FormMutationState
   success: boolean = false
-  errorMessages: string[] = []
-  loading: boolean = false
+
+  get errorMessages(): string[] {
+    return this.mutationState?.errors() ?? []
+  }
+  get loading(): boolean {
+    return this.mutationState?.isSubmitting() ?? false
+  }
 
   private destroy$ = new Subject<void>()
-
-  updateProfileMutator: MutatorWithState<
-    UpdateUserProfileGQL,
-    UpdateUserProfileMutation,
-    UpdateUserProfileMutationVariables
-  >
 
   name: Maybe<string>
   username: Maybe<string>
@@ -72,8 +77,6 @@ export class CvcUserProfileForm implements OnInit, OnDestroy {
     countryIdGql: CountriesGQL,
     networkErrorService: NetworkErrorsService
   ) {
-    this.updateProfileMutator = new MutatorWithState(networkErrorService)
-
     this.countries$ = countryIdGql
       .fetch()
       .pipe(map(({ data }) => data?.countries ?? []))
@@ -89,7 +92,7 @@ export class CvcUserProfileForm implements OnInit, OnDestroy {
 
   updateProfile() {
     if (this.username && this.email) {
-      this.errorMessages = []
+      this.success = false
       let profileInput: EditUserInput = {
         username: this.username,
         email: this.email,
@@ -104,30 +107,16 @@ export class CvcUserProfileForm implements OnInit, OnDestroy {
         linkedinProfile: toNullableString(this.linkedinProfile),
       }
 
-      let state = this.updateProfileMutator.mutate(this.updateProfileGql, {
-        input: profileInput,
-      })
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((res) => {
-        if (res) {
+      this.mutationState = this.formMutation.mutate(
+        this.updateProfileGql,
+        { input: profileInput },
+        undefined,
+        () => {
           this.setInitialFormFields()
           this.success = true
           this.profileUpdatedEvent.emit()
         }
-      })
-
-      state.submitError$.pipe(takeUntil(this.destroy$)).subscribe((errs) => {
-        if (errs) {
-          this.errorMessages = errs
-          this.success = false
-        }
-      })
-
-      state.isSubmitting$
-        .pipe(takeUntil(this.destroy$))
-        .subscribe((loading) => {
-          this.loading = loading
-        })
+      )
     }
   }
 
