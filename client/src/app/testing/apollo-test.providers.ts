@@ -12,6 +12,14 @@ export interface MockGraphqlOperation {
 }
 
 /**
+ * Return this from `respond` to answer an operation with GraphQL errors —
+ * the client surfaces them as a CombinedGraphQLErrors rejection/error.
+ */
+export function graphqlErrors(...messages: string[]) {
+  return { __graphqlErrors: messages.map((message) => ({ message })) }
+}
+
+/**
  * Apollo providers for tests that exercise queries: a real InMemoryCache plus a
  * link that answers each operation from `respond` and records it, so specs can
  * assert how many times (and with what variables) a field queried.
@@ -29,8 +37,22 @@ export function provideMockApollo(
             variables: operation.variables as Record<string, any>,
           }
           recorded?.push(called)
-          observer.next({ data: respond(called) })
-          observer.complete()
+          const deliver = (result: any) => {
+            if (result?.__graphqlErrors) {
+              observer.next({ data: null, errors: result.__graphqlErrors })
+            } else {
+              observer.next({ data: result })
+            }
+            observer.complete()
+          }
+          const result = respond(called)
+          // a Promise result lets a spec hold a response in flight
+          // (synchronous delivery is preserved for everything else)
+          if (result instanceof Promise) {
+            result.then(deliver, (err) => observer.error(err))
+          } else {
+            deliver(result)
+          }
         })
     ),
     cache: new InMemoryCache({
