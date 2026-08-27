@@ -1,14 +1,9 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
-import { LetDirective, PushPipe } from '@ngrx/component'
 import { FormlyModule } from '@ngx-formly/core'
-import { NzAvatarModule } from 'ng-zorro-antd/avatar'
 import { NzButtonModule } from 'ng-zorro-antd/button'
-import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
-import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
-import { CvcOrgSubmitButtonDirective } from './org-submit-button.directive'
 import { CvcOrgSubmitButtonComponent } from './org-submit-button.type'
 
 const typeConfig = {
@@ -18,19 +13,14 @@ const typeConfig = {
 }
 
 @NgModule({
-  declarations: [CvcOrgSubmitButtonComponent, CvcOrgSubmitButtonDirective],
+  declarations: [CvcOrgSubmitButtonComponent],
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    LetDirective,
-    PushPipe,
     FormlyModule.forChild(typeConfig),
-    NzIconModule,
-    NzAvatarModule,
     NzButtonModule,
-    NzDropdownModule,
     NzTooltipModule,
   ],
-  exports: [CvcOrgSubmitButtonComponent, CvcOrgSubmitButtonDirective],
+  exports: [CvcOrgSubmitButtonComponent],
 })
 export class CvcOrgSubmitButtonTypeModule {}

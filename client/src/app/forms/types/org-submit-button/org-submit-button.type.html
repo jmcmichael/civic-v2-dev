@@ -12,16 +12,13 @@
     'btn-center': props.align === 'center',
   }">
   <button
-    *ngrxLet="mostRecentOrg$ as organization"
-    cvcOrgSubmitButton
     type="submit"
     nz-button
-    [disabled]="!form.valid"
-    [nzDanger]=""
+    [disabled]="!formValid()"
     nzType="primary"
     nz-tooltip
-    [nzTooltipTrigger]="organization ? 'hover' : null"
-    [nzTooltipTitle]="'For ' + $safeNavigationMigration(organization?.name)">
+    [nzTooltipTrigger]="mostRecentOrg() ? 'hover' : null"
+    [nzTooltipTitle]="'For ' + mostRecentOrg()?.name">
     {{ props.submitLabel }}
   </button>
 </div>
