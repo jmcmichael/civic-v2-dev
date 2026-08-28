@@ -1,7 +1,5 @@
 import { DiseasesSortColumns, Maybe } from '@app/generated/civic.apollo.types'
 import { entityTableConfig, SORT_DESCEND_FIRST } from '@app/tables'
-import { PolymorpheusComponent } from '@taiga-ui/polymorpheus'
-import { CvcDiseaseFeaturesCellComponent } from './diseases-table-features-cell.component'
 import { DiseaseBrowseGQL } from './diseases-table.query.gql.generated'
 
 /** The query variables a host page scopes the table with. */
@@ -14,8 +12,9 @@ export interface DiseasesTableScope {
  *
  * `BrowseDisease` itself satisfies `LinkableDisease` (id, name, link,
  * deprecated) directly, so Name addresses it as `Disease` and gets the
- * generic tag's popover for free. Features does not — see
- * `diseases-table-features-cell.component.ts`.
+ * generic tag's popover for free. Features seeds the cache per row — the
+ * server projects full `LinkableFeature` data (including `featureType`,
+ * which the fragment requires) out of each browse row's feature list.
  *
  * DOID links out to the term on disease-ontology.org, not an in-app
  * entity — `kind: 'external-link'`.
@@ -92,10 +91,26 @@ export function diseasesTableConfig(
       {
         key: 'features',
         label: 'Features',
-        width: '300px',
+        width: '315px',
         cell: {
-          kind: 'custom',
-          content: new PolymorpheusComponent(CvcDiseaseFeaturesCellComponent),
+          kind: 'entity-tag',
+          ref: (row) =>
+            row.features.map((f) => ({
+              __typename: 'Feature' as const,
+              id: f.id,
+            })),
+          seed: (row) =>
+            row.features.map((f) => ({
+              __typename: 'Feature' as const,
+              id: f.id,
+              name: f.name,
+              link: f.link,
+              flagged: f.flagged,
+              deprecated: f.deprecated,
+              featureType: f.featureType,
+            })),
+          maxTags: 3,
+          truncateLabel: '100px',
         },
         filter: {
           kind: 'text',

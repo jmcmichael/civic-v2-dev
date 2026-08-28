@@ -18,9 +18,9 @@ export type DiseaseBrowseQueryVariables = Types.Exact<{
 }>;
 
 
-export type DiseaseBrowseQuery = { __typename: 'Query', browseDiseases: { __typename: 'BrowseDiseaseConnection', lastUpdated: any, totalCount: number, filteredCount: number, pageCount: number, pageInfo: { __typename: 'PageInfo', endCursor?: string | undefined, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined }, edges: Array<{ __typename: 'BrowseDiseaseEdge', cursor: string, node?: { __typename: 'BrowseDisease', id: number, name: string, doid?: string | undefined, diseaseUrl?: string | undefined, assertionCount: number, evidenceItemCount: number, variantCount: number, featureCount: number, link: string, deprecated: boolean, diseaseAliases?: Array<string> | undefined, features: Array<{ __typename: 'LinkableFeature', id: number, name: string, link: string }> } | undefined }> } };
+export type DiseaseBrowseQuery = { __typename: 'Query', browseDiseases: { __typename: 'BrowseDiseaseConnection', lastUpdated: any, totalCount: number, filteredCount: number, pageCount: number, pageInfo: { __typename: 'PageInfo', endCursor?: string | undefined, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined }, edges: Array<{ __typename: 'BrowseDiseaseEdge', cursor: string, node?: { __typename: 'BrowseDisease', id: number, name: string, doid?: string | undefined, diseaseUrl?: string | undefined, assertionCount: number, evidenceItemCount: number, variantCount: number, featureCount: number, link: string, deprecated: boolean, diseaseAliases?: Array<string> | undefined, features: Array<{ __typename: 'LinkableFeature', id: number, name: string, link: string, flagged: boolean, deprecated: boolean, featureType: Types.FeatureInstanceTypes }> } | undefined }> } };
 
-export type BrowseDiseaseRowFieldsFragment = { __typename: 'BrowseDisease', id: number, name: string, doid?: string | undefined, diseaseUrl?: string | undefined, assertionCount: number, evidenceItemCount: number, variantCount: number, featureCount: number, link: string, deprecated: boolean, diseaseAliases?: Array<string> | undefined, features: Array<{ __typename: 'LinkableFeature', id: number, name: string, link: string }> };
+export type BrowseDiseaseRowFieldsFragment = { __typename: 'BrowseDisease', id: number, name: string, doid?: string | undefined, diseaseUrl?: string | undefined, assertionCount: number, evidenceItemCount: number, variantCount: number, featureCount: number, link: string, deprecated: boolean, diseaseAliases?: Array<string> | undefined, features: Array<{ __typename: 'LinkableFeature', id: number, name: string, link: string, flagged: boolean, deprecated: boolean, featureType: Types.FeatureInstanceTypes }> };
 
 export const BrowseDiseaseRowFieldsFragmentDoc = gql`
     fragment BrowseDiseaseRowFields on BrowseDisease {
@@ -32,6 +32,9 @@ export const BrowseDiseaseRowFieldsFragmentDoc = gql`
     id
     name
     link
+    flagged
+    deprecated
+    featureType
   }
   assertionCount
   evidenceItemCount

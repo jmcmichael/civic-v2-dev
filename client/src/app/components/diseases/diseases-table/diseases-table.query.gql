@@ -50,6 +50,9 @@ fragment BrowseDiseaseRowFields on BrowseDisease {
     id
     name
     link
+    flagged
+    deprecated
+    featureType
   }
   assertionCount
   evidenceItemCount

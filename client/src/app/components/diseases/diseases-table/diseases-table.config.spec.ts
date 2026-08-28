@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing'
-import { DiseasesSortColumns } from '@app/generated/civic.apollo.types'
+import {
+  DiseasesSortColumns,
+  FeatureInstanceTypes,
+} from '@app/generated/civic.apollo.types'
 import { SORT_DESCEND_FIRST } from '@app/tables'
 import { readCachedEntity, writeCachedEntity } from '@app/tags'
 import { provideMockApollo } from '@app/testing/apollo-test.providers'
@@ -33,7 +36,15 @@ const ROW: BrowseDiseaseRowFieldsFragment = {
   doid: '1909',
   diseaseUrl: 'https://disease-ontology.org/?id=DOID:1909',
   features: [
-    { __typename: 'LinkableFeature', id: 5, name: 'BRAF', link: '/features/5' },
+    {
+      __typename: 'LinkableFeature',
+      id: 5,
+      name: 'BRAF',
+      link: '/features/5',
+      flagged: false,
+      deprecated: false,
+      featureType: FeatureInstanceTypes.Gene,
+    },
   ],
   assertionCount: 12,
   evidenceItemCount: 130,
@@ -89,9 +100,12 @@ describe('diseasesTableConfig', () => {
         lastUpdated: '2026-08-17T00:00:00Z',
       },
     }),
-    // the disease itself is projected out of the row (satisfies LinkableDisease directly);
-    // its features arrive as a slim LinkableFeature projection, not seeded (custom cell)
-    seeded: [['Disease', 7]],
+    // the disease is projected out of the row directly; each row feature is
+    // seeded under its own Feature identity for the tags to resolve
+    seeded: [
+      ['Disease', 7],
+      ['Feature', 5],
+    ],
   })
 
   let apollo: Apollo
@@ -229,8 +243,9 @@ describe('diseasesTableConfig', () => {
       expect(specCell(spec, 'assertionCount', 'count-tag').count(ROW)).toBe(12)
     })
 
-    it('renders Features as a custom cell (slim LinkableFeature projection, missing fields)', () => {
-      expect(column('features').cell.kind).toBe('custom')
+    it('addresses each row feature by cache identity', () => {
+      const entityTag = specCell(spec, 'features', 'entity-tag')
+      expect(entityTag.ref(ROW)).toEqual([{ __typename: 'Feature', id: 5 }])
     })
   })
 
@@ -242,6 +257,19 @@ describe('diseasesTableConfig', () => {
       expect(readCachedEntity(apollo, 'Disease', 7)).toMatchObject({
         name: 'Melanoma',
         link: '/diseases/7',
+      })
+    })
+
+    it('projects features that satisfy LinkableFeature', () => {
+      const seedOf = (column('features').cell as any).seed
+      for (const seed of seedOf(ROW)) {
+        writeCachedEntity(apollo, 'Feature', seed)
+      }
+
+      expect(readCachedEntity(apollo, 'Feature', 5)).toMatchObject({
+        name: 'BRAF',
+        link: '/features/5',
+        featureType: FeatureInstanceTypes.Gene,
       })
     })
   })
