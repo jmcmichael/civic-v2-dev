@@ -64,6 +64,29 @@ describe('FormMutationService', () => {
     expect(networkError$.next).not.toHaveBeenCalled()
   })
 
+  it('invokes the error callback for GraphQL errors only', () => {
+    const { service, gql, result$ } = setup()
+    const onError = vi.fn()
+    service.mutate(gql as any, { input: {} }, undefined, undefined, onError)
+    result$.error(
+      new CombinedGraphQLErrors({ errors: [{ message: 'rejected' }] })
+    )
+    expect(onError).toHaveBeenCalledWith(['rejected'])
+
+    const transport$ = new Subject<FakeResult>()
+    const transportGql = { mutate: vi.fn(() => transport$.asObservable()) }
+    const onTransportError = vi.fn()
+    service.mutate(
+      transportGql as any,
+      { input: {} },
+      undefined,
+      undefined,
+      onTransportError
+    )
+    transport$.error(new Error('socket hangup'))
+    expect(onTransportError).not.toHaveBeenCalled()
+  })
+
   it('routes transport failures to the network error banner', () => {
     const { service, gql, result$, networkError$ } = setup()
     const state = service.mutate(gql as any, { input: {} })
