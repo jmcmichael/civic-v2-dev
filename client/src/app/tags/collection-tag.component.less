@@ -8,6 +8,10 @@ nz-tag {
   margin: 0;
   padding: 0;
   margin-inline-end: 4px;
+  // hover reveals the full list; there is nothing to click or select, so
+  // keep the arrow rather than the text I-beam the digits would show
+  cursor: default;
+  user-select: none;
   span {
     display: inline-block;
   }
