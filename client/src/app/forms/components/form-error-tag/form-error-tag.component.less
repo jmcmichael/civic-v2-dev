@@ -27,20 +27,23 @@
   }
 }
 
-// the footer variant: a one-line alert sized to sit beside the submit button
+// the footer variant: an alert sized to sit beside the submit button —
+// up to two message lines, matching the footer's large-button height
 .form-error-alert {
   max-width: 100%;
   cursor: pointer;
 
   ::ng-deep .ant-alert {
-    padding-block: 4px;
+    padding-block: 2px;
   }
 
+  // max-height clamp, not -webkit-box line-clamp: the box display value
+  // does not survive the build pipeline (computed flow-root)
   ::ng-deep .ant-alert-message {
     display: block;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.3;
+    max-height: 2.6em;
   }
 }
 

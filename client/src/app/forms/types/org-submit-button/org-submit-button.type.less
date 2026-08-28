@@ -3,9 +3,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  // the indicator fills the space the button leaves, ellipsizing when tight
+  // the indicator fills the space the button leaves, clamping when tight.
+  // basis 0, not auto: the ant-row wraps cols on their hypothetical size
+  // before flex shrink applies, so a content-sized alert pushed the whole
+  // col onto its own line
   cvc-form-error-tag {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
   }
   button {
