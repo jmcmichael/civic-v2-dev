@@ -14,17 +14,20 @@ export type FormCardOptions = {
   title?: string
   size?: 'default' | 'small'
   /**
-   * Show the intro row (form instructions + field-state legend) and the
-   * header error slot. Defaults to true for full-size cards and false for
-   * small ones, so a form's outer card explains its fields once without
-   * every nested sub-card repeating it.
+   * Show the field-status legend in the card header. Defaults to true for
+   * full-size cards and false for small ones, so a form's outer card explains
+   * its fields once without every nested sub-card repeating it.
    */
   showLegend?: boolean
 }
 
 export interface CvcFormCardWrapperProps extends FormlyFieldProps {
   formCardOptions?: FormCardOptions
-  /** a couple of lines shown above the form, beside the field-state legend */
+  /**
+   * One line shown in the card header in place of the title — the page
+   * header already names the entity and action, so the card leads with
+   * what to do instead of repeating it.
+   */
   formInstructions?: string
 }
 
@@ -59,6 +62,30 @@ export class CvcFormCardWrapper
     return (
       this.wrapperOptions.showLegend ?? this.wrapperOptions.size !== 'small'
     )
+  }
+
+  /**
+   * Fields marked `props.formFooter` (the cancel/submit row) render in the
+   * card's actions area, pinned below the scrolling body; the rest render
+   * in the body.
+   */
+  get footerFields(): FormlyFieldConfig[] {
+    return (
+      this.field.fieldGroup?.filter((f) => f.props?.['formFooter'] === true) ??
+      []
+    )
+  }
+
+  get bodyFields(): FormlyFieldConfig[] {
+    return (
+      this.field.fieldGroup?.filter((f) => f.props?.['formFooter'] !== true) ??
+      []
+    )
+  }
+
+  /** a card with a pinned footer fills the page; its body scrolls */
+  get fullPage(): boolean {
+    return this.footerFields.length > 0
   }
 
   ngOnInit(): void {

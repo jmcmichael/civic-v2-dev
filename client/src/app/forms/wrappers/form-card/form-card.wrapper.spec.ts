@@ -28,7 +28,19 @@ class HostComponent {
   fields: FormlyFieldConfig[] = []
 }
 
-function mount(): {
+const defaultCardField = (): FormlyFieldConfig => ({
+  wrappers: ['form-card'],
+  props: {
+    formCardOptions: { title: 'My Form' },
+    formInstructions: 'Fill in the fields, then submit.',
+  },
+  fieldGroup: [
+    { key: 'a', className: 'body-field' },
+    { key: 'footer', className: 'footer-field', props: { formFooter: true } },
+  ],
+})
+
+function mount(field: FormlyFieldConfig = defaultCardField()): {
   fixture: ComponentFixture<HostComponent>
   errors: ReturnType<typeof signal<FormSubmissionError[]>>
   dismissed: ReturnType<typeof signal<boolean>>
@@ -48,16 +60,7 @@ function mount(): {
     ],
   })
   const fixture = TestBed.createComponent(HostComponent)
-  fixture.componentInstance.fields = [
-    {
-      wrappers: ['form-card'],
-      props: {
-        formCardOptions: { title: 'My Form' },
-        formInstructions: 'Fill in the fields, then submit.',
-      },
-      fieldGroup: [{ key: 'a' }],
-    },
-  ]
+  fixture.componentInstance.fields = [field]
   fixture.detectChanges()
   return { fixture, errors, dismissed }
 }
@@ -71,27 +74,31 @@ function headTitle(fixture: ComponentFixture<HostComponent>): string {
 }
 
 describe('CvcFormCardWrapper', () => {
-  it('titles the card from formCardOptions', () => {
+  it('shows the instruction line in place of the title', () => {
     const { fixture } = mount()
+    expect(headTitle(fixture)).toBe('Fill in the fields, then submit.')
+  })
+
+  it('falls back to the configured title without instructions', () => {
+    const field = defaultCardField()
+    delete field.props!.formInstructions
+    const { fixture } = mount(field)
     expect(headTitle(fixture)).toBe('My Form')
   })
 
-  it('renders instructions beside the field-state legend above the fields', () => {
+  it('shows the field-state legend in the header extra', () => {
+    const { fixture } = mount()
+    expect(
+      fixture.nativeElement.querySelector('.ant-card-extra cvc-form-legend')
+    ).toBeTruthy()
+  })
+
+  it('renders formFooter fields in the pinned actions area, the rest in the body', () => {
     const { fixture } = mount()
     const el: HTMLElement = fixture.nativeElement
-    expect(el.querySelector('.form-instructions')?.textContent).toContain(
-      'Fill in the fields, then submit.'
-    )
-    expect(el.querySelector('.form-intro cvc-form-legend')).toBeTruthy()
-  })
-
-  it('shows the error tag in the header extra while a failure stands', () => {
-    const { fixture, errors } = mount()
-    errors.set([{ category: 'graphql', message: 'rejected' }])
-    fixture.detectChanges()
-    const extra = fixture.nativeElement.querySelector('.ant-card-extra')
-    expect(extra?.textContent).toContain('rejected')
-    expect(headTitle(fixture)).toBe('My Form')
+    expect(el.querySelector('.ant-card-body .body-field')).toBeTruthy()
+    expect(el.querySelector('.ant-card-actions .footer-field')).toBeTruthy()
+    expect(el.querySelector('.ant-card-body .footer-field')).toBeFalsy()
   })
 
   it('reports the edit that dismisses a standing failure', () => {

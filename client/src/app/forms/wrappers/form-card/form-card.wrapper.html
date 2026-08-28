@@ -1,32 +1,34 @@
 <nz-card
-  [nzTitle]="wrapperOptions.title ?? ''"
+  cvcAutoHeightCard
+  [cvcAutoHeightTarget]="fullPage ? 'page' : 'none'"
+  [nzTitle]="cardTitle"
   [nzSize]="wrapperOptions.size ?? 'default'"
-  [nzExtra]="showLegend ? errorExtra : undefined">
-  @if (showLegend) {
-    <nz-row
-      class="form-intro"
-      [nzGutter]="16">
-      <nz-col
-        class="form-instructions"
-        [nzXs]="24"
-        [nzLg]="13"
-        [nzXl]="15">
-        {{ props.formInstructions }}
-      </nz-col>
-      <nz-col
-        class="form-legend-col"
-        [nzXs]="24"
-        [nzLg]="11"
-        [nzXl]="9">
-        <cvc-form-legend />
-      </nz-col>
-    </nz-row>
-  }
-  @for (field of field.fieldGroup; track field) {
+  [nzExtra]="showLegend ? legend : undefined"
+  [nzActions]="fullPage ? [footerActions] : []">
+  @for (field of bodyFields; track field) {
     <formly-field [field]="field"></formly-field>
   }
 </nz-card>
 
-<ng-template #errorExtra>
-  <cvc-form-error-tag class="header-error" />
+<ng-template #cardTitle>
+  @if (props.formInstructions) {
+    <span
+      class="card-instructions"
+      nz-typography
+      nzType="secondary"
+      >{{ props.formInstructions }}</span
+    >
+  } @else {
+    {{ wrapperOptions.title ?? '' }}
+  }
+</ng-template>
+
+<ng-template #legend>
+  <cvc-form-legend />
+</ng-template>
+
+<ng-template #footerActions>
+  @for (field of footerFields; track field) {
+    <formly-field [field]="field"></formly-field>
+  }
 </ng-template>
