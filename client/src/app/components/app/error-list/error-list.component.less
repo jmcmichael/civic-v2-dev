@@ -1,0 +1,115 @@
+:host {
+  display: block;
+}
+
+// chip + code + message row, shared by both modes
+.panel-head,
+.item-head {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  max-width: 100%;
+
+  // sized to clear the widest label (Network) so the chips align as a
+  // column across items
+  .category-chip {
+    flex: none;
+    min-width: 68px;
+    text-align: center;
+    text-transform: capitalize;
+  }
+
+  // the error's shortname/code, in a default grey tag
+  .code-chip {
+    flex: none;
+    font-family:
+      'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 12px;
+  }
+
+  .head-message {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .copy-icon {
+    flex: none;
+    margin-left: 6px;
+  }
+}
+
+.error-detail {
+  .detail-message {
+    margin-bottom: 8px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+
+    .meta-label {
+      flex: none;
+      font-weight: 600;
+    }
+
+    .meta-value {
+      word-break: break-all;
+    }
+  }
+
+  ngx-json-viewer {
+    display: block;
+    margin-top: 8px;
+    overflow-x: auto;
+    font-size: 12px;
+  }
+
+  .error-log {
+    max-height: 240px;
+    margin-top: 8px;
+    overflow: auto;
+    // ant's @code-family stack (the variable isn't in our theme chain)
+    font-family:
+      'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 12px;
+    white-space: pre;
+  }
+}
+
+// flatten the borderless collapse; the host's container (popover, modal)
+// provides the frame, so the headers keep only a sliver of side padding
+:host ::ng-deep .ant-collapse-borderless {
+  background: transparent;
+
+  > .ant-collapse-item {
+    border-bottom: 0;
+
+    > .ant-collapse-header {
+      padding: 4px 4px 4px 2px;
+    }
+
+    > .ant-collapse-content > .ant-collapse-content-box {
+      padding-block: 4px;
+    }
+  }
+}
+
+// list mode: the toggle hugs the right edge; details render full-width
+// under the head row
+.error-items {
+  .item-block {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .item-head .details-toggle {
+    flex: none;
+    margin-left: auto;
+  }
+
+  .error-detail {
+    margin-top: 4px;
+  }
+}

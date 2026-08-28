@@ -61,10 +61,6 @@ export class CvcFormCardWrapper
 
   wrapperOptions: FormCardOptions = { ...defaultWrapperOptions }
 
-  get errorState() {
-    return this.showError ? 'error' : ''
-  }
-
   /** nested sub-cards are rendered small; only the outer card explains states */
   get showLegend(): boolean {
     return (

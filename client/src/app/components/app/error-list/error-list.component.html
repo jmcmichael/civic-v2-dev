@@ -1,0 +1,93 @@
+<!-- shared per-error detail body -->
+<ng-template
+  #detail
+  let-err>
+  <div class="error-detail">
+    <p class="detail-message">{{ err.message }}</p>
+    @for (m of err.meta; track m.label) {
+      <div class="meta-row">
+        <span class="meta-label">{{ m.label }}</span>
+        <span class="meta-value">{{ m.value }}</span>
+      </div>
+    }
+    @if (err.json !== undefined) {
+      <ngx-json-viewer
+        [json]="err.json"
+        [expanded]="false"></ngx-json-viewer>
+    } @else if (err.log) {
+      <pre class="error-log">{{ err.log }}</pre>
+    }
+  </div>
+</ng-template>
+
+<!-- chip + code + message + copy affordance, shared by both modes -->
+<ng-template
+  #head
+  let-err>
+  <nz-tag
+    class="category-chip"
+    [nzColor]="categoryColor(err.category)">
+    {{ err.category }}
+  </nz-tag>
+  @if (err.code) {
+    <nz-tag class="code-chip">{{ err.code }}</nz-tag>
+  }
+  <span class="head-message">{{ err.message }}</span>
+  <span
+    class="copy-icon"
+    (click)="$event.stopPropagation()"
+    nz-typography
+    nzCopyable
+    [nzCopyText]="errorBlock(err)"></span>
+</ng-template>
+
+@if (mode() === 'collapse') {
+  <!-- borderless + our flattening CSS, not collapse's ghost mode: that
+       attribute trips postcss-strip-unused's button-ghost driver -->
+  <nz-collapse [nzBordered]="false">
+    @for (err of errors(); track $index) {
+      <nz-collapse-panel
+        [nzHeader]="panelHeader"
+        [nzActive]="expandAll() || errors().length === 1">
+        <ng-template #panelHeader>
+          <span class="panel-head">
+            <ng-container
+              *ngTemplateOutlet="head; context: { $implicit: err }" />
+          </span>
+        </ng-template>
+        <ng-container *ngTemplateOutlet="detail; context: { $implicit: err }" />
+      </nz-collapse-panel>
+    }
+  </nz-collapse>
+} @else {
+  <nz-list
+    class="error-items"
+    nzSize="small">
+    @for (err of errors(); track $index) {
+      <nz-list-item class="error-item">
+        <div class="item-block">
+          <div class="item-head">
+            <ng-container
+              *ngTemplateOutlet="head; context: { $implicit: err }" />
+            <button
+              class="details-toggle"
+              nz-button
+              nzType="link"
+              nzSize="small"
+              (click)="toggle($index)">
+              details
+              <span
+                nz-icon
+                nzType="down"
+                [nzRotate]="isOpen($index) ? 180 : 0"></span>
+            </button>
+          </div>
+          @if (isOpen($index)) {
+            <ng-container
+              *ngTemplateOutlet="detail; context: { $implicit: err }" />
+          }
+        </div>
+      </nz-list-item>
+    }
+  </nz-list>
+}

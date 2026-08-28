@@ -6,29 +6,22 @@
   min-width: 0;
 }
 
-// painted with the same variables as the form-field error state and the
-// legend's Error chip, so every error indicator in a form matches
+// the card-title tag: a single error wears its category's preset color
+// (via nzColor); several errors wear the same variables as the form-field
+// error state, matching the legend's Error chip
 .form-error-tag {
-  display: flex;
-  align-items: center;
-  max-width: 100%;
   margin-inline-end: 0;
   cursor: pointer;
-  color: @field-error-label-color;
-  background-color: @field-error-bg-color;
-  border-color: @field-error-border-color;
 
-  // in a tight flex row (the footer button bar) the label gives way first
-  .tag-label {
-    margin-left: 4px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  &.multiple-errors {
+    color: @field-error-label-color;
+    background-color: @field-error-bg-color;
+    border-color: @field-error-border-color;
   }
 }
 
 // the footer variant: an alert sized to sit beside the submit button —
-// up to two message lines, matching the footer's large-button height
+// up to two message lines, matching the footer row's height
 .form-error-alert {
   max-width: 100%;
   cursor: pointer;
@@ -79,115 +72,28 @@
     }
   }
 
-  .issue-list li {
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
-
-    .issue-label {
-      font-weight: 600;
-    }
-
-    .issue-reason {
-      font-size: 12px;
-      opacity: 0.75;
-    }
-  }
-
   .ant-popover-inner-content {
     max-height: 60vh;
     overflow: auto;
   }
 
-  // flatten the borderless collapse to a ghost look inside the popover
-  .ant-collapse-borderless {
-    background: transparent;
+  .issue-list {
+    margin: 0;
+    padding-left: 16px;
 
-    > .ant-collapse-item {
-      border-bottom: 0;
-
-      > .ant-collapse-header {
-        padding-block: 4px;
-      }
-
-      > .ant-collapse-content > .ant-collapse-content-box {
-        padding-block: 4px;
-      }
-    }
-  }
-
-  .panel-head {
-    display: flex;
-    align-items: baseline;
-    min-width: 0;
-    max-width: 100%;
-
-    // sized to clear the widest label (Network) so the chips align as a
-    // column across panels
-    .category-chip {
-      flex: none;
-      min-width: 68px;
-      text-align: center;
-      text-transform: capitalize;
-    }
-
-    // the error's shortname/code, in a default grey tag
-    .code-chip {
-      flex: none;
-      font-family:
-        'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-      font-size: 12px;
-    }
-
-    .head-message {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-
-  .error-detail {
-    .detail-message {
-      margin-bottom: 8px;
-    }
-
-    .meta-row {
+    li {
       display: flex;
       gap: 8px;
-      font-size: 12px;
+      align-items: baseline;
 
-      .meta-label {
-        flex: none;
+      .issue-label {
         font-weight: 600;
       }
 
-      .meta-value {
-        word-break: break-all;
+      .issue-reason {
+        font-size: 12px;
+        opacity: 0.75;
       }
-    }
-
-    ngx-json-viewer {
-      display: block;
-      margin-top: 8px;
-      overflow-x: auto;
-      font-size: 12px;
-    }
-
-    .error-log {
-      max-height: 240px;
-      margin-top: 8px;
-      overflow: auto;
-      // ant's @code-family stack (the variable isn't in our theme chain)
-      font-family:
-        'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-      font-size: 12px;
-      white-space: pre;
-    }
-
-    .copy-one {
-      display: inline-block;
-      margin-top: 8px;
-      font-size: 12px;
     }
   }
 }

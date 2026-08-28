@@ -6,16 +6,21 @@ import {
   input,
   signal,
 } from '@angular/core'
+import {
+  categoryColor,
+  categoryName,
+  CvcErrorListComponent,
+  submissionErrorsText,
+} from '@app/components/app/error-list/error-list.component'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import { FormFieldIssue } from '@app/forms/utilities/form-field-issues'
 import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
-import { NgxJsonViewerModule } from 'ngx-json-viewer'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
-import { NzCollapseModule } from 'ng-zorro-antd/collapse'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzTagModule } from 'ng-zorro-antd/tag'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 
 /** Pre-submit form state, provided by the submit button's field type */
@@ -24,24 +29,15 @@ export interface FormReadiness {
   readonly issues: FormFieldIssue[]
 }
 
-const CATEGORY_COLORS: Record<FormSubmissionError['category'], string> = {
-  graphql: 'volcano',
-  network: 'orange',
-  apollo: 'purple',
-  cache: 'geekblue',
-  code: 'red',
-}
-
 /**
  * Compact submit-state indicator, rendered wherever a form shows submit
- * state: the form card's header extra (as a tag) and the footer button bar
- * (as a small alert — `variant="alert"`). A submit failure shows an error
- * alert whose popover lists every error as a collapse panel — category
- * chip, code and message in the header; full message, meta rows, a JSON
- * tree or raw log, and copy affordances in the body. With no failure
- * displayed, the alert variant reports the `readiness` input instead: an
- * info alert whose popover lists the fields blocking submission, or a
- * success alert once the form is ready.
+ * state: the form card's title (as a tag — a single failure shows its
+ * category, several show `[Multiple Errors]`) and the footer button bar
+ * (as a small alert — `variant="alert"`). Both open a popover rendering
+ * the errors as a cvc-error-list. With no failure displayed, the alert
+ * variant reports the `readiness` input instead: an info alert whose
+ * popover lists the fields blocking submission, or a success alert once
+ * the form is ready.
  *
  * Reads state from the nearest cvc-form-submission-status-display ancestor,
  * so it can be dropped into any template inside one without wiring inputs
@@ -52,13 +48,13 @@ const CATEGORY_COLORS: Record<FormSubmissionError['category'], string> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    NgxJsonViewerModule,
+    CvcErrorListComponent,
     NzAlertModule,
     NzButtonModule,
-    NzCollapseModule,
     NzIconModule,
     NzPopoverModule,
     NzTagModule,
+    NzTooltipModule,
     NzTypographyModule,
   ],
   templateUrl: './form-error-alert.component.html',
@@ -108,6 +104,21 @@ export class CvcFormErrorAlertComponent {
     return e.message
   })
 
+  // the title tag: a single error wears its category's chip style, several
+  // wear the field-error red
+  protected readonly tagLabel = computed(() => {
+    const e = this.primary()
+    if (!e) return ''
+    return this.extraCount() > 0
+      ? '[Multiple Errors]'
+      : `[${categoryName(e.category)} Error]`
+  })
+  protected readonly tagColor = computed(() => {
+    const e = this.primary()
+    if (!e || this.extraCount() > 0) return undefined
+    return categoryColor(e.category)
+  })
+
   protected readonly okLabel = computed(
     () => `All required fields provided, ${this.noun} may be submitted.`
   )
@@ -121,32 +132,16 @@ export class CvcFormErrorAlertComponent {
     return `${issues.length} fields need attention before submitting.`
   })
 
-  protected categoryColor(category: FormSubmissionError['category']): string {
-    return CATEGORY_COLORS[category]
-  }
-
-  // header controls: expand/collapse every panel, copy the full details.
-  // driving the nzActive input closes manually-opened panels too — the
-  // panel's linked signal resets whenever the input changes
+  // popover header controls: expand/collapse every panel, copy the details
   protected readonly expandAll = signal(false)
   protected readonly copied = signal(false)
 
   protected copyAll(): void {
-    navigator.clipboard?.writeText(this.detailsText()).then(() => {
-      this.copied.set(true)
-      setTimeout(() => this.copied.set(false), 2000)
-    })
+    navigator.clipboard
+      ?.writeText(submissionErrorsText(this.errors()))
+      .then(() => {
+        this.copied.set(true)
+        setTimeout(() => this.copied.set(false), 2000)
+      })
   }
-
-  protected errorBlock(e: FormSubmissionError): string {
-    const head = `[${e.category}${e.code ? ` ${e.code}` : ''}] ${e.message}`
-    const meta = (e.meta ?? []).map((m) => `${m.label}: ${m.value}`)
-    return [head, ...meta, e.log].filter(Boolean).join('\n')
-  }
-
-  protected readonly detailsText = computed(() =>
-    this.errors()
-      .map((e) => this.errorBlock(e))
-      .join('\n\n---\n\n')
-  )
 }

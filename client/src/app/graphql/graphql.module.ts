@@ -1,6 +1,7 @@
 import { TypePolicies } from '@apollo/client/cache'
 import { ApolloClient, ApolloLink, InMemoryCache } from '@apollo/client'
 import { CombinedGraphQLErrors } from '@apollo/client/errors'
+import { AppErrorsService } from '@app/core/services/app-errors.service'
 import { LocalState } from '@apollo/client/local-state'
 import result from '@app/generated/civic.possible-types'
 import { provideApollo } from 'apollo-angular'
@@ -30,7 +31,8 @@ export const BATCHED = { batch: true } as const
 
 export function createApollo(
   httpLink: HttpLink,
-  batchLink: HttpBatchLink
+  batchLink: HttpBatchLink,
+  appErrors?: AppErrorsService
 ): ApolloClient.Options {
   const http = httpLink.create({ uri: uri, withCredentials: true })
 
@@ -60,11 +62,16 @@ export function createApollo(
     })
     return forward(operation)
   })
-  const errorHandler = onError(({ error }) => {
+  const errorHandler = onError(({ error, operation }) => {
     if (CombinedGraphQLErrors.is(error)) {
+      // graphql results are handled where the operation ran (form alerts,
+      // query error states)
       console.error('GraphQL Error:', error.errors)
     } else {
+      // transport failures on ANY operation report once, here — form
+      // submits included, so FormMutationService never forwards them
       console.error('Network Error:', error)
+      appErrors?.report(error, operation.operationName)
     }
   })
   return {
@@ -94,6 +101,7 @@ export function createApollo(
 export const graphqlProvider = provideApollo(
   (
     httpLink: HttpLink = inject(HttpLink),
-    batchLink: HttpBatchLink = inject(HttpBatchLink)
-  ) => createApollo(httpLink, batchLink)
+    batchLink: HttpBatchLink = inject(HttpBatchLink),
+    appErrors: AppErrorsService = inject(AppErrorsService)
+  ) => createApollo(httpLink, batchLink, appErrors)
 )

@@ -58,7 +58,7 @@ describe('CvcFormErrorAlertComponent', () => {
     expect(fixture.nativeElement.querySelector('nz-tag')).toBeFalsy()
   })
 
-  it('labels with the first error message, code left to the popover', () => {
+  it('tags a single error with its category name', () => {
     errors.set([
       {
         category: 'graphql',
@@ -68,8 +68,8 @@ describe('CvcFormErrorAlertComponent', () => {
     ])
     fixture.detectChanges()
     const tag = fixture.nativeElement.querySelector('nz-tag')
-    expect(tag.textContent).toContain('name is invalid')
-    expect(tag.textContent).not.toContain('VALIDATION_FAILED')
+    expect(tag.textContent).toContain('[GraphQL Error]')
+    expect(tag.classList.contains('multiple-errors')).toBe(false)
   })
 
   it('renders the alert variant for the footer', () => {
@@ -163,17 +163,29 @@ describe('CvcFormErrorAlertComponent', () => {
     )
   })
 
-  it('switches to the failure summary when several errors stand', () => {
+  it('tags several errors with the red multiple-errors style', () => {
     errors.set([
       { category: 'graphql', message: 'first' },
       { category: 'graphql', message: 'second' },
       { category: 'network', message: 'third' },
     ])
     fixture.detectChanges()
+    const tag = fixture.nativeElement.querySelector('nz-tag')
+    expect(tag.textContent).toContain('[Multiple Errors]')
+    expect(tag.classList.contains('multiple-errors')).toBe(true)
+  })
+
+  it('summarizes several errors in the alert label', () => {
+    fixture.componentInstance.variant = 'alert'
+    errors.set([
+      { category: 'graphql', message: 'first' },
+      { category: 'graphql', message: 'second' },
+    ])
+    fixture.detectChanges()
     // no submissionNoun or entityType on the display: the generic noun
-    expect(fixture.nativeElement.querySelector('nz-tag').textContent).toContain(
-      'Form submission failed, review error details.'
-    )
+    expect(
+      fixture.nativeElement.querySelector('nz-alert').textContent
+    ).toContain('Form submission failed, review error details.')
   })
 
   it('reports blocking fields while the form is invalid', () => {
