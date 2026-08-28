@@ -42,15 +42,22 @@ export class CvcPageFillDirective implements OnInit {
         }
         el.style.minHeight = `${window.innerHeight - top - reserve}px`
       }
-      // now, again after first layout settles, then on any host resize
-      // (top can shift) or window resize
+      // now, again after first layout settles, then on any host resize or
+      // window resize. The parent is observed too: a top-edge shift
+      // (content above the host settling in) changes the host's available
+      // height without resizing the host itself — and the body can't stand
+      // in for it, since the app scrolls in an inner container and the
+      // body never resizes.
       update()
       const raf = requestAnimationFrame(update)
+      const settle = setTimeout(update, 300)
       const resizeObserver = new ResizeObserver(update)
       resizeObserver.observe(el)
+      if (el.parentElement) resizeObserver.observe(el.parentElement)
       window.addEventListener('resize', update, { passive: true })
       this.destroyRef.onDestroy(() => {
         cancelAnimationFrame(raf)
+        clearTimeout(settle)
         resizeObserver.disconnect()
         window.removeEventListener('resize', update)
       })

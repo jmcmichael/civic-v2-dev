@@ -1,4 +1,4 @@
-@import "themes/global-variables.less";
+@import 'themes/global-variables.less';
 
 :host {
   display: block;
@@ -98,6 +98,32 @@
     }
     .ant-tabs-extra-content {
       margin-right: @default-padding-md;
+    }
+  }
+}
+
+// Browse home pages (`.table-page` on the header, `.table-fill` on the
+// table region): the table card becomes the lower portion of the page box.
+// The bottom paddings are genuinely removed — not escaped with negative
+// margins — so the measured height methods (entity-table 'auto',
+// cvcPageFill) see the true layout and the card's bottom edge coincides
+// with the box's.
+:host ::ng-deep nz-page-header.table-page {
+  padding-bottom: 0;
+
+  .ant-page-header-content {
+    padding-bottom: 0;
+  }
+
+  .table-fill {
+    margin-left: -@default-padding-md;
+    margin-right: -@default-padding-md;
+
+    .cvc-entity-table {
+      border: none;
+      border-radius: 0 0 @border-radius-md @border-radius-md;
+      // the table's footer strip would otherwise square the corners
+      overflow: hidden;
     }
   }
 }
