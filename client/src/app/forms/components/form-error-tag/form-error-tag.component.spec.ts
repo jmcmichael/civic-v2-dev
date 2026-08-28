@@ -125,9 +125,15 @@ describe('CvcFormErrorTagComponent', () => {
     expect(panels[0].textContent).toContain('graphql')
     expect(panels[0].textContent).toContain('VALIDATION_FAILED')
     expect(panels[0].querySelector('nz-tag.code-chip')).toBeTruthy()
-    expect(panels[0].textContent).toContain('show details')
     expect(panels[1].textContent).toContain('network')
     expect(panels[1].textContent).toContain('502')
+    // header controls and the count in the title
+    expect(popover!.textContent).toContain('Copy all')
+    expect(popover!.textContent).toContain('Show all details')
+    expect(
+      document.querySelector('.form-error-popover .ant-popover-title')
+        ?.textContent
+    ).toContain('(2)')
   })
 
   it('expands a single error and shows its meta rows and log', async () => {

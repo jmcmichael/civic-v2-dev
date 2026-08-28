@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   input,
+  signal,
 } from '@angular/core'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import { FormFieldIssue } from '@app/forms/utilities/form-field-issues'
@@ -122,6 +123,19 @@ export class CvcFormErrorTagComponent {
 
   protected categoryColor(category: FormSubmissionError['category']): string {
     return CATEGORY_COLORS[category]
+  }
+
+  // header controls: expand/collapse every panel, copy the full details.
+  // driving the nzActive input closes manually-opened panels too — the
+  // panel's linked signal resets whenever the input changes
+  protected readonly expandAll = signal(false)
+  protected readonly copied = signal(false)
+
+  protected copyAll(): void {
+    navigator.clipboard?.writeText(this.detailsText()).then(() => {
+      this.copied.set(true)
+      setTimeout(() => this.copied.set(false), 2000)
+    })
   }
 
   protected errorBlock(e: FormSubmissionError): string {
