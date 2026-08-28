@@ -4,6 +4,12 @@
 // which the @angular/build application builder picks up for all stylesheets.
 const RTL_SELECTOR = /\[dir=(?:"|')?rtl(?:"|')?\]|-rtl\b/
 
+// A selector is RTL only when an rtl marker appears as a POSITIVE component.
+// One inside `:not(...)` means the opposite — an LTR-only rule excluding its
+// RTL sibling (ant's space-compact corner rules are all shaped this way), and
+// stripping those removed the whole button-group border collapse.
+const isRtlSelector = (s) => RTL_SELECTOR.test(s.replace(/:not\([^)]*\)/g, ''))
+
 module.exports = () => ({
   postcssPlugin: 'postcss-strip-rtl',
   Rule(rule) {
@@ -12,7 +18,7 @@ module.exports = () => ({
       rule.parent.name.endsWith('keyframes')
     )
       return
-    const kept = rule.selectors.filter((s) => !RTL_SELECTOR.test(s))
+    const kept = rule.selectors.filter((s) => !isRtlSelector(s))
     if (kept.length === 0) rule.remove()
     else if (kept.length < rule.selectors.length) rule.selectors = kept
   },

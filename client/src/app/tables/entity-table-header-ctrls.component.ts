@@ -46,26 +46,26 @@ import { map } from 'rxjs/operators'
     :host.labels-hidden ::ng-deep .ctrl-label {
       display: none;
     }
-    /* The whole group's corner/border collapsing is done by CSS rather
-       than ng-zorro's compact item classes: those travel by DI, which
-       follows the logical tree — they never reach the projected button,
-       and mis-count the native pair around it, leaving Settings visually
-       detached. Every control but the last squares its trailing corner
-       and collapses the shared border; every control after another
-       squares its leading one. */
+    /* Projected buttons join the compact group by CSS: ng-zorro's compact
+       item classes travel by DI, which follows the logical tree — the
+       facade, not this projection site — so they never reach projected
+       content. The projected button squares its trailing corner and
+       collapses the shared border; the first native button (which zorro
+       counts as the group's FIRST item, blind to the projected one before
+       it) squares its leading one. The native pair's own collapse comes
+       from ant's compact rules (once eaten by postcss-strip-rtl — their
+       :not(…-rtl) exclusions read as RTL selectors; fixed there). */
     /* the projected component's host leaves the flex layout entirely —
        its button becomes the compact row's direct flex item */
     :host ::ng-deep nz-space-compact > [cvcTableCtrlButton] {
       display: contents;
     }
-    :host ::ng-deep nz-space-compact > [cvcTableCtrlButton] .ant-btn,
-    :host ::ng-deep nz-space-compact > button:not(:last-child) {
+    :host ::ng-deep nz-space-compact > [cvcTableCtrlButton] .ant-btn {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
       margin-right: -1px;
     }
-    :host ::ng-deep nz-space-compact > [cvcTableCtrlButton] + button,
-    :host ::ng-deep nz-space-compact > button + button {
+    :host ::ng-deep nz-space-compact > [cvcTableCtrlButton] + button {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
