@@ -293,6 +293,9 @@
               </a>
             }
           }
+          @if (v.description) {
+            <span class="value-description">– {{ v.description }}</span>
+          }
         </span>
       </nz-descriptions-item>
     }
