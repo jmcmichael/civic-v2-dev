@@ -108,6 +108,50 @@ maintained in lockstep with the code.
   (`src/app/testing/entity-stream.harness.ts`, icons in `STREAM_ICONS`) →
   browser goldens (the only layer asserting rendered items).
 
+## The forms library (`src/app/forms/`)
+
+Formly 7 on ng-zorro; the modernization plan and per-PR history live in
+`agent-artifacts/forms-refactor/signal-boundary-plan.md` (local-only).
+
+- **The rx/signal boundary**: rxjs owns event sequencing and async
+  cancellation; signals own derived state a template reads. The seam is
+  `select/field.base.ts` (`CvcFieldBase`) — one `valueChanges` subscription
+  in, one `value` signal out. A Subject whose only writer is a `.next()`
+  inside someone else's subscribe is a variable with ceremony: make it a
+  `computed()`.
+- **Submit state**: `FormMutationService.mutate()`
+  (`forms/utilities/form-mutation.ts`) returns signals
+  (`isSubmitting`/`success`/`errors`); every failure category (graphql /
+  network / browser, with code + details) lands in `errors` as
+  `FormSubmissionError[]` and stays form-local — never the app-wide
+  network banner. `cvc-form-submission-status-display` wraps the form,
+  owns success/redirect and the shared `dismissed` signal; the error
+  indicator is `cvc-form-error-tag` (header tag or footer
+  `variant="alert"`), which injects that ancestor — droppable anywhere
+  inside one, no formly wiring. The first edit after a failure dismisses
+  the indicators (the form-card wrapper reports it — formly hands the
+  wrapper the form the display can't see); a fresh submit re-arms via an
+  effect on the errors signal.
+- **The full-page form card** (form-card wrapper, `fullPage` when any
+  child row has `props.formFooter`): the card IS the page — the view has
+  no nz-page-header; the card carries the title (`props.formTitle`:
+  action/icon/entityType/name — the form component patches `name` onto
+  the config at init), `props.formInstructions` renders above the fields,
+  the legend sits in the extra, and formFooter rows render in `nzActions`
+  (cancel | error alert | submit, pinned). Body height comes from
+  `cvcAutoHeightCard` target `'page'` (measured ancestor bottom reserve —
+  never a hand-tuned offset), `'none'` opting nested cards out.
+  `cvcScrollShadows` (`directives/scroll-shadows/`) toggles
+  `scrolled-from-top`/`-bottom` for the clip shadows; the head/actions
+  need explicit z-index to cast over the positioned field boxes.
+- **Formly structure rules**: a keyed group field nests the model
+  (`key: 'fields'` → `model.fields.*`), so wrapper-only grouping must be
+  keyless; `formly-field` renders a field in ANY template slot (card
+  title/extra/actions) — context flows through the config, not the DOM.
+  Grid layout is per-field: each field carries its own `col` config
+  (`row`/`col` wrappers); footer rows use `flex: 'none'` (cancel) /
+  `'auto'` (submit) so the error alert fills the gap between them.
+
 ## Recurring gotchas
 
 1. **Linkable-fragment completeness**: a tag rendering `#<id>` means the
@@ -172,6 +216,6 @@ maintained in lockstep with the code.
   `legacy-table.harness.ts`, retired with the 17th table; resurrect the
   pattern from history for the next legacy family, e.g. the feeds.)
 - Mutation-wired custom cells: per-row popover hosting the existing form,
-  `optimisticResponse` through `MutatorWithState`'s options for the instant
-  cache flip, no table refetch — see
+  `optimisticResponse` through `FormMutationService.mutate()`'s options for
+  the instant cache flip, no table refetch — see
   `source-suggestions-table-actions-cell.component.ts`.
