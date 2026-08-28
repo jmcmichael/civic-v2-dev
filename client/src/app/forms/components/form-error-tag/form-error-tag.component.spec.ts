@@ -5,9 +5,7 @@ import {
   FormMutationState,
   FormSubmissionError,
 } from '@app/forms/utilities/form-mutation'
-import { By } from '@angular/platform-browser'
-import { NzModalService } from 'ng-zorro-antd/modal'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { CvcFormErrorTagComponent } from './form-error-tag.component'
 
 function makeState() {
@@ -86,31 +84,69 @@ describe('CvcFormErrorTagComponent', () => {
     expect(alert.textContent).toContain('502: Bad gateway')
   })
 
-  it('opens the details modal from the alert action button', () => {
+  it('opens a categorized details popover from the alert', async () => {
     fixture.componentInstance.variant = 'alert'
     errors.set([
       {
         category: 'graphql',
         code: 'VALIDATION_FAILED',
         message: 'name is invalid',
-        log: '{ "message": "name is invalid" }',
+        meta: [{ label: 'path', value: 'addThing.name' }],
+        json: { message: 'name is invalid' },
+      },
+      {
+        category: 'network',
+        code: '502',
+        message: 'Bad gateway',
+        log: 'HTTP 502',
       },
     ])
     fixture.detectChanges()
-    // NzModalService is provided by the component's own NzModalModule
-    // import, so spy on that instance rather than a TestBed-level mock
-    const tagDe = fixture.debugElement.query(
-      By.directive(CvcFormErrorTagComponent)
-    )
-    const modal = tagDe.injector.get(NzModalService)
-    const create = vi.spyOn(modal, 'create').mockReturnValue(undefined as never)
+    // the Details button is a visible affordance; its click bubbles to the
+    // alert's popover trigger
     const button = fixture.nativeElement.querySelector(
       '.ant-alert-action button'
     )
     expect(button.textContent).toContain('Details')
     button.click()
-    expect(create).toHaveBeenCalledWith(
-      expect.objectContaining({ nzTitle: 'Submission Error Details' })
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    // popover content renders into the cdk overlay container
+    const popover = document.querySelector('.form-error-popover')
+    expect(popover).toBeTruthy()
+    const panels = popover!.querySelectorAll('nz-collapse-panel')
+    expect(panels.length).toBe(2)
+    expect(panels[0].textContent).toContain('graphql')
+    expect(panels[0].textContent).toContain('VALIDATION_FAILED')
+    expect(panels[1].textContent).toContain('network')
+    expect(panels[1].textContent).toContain('502')
+  })
+
+  it('expands a single error and shows its meta rows and log', async () => {
+    fixture.componentInstance.variant = 'alert'
+    errors.set([
+      {
+        category: 'code',
+        code: 'Error',
+        message: 'boom',
+        meta: [{ label: 'origin', value: 'apollo link chain' }],
+        log: 'Error: boom\n  at somewhere',
+      },
+    ])
+    fixture.detectChanges()
+    fixture.nativeElement.querySelector('nz-alert').click()
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    const popover = document.querySelector('.form-error-popover')!
+    const panel = popover.querySelector('nz-collapse-panel')!
+    expect(panel.classList.contains('ant-collapse-item-active')).toBe(true)
+    expect(panel.textContent).toContain('origin')
+    expect(panel.textContent).toContain('apollo link chain')
+    // no json payload: the raw log renders instead
+    expect(panel.querySelector('pre.error-log')?.textContent).toContain(
+      'Error: boom'
     )
   })
 
@@ -136,7 +172,7 @@ describe('CvcFormErrorTagComponent', () => {
   })
 
   it('clears when the errors do', () => {
-    errors.set([{ category: 'browser', message: 'boom' }])
+    errors.set([{ category: 'code', message: 'boom' }])
     fixture.detectChanges()
     expect(fixture.nativeElement.querySelector('nz-tag')).toBeTruthy()
     errors.set([])

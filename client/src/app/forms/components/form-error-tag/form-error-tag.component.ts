@@ -4,26 +4,34 @@ import {
   computed,
   inject,
   input,
-  TemplateRef,
-  viewChild,
 } from '@angular/core'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
+import { NgxJsonViewerModule } from 'ngx-json-viewer'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzCollapseModule } from 'ng-zorro-antd/collapse'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzInputModule } from 'ng-zorro-antd/input'
-import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
+
+const CATEGORY_COLORS: Record<FormSubmissionError['category'], string> = {
+  graphql: 'volcano',
+  network: 'orange',
+  apollo: 'purple',
+  cache: 'geekblue',
+  code: 'red',
+}
 
 /**
  * Compact submit-error indicator, rendered wherever a form shows submit
  * state: the form card's header extra (as a tag) and the footer button bar
  * (as a small alert — `variant="alert"`). Displays the first error's
  * category, code and short name; clicking it opens a popover listing every
- * error with its full message and details.
+ * error as a collapse panel — category chip, code and message in the
+ * header; full message, meta rows, a JSON tree or raw log, and copy
+ * affordances in the body.
  *
  * Reads state from the nearest cvc-form-submission-status-display ancestor,
  * so it can be dropped into any template inside one without wiring inputs
@@ -34,11 +42,11 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography'
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    NgxJsonViewerModule,
     NzAlertModule,
     NzButtonModule,
+    NzCollapseModule,
     NzIconModule,
-    NzInputModule,
-    NzModalModule,
     NzPopoverModule,
     NzTagModule,
     NzTypographyModule,
@@ -72,12 +80,14 @@ export class CvcFormErrorTagComponent {
     return `${code}${e.message}${more}`
   })
 
-  private modal = inject(NzModalService)
-  private readonly detailsTpl = viewChild<TemplateRef<void>>('detailsTpl')
+  protected categoryColor(category: FormSubmissionError['category']): string {
+    return CATEGORY_COLORS[category]
+  }
 
   protected errorBlock(e: FormSubmissionError): string {
     const head = `[${e.category}${e.code ? ` ${e.code}` : ''}] ${e.message}`
-    return [head, ...(e.details ?? []), e.log].filter(Boolean).join('\n')
+    const meta = (e.meta ?? []).map((m) => `${m.label}: ${m.value}`)
+    return [head, ...meta, e.log].filter(Boolean).join('\n')
   }
 
   protected readonly detailsText = computed(() =>
@@ -85,17 +95,4 @@ export class CvcFormErrorTagComponent {
       .map((e) => this.errorBlock(e))
       .join('\n\n---\n\n')
   )
-
-  protected openDetails(event: MouseEvent): void {
-    // the whole alert is the popover trigger; the details button is not
-    event.stopPropagation()
-    const content = this.detailsTpl()
-    if (!content) return
-    this.modal.create({
-      nzTitle: 'Submission Error Details',
-      nzContent: content,
-      nzFooter: null,
-      nzWidth: 720,
-    })
-  }
 }

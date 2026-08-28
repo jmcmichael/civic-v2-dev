@@ -44,54 +44,113 @@
   }
 }
 
-// modal content is appended to the overlay container, outside :host; the
-// template's nodes still carry this component's scoping attribute, but the
-// modal shell around them does not — keep selectors on our own elements
-.error-details {
-  .copy-one,
-  .copy-all {
-    margin-bottom: 4px;
-    font-size: 13px;
-  }
-
-  textarea {
-    margin-top: 8px;
-    // ant's @code-family stack (the variable isn't in our theme chain)
-    font-family:
-      'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 12px;
-    white-space: pre;
-  }
-}
-
 // popover content is appended to the overlay container, outside :host
 ::ng-deep .form-error-popover {
-  max-width: 420px;
+  max-width: 560px;
 
-  .error-list {
-    margin: 0;
-    padding-left: 16px;
-
-    li + li {
-      margin-top: 8px;
-    }
+  .ant-popover-inner-content {
+    max-height: 60vh;
+    overflow: auto;
   }
 
-  .error-head {
-    font-weight: 600;
+  .popover-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 4px;
 
-    .error-category {
-      text-transform: capitalize;
+    .error-count {
+      font-size: 12px;
+      opacity: 0.65;
     }
 
-    code {
-      margin-left: 6px;
+    .copy-all {
       font-size: 12px;
     }
   }
 
+  // flatten the borderless collapse to a ghost look inside the popover
+  .ant-collapse-borderless {
+    background: transparent;
+
+    > .ant-collapse-item {
+      border-bottom: 0;
+
+      > .ant-collapse-header {
+        padding-block: 4px;
+      }
+
+      > .ant-collapse-content > .ant-collapse-content-box {
+        padding-block: 4px;
+      }
+    }
+  }
+
+  .panel-head {
+    display: inline-flex;
+    align-items: baseline;
+    min-width: 0;
+    max-width: 100%;
+
+    .category-chip {
+      flex: none;
+      text-transform: capitalize;
+    }
+
+    code {
+      flex: none;
+      margin-right: 6px;
+      font-size: 12px;
+    }
+
+    .head-message {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
   .error-detail {
-    font-size: 12px;
-    opacity: 0.75;
+    .detail-message {
+      margin-bottom: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+
+      .meta-label {
+        flex: none;
+        font-weight: 600;
+      }
+
+      .meta-value {
+        word-break: break-all;
+      }
+    }
+
+    ngx-json-viewer {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .error-log {
+      max-height: 240px;
+      margin-top: 8px;
+      overflow: auto;
+      // ant's @code-family stack (the variable isn't in our theme chain)
+      font-family:
+        'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+      font-size: 12px;
+      white-space: pre;
+    }
+
+    .copy-one {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+    }
   }
 }
