@@ -23,6 +23,11 @@ nz-card.full-page {
     position: relative;
     z-index: 10;
     transition: box-shadow 0.2s ease;
+
+    // the full-page card's title is the page title: double the card default
+    .ant-card-head-title {
+      font-size: 32px;
+    }
   }
   // the actions strip paints its own background; round it to match the card
   > .ant-card-actions {

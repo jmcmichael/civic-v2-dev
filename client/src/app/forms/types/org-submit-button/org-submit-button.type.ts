@@ -17,10 +17,12 @@ import { auditTime, EMPTY, filter, map, merge, Observable } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
+import { NzButtonSize } from 'ng-zorro-antd/button'
 
 interface CvcOrgSubmitButtonProps extends CvcColWrapperProps {
   submitLabel: string
   align?: 'left' | 'right' | 'center'
+  size?: NzButtonSize
 }
 
 export interface CvcOrgSubmitButtonFieldConfig extends FormlyFieldConfig<CvcOrgSubmitButtonProps> {
