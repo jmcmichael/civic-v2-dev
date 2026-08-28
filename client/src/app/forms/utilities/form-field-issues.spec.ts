@@ -97,13 +97,57 @@ describe('collectFieldIssues', () => {
       ],
     })
     // entity names resolve through the callback (cache-miss falls back to
-    // #id); enum values render their display labels
+    // #id); enum values render their display labels; types come from the
+    // typename map, the enum's model key, or the primitive
     const resolve = (typename: string, id: number) =>
       typename === 'Phenotype' && id === 21 ? 'Poor appetite' : undefined
-    expect(collectFieldValues(root, resolve)).toEqual([
-      { label: 'Significance', value: 'Sensitivity / Response' },
-      { label: 'Phenotypes', value: 'Poor appetite, #34' },
-      { label: 'Flagged', value: 'No' },
+    expect(collectFieldValues(root, { resolve })).toEqual([
+      {
+        label: 'Significance',
+        value: 'Sensitivity / Response',
+        type: 'Significance',
+        before: undefined,
+      },
+      {
+        label: 'Phenotypes',
+        value: 'Poor appetite, #34',
+        type: 'Phenotype',
+        before: undefined,
+      },
+      { label: 'Flagged', value: 'No', type: 'boolean', before: undefined },
+    ])
+  })
+
+  it('reports before → after for revised fields', () => {
+    const disease = new FormControl(3)
+    const rating = new FormControl(4)
+    const root = link({
+      fieldGroup: [
+        {
+          key: 'diseaseId',
+          type: 'disease-select',
+          props: { label: 'Disease' },
+          formControl: disease,
+        },
+        {
+          key: 'rating',
+          props: { label: 'Rating' },
+          formControl: rating,
+        },
+      ],
+    })
+    const originals = new Map()
+    // first collect snapshots the loaded (pristine) originals
+    collectFieldValues(root, { originals })
+    // an async model patch while pristine updates the snapshot
+    disease.setValue(4)
+    collectFieldValues(root, { originals })
+    // a user edit dirties the control; the snapshot stops following
+    disease.setValue(7)
+    disease.markAsDirty()
+    expect(collectFieldValues(root, { originals })).toEqual([
+      { label: 'Disease', value: '#7', type: 'Disease', before: '#4' },
+      { label: 'Rating', value: '4', type: 'number', before: undefined },
     ])
   })
 })

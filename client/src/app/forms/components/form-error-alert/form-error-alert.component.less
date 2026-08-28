@@ -43,7 +43,7 @@
 // the submission preview: descriptions fill the popover content area
 // edge to edge; long values clip on one line
 ::ng-deep .form-preview-popover {
-  max-width: 520px;
+  max-width: 640px;
 
   .ant-popover-title .popover-title {
     display: flex;
@@ -67,7 +67,12 @@
   // the popover frame provides the outer border and radius; fixed layout
   // at full width keeps the clipped cells from collapsing the table
   .model-summary {
-    width: 480px;
+    width: 600px;
+
+    // one line per field: the label column stays narrow
+    .ant-descriptions-item-label {
+      width: 150px;
+    }
 
     .ant-descriptions-view {
       border: 0;
@@ -80,11 +85,37 @@
     }
   }
 
-  .ant-descriptions-item-content .value-clip {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .ant-descriptions-item-content .value-cell {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    min-width: 0;
+
+    .type-chip {
+      flex: none;
+      margin-inline-end: 0;
+      font-size: 11px;
+      line-height: 18px;
+    }
+
+    .value-clip {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      .before-value {
+        text-decoration: line-through;
+        opacity: 0.6;
+      }
+
+      .change-arrow {
+        margin: 0 4px;
+        font-size: 11px;
+        opacity: 0.6;
+      }
+    }
   }
 }
 

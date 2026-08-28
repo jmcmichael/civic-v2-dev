@@ -1,13 +1,7 @@
-<input
-  type="hidden"
-  [formControl]="formControl"
-  [formlyAttributes]="field" />
-
 <div class="rate-block">
   <nz-rate
-    [ngModel]="formControl.value"
-    [ngModelOptions]="{ standalone: true }"
+    [formControl]="formControl"
+    [formlyAttributes]="field"
     [nzCount]="props.count"
-    [nzTooltips]="props.hoverText"
-    (ngModelChange)="onRatingChange($event)"></nz-rate>
+    [nzTooltips]="props.hoverText"></nz-rate>
 </div>

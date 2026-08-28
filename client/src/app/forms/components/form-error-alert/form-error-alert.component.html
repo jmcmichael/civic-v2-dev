@@ -169,27 +169,42 @@
   </div>
 </ng-template>
 
-<!-- the review-before-submit pattern: the model as read-only labeled
-     rows, in field order; long values clip, their tooltip carries the
-     full text and a copy affordance -->
+<!-- the review-before-submit pattern: one line per field — name, type,
+     value — in field order; revised fields show before → after; long
+     values clip, their tooltip carrying the full text and a copy
+     affordance -->
 <ng-template #modelSummary>
   <nz-descriptions
     class="model-summary"
     nzSize="small"
     nzBordered
-    nzLayout="vertical"
     [nzColumn]="1">
     @for (v of readiness()?.summary; track v.label) {
       <nz-descriptions-item [nzTitle]="v.label">
-        <span
-          class="value-clip"
-          nz-tooltip
-          [nzTooltipTitle]="fullValue"
-          nzTooltipPlacement="left">
-          {{ v.value }}
+        <span class="value-cell">
+          @if (v.type) {
+            <nz-tag class="type-chip">{{ v.type }}</nz-tag>
+          }
+          <span
+            class="value-clip"
+            nz-tooltip
+            [nzTooltipTitle]="fullValue"
+            nzTooltipPlacement="left">
+            @if (v.before) {
+              <span class="before-value">{{ v.before }}</span>
+              <span
+                class="change-arrow"
+                nz-icon
+                nzType="arrow-right"></span>
+            }
+            {{ v.value }}
+          </span>
         </span>
         <ng-template #fullValue>
           <span class="preview-value-tip">
+            @if (v.before) {
+              {{ v.before }} →
+            }
             {{ v.value }}
             <span
               nz-typography
