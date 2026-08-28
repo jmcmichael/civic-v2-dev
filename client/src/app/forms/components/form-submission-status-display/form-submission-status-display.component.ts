@@ -24,7 +24,7 @@ export class CvcFormSubmissionStatusDisplayComponent {
 
   /**
    * Public so descendants can read submit state where it is displayed:
-   * cvc-form-error-tag and the form-card wrapper inject this ancestor from
+   * cvc-form-error-alert and the form-card wrapper inject this ancestor from
    * the card header and the footer button bar.
    */
   readonly state = signal<Maybe<FormMutationState>>(undefined)

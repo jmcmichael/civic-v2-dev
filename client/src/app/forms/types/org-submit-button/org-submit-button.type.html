@@ -11,8 +11,8 @@
     'btn-left': props.align === 'left',
     'btn-center': props.align === 'center',
   }">
-  <cvc-form-error-tag
-    class="submit-error-tag"
+  <cvc-form-error-alert
+    class="submit-error-alert"
     variant="alert"
     [readiness]="{ valid: formValid(), issues: fieldIssues() }" />
   <button

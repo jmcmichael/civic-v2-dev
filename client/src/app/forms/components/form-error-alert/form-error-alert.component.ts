@@ -48,7 +48,7 @@ const CATEGORY_COLORS: Record<FormSubmissionError['category'], string> = {
  * through formly configs. Renders nothing outside one, or without errors.
  */
 @Component({
-  selector: 'cvc-form-error-tag',
+  selector: 'cvc-form-error-alert',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -61,10 +61,10 @@ const CATEGORY_COLORS: Record<FormSubmissionError['category'], string> = {
     NzTagModule,
     NzTypographyModule,
   ],
-  templateUrl: './form-error-tag.component.html',
-  styleUrl: './form-error-tag.component.less',
+  templateUrl: './form-error-alert.component.html',
+  styleUrl: './form-error-alert.component.less',
 })
-export class CvcFormErrorTagComponent {
+export class CvcFormErrorAlertComponent {
   readonly variant = input<'tag' | 'alert'>('tag')
   /**
    * Pre-submit form state; when provided, the alert variant reports it

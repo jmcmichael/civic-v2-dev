@@ -6,7 +6,7 @@ import {
   FormSubmissionError,
 } from '@app/forms/utilities/form-mutation'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { CvcFormErrorTagComponent } from './form-error-tag.component'
+import { CvcFormErrorAlertComponent } from './form-error-alert.component'
 
 function makeState() {
   const isSubmitting = signal(false)
@@ -17,17 +17,17 @@ function makeState() {
 }
 
 @Component({
-  template: `<cvc-form-error-tag
+  template: `<cvc-form-error-alert
     [variant]="variant"
     [readiness]="readiness" />`,
-  imports: [CvcFormErrorTagComponent],
+  imports: [CvcFormErrorAlertComponent],
 })
 class HostComponent {
   variant: 'tag' | 'alert' = 'tag'
   readiness?: { valid: boolean; issues: { label: string; reason: string }[] }
 }
 
-describe('CvcFormErrorTagComponent', () => {
+describe('CvcFormErrorAlertComponent', () => {
   let fixture: ComponentFixture<HostComponent>
   let errors: ReturnType<typeof makeState>['errors']
   let dismissed: ReturnType<typeof signal<boolean>>
