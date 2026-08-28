@@ -30,7 +30,7 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions'
 import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
-import { NzSpaceCompactComponent } from 'ng-zorro-antd/space'
+import { NzSpaceModule } from 'ng-zorro-antd/space'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
@@ -75,7 +75,7 @@ export interface FormReadiness {
     NzDropdownModule,
     NzIconModule,
     NzPopoverModule,
-    NzSpaceCompactComponent,
+    NzSpaceModule,
     NzTagModule,
     NzTooltipModule,
     NzTypographyModule,
