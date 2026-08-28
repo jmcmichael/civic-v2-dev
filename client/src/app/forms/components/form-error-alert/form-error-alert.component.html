@@ -140,27 +140,60 @@
       }
     </span>
     <span class="title-controls">
-      <nz-space-compact nzSize="small">
-        <button
-          nz-button
-          nzSize="small"
-          (click)="copyModel('json')">
-          <span
-            nz-icon
-            [nzType]="copiedMenu() === 'model' ? 'check' : 'copy'"></span>
-          Copy Form Model
-        </button>
-        <button
-          nz-button
-          nzSize="small"
-          nz-dropdown
-          [nzDropdownMenu]="modelMenu"
-          nzPlacement="bottomRight">
-          <span
-            nz-icon
-            nzType="down"></span>
-        </button>
-      </nz-space-compact>
+      <nz-space nzSize="small">
+        <nz-space-compact
+          *nzSpaceItem
+          nzSize="small">
+          <button
+            nz-button
+            nzSize="small"
+            (click)="copyModel('json')">
+            <span
+              nz-icon
+              [nzType]="
+                copiedMenu() === 'model' || copiedMenu() === 'details'
+                  ? 'check'
+                  : 'copy'
+              "></span>
+            Copy Model
+          </button>
+          <button
+            nz-button
+            nzSize="small"
+            nz-dropdown
+            [nzDropdownMenu]="modelMenu"
+            nzPlacement="bottomRight">
+            <span
+              nz-icon
+              nzType="down"></span>
+          </button>
+        </nz-space-compact>
+        @if (hasGraphqlPreview()) {
+          <nz-space-compact
+            *nzSpaceItem
+            nzSize="small">
+            <button
+              nz-button
+              nzSize="small"
+              (click)="copyGraphql('json')">
+              <span
+                nz-icon
+                [nzType]="copiedMenu() === 'graphql' ? 'check' : 'copy'"></span>
+              Copy GraphQL
+            </button>
+            <button
+              nz-button
+              nzSize="small"
+              nz-dropdown
+              [nzDropdownMenu]="graphqlMenu"
+              nzPlacement="bottomRight">
+              <span
+                nz-icon
+                nzType="down"></span>
+            </button>
+          </nz-space-compact>
+        }
+      </nz-space>
       <nz-dropdown-menu #modelMenu="nzDropdownMenu">
         <ul nz-menu>
           @for (f of copyFormats; track f.id) {
@@ -170,32 +203,7 @@
               Copy as {{ f.label }}
             </li>
           }
-        </ul>
-      </nz-dropdown-menu>
-
-      <nz-space-compact nzSize="small">
-        <button
-          nz-button
-          nzSize="small"
-          (click)="copyDetails('json')">
-          <span
-            nz-icon
-            [nzType]="copiedMenu() === 'details' ? 'check' : 'copy'"></span>
-          Copy Details
-        </button>
-        <button
-          nz-button
-          nzSize="small"
-          nz-dropdown
-          [nzDropdownMenu]="detailsMenu"
-          nzPlacement="bottomRight">
-          <span
-            nz-icon
-            nzType="down"></span>
-        </button>
-      </nz-space-compact>
-      <nz-dropdown-menu #detailsMenu="nzDropdownMenu">
-        <ul nz-menu>
+          <li nz-menu-divider></li>
           @for (f of copyFormats; track f.id) {
             <li
               nz-menu-item
@@ -206,40 +214,17 @@
         </ul>
       </nz-dropdown-menu>
 
-      @if (hasGraphqlPreview()) {
-        <nz-space-compact nzSize="small">
-          <button
-            nz-button
-            nzSize="small"
-            (click)="copyGraphql('json')">
-            <span
-              nz-icon
-              [nzType]="copiedMenu() === 'graphql' ? 'check' : 'copy'"></span>
-            Copy GraphQL
-          </button>
-          <button
-            nz-button
-            nzSize="small"
-            nz-dropdown
-            [nzDropdownMenu]="graphqlMenu"
-            nzPlacement="bottomRight">
-            <span
-              nz-icon
-              nzType="down"></span>
-          </button>
-        </nz-space-compact>
-        <nz-dropdown-menu #graphqlMenu="nzDropdownMenu">
-          <ul nz-menu>
-            @for (f of copyFormats; track f.id) {
-              <li
-                nz-menu-item
-                (click)="copyGraphql(f.id)">
-                Copy GraphQL as {{ f.label }}
-              </li>
-            }
-          </ul>
-        </nz-dropdown-menu>
-      }
+      <nz-dropdown-menu #graphqlMenu="nzDropdownMenu">
+        <ul nz-menu>
+          @for (f of copyFormats; track f.id) {
+            <li
+              nz-menu-item
+              (click)="copyGraphql(f.id)">
+              Copy GraphQL as {{ f.label }}
+            </li>
+          }
+        </ul>
+      </nz-dropdown-menu>
     </span>
   </div>
 </ng-template>
