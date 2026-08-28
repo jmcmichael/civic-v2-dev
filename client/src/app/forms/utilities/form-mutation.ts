@@ -1,18 +1,35 @@
-import { Injectable, Signal, inject, signal } from '@angular/core'
-import { CombinedGraphQLErrors, toErrorLike } from '@apollo/client/errors'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
+import { Injectable, Signal, signal } from '@angular/core'
+import {
+  CombinedGraphQLErrors,
+  ServerError,
+  ServerParseError,
+  toErrorLike,
+} from '@apollo/client/errors'
 import { Apollo, Mutation } from 'apollo-angular'
 import { Observable, finalize } from 'rxjs'
 
 /**
- * Per-submit mutation state for form templates. Server-side validation
- * messages land in `errors`; transport failures go to the app's network
- * error banner, same as before.
+ * One submit-time failure, categorized for the form error tag: what kind of
+ * failure (`category`), a machine code when one exists (GraphQL extension
+ * code, HTTP status), the `message`, and optional `details` for the tag's
+ * popover.
+ */
+export interface FormSubmissionError {
+  readonly category: 'graphql' | 'network' | 'browser'
+  readonly code?: string
+  readonly message: string
+  readonly details?: string[]
+}
+
+/**
+ * Per-submit mutation state for form templates. Every submit failure —
+ * server validation, transport, or a client-side exception — lands in
+ * `errors`, categorized; forms display them locally via the error tag.
  */
 export interface FormMutationState {
   readonly isSubmitting: Signal<boolean>
   readonly success: Signal<boolean>
-  readonly errors: Signal<string[]>
+  readonly errors: Signal<FormSubmissionError[]>
 }
 
 // apollo's Mutation class cannot be matched by a conditional type — its
@@ -29,18 +46,50 @@ type MutationVars<M extends Mutation<any, any>> = Exclude<
   undefined
 >
 
+function toSubmissionErrors(error: unknown): FormSubmissionError[] {
+  if (CombinedGraphQLErrors.is(error)) {
+    return error.errors.map((e) => {
+      const code = e.extensions?.['code']
+      return {
+        category: 'graphql' as const,
+        code: typeof code === 'string' ? code : undefined,
+        message: e.message,
+        details: e.path ? [`path: ${e.path.join('.')}`] : undefined,
+      }
+    })
+  }
+  if (ServerError.is(error) || ServerParseError.is(error)) {
+    return [
+      {
+        category: 'network',
+        code: String(error.statusCode),
+        message: error.message,
+      },
+    ]
+  }
+  const errorLike = toErrorLike(error)
+  // a fetch that never reached the server rejects with a TypeError
+  const isTransport =
+    errorLike.name === 'TypeError' &&
+    /fetch|network|load/i.test(errorLike.message)
+  return [
+    {
+      category: isTransport ? 'network' : 'browser',
+      code: errorLike.name,
+      message: errorLike.message,
+    },
+  ]
+}
+
 /**
  * Successor to core's MutatorWithState, now used app-wide (see the
  * signal-boundary plan §6). Differences: state is signals rather than
  * BehaviorSubjects, there is no cleanup() to remember (apollo's mutate
- * completes after one emission), and success no longer clears the app-wide
- * network error banner — a per-mutation helper has no business dismissing
- * errors it did not raise.
+ * completes after one emission), and submit failures of every category stay
+ * form-local — the app-wide network banner is for out-of-form operations.
  */
 @Injectable({ providedIn: 'root' })
 export class FormMutationService {
-  private readonly networkErrors = inject(NetworkErrorsService)
-
   mutate<M extends Mutation<any, any>>(
     mutation: M,
     vars: MutationVars<M>,
@@ -49,12 +98,11 @@ export class FormMutationService {
       'mutation' | 'variables'
     >,
     dataCallback?: (data: MutationData<M>) => void,
-    // server-side validation errors only — transport failures go to the banner
-    errorCallback?: (errors: string[]) => void
+    errorCallback?: (errors: FormSubmissionError[]) => void
   ): FormMutationState {
     const isSubmitting = signal(true)
     const success = signal(false)
-    const errors = signal<string[]>([])
+    const errors = signal<FormSubmissionError[]>([])
 
     // bind + assert to sidestep the `{} extends V` conditional tuple in
     // Mutation#mutate's signature, which cannot resolve for a generic V
@@ -71,13 +119,9 @@ export class FormMutationService {
           }
         },
         error: (error: unknown) => {
-          if (CombinedGraphQLErrors.is(error)) {
-            const messages = error.errors.map((e) => e.message)
-            errors.set(messages)
-            if (errorCallback) errorCallback(messages)
-          } else {
-            this.networkErrors.networkError$.next(toErrorLike(error))
-          }
+          const submissionErrors = toSubmissionErrors(error)
+          errors.set(submissionErrors)
+          if (errorCallback) errorCallback(submissionErrors)
         },
         complete: () => {
           errors.set([])

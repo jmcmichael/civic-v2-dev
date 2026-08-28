@@ -12,6 +12,7 @@ import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import {
   FormMutationService,
   FormMutationState,
+  FormSubmissionError,
 } from '@app/forms/utilities/form-mutation'
 import {
   ModerateAssertionGQL,
@@ -106,9 +107,9 @@ export class CvcModerateEntityButtonsComponent implements OnInit {
       this.showConfirm = false
       this.onModerated.emit(newStatus)
     }
-    const onError = (errs: string[]) => {
+    const onError = (errs: FormSubmissionError[]) => {
       this.showConfirm = false
-      this.onModerated.emit(errs)
+      this.onModerated.emit(errs.map((e) => e.message))
     }
     if (this.entityType === 'EvidenceItem') {
       this.submitState = this.formMutation.mutate(

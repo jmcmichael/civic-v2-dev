@@ -1,22 +1,4 @@
 <nz-spin [nzSpinning]="state()?.isSubmitting() ?? false">
-  @if (state()?.errors(); as errors) {
-    @if (errors.length > 0) {
-      <nz-alert
-        nzType="error"
-        nzShowIcon
-        nzMessage="Error Submitting {{ entityType }}"
-        [nzDescription]="errorList"></nz-alert>
-    }
-    <ng-template #errorList>
-      <ul>
-        @for (error of errors; track error) {
-          <li>
-            {{ error }}
-          </li>
-        }
-      </ul>
-    </ng-template>
-  }
   @if (state()?.success()) {
     <nz-alert
       nzType="success"

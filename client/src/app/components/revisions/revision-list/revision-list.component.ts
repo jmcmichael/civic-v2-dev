@@ -24,7 +24,10 @@ import {
 } from '@app/generated/civic.apollo.types'
 import { filter, Observable, combineLatest } from 'rxjs'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
-import { FormMutationService } from '@app/forms/utilities/form-mutation'
+import {
+  FormMutationService,
+  FormSubmissionError,
+} from '@app/forms/utilities/form-mutation'
 import { map, startWith } from 'rxjs/operators'
 import { onlyCompleteData, QueryRef } from 'apollo-angular'
 import { InternalRefetchQueryDescriptor } from '@apollo/client'
@@ -157,10 +160,10 @@ export class RevisionListComponent implements OnInit, OnChanges {
         this.selectedRevisionIds = []
         this.revisionComment = undefined
       },
-      onError: (errs: string[]) => {
+      onError: (errs: FormSubmissionError[]) => {
         this.isLoading = false
         this.success = false
-        this.errors = errs
+        this.errors = errs.map((e) => e.message)
         this.validationPopoverVisible = false
         this.selectedRevisionIds = []
       },

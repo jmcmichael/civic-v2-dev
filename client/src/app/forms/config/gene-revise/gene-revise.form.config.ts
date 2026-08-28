@@ -71,14 +71,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
           {
             type: 'cvc-cancel-button',
             wrappers: ['col'],
-            props: { col: { span: 12 } },
+            props: { col: { flex: 'none' } },
           },
           {
             key: 'organizationId',
             type: 'org-submit-button',
             wrappers: ['col'],
             props: {
-              col: { span: 12 },
+              col: { flex: 'auto' },
               submitLabel: 'Submit Gene Revisions',
               align: 'right',
             },

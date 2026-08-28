@@ -1,12 +1,32 @@
 <nz-card
-  [nzTitle]="wrapperOptions.title"
+  [nzTitle]="wrapperOptions.title ?? ''"
   [nzSize]="wrapperOptions.size ?? 'default'"
-  [nzExtra]="showLegend ? legend : undefined">
+  [nzExtra]="showLegend ? errorExtra : undefined">
+  @if (showLegend) {
+    <nz-row
+      class="form-intro"
+      [nzGutter]="16">
+      <nz-col
+        class="form-instructions"
+        [nzXs]="24"
+        [nzLg]="13"
+        [nzXl]="15">
+        {{ props.formInstructions }}
+      </nz-col>
+      <nz-col
+        class="form-legend-col"
+        [nzXs]="24"
+        [nzLg]="11"
+        [nzXl]="9">
+        <cvc-form-legend />
+      </nz-col>
+    </nz-row>
+  }
   @for (field of field.fieldGroup; track field) {
     <formly-field [field]="field"></formly-field>
   }
 </nz-card>
 
-<ng-template #legend>
-  <cvc-form-legend />
+<ng-template #errorExtra>
+  <cvc-form-error-tag class="header-error" />
 </ng-template>
