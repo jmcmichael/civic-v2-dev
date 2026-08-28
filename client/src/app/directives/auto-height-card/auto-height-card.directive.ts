@@ -10,7 +10,13 @@ import {
 import { fromEvent, Subject, Subscription } from 'rxjs'
 import { throttleTime } from 'rxjs/operators'
 
-type AutoHeightTarget = 'parent' | 'viewport' | 'ancestor' | undefined
+type AutoHeightTarget =
+  | 'parent'
+  | 'viewport'
+  | 'ancestor'
+  | 'page'
+  | 'none'
+  | undefined
 type AutoHeightOffset = string | number | undefined
 
 //
@@ -18,9 +24,9 @@ type AutoHeightOffset = string | number | undefined
 // NOTE: significantly refactored to allow parent or viewport target for height calculation;
 // switched from HostListener to element listeners for resize updates
 @Directive({
-    // tslint:disable-next-line: directive-selector
-    selector: '[cvcAutoHeightCard]',
-    standalone: false
+  // tslint:disable-next-line: directive-selector
+  selector: '[cvcAutoHeightCard]',
+  standalone: false,
 })
 export class CvcAutoHeightCardDirective implements OnInit, OnDestroy {
   // optional offset value, if provided will be added to height calculation
@@ -28,6 +34,10 @@ export class CvcAutoHeightCardDirective implements OnInit, OnDestroy {
   // if 'parent' will use card's parent container for height calculation
   // if 'viewport', will use browser window for height calculation
   // if 'ancestor', will fill the nearest ancestor matching _ancestorSelector
+  // if 'page', will fill the window's remaining height, stopping where the
+  // page layout ends: the bottom reserve is the measured bottom
+  // padding/border/margin of every ancestor (the entity-table 'auto' method),
+  // not a hand-tuned offset
   private _target?: AutoHeightTarget = 'parent'
   // CSS selector for the ancestor to fill when _target === 'ancestor'
   private _ancestorSelector?: string
@@ -94,6 +104,8 @@ export class CvcAutoHeightCardDirective implements OnInit, OnDestroy {
   }
 
   private doAutoSize() {
+    // 'none' lets a shared template bind the directive conditionally
+    if (this._target === 'none') return
     const card = this.el.nativeElement
     const cardParentHeight = card.parentElement.clientHeight
 
@@ -118,6 +130,30 @@ export class CvcAutoHeightCardDirective implements OnInit, OnDestroy {
         }
         const viewportOffset = bodyTop + headerDivHeight + this._offset
         bodyDiv.style.height = `calc(100vh - ${viewportOffset}px)`
+      } else if (this._target === 'page') {
+        const bodyTop = bodyDiv.getBoundingClientRect().top
+        const actionsDiv = card.querySelector('.ant-card-actions')
+        const actionsHeight = actionsDiv ? actionsDiv.clientHeight : 0
+        // below the body inside the card: actions plus the card's own
+        // bottom border; below the card: every ancestor's bottom
+        // padding/border/margin, measured live
+        const cardStyle = getComputedStyle(card)
+        let reserve =
+          actionsHeight +
+          (parseFloat(cardStyle.borderBottomWidth) || 0) +
+          (parseFloat(cardStyle.marginBottom) || 0)
+        let ancestor = card.parentElement
+        while (ancestor && ancestor !== document.documentElement) {
+          const style = getComputedStyle(ancestor)
+          reserve +=
+            (parseFloat(style.paddingBottom) || 0) +
+            (parseFloat(style.borderBottomWidth) || 0) +
+            (parseFloat(style.marginBottom) || 0)
+          ancestor = ancestor.parentElement
+        }
+        const available =
+          window.innerHeight - bodyTop - reserve - Number(this._offset)
+        bodyDiv.style.height = `${available}px`
       } else if (this._target === 'ancestor') {
         // fill the nearest matching ancestor: body height = ancestor height
         // minus the card's head and actions (the offset trims for borders).

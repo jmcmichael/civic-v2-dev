@@ -13,6 +13,11 @@ import {
 export interface CvcRowWrapperProps extends FormlyFieldProps {
   /** nz-row gutter: horizontal, or [horizontal, vertical] */
   row?: { gutter?: number | [number, number] }
+  /**
+   * Marks the form's cancel/submit row: the form-card wrapper renders it
+   * in the card's pinned actions area instead of the scrolling body
+   */
+  formFooter?: boolean
 }
 
 /**
