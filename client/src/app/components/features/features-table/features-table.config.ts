@@ -89,7 +89,6 @@ export function featuresTableConfig(
         key: 'fullName',
         label: 'Full Name',
         width: '150px',
-        fixed: 'left',
         cell: {
           kind: 'text',
           text: (row) => titlecase.transform(row.fullName) ?? undefined,
