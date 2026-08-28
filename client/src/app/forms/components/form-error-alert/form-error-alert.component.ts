@@ -221,6 +221,7 @@ export class CvcFormErrorAlertComponent {
       key: r.key ?? '',
       type: r.valueType ?? '',
       value: r.value,
+      description: r.description ?? '',
       issues: issues
         .filter((i) => i.label === r.label)
         .map((i) => i.reason)

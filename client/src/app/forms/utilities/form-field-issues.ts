@@ -61,6 +61,8 @@ export interface FormFieldValue {
   readonly multiline?: boolean
   /** the model value's type: entity typename, 'enum', or the primitive */
   readonly valueType?: string
+  /** the current value's meaning, as the field displays it */
+  readonly description?: string
   /** entity refs standing behind `value`, renderable by cvc-tag as-is */
   readonly entities?: EntityTagRef[]
   /** entity refs standing behind `before` */
@@ -258,6 +260,12 @@ export function collectFieldValues(
           .split('.')
           .pop() || undefined,
       multiline: typeof f.type === 'string' && TEXTAREA_TYPES.has(f.type),
+      // textarea descriptions are static guidance (some carry markup);
+      // value descriptions belong to the selects and their kin
+      description:
+        typeof f.type === 'string' && TEXTAREA_TYPES.has(f.type)
+          ? undefined
+          : f.props.description?.replace(/<[^>]*>/g, '') || undefined,
       valueType: valueTypeOf(value ?? originalValue, typename),
       before: changed ? beforeStr : undefined,
       entities: toRefs(value),

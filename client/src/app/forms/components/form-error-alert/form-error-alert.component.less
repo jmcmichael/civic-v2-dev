@@ -126,7 +126,7 @@
     }
 
     .value-text {
-      flex: 1;
+      flex: 0 1 auto;
       min-width: 0;
       margin-bottom: 0;
       overflow-wrap: anywhere;
@@ -142,6 +142,16 @@
       flex: none;
       font-size: 12px;
       white-space: nowrap;
+    }
+
+    // the value's meaning, trailing in secondary text and giving way first
+    .value-description {
+      flex: 1 1 0;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      opacity: 0.65;
     }
   }
 }
