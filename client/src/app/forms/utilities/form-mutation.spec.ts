@@ -1,12 +1,7 @@
 import { TestBed } from '@angular/core/testing'
-import {
-  CombinedGraphQLErrors,
-  CombinedProtocolErrors,
-  LocalStateError,
-  ServerError,
-  UnconventionalError,
-} from '@apollo/client/errors'
+import { CombinedGraphQLErrors, ServerError } from '@apollo/client/errors'
 import { InvariantError } from '@apollo/client/utilities/invariant'
+import { AppErrorsService } from '@app/core/services/app-errors.service'
 import { Subject } from 'rxjs'
 import { describe, expect, it, vi } from 'vitest'
 import { FormMutationService } from './form-mutation'
@@ -14,11 +9,14 @@ import { FormMutationService } from './form-mutation'
 type FakeResult = { data?: Record<string, unknown> }
 
 function setup() {
-  TestBed.configureTestingModule({})
+  const appErrors = { reportErrors: vi.fn() }
+  TestBed.configureTestingModule({
+    providers: [{ provide: AppErrorsService, useValue: appErrors }],
+  })
   const service = TestBed.inject(FormMutationService)
   const result$ = new Subject<FakeResult>()
   const gql = { mutate: vi.fn(() => result$.asObservable()) }
-  return { service, gql, result$ }
+  return { service, gql, result$, appErrors }
 }
 
 describe('FormMutationService', () => {
@@ -53,8 +51,8 @@ describe('FormMutationService', () => {
     })
   })
 
-  it('categorizes GraphQL errors with code and path details', () => {
-    const { service, gql, result$ } = setup()
+  it('keeps graphql validation errors form-local', () => {
+    const { service, gql, result$, appErrors } = setup()
     const state = service.mutate(gql as any, { input: {} })
     result$.error(
       new CombinedGraphQLErrors({
@@ -62,153 +60,48 @@ describe('FormMutationService', () => {
           {
             message: 'name is invalid',
             extensions: { code: 'VALIDATION_FAILED' },
-            path: ['addThing', 'name'],
           },
-          { message: 'id is taken' },
         ],
       })
     )
     expect(state.errors()).toMatchObject([
-      {
-        category: 'graphql',
-        code: 'VALIDATION_FAILED',
-        message: 'name is invalid',
-        meta: [{ label: 'path', value: 'addThing.name' }],
-      },
-      {
-        category: 'graphql',
-        code: undefined,
-        message: 'id is taken',
-        meta: undefined,
-      },
+      { category: 'graphql', code: 'VALIDATION_FAILED' },
     ])
-    // the popover's detail: the serialized GraphQL error as json + log text
-    expect(state.errors()[0].json).toMatchObject({ message: 'name is invalid' })
-    expect(state.errors()[0].log).toContain('VALIDATION_FAILED')
-    expect(state.errors()[0].log).toContain('name is invalid')
+    expect(appErrors.reportErrors).toHaveBeenCalledWith([])
     expect(state.success()).toBe(false)
     expect(state.isSubmitting()).toBe(false)
   })
 
-  it('categorizes subscription protocol errors as graphql', () => {
-    const { service, gql, result$ } = setup()
-    const state = service.mutate(gql as any, { input: {} })
-    result$.error(new CombinedProtocolErrors([{ message: 'subgraph down' }]))
-    expect(state.errors()).toMatchObject([
-      {
-        category: 'graphql',
-        message: 'subgraph down',
-        meta: [{ label: 'source', value: 'subscription protocol' }],
-      },
-    ])
-  })
-
-  it('categorizes HTTP failures with status, url and parsed body', () => {
-    const { service, gql, result$ } = setup()
+  it('drops network failures: the apollo error link reports those', () => {
+    const { service, gql, result$, appErrors } = setup()
     const state = service.mutate(gql as any, { input: {} })
     result$.error(
-      new ServerError('Response not successful: Received status code 502', {
+      new ServerError('Received status code 502', {
         response: new Response(null, { status: 502 }),
-        bodyText: '{"error":"upstream timeout"}',
+        bodyText: '',
       })
     )
-    expect(state.errors()).toMatchObject([{ category: 'network', code: '502' }])
-    expect(state.errors()[0].meta).toContainEqual({
-      label: 'status',
-      value: '502',
-    })
-    // a JSON body lands in the structured payload
-    expect(state.errors()[0].json).toEqual({ error: 'upstream timeout' })
-    expect(state.errors()[0].log).toContain('upstream timeout')
+    expect(state.errors()).toEqual([])
+    expect(appErrors.reportErrors).toHaveBeenCalledWith([])
   })
 
-  it('categorizes cache invariant violations as cache errors', () => {
-    const { service, gql, result$ } = setup()
+  it('forwards cache and code failures to the app error service', () => {
+    const { service, gql, result$, appErrors } = setup()
     const state = service.mutate(gql as any, { input: {} })
-    result$.error(new InvariantError('Missing field while writing result'))
-    expect(state.errors()).toMatchObject([
-      {
-        category: 'cache',
-        code: 'InvariantError',
-        message: 'Missing field while writing result',
-      },
+    result$.error(new InvariantError('Missing field while writing'))
+    expect(state.errors()).toEqual([])
+    expect(appErrors.reportErrors).toHaveBeenCalledWith([
+      expect.objectContaining({ category: 'cache' }),
     ])
   })
 
-  it('categorizes local state failures as apollo errors', () => {
-    const { service, gql, result$ } = setup()
-    const state = service.mutate(gql as any, { input: {} })
-    result$.error(
-      new LocalStateError('resolver blew up', { path: ['thing', 'flag'] })
-    )
-    expect(state.errors()).toMatchObject([
-      {
-        category: 'apollo',
-        code: 'LocalState',
-        meta: [{ label: 'path', value: 'thing.flag' }],
-      },
-    ])
-  })
-
-  it('captures the cause of a non-Error thrown in the link chain', () => {
-    const { service, gql, result$ } = setup()
-    const state = service.mutate(gql as any, { input: {} })
-    result$.error(new UnconventionalError({ weird: true }))
-    expect(state.errors()).toMatchObject([
-      { category: 'apollo', code: 'Unconventional' },
-    ])
-    expect(state.errors()[0].json).toEqual({ weird: true })
-  })
-
-  it('categorizes a failed fetch as a network error', () => {
-    const { service, gql, result$ } = setup()
-    const state = service.mutate(gql as any, { input: {} })
-    result$.error(new TypeError('Failed to fetch'))
-    expect(state.errors()).toMatchObject([
-      {
-        category: 'network',
-        code: 'TypeError',
-        message: 'Failed to fetch',
-      },
-    ])
-    expect(state.errors()[0].log).toContain('Failed to fetch')
-  })
-
-  it('categorizes other exceptions as code errors', () => {
-    const { service, gql, result$ } = setup()
-    const state = service.mutate(gql as any, { input: {} })
-    result$.error(new Error('boom'))
-    expect(state.errors()).toMatchObject([
-      { category: 'code', code: 'Error', message: 'boom' },
-    ])
-    // the stack, when the runtime provides one
-    expect(state.errors()[0].log).toContain('boom')
-  })
-
-  it('invokes the error callback with every failure category', () => {
+  it('invokes the error callback with every category, form-local or not', () => {
     const { service, gql, result$ } = setup()
     const onError = vi.fn()
     service.mutate(gql as any, { input: {} }, undefined, undefined, onError)
-    result$.error(
-      new CombinedGraphQLErrors({ errors: [{ message: 'rejected' }] })
-    )
+    result$.error(new InvariantError('cache write failed'))
     expect(onError).toHaveBeenCalledWith([
-      expect.objectContaining({ category: 'graphql', message: 'rejected' }),
-    ])
-
-    const transport$ = new Subject<FakeResult>()
-    const transportGql = { mutate: vi.fn(() => transport$.asObservable()) }
-    const onTransportError = vi.fn()
-    service.mutate(
-      transportGql as any,
-      { input: {} },
-      undefined,
-      undefined,
-      onTransportError
-    )
-    transport$.error(new TypeError('Failed to fetch'))
-    expect(onTransportError).toHaveBeenCalledWith([
-      expect.objectContaining({ category: 'network' }),
+      expect.objectContaining({ category: 'cache' }),
     ])
   })
 })

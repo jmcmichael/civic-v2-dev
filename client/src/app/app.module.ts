@@ -20,7 +20,7 @@ import { en_US } from 'ng-zorro-antd/i18n'
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { CvcNetworkErrorAlertModule } from './components/app/network-error-alert/network-error-alert.module'
+import { CvcAppErrorsComponent } from './components/app/app-errors/app-errors.component'
 import { AppErrorHandler } from './core/utilities/app-error-handler'
 import { FormlyModule, FORMLY_CONFIG } from '@ngx-formly/core'
 import { CvcFormlyConfig2 } from '@app/forms/forms.options'
@@ -46,7 +46,7 @@ registerLocaleData(en)
     FormlyModule.forRoot(CvcFormlyConfig2),
     LetDirective,
     PushPipe,
-    CvcNetworkErrorAlertModule,
+    CvcAppErrorsComponent,
     CvcEnvironmentBannerComponent,
   ],
   providers: [

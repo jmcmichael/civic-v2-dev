@@ -1,0 +1,27 @@
+<ng-template
+  #notifyButton
+  let-n>
+  <button
+    nz-button
+    nzSize="small"
+    (click)="openDetails(n)">
+    View Details
+  </button>
+</ng-template>
+
+<ng-template #modalContent>
+  <!-- modal errors are the serious ones: details open by default -->
+  <cvc-error-list
+    mode="list"
+    [expandAll]="true"
+    [errors]="appErrors.modalErrors()" />
+</ng-template>
+
+<ng-template #modalFooter>
+  <button
+    nz-button
+    nzType="primary"
+    (click)="closeModal()">
+    Close
+  </button>
+</ng-template>

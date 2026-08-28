@@ -10,6 +10,7 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcAutoHeightCardModule } from '@app/directives/auto-height-card/auto-height-card.module'
 import { CvcScrollShadowsDirective } from '@app/directives/scroll-shadows/scroll-shadows.directive'
+import { CvcFormErrorAlertComponent } from '@app/forms/components/form-error-alert/form-error-alert.component'
 import { CvcFormLegendComponent } from '@app/forms/components/form-legend/form-legend.component'
 import { CvcFormCardWrapper } from './form-card.wrapper'
 
@@ -31,6 +32,7 @@ const wrapperConfig: ConfigOption = {
     CvcPipesModule,
     CvcAutoHeightCardModule,
     CvcScrollShadowsDirective,
+    CvcFormErrorAlertComponent,
     CvcFormLegendComponent,
   ],
   exports: [CvcFormCardWrapper],
