@@ -4,7 +4,7 @@
     nz-tooltip="Unsubscribe"
     nzSize="small"
     (click)="unsubscribe()"
-    [nzLoading]="isSubmitting">
+    [nzLoading]="submitState?.isSubmitting() ?? false">
     <i
       nz-icon
       nzType="bell"
@@ -16,7 +16,7 @@
     nz-tooltip="Subscribe"
     nzSize="small"
     (click)="subscribe()"
-    [nzLoading]="isSubmitting">
+    [nzLoading]="submitState?.isSubmitting() ?? false">
     <i
       nz-icon
       nzType="bell"

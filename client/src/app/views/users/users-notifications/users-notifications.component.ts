@@ -1,8 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
+import { FormMutationService } from '@app/forms/utilities/form-mutation'
 import {
   EventAction,
   Maybe,
@@ -19,11 +18,7 @@ import {
   NotificationOrganizationFragment,
   NotificationOriginatingUsersFragment,
   UnsubscribeGQL,
-  UnsubscribeMutation,
-  UnsubscribeMutationVariables,
   UpdateNotificationStatusGQL,
-  UpdateNotificationStatusMutation,
-  UpdateNotificationStatusMutationVariables,
   UserNotificationsGQL,
   UserNotificationsQuery,
   UserNotificationsQueryVariables,
@@ -92,17 +87,6 @@ export class UsersNotificationsComponent {
   allChecked: boolean = false
   someChecked: boolean = false
 
-  updateNotificationStatusMutator: MutatorWithState<
-    UpdateNotificationStatusGQL,
-    UpdateNotificationStatusMutation,
-    UpdateNotificationStatusMutationVariables
-  >
-  unsubscribeMutator: MutatorWithState<
-    UnsubscribeGQL,
-    UnsubscribeMutation,
-    UnsubscribeMutationVariables
-  >
-
   notificationTypes: SelectableNotificationReason[] = [
     {
       id: 1,
@@ -121,15 +105,11 @@ export class UsersNotificationsComponent {
   constructor(
     private route: ActivatedRoute,
     private gql: UserNotificationsGQL,
-    private networkErrorService: NetworkErrorsService,
+    private formMutation: FormMutationService,
     private updateNotificationStatusMuation: UpdateNotificationStatusGQL,
     private unsubscribeMutation: UnsubscribeGQL
   ) {
     this.userId = +this.route.snapshot.params['userId']
-    this.updateNotificationStatusMutator = new MutatorWithState(
-      networkErrorService
-    )
-    this.unsubscribeMutator = new MutatorWithState(networkErrorService)
   }
 
   ngOnInit() {
@@ -264,34 +244,28 @@ export class UsersNotificationsComponent {
   }
 
   markAsRead(id: number) {
-    this.updateNotificationStatusMutator.mutate(
-      this.updateNotificationStatusMuation,
-      {
-        input: {
-          ids: [id],
-          newStatus: ReadStatus.Read,
-        },
-      }
-    )
+    this.formMutation.mutate(this.updateNotificationStatusMuation, {
+      input: {
+        ids: [id],
+        newStatus: ReadStatus.Read,
+      },
+    })
   }
 
   markAsUnread(id: number) {
-    this.updateNotificationStatusMutator.mutate(
-      this.updateNotificationStatusMuation,
-      {
-        input: {
-          ids: [id],
-          newStatus: ReadStatus.Unread,
-        },
-      }
-    )
+    this.formMutation.mutate(this.updateNotificationStatusMuation, {
+      input: {
+        ids: [id],
+        newStatus: ReadStatus.Unread,
+      },
+    })
   }
 
   unsubscribe(id: number, typename: string) {
     let entityType: keyof typeof SubscribableEntities = <
       keyof typeof SubscribableEntities
     >typename
-    this.unsubscribeMutator.mutate(this.unsubscribeMutation, {
+    this.formMutation.mutate(this.unsubscribeMutation, {
       input: {
         subscribables: [
           { id: id, entityType: SubscribableEntities[entityType] },
@@ -379,28 +353,22 @@ export class UsersNotificationsComponent {
   }
 
   bulkMarkRead() {
-    this.updateNotificationStatusMutator.mutate(
-      this.updateNotificationStatusMuation,
-      {
-        input: {
-          ids: this.getCheckedIds(),
-          newStatus: ReadStatus.Read,
-        },
-      }
-    )
+    this.formMutation.mutate(this.updateNotificationStatusMuation, {
+      input: {
+        ids: this.getCheckedIds(),
+        newStatus: ReadStatus.Read,
+      },
+    })
     this.uncheckAll()
   }
 
   bulkMarkUnread() {
-    this.updateNotificationStatusMutator.mutate(
-      this.updateNotificationStatusMuation,
-      {
-        input: {
-          ids: this.getCheckedIds(),
-          newStatus: ReadStatus.Unread,
-        },
-      }
-    )
+    this.formMutation.mutate(this.updateNotificationStatusMuation, {
+      input: {
+        ids: this.getCheckedIds(),
+        newStatus: ReadStatus.Unread,
+      },
+    })
     this.uncheckAll()
   }
 
@@ -418,15 +386,12 @@ export class UsersNotificationsComponent {
       }
     })
 
-    this.unsubscribeMutator
-      .mutate(this.unsubscribeMutation, {
-        input: { subscribables: subscribables },
-      })
-      .submitSuccess$.subscribe((res) => {
-        if (res) {
-          this.queryRef.refetch()
-        }
-      })
+    this.formMutation.mutate(
+      this.unsubscribeMutation,
+      { input: { subscribables: subscribables } },
+      undefined,
+      () => this.queryRef.refetch()
+    )
 
     this.uncheckAll()
   }

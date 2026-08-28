@@ -3,7 +3,7 @@
   nz-tooltip="Revert to Submitted"
   nzSize="small"
   (click)="showConfirm = true"
-  [nzLoading]="isSubmitting">
+  [nzLoading]="submitState?.isSubmitting() ?? false">
   <i
     nz-icon
     nzType="undo"></i>
@@ -21,7 +21,7 @@
 </nz-modal>
 
 <ng-template #confirmModalContent>
-  <nz-spin [nzSpinning]="isSubmitting">
+  <nz-spin [nzSpinning]="submitState?.isSubmitting() ?? false">
     <nz-space nzDirection="vertical">
       @if (mostRecentOrg) {
         <span

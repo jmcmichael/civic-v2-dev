@@ -1,13 +1,14 @@
 import {
   Component,
   Input,
-  OnDestroy,
   OnInit,
   ChangeDetectionStrategy,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer } from '@app/core/services/viewer/viewer.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
+import {
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
 import {
   SubscriptionForEntityGQL,
   SubscriptionForEntityQuery,
@@ -21,16 +22,11 @@ import {
 } from '@app/generated/civic.apollo.types'
 import {
   SubscribeGQL,
-  SubscribeMutation,
-  SubscribeMutationVariables,
   UnsubscribeGQL,
-  UnsubscribeMutation,
-  UnsubscribeMutationVariables,
 } from '@app/views/users/users-notifications/users-notifications.query.gql.generated'
 import { onlyCompleteData, QueryRef } from 'apollo-angular'
-import { filter, Observable, Subject } from 'rxjs'
-import { map, takeUntil } from 'rxjs/operators'
-import { isNonNulled } from 'rxjs-etc'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
 
 @Component({
   selector: 'cvc-entity-subscription-button',
@@ -39,7 +35,7 @@ import { isNonNulled } from 'rxjs-etc'
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
-export class CvcEntitySubscriptionButtonComponent implements OnInit, OnDestroy {
+export class CvcEntitySubscriptionButtonComponent implements OnInit {
   @Input() viewer!: Viewer
   @Input() typename!: string
   @Input() subscribableId!: number
@@ -51,30 +47,14 @@ export class CvcEntitySubscriptionButtonComponent implements OnInit, OnDestroy {
     SubscriptionForEntityQuery,
     SubscriptionForEntityQueryVariables
   >
-  isSubmitting = false
-
-  destroy$ = new Subject<void>()
-
-  unsubscribeMutator: MutatorWithState<
-    UnsubscribeGQL,
-    UnsubscribeMutation,
-    UnsubscribeMutationVariables
-  >
-  subscribeMutator: MutatorWithState<
-    SubscribeGQL,
-    SubscribeMutation,
-    SubscribeMutationVariables
-  >
+  submitState?: FormMutationState
 
   constructor(
     private isSubscribedGQL: SubscriptionForEntityGQL,
     private unsubscribeMutation: UnsubscribeGQL,
     private subscribeMutation: SubscribeGQL,
-    private networkErrorService: NetworkErrorsService
-  ) {
-    this.unsubscribeMutator = new MutatorWithState(networkErrorService)
-    this.subscribeMutator = new MutatorWithState(networkErrorService)
-  }
+    private formMutation: FormMutationService
+  ) {}
 
   ngOnInit() {
     if (this.viewer === undefined) {
@@ -106,47 +86,33 @@ export class CvcEntitySubscriptionButtonComponent implements OnInit, OnDestroy {
       },
     })
 
+    // no isNonNulled filter: the null after an unsubscribe is the emission
+    // that flips the button back to its subscribe state
     this.existingSubscription$ = this.queryRef.valueChanges.pipe(
       onlyCompleteData(),
-      map(({ data }) => data.subscriptionForEntity),
-      filter(isNonNulled)
+      map(({ data }) => data.subscriptionForEntity)
     )
   }
 
   subscribe() {
     if (this.subscribable) {
-      this.isSubmitting = true
-      let state = this.subscribeMutator.mutate(this.subscribeMutation, {
-        input: { subscribables: [this.subscribable] },
-      })
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((s) => {
-        if (s) {
-          this.queryRef?.refetch()
-          this.isSubmitting = false
-        }
-      })
+      this.submitState = this.formMutation.mutate(
+        this.subscribeMutation,
+        { input: { subscribables: [this.subscribable] } },
+        undefined,
+        () => this.queryRef?.refetch()
+      )
     }
   }
 
   unsubscribe() {
     if (this.subscribable) {
-      this.isSubmitting = true
-      let state = this.unsubscribeMutator.mutate(this.unsubscribeMutation, {
-        input: { subscribables: [this.subscribable] },
-      })
-
-      state.submitSuccess$.pipe(takeUntil(this.destroy$)).subscribe((s) => {
-        if (s) {
-          this.queryRef?.refetch()
-          this.isSubmitting = false
-        }
-      })
+      this.submitState = this.formMutation.mutate(
+        this.unsubscribeMutation,
+        { input: { subscribables: [this.subscribable] } },
+        undefined,
+        () => this.queryRef?.refetch()
+      )
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next()
-    this.destroy$.complete()
   }
 }

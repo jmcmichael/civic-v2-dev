@@ -1,5 +1,5 @@
 <ng-container *ngrxLet="viewer$ as viewer">
-  <nz-spin [nzSpinning]="isSubmitting">
+  <nz-spin [nzSpinning]="submitState?.isSubmitting() ?? false">
     @if (viewer.canModerate) {
       <button
         nzType="primary"
