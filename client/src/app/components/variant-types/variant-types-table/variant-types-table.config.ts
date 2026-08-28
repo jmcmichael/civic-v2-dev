@@ -39,7 +39,7 @@ export function variantTypesTableConfig(
     columns: [
       {
         key: 'name',
-        label: 'Name',
+        label: 'Variant Type',
         width: '450px',
         fixed: 'left',
         cell: {
@@ -54,7 +54,7 @@ export function variantTypesTableConfig(
           fullWidth: true,
         },
         sort: { column: VariantTypeSortColumns.Name },
-        filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
+        filter: { kind: 'text', var: 'name', placeholder: 'Filter Variant Type Names' },
       },
       {
         key: 'soid',

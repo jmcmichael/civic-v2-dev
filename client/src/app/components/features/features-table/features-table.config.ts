@@ -13,8 +13,7 @@ const titlecase = new TitleCasePipe()
  * `enumFilterOptions()`'s `InputEnum` is closed over the evidence/variant/
  * assertion domain enums `formatEvidenceEnum` knows how to label --
  * `FeatureInstanceTypes` isn't one of them (same reasoning as users-table's
- * hand-built role options). Built by hand with the same titlecase
- * formatting the Type column's own text cell uses.
+ * hand-built role options). Built by hand with titlecase formatting.
  */
 const FEATURE_TYPE_OPTIONS = Object.values(FeatureInstanceTypes).map(
   (value) => ({
@@ -60,7 +59,7 @@ export function featuresTableConfig(
     columns: [
       {
         key: 'name',
-        label: 'Name',
+        label: 'Feature',
         width: '150px',
         fixed: 'left',
         cell: {
@@ -82,7 +81,16 @@ export function featuresTableConfig(
         filter: {
           kind: 'text',
           var: 'featureName',
-          placeholder: 'Filter Name',
+          placeholder: 'Filter Feature Names',
+        },
+        // the former Type column, folded in: feature type filters from a
+        // funnel beside the name input (the type itself shows in the tag's
+        // popover)
+        extraFilter: {
+          kind: 'enum',
+          var: 'featureType',
+          options: FEATURE_TYPE_OPTIONS,
+          showIcons: false,
         },
       },
       {
@@ -99,24 +107,6 @@ export function featuresTableConfig(
           kind: 'text',
           var: 'featureFullName',
           placeholder: 'Filter Full Name',
-        },
-      },
-      {
-        key: 'featureInstanceType',
-        label: 'Type',
-        width: '90px',
-        cell: {
-          kind: 'text',
-          text: (row) =>
-            titlecase.transform(row.featureInstanceType) ?? undefined,
-        },
-        filter: {
-          kind: 'enum',
-          control: 'select',
-          placeholder: 'Any',
-          var: 'featureType',
-          options: FEATURE_TYPE_OPTIONS,
-          showIcons: false,
         },
       },
       {

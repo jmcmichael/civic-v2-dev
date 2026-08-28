@@ -38,7 +38,7 @@ export function phenotypesTableConfig(
     columns: [
       {
         key: 'name',
-        label: 'Name',
+        label: 'Phenotype',
         width: '350px',
         fixed: 'left',
         cell: {
@@ -54,7 +54,7 @@ export function phenotypesTableConfig(
           popoverPlacement: 'right',
         },
         sort: { column: PhenotypeSortColumns.Name },
-        filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
+        filter: { kind: 'text', var: 'name', placeholder: 'Filter Phenotype Names' },
       },
       {
         key: 'hpoId',

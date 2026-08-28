@@ -36,7 +36,7 @@ export function therapiesTableConfig(
     columns: [
       {
         key: 'name',
-        label: 'Name',
+        label: 'Therapy',
         width: '400px',
         fixed: 'left',
         cell: {
@@ -53,7 +53,7 @@ export function therapiesTableConfig(
           popoverPlacement: 'right',
         },
         sort: { column: TherapySortColumns.Name },
-        filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
+        filter: { kind: 'text', var: 'name', placeholder: 'Filter Therapy Names' },
       },
       {
         key: 'ncitId',

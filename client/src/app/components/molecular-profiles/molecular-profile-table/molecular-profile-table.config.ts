@@ -65,7 +65,7 @@ export function molecularProfileTableConfig(
     columns: [
       {
         key: 'name',
-        label: 'Name',
+        label: 'Molecular Profile',
         width: '200px',
         fixed: 'left',
         cell: {
@@ -82,7 +82,7 @@ export function molecularProfileTableConfig(
         filter: {
           kind: 'text',
           var: 'molecularProfileName',
-          placeholder: 'Filter Name',
+          placeholder: 'Filter Molecular Profiles',
         },
       },
       {
