@@ -4,13 +4,19 @@ import {
   computed,
   inject,
   input,
+  TemplateRef,
+  viewChild,
 } from '@angular/core'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
+import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzInputModule } from 'ng-zorro-antd/input'
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzTagModule } from 'ng-zorro-antd/tag'
+import { NzTypographyModule } from 'ng-zorro-antd/typography'
 
 /**
  * Compact submit-error indicator, rendered wherever a form shows submit
@@ -27,7 +33,16 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
   selector: 'cvc-form-error-tag',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NzAlertModule, NzTagModule, NzIconModule, NzPopoverModule],
+  imports: [
+    NzAlertModule,
+    NzButtonModule,
+    NzIconModule,
+    NzInputModule,
+    NzModalModule,
+    NzPopoverModule,
+    NzTagModule,
+    NzTypographyModule,
+  ],
   templateUrl: './form-error-tag.component.html',
   styleUrl: './form-error-tag.component.less',
 })
@@ -56,4 +71,31 @@ export class CvcFormErrorTagComponent {
     const more = this.extraCount() > 0 ? ` (+${this.extraCount()} more)` : ''
     return `${code}${e.message}${more}`
   })
+
+  private modal = inject(NzModalService)
+  private readonly detailsTpl = viewChild<TemplateRef<void>>('detailsTpl')
+
+  protected errorBlock(e: FormSubmissionError): string {
+    const head = `[${e.category}${e.code ? ` ${e.code}` : ''}] ${e.message}`
+    return [head, ...(e.details ?? []), e.log].filter(Boolean).join('\n')
+  }
+
+  protected readonly detailsText = computed(() =>
+    this.errors()
+      .map((e) => this.errorBlock(e))
+      .join('\n\n---\n\n')
+  )
+
+  protected openDetails(event: MouseEvent): void {
+    // the whole alert is the popover trigger; the details button is not
+    event.stopPropagation()
+    const content = this.detailsTpl()
+    if (!content) return
+    this.modal.create({
+      nzTitle: 'Submission Error Details',
+      nzContent: content,
+      nzFooter: null,
+      nzWidth: 720,
+    })
+  }
 }

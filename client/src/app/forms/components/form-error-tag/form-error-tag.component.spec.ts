@@ -5,7 +5,9 @@ import {
   FormMutationState,
   FormSubmissionError,
 } from '@app/forms/utilities/form-mutation'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { By } from '@angular/platform-browser'
+import { NzModalService } from 'ng-zorro-antd/modal'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CvcFormErrorTagComponent } from './form-error-tag.component'
 
 function makeState() {
@@ -82,6 +84,34 @@ describe('CvcFormErrorTagComponent', () => {
     const alert = fixture.nativeElement.querySelector('nz-alert')
     expect(alert).toBeTruthy()
     expect(alert.textContent).toContain('502: Bad gateway')
+  })
+
+  it('opens the details modal from the alert action button', () => {
+    fixture.componentInstance.variant = 'alert'
+    errors.set([
+      {
+        category: 'graphql',
+        code: 'VALIDATION_FAILED',
+        message: 'name is invalid',
+        log: '{ "message": "name is invalid" }',
+      },
+    ])
+    fixture.detectChanges()
+    // NzModalService is provided by the component's own NzModalModule
+    // import, so spy on that instance rather than a TestBed-level mock
+    const tagDe = fixture.debugElement.query(
+      By.directive(CvcFormErrorTagComponent)
+    )
+    const modal = tagDe.injector.get(NzModalService)
+    const create = vi.spyOn(modal, 'create').mockReturnValue(undefined as never)
+    const button = fixture.nativeElement.querySelector(
+      '.ant-alert-action button'
+    )
+    expect(button.textContent).toContain('Details')
+    button.click()
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({ nzTitle: 'Submission Error Details' })
+    )
   })
 
   it('counts additional errors beyond the first', () => {

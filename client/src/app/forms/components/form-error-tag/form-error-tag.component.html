@@ -10,7 +10,8 @@
       nzPopoverPlacement="topRight"
       nzPopoverTitle="Submission Errors"
       [nzPopoverContent]="errorList"
-      nzPopoverOverlayClassName="form-error-popover"></nz-alert>
+      nzPopoverOverlayClassName="form-error-popover"
+      [nzAction]="detailsAction"></nz-alert>
   } @else {
     <nz-tag
       class="form-error-tag"
@@ -27,6 +28,44 @@
       <span class="tag-label">{{ label() }}</span>
     </nz-tag>
   }
+
+  <ng-template #detailsAction>
+    <button
+      nz-button
+      nzSize="small"
+      (click)="openDetails($event)">
+      Details
+    </button>
+  </ng-template>
+
+  <ng-template #detailsTpl>
+    <div class="error-details">
+      @if (errors().length > 1) {
+        @for (err of errors(); track $index) {
+          <p
+            class="copy-one"
+            nz-typography
+            nzCopyable
+            [nzCopyText]="errorBlock(err)">
+            Copy error {{ $index + 1 }} — {{ err.code ?? err.category }}
+          </p>
+        }
+      }
+      <p
+        class="copy-all"
+        nz-typography
+        nzCopyable
+        [nzCopyText]="detailsText()">
+        Copy full details
+      </p>
+      <textarea
+        nz-input
+        readonly
+        rows="14"
+        spellcheck="false"
+        [value]="detailsText()"></textarea>
+    </div>
+  </ng-template>
 
   <ng-template #errorList>
     <ul class="error-list">
