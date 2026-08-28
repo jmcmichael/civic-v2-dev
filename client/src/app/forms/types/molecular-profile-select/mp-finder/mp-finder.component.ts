@@ -7,7 +7,7 @@ import {
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
 import { EntityFieldSignalMap } from '@app/forms/states/base.state'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
+import { CvcRowWrapperProps } from '@app/forms/wrappers/grid/row.wrapper'
 import {
   FeatureInstanceTypes,
   Maybe,
@@ -67,18 +67,17 @@ export class MpFinderComponent {
 
     this.config = [
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            gutter: [8, 0], // zero vertical margin ensures no top margins set on feature, variant select fields
-            span: 12,
-          },
+        wrappers: ['row'],
+        props: <CvcRowWrapperProps>{
+          row: { gutter: [8, 0] }, // zero vertical gutter: single-line finder row
         },
         fieldGroup: [
           {
             key: 'featureId',
             type: 'feature-select',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 12 },
               placeholder: 'Select MP Feature',
               hideLabel: true,
               showExtra: false,
@@ -92,7 +91,9 @@ export class MpFinderComponent {
           <CvcVariantSelectFieldOptions>{
             key: 'variantId',
             type: 'variant-select',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 12 },
               placeholder: 'Select MP Variant',
               hideLabel: true,
               required: true,
