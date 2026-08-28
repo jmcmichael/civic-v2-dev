@@ -25,6 +25,7 @@ import {
   collectFieldValues,
   FormFieldIssue,
   FormFieldValue,
+  serializeFieldConfig,
 } from '@app/forms/utilities/form-field-issues'
 import { readCachedEntityName } from '@app/tags/cached-entity'
 import { Apollo } from 'apollo-angular'
@@ -70,6 +71,9 @@ export class CvcOrgSubmitButtonComponent
   formValid!: Signal<boolean>
   fieldIssues!: Signal<FormFieldIssue[]>
   fieldValues!: Signal<FormFieldValue[]>
+
+  // the preview's Copy Form Config
+  readonly formConfig = () => serializeFieldConfig(this.field)
 
   defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
     props: {
