@@ -16,11 +16,9 @@ import { UserBrowseTableRowFieldsFragment } from './users-table.query.gql.genera
  * legacy cell's bespoke italic "None specified", normalised onto the one
  * empty-state component every built-in cell kind already uses.
  *
- * The legacy cell also passed `[matchingText]="orgNameInput"`, highlighting
- * hidden overflow tags that match the current organization filter —
- * `CvcCellContext` has no filter-value accessor, so this is dropped as a
- * minor, accepted UX simplification; the overflow popover still lists every
- * organization, just without the highlight.
+ * The column's live filter value reaches the cell via `ctx.filterText()`;
+ * the overflow widget sorts matching organizations to the front of the
+ * line and annotates the "+N" badge with the hidden-match count.
  */
 @Component({
   selector: 'cvc-user-organizations-cell',
@@ -31,6 +29,7 @@ import { UserBrowseTableRowFieldsFragment } from './users-table.query.gql.genera
       <cvc-tag-overflow
         tagType="organization"
         [maxDisplayCount]="1"
+        [matchingText]="ctx.filterText()"
         [enablePopover]="!ctx.isScrolling"
         [tags]="tags()" />
     } @else {

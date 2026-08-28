@@ -42,8 +42,19 @@ export class CvcPlainTagOverflowComponent implements OnChanges {
   }
 
   calculateDisplayedTags() {
-    this.displayedTags = this.tags?.slice(0, this.maxDisplayCount)
-    this.hiddenTags = this.tags?.slice(this.maxDisplayCount)
+    // matching tags move to the front of the line — same behavior as
+    // cvc-tag-overflow: a filtered column's match should be visible, not
+    // hidden in the overflow popover. Stable partition.
+    let tags = this.tags
+    if (tags && this.matchingText) {
+      const text = this.matchingText.toLowerCase()
+      const matches = tags.filter((t) => t.toLowerCase().includes(text))
+      if (matches.length > 0) {
+        tags = [...matches, ...tags.filter((t) => !matches.includes(t))]
+      }
+    }
+    this.displayedTags = tags?.slice(0, this.maxDisplayCount)
+    this.hiddenTags = tags?.slice(this.maxDisplayCount)
     this.hiddenCount = this.hiddenTags?.length
     this.matchedHiddenCount = 0
 

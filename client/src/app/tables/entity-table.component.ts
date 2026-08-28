@@ -943,21 +943,46 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
-   * An entity-tag cell's refs, shaped for the template: exactly one of
    * `list`/`single` is set (or neither, for the empty state). Splitting here
    * keeps the template fully typed — a pipe cannot narrow a union in a
    * binding, which is what the `$any`s this replaces papered over.
    */
   protected entityTagRefs(
     cell: CvcEntityTagCell<TRow>,
-    row: TRow
+    row: TRow,
+    columnKey: string
   ): { list: ReadonlyArray<EntityTagRef> | null; single: EntityTagRef | null } {
     const refs = cell.ref(row)
-    if (Array.isArray(refs)) return { list: refs, single: null }
+    if (Array.isArray(refs))
+      return { list: this.matchesFirst(refs, columnKey), single: null }
     // Array.isArray's false branch does not exclude ReadonlyArray (its guard
     // is `any[]`), so the compiler still sees the array arm here — it cannot
     // occur at runtime
     return { list: null, single: (refs as Maybe<EntityTagRef>) ?? null }
+  }
+
+  /**
+   * Matching tags move to the front of the line while the column is filtered:
+   * the match is usually the tag the user typed, and it would otherwise sit
+   * unseen behind the collection tag. Stable partition — matches keep their
+   * relative order, and so does the rest of the line behind them. Names come
+   * from the cache the tags themselves render from, so the sort cannot
+   * disagree with the labels; with no filter text (the common case, and every
+   * scroll tick) this is a straight passthrough.
+   */
+  private matchesFirst(
+    refs: ReadonlyArray<EntityTagRef>,
+    columnKey: string
+  ): ReadonlyArray<EntityTagRef> {
+    const text = this.textFilterValue(columnKey)?.trim().toLowerCase()
+    if (!text || refs.length < 2) return refs
+    const isMatch = (ref: EntityTagRef): boolean =>
+      readCachedEntityName(this.apollo, ref.__typename, ref.id)
+        ?.toLowerCase()
+        .includes(text) ?? false
+    const matches = refs.filter(isMatch)
+    if (matches.length === 0 || matches.length === refs.length) return refs
+    return [...matches, ...refs.filter((ref) => !matches.includes(ref))]
   }
 
   /**

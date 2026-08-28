@@ -30,6 +30,7 @@ import { BrowseMolecularProfilesFieldsFragment } from './molecular-profile-table
       tagType="variant-feature"
       [tags]="$any(ctx.row.variants)"
       [maxDisplayCount]="2"
+      [matchingText]="ctx.filterText()"
       [enablePopover]="!ctx.isScrolling" />
   `,
 })

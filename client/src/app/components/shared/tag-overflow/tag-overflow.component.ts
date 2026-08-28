@@ -37,6 +37,8 @@ export type TagInfo = {
 export type TagOutletContext = {
   tagType: Maybe<SupportedPileupTags>
   tag: TagInfo
+  /** whether this tag matches the current filter text (case-insensitive) */
+  matched: boolean
 }
 
 function populateMatchText(input: Maybe<TagInfo[]>): Maybe<TagInfo[]> {
@@ -89,31 +91,35 @@ export class CvcTagOverflowComponent implements OnChanges {
   }
 
   calculateDisplayedTags() {
-    this.displayedTags = this.tags?.slice(0, this.maxDisplayCount)
-    this.hiddenTags = this.tags?.slice(this.maxDisplayCount)
+    // matching tags move to the front of the line: a filtered column's
+    // match is usually the tag the user typed, and it would otherwise sit
+    // unseen in the overflow popover. Stable partition — matches keep
+    // their relative order, and so does the rest of the line behind them.
+    const text = this.matchingText?.toLowerCase()
+    const isMatch = (t: TagInfo): boolean =>
+      !!text && t.matchText!.toLowerCase().includes(text)
+    let tags = this.tags
+    if (tags && text) {
+      const matches = tags.filter(isMatch)
+      if (matches.length > 0) {
+        tags = [...matches, ...tags.filter((t) => !matches.includes(t))]
+      }
+    }
+    this.displayedTags = tags?.slice(0, this.maxDisplayCount)
+    this.hiddenTags = tags?.slice(this.maxDisplayCount)
     this.hiddenCount = this.hiddenTags?.length
     this.displayedContexts = this.displayedTags?.map((tag) => ({
       tagType: this.tagType,
       tag,
+      matched: isMatch(tag),
     }))
     this.hiddenContexts = this.hiddenTags?.map((tag) => ({
       tagType: this.tagType,
       tag,
+      matched: isMatch(tag),
     }))
-
-    if (this.matchingText) {
-      this.matchedHiddenCount = 0
-      if (this.hiddenTags) {
-        let text = this.matchingText.toLowerCase()
-        this.hiddenTags.forEach((t) => {
-          if (t.matchText!.toLowerCase().includes(text)) {
-            this.matchedHiddenCount += 1
-          }
-        })
-      }
-    } else {
-      this.matchedHiddenCount = 0
-    }
+    this.matchedHiddenCount =
+      this.hiddenContexts?.filter((ctx) => ctx.matched).length ?? 0
 
     this.cdr.detectChanges()
   }
