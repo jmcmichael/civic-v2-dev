@@ -2,7 +2,9 @@
   nz-popover
   [nzPopoverContent]="tagListPopover"
   nzPopoverPlacement="top"
-  nzPopoverTrigger="hover">
+  nzPopoverTrigger="hover"
+  [nzPopoverMouseEnterDelay]="hoverIntent.enterDelay()"
+  (nzPopoverVisibleChange)="hoverIntent.noteActivity()">
   <span
     class="plus-sign"
     nz-typography

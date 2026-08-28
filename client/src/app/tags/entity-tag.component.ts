@@ -34,6 +34,7 @@ import {
   LinkableEntity,
   labelSegments,
 } from './entity-tag.types'
+import { EntityTagHoverService } from './entity-tag-hover.service'
 import { CvcPopoverContentResizeDirective } from './popover-content-resize.directive'
 import { TAG_POPOVERS, hasTagPopover } from './tag-popovers'
 
@@ -64,6 +65,8 @@ import { TAG_POPOVERS, hasTagPopover } from './tag-popovers'
   templateUrl: './entity-tag.component.html',
   styleUrl: './entity-tag.component.less',
   host: {
+    '(mouseenter)': 'pointerInside.set(true)',
+    '(mouseleave)': 'pointerInside.set(false)',
     '[class.default]': `context() === 'default'`,
     '[class.select-item]': `context() === 'select-item'`,
     '[class.multi-select-item]': `context() === 'multi-select-item'`,
@@ -95,6 +98,11 @@ export class CvcTagComponent {
   readonly closed = output<void>()
 
   private readonly apollo = inject(Apollo)
+  protected readonly hoverIntent = inject(EntityTagHoverService)
+
+  /** pointer-over-host state; drives the post-scroll popover reveal */
+  protected readonly pointerInside = signal(false)
+  private readonly popoverVisible = signal(false)
 
   protected readonly spec = computed(() => tagSpecFor(this.ref().__typename))
 
@@ -153,6 +161,22 @@ export class CvcTagComponent {
   private readonly popoverDirective = viewChild(NzPopoverDirective)
 
   constructor() {
+    // a popover disabled mid-scroll never re-opens on its own: the pointer
+    // is already inside the tag, so no fresh mouseenter reaches zorro when
+    // scrolling stops. Show it on the disabled->enabled edge while the
+    // pointer rests here — a frame later, so the re-enabled content
+    // binding lands first.
+    let wasEnabled = false
+    effect(() => {
+      const enabled = this.popoverEnabled()
+      const inside = this.pointerInside()
+      const becameEnabled = enabled && !wasEnabled
+      wasEnabled = enabled
+      if (becameEnabled && inside && !this.popoverVisible()) {
+        requestAnimationFrame(() => this.popoverDirective()?.show())
+      }
+    })
+
     if (isDevMode()) {
       effect(() => {
         const result = this.fragmentResult()
@@ -171,6 +195,10 @@ export class CvcTagComponent {
   private popoverLoad?: Promise<unknown>
 
   protected onPopoverVisible(visible: boolean): void {
+    this.popoverVisible.set(visible)
+    // opening and closing both count: a close is the user leaving one tag
+    // for (possibly) the next, which restarts the instant-open window
+    this.hoverIntent.noteActivity()
     if (!visible || this.popoverLoad) return
     const loader = TAG_POPOVERS[this.ref().__typename]
     if (!loader) return
