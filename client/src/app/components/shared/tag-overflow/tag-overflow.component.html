@@ -4,10 +4,7 @@
        identity change — destroying the tag (and its popover) every tick -->
   <div
     *ngFor="let ctx of displayedContexts; trackBy: trackByTagId"
-    [ngClass]="{
-      'matched-tag':
-        matchingText && ctx.tag.matchText!.toLowerCase().includes(matchingText),
-    }">
+    [ngClass]="{ 'matched-tag': ctx.matched }">
     <ng-container
       [ngTemplateOutlet]="tagTemplate"
       [ngTemplateOutletContext]="ctx">
@@ -32,11 +29,7 @@
       <cvc-tag-list size="xs">
         <div
           *ngFor="let ctx of hiddenContexts; trackBy: trackByTagId"
-          [ngClass]="{
-            'matched-tag':
-              matchingText &&
-              ctx.tag.matchText!.toLowerCase().includes(matchingText),
-          }">
+          [ngClass]="{ 'matched-tag': ctx.matched }">
           <ng-container
             [ngTemplateOutlet]="tagTemplate"
             [ngTemplateOutletContext]="ctx">

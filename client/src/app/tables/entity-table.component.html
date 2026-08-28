@@ -251,7 +251,7 @@
               }
 
               @case ('entity-tag') {
-                @let refs = entityTagRefs(cell, row);
+                @let refs = entityTagRefs(cell, row, col.key);
                 @if (refs.list; as list) {
                   @if (list.length > 0) {
                     <cvc-tag-list

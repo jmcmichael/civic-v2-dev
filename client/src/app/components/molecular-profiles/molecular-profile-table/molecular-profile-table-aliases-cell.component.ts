@@ -18,7 +18,8 @@ import { BrowseMolecularProfilesFieldsFragment } from './molecular-profile-table
   template: `
     <cvc-plain-tag-overflow
       [tags]="aliasNames()"
-      [maxDisplayCount]="1" />
+      [maxDisplayCount]="1"
+      [matchingText]="ctx.filterText()" />
   `,
 })
 export class CvcMolecularProfileAliasesCellComponent {
