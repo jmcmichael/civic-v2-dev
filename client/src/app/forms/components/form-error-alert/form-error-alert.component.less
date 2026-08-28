@@ -44,7 +44,7 @@
 // the submission preview: descriptions fill the popover content area
 // edge to edge; long values clip on one line
 ::ng-deep .form-preview-popover {
-  max-width: 640px;
+  max-width: 760px;
 
   .ant-popover-title .popover-title {
     display: flex;
@@ -56,6 +56,18 @@
       display: inline-flex;
       flex: none;
       font-weight: normal;
+
+      .tags-toggle {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+
+        .toggle-label {
+          font-size: 12px;
+          opacity: 0.65;
+          white-space: nowrap;
+        }
+      }
     }
   }
 
@@ -68,7 +80,7 @@
   // the popover frame provides the outer border and radius; fixed layout
   // at full width keeps the clipped cells from collapsing the table
   .model-summary {
-    width: 600px;
+    width: 720px;
 
     // one line per field: the label column stays narrow. The shared
     // descriptions-overrides (imported above) cannot reach this overlay —

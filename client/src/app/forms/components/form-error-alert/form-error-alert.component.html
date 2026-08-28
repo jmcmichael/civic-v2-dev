@@ -141,6 +141,15 @@
     </span>
     <span class="title-controls">
       <nz-space nzSize="small">
+        <span
+          *nzSpaceItem
+          class="tags-toggle">
+          <span class="toggle-label">Show Tags</span>
+          <nz-switch
+            nzSize="small"
+            [ngModel]="previewMode() === 'tags'"
+            (ngModelChange)="previewMode.set($event ? 'tags' : 'values')" />
+        </span>
         <nz-space-compact
           *nzSpaceItem
           nzSize="small">
@@ -150,88 +159,60 @@
             (click)="copyModel()">
             <span
               nz-icon
-              [nzType]="
-                copiedMenu() === 'model' ||
-                copiedMenu() === 'details' ||
-                copiedMenu() === 'config'
-                  ? 'check'
-                  : 'copy'
-              "></span>
-            Copy Model
+              [nzType]="copiedMenu() ? 'check' : 'copy'"></span>
+            Copy
           </button>
           <button
             nz-button
             nzSize="small"
             nz-dropdown
-            [nzDropdownMenu]="modelMenu"
+            [nzDropdownMenu]="copyMenu"
             nzPlacement="bottomRight">
             <span
               nz-icon
               nzType="down"></span>
           </button>
         </nz-space-compact>
-        @if (hasGraphqlPreview()) {
-          <nz-space-compact
-            *nzSpaceItem
-            nzSize="small">
-            <button
-              nz-button
-              nzSize="small"
-              (click)="copyVariables()">
-              <span
-                nz-icon
-                [nzType]="
-                  copiedMenu() === 'variables' || copiedMenu() === 'query'
-                    ? 'check'
-                    : 'copy'
-                "></span>
-              Copy GraphQL
-            </button>
-            <button
-              nz-button
-              nzSize="small"
-              nz-dropdown
-              [nzDropdownMenu]="graphqlMenu"
-              nzPlacement="bottomRight">
-              <span
-                nz-icon
-                nzType="down"></span>
-            </button>
-          </nz-space-compact>
-        }
       </nz-space>
-      <nz-dropdown-menu #modelMenu="nzDropdownMenu">
+      <nz-dropdown-menu #copyMenu="nzDropdownMenu">
         <ul nz-menu>
           <li
             nz-menu-item
+            nz-tooltip
+            nzTooltipTitle="JSON transformation of the current form model"
+            nzTooltipPlacement="left"
             (click)="copyModel()">
             Copy Form Model
           </li>
           <li
             nz-menu-item
+            nz-tooltip
+            nzTooltipTitle="Current model with additional details"
+            nzTooltipPlacement="left"
             (click)="copyDetails()">
             Copy Model Details
           </li>
           <li
             nz-menu-item
+            nz-tooltip
+            nzTooltipTitle="Formly FormConfig for entire form (large)"
+            nzTooltipPlacement="left"
             (click)="copyFormConfig()">
             Copy Form Config
           </li>
-        </ul>
-      </nz-dropdown-menu>
-
-      <nz-dropdown-menu #graphqlMenu="nzDropdownMenu">
-        <ul nz-menu>
-          <li
-            nz-menu-item
-            (click)="copyVariables()">
-            Copy Variables
-          </li>
-          <li
-            nz-menu-item
-            (click)="copyQueryGql()">
-            Copy Query GQL
-          </li>
+          @if (hasGraphqlPreview()) {
+            <li nz-menu-divider></li>
+            <li
+              nz-menu-item
+              (click)="copyVariables()">
+              Copy GQL Variables
+            </li>
+            <li
+              nz-menu-item
+              (click)="copyQueryGql()">
+              Copy Query GQL
+            </li>
+          }
         </ul>
       </nz-dropdown-menu>
     </span>
@@ -254,11 +235,15 @@
           @if (v.before) {
             <span class="before-value">
               @if (v.beforeEntities) {
-                <ng-container
-                  *ngTemplateOutlet="
-                    entityRefs;
-                    context: { $implicit: v.beforeEntities }
-                  " />
+                @if (previewMode() === 'tags') {
+                  <ng-container
+                    *ngTemplateOutlet="
+                      entityRefs;
+                      context: { $implicit: v.beforeEntities }
+                    " />
+                } @else {
+                  {{ entityIds(v.beforeEntities) }}
+                }
               } @else {
                 {{ v.before }}
               }
@@ -269,13 +254,28 @@
               nzType="arrow-right"></span>
           }
           @if (v.entities) {
-            <span class="entity-values">
-              <ng-container
-                *ngTemplateOutlet="
-                  entityRefs;
-                  context: { $implicit: v.entities }
-                " />
-            </span>
+            @if (previewMode() === 'tags') {
+              <span class="entity-values">
+                <ng-container
+                  *ngTemplateOutlet="
+                    entityRefs;
+                    context: { $implicit: v.entities }
+                  " />
+              </span>
+            } @else {
+              <span class="value-text plain">{{ entityIds(v.entities) }}</span>
+              <span class="value-description">– {{ v.value }}</span>
+            }
+          } @else if (v.rating !== undefined && previewMode() === 'tags') {
+            <cvc-evidence-rating [starRating]="v.rating" />
+          } @else if (v.enumValue) {
+            <!-- enum values wear their attribute tag; values mode shows
+                 the raw model value -->
+            @if (previewMode() === 'tags') {
+              <cvc-attribute-tag [cvcAttrValue]="v.enumValue" />
+            } @else {
+              <span class="value-text plain">{{ v.enumValue }}</span>
+            }
           } @else {
             <!-- long-text fields (statement, comment) clip to one line
                  with a hand-rolled expand toggle: typography's ellipsis
