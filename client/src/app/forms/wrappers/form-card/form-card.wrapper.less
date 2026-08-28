@@ -8,7 +8,10 @@ nz-card.full-page {
 }
 
 .form-instructions {
-  margin-bottom: 16px;
+  // matches the card body's 12px padding above, so the paragraph sits
+  // centered between the head and the first field row (whose 8px host
+  // margin collapses into this)
+  margin-bottom: 12px;
 }
 
 :host ::ng-deep nz-card.full-page {

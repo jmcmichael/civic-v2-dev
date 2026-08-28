@@ -40,7 +40,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         props: <CvcFormCardWrapperProps>{
           formCardOptions: { title: 'New Evidence Item' },
           formInstructions:
-            'Provide the source and clinical details supporting this evidence, then submit for editor review.',
+            'Provide the source and clinical details supporting this evidence, then submit for editor review. Required fields must be complete before the form can be submitted — the Field States legend above tracks each field as you work.',
         },
         fieldGroup: [
           {
