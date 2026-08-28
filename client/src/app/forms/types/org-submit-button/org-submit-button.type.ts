@@ -21,7 +21,9 @@ import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/f
 import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 import {
   collectFieldIssues,
+  collectFieldValues,
   FormFieldIssue,
+  FormFieldValue,
 } from '@app/forms/utilities/form-field-issues'
 import { NzButtonSize } from 'ng-zorro-antd/button'
 
@@ -63,6 +65,7 @@ export class CvcOrgSubmitButtonComponent
   readonly mostRecentOrg: Signal<Maybe<ViewerOrganizationFragment>>
   formValid!: Signal<boolean>
   fieldIssues!: Signal<FormFieldIssue[]>
+  fieldValues!: Signal<FormFieldValue[]>
 
   defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
     props: {
@@ -92,6 +95,11 @@ export class CvcOrgSubmitButtonComponent
     this.fieldIssues = toSignal(
       formChange$.pipe(map(() => collectFieldIssues(this.field))),
       { initialValue: collectFieldIssues(this.field), injector: this.injector }
+    )
+    // feeds the ready alert's submission preview
+    this.fieldValues = toSignal(
+      formChange$.pipe(map(() => collectFieldValues(this.field))),
+      { initialValue: collectFieldValues(this.field), injector: this.injector }
     )
 
     // keep the field's value synced to the viewer's most recent org

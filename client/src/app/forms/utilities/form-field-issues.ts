@@ -43,3 +43,49 @@ export function collectFieldIssues(field: FormlyFieldConfig): FormFieldIssue[] {
   visit(root)
   return issues
 }
+
+/** One labeled model value, for the submission-preview popover */
+export interface FormFieldValue {
+  readonly label: string
+  readonly value: string
+}
+
+function formatValue(value: unknown): string {
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+  if (Array.isArray(value)) return value.map((v) => formatValue(v)).join(', ')
+  if (value !== null && typeof value === 'object') return JSON.stringify(value)
+  return String(value)
+}
+
+/**
+ * The model as the form's own labeled leaves see it, for the ready alert's
+ * submission preview: every visible, enabled leaf field with a label and a
+ * non-empty value, in field order.
+ */
+export function collectFieldValues(field: FormlyFieldConfig): FormFieldValue[] {
+  let root = field
+  while (root.parent) root = root.parent
+  const values: FormFieldValue[] = []
+  const visit = (f: FormlyFieldConfig): void => {
+    if (f.hide) return
+    if (f.fieldGroup) {
+      f.fieldGroup.forEach(visit)
+      return
+    }
+    const control = f.formControl
+    const value = control?.value
+    if (
+      !f.props?.label ||
+      !control?.enabled ||
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
+      return
+    }
+    values.push({ label: f.props.label, value: formatValue(value) })
+  }
+  visit(root)
+  return values
+}

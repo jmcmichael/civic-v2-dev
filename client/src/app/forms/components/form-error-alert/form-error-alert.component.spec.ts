@@ -24,7 +24,11 @@ function makeState() {
 })
 class HostComponent {
   variant: 'tag' | 'alert' = 'tag'
-  readiness?: { valid: boolean; issues: { label: string; reason: string }[] }
+  readiness?: {
+    valid: boolean
+    issues: { label: string; reason: string }[]
+    summary?: { label: string; value: string }[]
+  }
 }
 
 describe('CvcFormErrorAlertComponent', () => {
@@ -218,11 +222,20 @@ describe('CvcFormErrorAlertComponent', () => {
 
   it('reports readiness once the form is valid, until a failure lands', () => {
     fixture.componentInstance.variant = 'alert'
-    fixture.componentInstance.readiness = { valid: true, issues: [] }
+    fixture.componentInstance.readiness = {
+      valid: true,
+      issues: [],
+      summary: [{ label: 'Comment', value: 'looks good' }],
+    }
     fixture.detectChanges()
     expect(fixture.nativeElement.textContent).toContain(
       'All required fields provided, form may be submitted.'
     )
+    // the ready alert offers the submission preview
+    expect(
+      fixture.nativeElement.querySelector('.ant-alert-action button')
+        ?.textContent
+    ).toContain('Details')
     // a submit failure takes the slot back
     errors.set([{ category: 'network', message: 'down' }])
     fixture.detectChanges()

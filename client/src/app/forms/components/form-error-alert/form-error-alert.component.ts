@@ -13,10 +13,14 @@ import {
   submissionErrorsText,
 } from '@app/components/app/error-list/error-list.component'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
-import { FormFieldIssue } from '@app/forms/utilities/form-field-issues'
+import {
+  FormFieldIssue,
+  FormFieldValue,
+} from '@app/forms/utilities/form-field-issues'
 import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzTagModule } from 'ng-zorro-antd/tag'
@@ -27,6 +31,8 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography'
 export interface FormReadiness {
   readonly valid: boolean
   readonly issues: FormFieldIssue[]
+  /** the labeled model values for the ready alert's submission preview */
+  readonly summary?: FormFieldValue[]
 }
 
 /**
@@ -51,6 +57,7 @@ export interface FormReadiness {
     CvcErrorListComponent,
     NzAlertModule,
     NzButtonModule,
+    NzDescriptionsModule,
     NzIconModule,
     NzPopoverModule,
     NzTagModule,

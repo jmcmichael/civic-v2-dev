@@ -15,10 +15,17 @@
   } @else if (readiness(); as r) {
     @if (r.valid) {
       <nz-alert
-        class="form-error-alert form-ready-alert"
+        class="form-error-alert"
         nzType="success"
         nzShowIcon
-        [nzMessage]="okLabel()"></nz-alert>
+        [nzMessage]="okLabel()"
+        nz-popover
+        nzPopoverTrigger="click"
+        nzPopoverPlacement="topRight"
+        nzPopoverTitle="Submission Preview"
+        [nzPopoverContent]="modelSummary"
+        nzPopoverOverlayClassName="form-error-popover"
+        [nzAction]="detailsAction"></nz-alert>
     } @else {
       <nz-alert
         class="form-error-alert"
@@ -107,6 +114,22 @@
       {{ issueLabel() }}
     }
   }
+</ng-template>
+
+<!-- the review-before-submit pattern: the model as read-only labeled
+     rows, in field order -->
+<ng-template #modelSummary>
+  <nz-descriptions
+    class="model-summary"
+    nzSize="small"
+    nzBordered
+    [nzColumn]="1">
+    @for (v of readiness()?.summary; track v.label) {
+      <nz-descriptions-item [nzTitle]="v.label">
+        {{ v.value }}
+      </nz-descriptions-item>
+    }
+  </nz-descriptions>
 </ng-template>
 
 <ng-template #issueList>
