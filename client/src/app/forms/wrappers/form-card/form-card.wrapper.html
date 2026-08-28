@@ -1,23 +1,34 @@
 <nz-card
   cvcAutoHeightCard
   [cvcAutoHeightTarget]="fullPage ? 'page' : 'none'"
+  cvcScrollShadows
+  [class.full-page]="fullPage"
   [nzTitle]="cardTitle"
   [nzSize]="wrapperOptions.size ?? 'default'"
   [nzExtra]="showLegend ? legend : undefined"
   [nzActions]="fullPage ? [footerActions] : []">
+  @if (props.formInstructions) {
+    <p
+      class="form-instructions"
+      nz-typography
+      nzType="secondary">
+      {{ props.formInstructions }}
+    </p>
+  }
   @for (field of bodyFields; track field) {
     <formly-field [field]="field"></formly-field>
   }
 </nz-card>
 
 <ng-template #cardTitle>
-  @if (props.formInstructions) {
-    <span
-      class="card-instructions"
-      nz-typography
-      nzType="secondary"
-      >{{ props.formInstructions }}</span
-    >
+  @if (props.formTitle; as t) {
+    {{ t.action }}
+    <i
+      nz-icon
+      nzTheme="twotone"
+      [nzTwotoneColor]="t.entityType | entityColor"
+      [nzType]="t.icon"></i>
+    {{ t.name }}
   } @else {
     {{ wrapperOptions.title ?? '' }}
   }

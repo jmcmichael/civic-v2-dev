@@ -23,12 +23,20 @@ export type FormCardOptions = {
 
 export interface CvcFormCardWrapperProps extends FormlyFieldProps {
   formCardOptions?: FormCardOptions
-  /**
-   * One line shown in the card header in place of the title — the page
-   * header already names the entity and action, so the card leads with
-   * what to do instead of repeating it.
-   */
+  /** one line shown above the form fields, in typography secondary */
   formInstructions?: string
+  /**
+   * The full-page card owns the page title (the nz-page-header it replaces
+   * carried it): an action word, the entity's twotone icon, and its name.
+   * The name is only known at runtime, so form components patch it onto
+   * the config before assigning their fields.
+   */
+  formTitle?: {
+    action: string
+    icon: string
+    entityType: string
+    name: string
+  }
 }
 
 const defaultWrapperOptions: FormCardOptions = {

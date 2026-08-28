@@ -62,6 +62,19 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.url = `/evidence/${this.evidenceId}/revisions`
+    // the full-page card owns the page title; the entity name is only
+    // known here, so patch it onto the card wrapper's config
+    const cardField = this.fields[0]?.fieldGroup?.find((f) =>
+      f.wrappers?.includes('form-card')
+    )
+    if (cardField?.props) {
+      cardField.props.formTitle = {
+        action: 'REVISE',
+        icon: 'civic-evidence',
+        entityType: 'EvidenceItem',
+        name: `EID${this.evidenceId}`,
+      }
+    }
   }
 
   ngAfterViewInit(): void {
