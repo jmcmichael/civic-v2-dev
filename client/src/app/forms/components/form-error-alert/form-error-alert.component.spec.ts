@@ -235,7 +235,7 @@ describe('CvcFormErrorAlertComponent', () => {
     expect(
       fixture.nativeElement.querySelector('.ant-alert-action button')
         ?.textContent
-    ).toContain('Details')
+    ).toContain('Preview')
     // a submit failure takes the slot back
     errors.set([{ category: 'network', message: 'down' }])
     fixture.detectChanges()

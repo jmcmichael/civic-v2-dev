@@ -96,39 +96,52 @@
     align-items: baseline;
     min-width: 0;
 
-    // the graphql variable this field submits as
-    .key-chip {
+    .before-value {
       flex: none;
-      margin-inline-end: 0;
-      font-family:
-        'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-      font-size: 11px;
-      line-height: 18px;
-    }
-
-    .value-clip {
-      flex: 1;
-      min-width: 0;
+      max-width: 40%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-decoration: line-through;
+      opacity: 0.6;
 
-      .before-value {
-        text-decoration: line-through;
-        opacity: 0.6;
-
-        // tags cannot strike through their content; fade carries the
-        // before/after reading on its own
-        cvc-tag {
-          text-decoration: none;
-        }
+      // tags cannot strike through their content; fade carries the
+      // before/after reading on its own
+      cvc-tag {
+        text-decoration: none;
       }
+    }
 
-      .change-arrow {
-        margin: 0 4px;
-        font-size: 11px;
-        opacity: 0.6;
+    .change-arrow {
+      flex: none;
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    .entity-values {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .value-text {
+      flex: 1;
+      min-width: 0;
+      margin-bottom: 0;
+      overflow-wrap: anywhere;
+
+      &.plain {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
+    }
+
+    .expand-toggle {
+      flex: none;
+      font-size: 12px;
+      white-space: nowrap;
     }
   }
 }

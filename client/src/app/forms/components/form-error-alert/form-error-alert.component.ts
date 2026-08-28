@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common'
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,6 +13,9 @@ import {
   submissionErrorsText,
 } from '@app/components/app/error-list/error-categories'
 import { CvcErrorListComponent } from '@app/components/app/error-list/error-list.component'
+import { CvcPipesModule } from '@app/core/pipes/pipes.module'
+import { CvcFormCardWrapper } from '@app/forms/wrappers/form-card/form-card.wrapper'
+import { CvcCollectionTagComponent } from '@app/tags/collection-tag.component'
 import { CvcTagComponent } from '@app/tags/entity-tag.component'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import {
@@ -58,7 +62,10 @@ export interface FormReadiness {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    NgTemplateOutlet,
+    CvcCollectionTagComponent,
     CvcErrorListComponent,
+    CvcPipesModule,
     CvcTagComponent,
     NzAlertModule,
     NzButtonModule,
@@ -86,6 +93,17 @@ export class CvcFormErrorAlertComponent {
   private statusDisplay = inject(CvcFormSubmissionStatusDisplayComponent, {
     optional: true,
   })
+  // the card wrapper's formTitle names the entity for the preview heading
+  private cardWrapper = inject(CvcFormCardWrapper, { optional: true })
+
+  protected readonly cardTitle = computed(
+    () => this.cardWrapper?.props?.formTitle
+  )
+
+  protected get nounTitle(): string {
+    const n = this.noun
+    return n.charAt(0).toUpperCase() + n.slice(1)
+  }
 
   // what this form submits, for the alert copy ("revision may be
   // submitted"); the ancestor display's inputs are static per form
@@ -146,6 +164,23 @@ export class CvcFormErrorAlertComponent {
   // popover header controls: expand/collapse every panel, copy the details
   protected readonly expandAll = signal(false)
   protected readonly copied = signal(false)
+
+  // long-text preview rows expand in place
+  private readonly expandedRows = signal<ReadonlySet<string>>(new Set())
+
+  protected isRowExpanded(label: string): boolean {
+    return this.expandedRows().has(label)
+  }
+
+  protected toggleRow(label: string): void {
+    const next = new Set(this.expandedRows())
+    if (next.has(label)) {
+      next.delete(label)
+    } else {
+      next.add(label)
+    }
+    this.expandedRows.set(next)
+  }
 
   // the preview header's grouped copy button
   protected readonly modelCopied = signal(false)
