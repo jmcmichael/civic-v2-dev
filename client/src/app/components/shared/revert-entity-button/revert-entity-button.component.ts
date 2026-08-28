@@ -6,19 +6,14 @@ import {
   Output,
   ChangeDetectionStrategy,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
 import {
   ModerateAssertionGQL,
-  ModerateAssertionMutation,
-  ModerateAssertionMutationVariables,
   ModerateEvidenceItemGQL,
-  ModerateEvidenceItemMutation,
-  ModerateEvidenceItemMutationVariables,
 } from './revert-entity-button.gql.generated'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
@@ -27,7 +22,7 @@ import {
   Organization,
 } from '@app/generated/civic.apollo.types'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import { Observable, Subject } from 'rxjs'
+import { Observable } from 'rxjs'
 import { pluck } from 'rxjs-etc/dist/esm/operators'
 
 @UntilDestroy()
@@ -44,79 +39,62 @@ export class CvcRevertEntityButtonComponent implements OnInit {
 
   @Output() onReverted = new EventEmitter<true | string[]>()
 
-  revertEvidenceMutator: MutatorWithState<
-    ModerateEvidenceItemGQL,
-    ModerateEvidenceItemMutation,
-    ModerateEvidenceItemMutationVariables
-  >
-  revertAssertionMutator: MutatorWithState<
-    ModerateAssertionGQL,
-    ModerateAssertionMutation,
-    ModerateAssertionMutationVariables
-  >
-
-  isSubmitting = false
+  submitState?: FormMutationState
   showConfirm = false
   revertComment?: string
 
   mostRecentOrg: Maybe<ViewerOrganizationFragment>
 
-  destroy$ = new Subject<void>()
   viewer$: Observable<Viewer>
   constructor(
     private revertEvidenceGQL: ModerateEvidenceItemGQL,
     private revertAssertionGQL: ModerateAssertionGQL,
-    private networkErrorService: NetworkErrorsService,
+    private formMutation: FormMutationService,
     private viewerService: ViewerService
   ) {
-    this.revertAssertionMutator = new MutatorWithState(this.networkErrorService)
-    this.revertEvidenceMutator = new MutatorWithState(this.networkErrorService)
     this.viewer$ = this.viewerService.viewer$
   }
 
   revert() {
-    this.isSubmitting = true
-    let state: MutationState
-
-    if (this.entityType === 'EvidenceItem') {
-      state = this.revertEvidenceMutator.mutate(this.revertEvidenceGQL, {
-        input: {
-          evidenceItemId: this.entityId,
-          organizationId: this.mostRecentOrg?.id,
-          newStatus: EvidenceStatus.Submitted,
-          comment: this.revertComment,
-        },
-      })
-    } else {
-      state = this.revertAssertionMutator.mutate(this.revertAssertionGQL, {
-        input: {
-          assertionId: this.entityId,
-          organizationId: this.mostRecentOrg?.id,
-          newStatus: EvidenceStatus.Submitted,
-          comment: this.revertComment,
-        },
-      })
+    const onSuccess = () => {
+      this.showConfirm = false
+      this.onReverted.emit(true)
     }
-
-    state.submitSuccess$.pipe(untilDestroyed(this)).subscribe((res) => {
-      if (res) {
-        this.isSubmitting = false
-        this.showConfirm = false
-        this.onReverted.emit(true)
-      }
-    })
-
-    state.submitError$.pipe(untilDestroyed(this)).subscribe((errs) => {
-      if (errs) {
-        this.isSubmitting = false
-        this.showConfirm = false
-        this.onReverted.emit(errs)
-      }
-    })
-
-    state.isSubmitting$.pipe(untilDestroyed(this)).subscribe((loading) => {
-      this.isSubmitting = loading
-    })
+    const onError = (errs: string[]) => {
+      this.showConfirm = false
+      this.onReverted.emit(errs)
+    }
+    if (this.entityType === 'EvidenceItem') {
+      this.submitState = this.formMutation.mutate(
+        this.revertEvidenceGQL,
+        {
+          input: {
+            evidenceItemId: this.entityId,
+            organizationId: this.mostRecentOrg?.id,
+            newStatus: EvidenceStatus.Submitted,
+            comment: this.revertComment,
+          },
+        },
+        undefined,
+        onSuccess,
+        onError
+      )
+    } else {
+      this.submitState = this.formMutation.mutate(
+        this.revertAssertionGQL,
+        {
+          input: {
+            assertionId: this.entityId,
+            organizationId: this.mostRecentOrg?.id,
+            newStatus: EvidenceStatus.Submitted,
+            comment: this.revertComment,
+          },
+        },
+        undefined,
+        onSuccess,
+        onError
+      )
+    }
   }
 
   handleConfirmModalCancel() {

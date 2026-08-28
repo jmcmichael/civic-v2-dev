@@ -11,25 +11,19 @@ import {
 } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import {
-  MutationState,
-  MutatorWithState,
-} from '@app/core/utilities/mutation-state-wrapper'
+  FormMutationService,
+  FormMutationState,
+} from '@app/forms/utilities/form-mutation'
 import { ApprovalListGQL } from '@app/components/approvals/approval-list/approval-list.query.gql.generated'
 import {
   ApproveAssertionGQL,
-  ApproveAssertionMutation,
-  ApproveAssertionMutationVariables,
   RevokeApprovalGQL,
-  RevokeApprovalMutation,
-  RevokeApprovalMutationVariables,
 } from './approve-assertion-button.gql.generated'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { AssertionDetailGQL } from '@app/views/assertions/assertions-detail/assertions-detail.query.gql.generated'
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { NzButtonModule, NzButtonType } from 'ng-zorro-antd/button'
 import { NzSizeLDSType } from 'ng-zorro-antd/core/types'
 import { NzDividerModule } from 'ng-zorro-antd/divider'
@@ -58,7 +52,6 @@ type ButtonConfig = {
   type: NzButtonType
 }
 
-@UntilDestroy()
 @Component({
   selector: 'cvc-approve-assertion-button',
   templateUrl: './approve-assertion-button.component.html',
@@ -98,29 +91,18 @@ export class CvcApproveAssertionButtonComponent {
 
   viewer: Signal<Maybe<Viewer>>
   mostRecentOrg: Signal<Maybe<ViewerOrganizationFragment>>
-  isSubmitting = signal(false)
+  submitState = signal<Maybe<FormMutationState>>(undefined)
+  isSubmitting = computed(() => this.submitState()?.isSubmitting() ?? false)
   revocationComment = signal<Maybe<string>>(undefined)
 
   buttonConfig: Signal<Maybe<ButtonConfig>>
-
-  approveAssertionMutator: MutatorWithState<
-    ApproveAssertionGQL,
-    ApproveAssertionMutation,
-    ApproveAssertionMutationVariables
-  >
-
-  revokeApprovalMutator: MutatorWithState<
-    RevokeApprovalGQL,
-    RevokeApprovalMutation,
-    RevokeApprovalMutationVariables
-  >
 
   constructor(
     private approveAssertionGql: ApproveAssertionGQL,
     private revokeApprovalGql: RevokeApprovalGQL,
     private assertionDetailGql: AssertionDetailGQL,
     private approvalListGql: ApprovalListGQL,
-    private networkErrorService: NetworkErrorsService,
+    private formMutation: FormMutationService,
     private viewerService: ViewerService,
     private modal: NzModalService
   ) {
@@ -128,10 +110,6 @@ export class CvcApproveAssertionButtonComponent {
     this.mostRecentOrg = computed(() => {
       return this.viewer()?.mostRecentOrg
     })
-    this.approveAssertionMutator = new MutatorWithState(
-      this.networkErrorService
-    )
-    this.revokeApprovalMutator = new MutatorWithState(this.networkErrorService)
 
     this.buttonConfig = computed(() => {
       return this.mode() ? this.getButtonConfig() : undefined
@@ -199,8 +177,22 @@ export class CvcApproveAssertionButtonComponent {
   }
 
   perform() {
-    this.isSubmitting.set(true)
-    let state: MutationState
+    const onSuccess = () => {
+      this.onApproved.emit({
+        action: this.mode(),
+        success: true,
+        errors: [],
+      })
+      this.modal.closeAll()
+    }
+    const onError = (errs: string[]) => {
+      this.onApproved.emit({
+        action: this.mode(),
+        success: false,
+        errors: errs,
+      })
+      this.modal.closeAll()
+    }
 
     let mutationOptions = {
       refetchQueries: [
@@ -216,56 +208,36 @@ export class CvcApproveAssertionButtonComponent {
     }
 
     if (this.mode() === 'approve' || this.mode() === 'approveChanges') {
-      state = this.approveAssertionMutator.mutate(
-        this.approveAssertionGql,
-        {
-          input: {
-            assertionId: this.assertionId(),
-            organizationId: this.mostRecentOrg()?.id,
+      this.submitState.set(
+        this.formMutation.mutate(
+          this.approveAssertionGql,
+          {
+            input: {
+              assertionId: this.assertionId(),
+              organizationId: this.mostRecentOrg()?.id,
+            },
           },
-        },
-        mutationOptions
+          mutationOptions,
+          onSuccess,
+          onError
+        )
       )
     } else {
-      state = this.revokeApprovalMutator.mutate(
-        this.revokeApprovalGql,
-        {
-          input: {
-            assertionId: this.assertionId(),
-            organizationId: this.mostRecentOrg()?.id,
-            comment: this.revocationComment() || '',
+      this.submitState.set(
+        this.formMutation.mutate(
+          this.revokeApprovalGql,
+          {
+            input: {
+              assertionId: this.assertionId(),
+              organizationId: this.mostRecentOrg()?.id,
+              comment: this.revocationComment() || '',
+            },
           },
-        },
-        mutationOptions
+          mutationOptions,
+          onSuccess,
+          onError
+        )
       )
     }
-
-    state.submitSuccess$.pipe(untilDestroyed(this)).subscribe((res) => {
-      if (res) {
-        this.isSubmitting.set(false)
-        this.onApproved.emit({
-          action: this.mode(),
-          success: true,
-          errors: [],
-        })
-        this.modal.closeAll()
-      }
-    })
-
-    state.submitError$.pipe(untilDestroyed(this)).subscribe((errs) => {
-      if (errs.length > 0) {
-        this.isSubmitting.set(false)
-        this.onApproved.emit({
-          action: this.mode(),
-          success: false,
-          errors: errs,
-        })
-        this.modal.closeAll()
-      }
-    })
-
-    state.isSubmitting$.pipe(untilDestroyed(this)).subscribe((loading) => {
-      this.isSubmitting.set(loading)
-    })
   }
 }

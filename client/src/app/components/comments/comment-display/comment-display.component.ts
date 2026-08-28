@@ -4,14 +4,9 @@ import {
   input,
   ChangeDetectionStrategy,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
-import { MutatorWithState } from '@app/core/utilities/mutation-state-wrapper'
-import {
-  DeleteCommentGQL,
-  DeleteCommentMutation,
-  DeleteCommentMutationVariables,
-} from './delete-comment.query.gql.generated'
+import { FormMutationService } from '@app/forms/utilities/form-mutation'
+import { DeleteCommentGQL } from './delete-comment.query.gql.generated'
 import { CommentListNodeFragment } from '@app/components/comments/comment-list/comment-list.query.gql.generated'
 import { Observable } from 'rxjs'
 
@@ -29,7 +24,7 @@ export class CvcCommentDisplayComponent implements OnInit {
 
   constructor(
     private viewerService: ViewerService,
-    private networkErrorService: NetworkErrorsService,
+    private formMutation: FormMutationService,
     private deleteCommentGql: DeleteCommentGQL
   ) {
     this.viewer$ = this.viewerService.viewer$
@@ -42,17 +37,8 @@ export class CvcCommentDisplayComponent implements OnInit {
   }
 
   deleteComment(commentId: number, orgId?: number) {
-    let mutator = new MutatorWithState<
-      DeleteCommentGQL,
-      DeleteCommentMutation,
-      DeleteCommentMutationVariables
-    >(this.networkErrorService)
-
-    let deleteCommentInput = {
-      commentId: commentId,
-      organizationId: orgId,
-    }
-
-    mutator.mutate(this.deleteCommentGql, { input: deleteCommentInput })
+    this.formMutation.mutate(this.deleteCommentGql, {
+      input: { commentId: commentId, organizationId: orgId },
+    })
   }
 }
