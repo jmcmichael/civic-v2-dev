@@ -34,6 +34,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 
+type CopyFormat = 'json' | 'csv' | 'md-text' | 'md-table'
+
 /** Pre-submit form state, provided by the submit button's field type */
 export interface FormReadiness {
   readonly valid: boolean
@@ -184,26 +186,53 @@ export class CvcFormErrorAlertComponent {
     this.expandedRows.set(next)
   }
 
-  // the preview header's grouped copy button
-  protected readonly modelCopied = signal(false)
+  // the preview header's grouped copy buttons: form model, field details
+  // (with any outstanding issues), and the graphql request
+  protected readonly copyFormats = [
+    { id: 'json', label: 'JSON' },
+    { id: 'csv', label: 'CSV' },
+    { id: 'md-text', label: 'Markdown' },
+    { id: 'md-table', label: 'Table' },
+  ] as const
 
-  protected copyModel(format: 'json' | 'csv' | 'md-text' | 'md-table'): void {
+  protected readonly copiedMenu = signal<string | null>(null)
+
+  protected readonly hasGraphqlPreview = computed(
+    () => !!this.statusDisplay?.graphqlPreview
+  )
+
+  private flashCopied(menu: string, text: string): void {
+    navigator.clipboard?.writeText(text).then(() => {
+      this.copiedMenu.set(menu)
+      setTimeout(() => this.copiedMenu.set(null), 2000)
+    })
+  }
+
+  private static csvRow(cells: string[]): string {
+    return cells.map((s) => `"${s.replace(/"/g, '""')}"`).join(',')
+  }
+
+  private static mdCell(s: string): string {
+    return s.replace(/\|/g, '\\|').replace(/\n/g, ' ')
+  }
+
+  protected copyModel(format: CopyFormat): void {
     const rows = this.readiness()?.summary ?? []
     let text: string
     switch (format) {
-      case 'csv': {
-        const cell = (s: string) => `"${s.replace(/"/g, '""')}"`
+      case 'csv':
         text = [
           'Field,Value',
-          ...rows.map((r) => `${cell(r.label)},${cell(r.value)}`),
+          ...rows.map((r) =>
+            CvcFormErrorAlertComponent.csvRow([r.label, r.value])
+          ),
         ].join('\n')
         break
-      }
       case 'md-text':
         text = rows.map((r) => `**${r.label}:** ${r.value}`).join('\n')
         break
       case 'md-table': {
-        const cell = (s: string) => s.replace(/\|/g, '\\|').replace(/\n/g, ' ')
+        const cell = CvcFormErrorAlertComponent.mdCell
         text = [
           '| Field | Value |',
           '| --- | --- |',
@@ -218,10 +247,108 @@ export class CvcFormErrorAlertComponent {
           2
         )
     }
-    navigator.clipboard?.writeText(text).then(() => {
-      this.modelCopied.set(true)
-      setTimeout(() => this.modelCopied.set(false), 2000)
-    })
+    this.flashCopied('model', text)
+  }
+
+  // label, key, value type, value, plus any outstanding issues per field
+  private detailRows() {
+    const issues = this.readiness()?.issues ?? []
+    return (this.readiness()?.summary ?? []).map((r) => ({
+      label: r.label,
+      key: r.key ?? '',
+      type: r.valueType ?? '',
+      value: r.value,
+      issues: issues
+        .filter((i) => i.label === r.label)
+        .map((i) => i.reason)
+        .join('; '),
+    }))
+  }
+
+  protected copyDetails(format: CopyFormat): void {
+    const rows = this.detailRows()
+    let text: string
+    switch (format) {
+      case 'csv':
+        text = [
+          'Field,Key,Type,Value,Issues',
+          ...rows.map((r) =>
+            CvcFormErrorAlertComponent.csvRow([
+              r.label,
+              r.key,
+              r.type,
+              r.value,
+              r.issues,
+            ])
+          ),
+        ].join('\n')
+        break
+      case 'md-text':
+        text = rows
+          .map(
+            (r) =>
+              `**${r.label}** (\`${r.key}\`, ${r.type}): ${r.value}` +
+              (r.issues ? ` — ⚠ ${r.issues}` : '')
+          )
+          .join('\n')
+        break
+      case 'md-table': {
+        const cell = CvcFormErrorAlertComponent.mdCell
+        text = [
+          '| Field | Key | Type | Value | Issues |',
+          '| --- | --- | --- | --- | --- |',
+          ...rows.map(
+            (r) =>
+              `| ${cell(r.label)} | ${cell(r.key)} | ${cell(r.type)} | ` +
+              `${cell(r.value)} | ${cell(r.issues)} |`
+          ),
+        ].join('\n')
+        break
+      }
+      default:
+        text = JSON.stringify(rows, null, 2)
+    }
+    this.flashCopied('details', text)
+  }
+
+  protected copyGraphql(format: CopyFormat): void {
+    const request = this.statusDisplay?.graphqlPreview?.()
+    if (!request) return
+    const variablesJson = JSON.stringify(request.variables, null, 2)
+    let text: string
+    switch (format) {
+      case 'csv':
+        text = [
+          'Part,Content',
+          CvcFormErrorAlertComponent.csvRow(['query', request.query]),
+          CvcFormErrorAlertComponent.csvRow([
+            'variables',
+            JSON.stringify(request.variables),
+          ]),
+        ].join('\n')
+        break
+      case 'md-text':
+        text = `\`\`\`graphql\n${request.query}\n\`\`\`\n\n\`\`\`json\n${variablesJson}\n\`\`\``
+        break
+      case 'md-table': {
+        const cell = CvcFormErrorAlertComponent.mdCell
+        text = [
+          '| Part | Content |',
+          '| --- | --- |',
+          `| query | ${cell(request.query)} |`,
+          `| variables | ${cell(JSON.stringify(request.variables))} |`,
+        ].join('\n')
+        break
+      }
+      default:
+        // the request-body shape, paste-ready for graphql tooling
+        text = JSON.stringify(
+          { query: request.query, variables: request.variables },
+          null,
+          2
+        )
+    }
+    this.flashCopied('graphql', text)
   }
 
   protected copyAll(): void {

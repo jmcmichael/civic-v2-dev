@@ -18,6 +18,7 @@ import {
   evidenceFormModelToReviseInput,
   evidenceToModelFields,
 } from '@app/forms/utilities/evidence-to-model-fields'
+import { print } from 'graphql'
 import {
   EvidenceItemRevisableFieldsGQL,
   SuggestEvidenceItemRevisionGQL,
@@ -97,6 +98,18 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
         },
       })
   }
+
+  // the submission preview's Copy GraphQL: the request as it would be
+  // sent right now
+  graphqlPreview = () => ({
+    query: print(this.submitRevisionsGQL.document),
+    variables: {
+      input:
+        this.evidenceId && this.model()
+          ? evidenceFormModelToReviseInput(this.evidenceId, this.model()!)
+          : undefined,
+    },
+  })
 
   onSubmit(model: EvidenceReviseModel) {
     if (!this.evidenceId) {
