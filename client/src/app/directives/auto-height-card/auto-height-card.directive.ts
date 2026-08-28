@@ -109,9 +109,9 @@ export class CvcAutoHeightCardDirective implements OnInit, OnDestroy {
     const card = this.el.nativeElement
     const cardParentHeight = card.parentElement.clientHeight
 
-    // calculate card header offset
+    // calculate card header offset (a card can render headless)
     const headerDiv = card.querySelector('.ant-card-head')
-    const headerDivHeight = headerDiv.clientHeight
+    const headerDivHeight = headerDiv?.clientHeight ?? 0
 
     const bodyDiv = card.querySelector('.ant-card-body')
     if (bodyDiv) {

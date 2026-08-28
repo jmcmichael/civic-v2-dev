@@ -6,7 +6,9 @@ import {
   FormMutationState,
   FormSubmissionError,
 } from '@app/forms/utilities/form-mutation'
+import { CheckCircleTwoTone } from '@ant-design/icons-angular/icons'
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
+import { NZ_ICONS } from 'ng-zorro-antd/icon'
 import { describe, expect, it } from 'vitest'
 import { CvcFormCardModule } from './form-card.module'
 
@@ -57,6 +59,7 @@ function mount(field: FormlyFieldConfig = defaultCardField()): {
         provide: CvcFormSubmissionStatusDisplayComponent,
         useValue: { state: signal(state), dismissed },
       },
+      { provide: NZ_ICONS, useValue: [CheckCircleTwoTone] },
     ],
   })
   const fixture = TestBed.createComponent(HostComponent)
@@ -74,16 +77,32 @@ function headTitle(fixture: ComponentFixture<HostComponent>): string {
 }
 
 describe('CvcFormCardWrapper', () => {
-  it('shows the instruction line in place of the title', () => {
-    const { fixture } = mount()
-    expect(headTitle(fixture)).toBe('Fill in the fields, then submit.')
+  it('titles the card from formTitle', () => {
+    const field = defaultCardField()
+    field.props!.formTitle = {
+      action: 'REVISE',
+      icon: 'check-circle',
+      entityType: 'EvidenceItem',
+      name: 'EID1',
+    }
+    const { fixture } = mount(field)
+    expect(headTitle(fixture)).toContain('REVISE')
+    expect(headTitle(fixture)).toContain('EID1')
   })
 
-  it('falls back to the configured title without instructions', () => {
-    const field = defaultCardField()
-    delete field.props!.formInstructions
-    const { fixture } = mount(field)
+  it('falls back to the configured title without a formTitle', () => {
+    const { fixture } = mount()
     expect(headTitle(fixture)).toBe('My Form')
+  })
+
+  it('shows the instruction line above the form fields', () => {
+    const { fixture } = mount()
+    const instructions =
+      fixture.nativeElement.querySelector('.form-instructions')
+    expect(instructions?.textContent).toContain(
+      'Fill in the fields, then submit.'
+    )
+    expect(instructions?.closest('.ant-card-body')).toBeTruthy()
   })
 
   it('shows the field-state legend in the header extra', () => {
