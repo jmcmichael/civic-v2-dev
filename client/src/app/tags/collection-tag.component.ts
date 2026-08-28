@@ -2,12 +2,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   input,
 } from '@angular/core'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
+import { EntityTagHoverService } from './entity-tag-hover.service'
 import { EntityTagRef, tagSpecFor } from './entity-tag-specs'
 import { CvcTagListComponent } from './tag-list.component'
 
@@ -33,6 +35,8 @@ import { CvcTagListComponent } from './tag-list.component'
   styleUrl: './collection-tag.component.less',
 })
 export class CvcCollectionTagComponent {
+  protected readonly hoverIntent = inject(EntityTagHoverService)
+
   readonly refs = input.required<EntityTagRef[]>()
   /**
    * Above this many entities, show a count and one icon instead of the

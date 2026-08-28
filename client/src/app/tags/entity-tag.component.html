@@ -6,6 +6,7 @@
       nz-popover
       [nzPopoverContent]="popoverEnabled() ? popoverTpl : undefined"
       [nzPopoverPlacement]="popoverPlacement()"
+      [nzPopoverMouseEnterDelay]="hoverIntent.enterDelay()"
       (nzPopoverVisibleChange)="onPopoverVisible($event)">
       <ng-template [ngTemplateOutlet]="tagContent" />
     </span>
@@ -19,6 +20,7 @@
       nz-popover
       [nzPopoverContent]="popoverEnabled() ? popoverTpl : undefined"
       [nzPopoverPlacement]="popoverPlacement()"
+      [nzPopoverMouseEnterDelay]="hoverIntent.enterDelay()"
       (nzPopoverVisibleChange)="onPopoverVisible($event)">
       <ng-template [ngTemplateOutlet]="tagContent" />
     </nz-tag>
