@@ -74,6 +74,8 @@ export interface FormFieldValue {
   readonly before?: string
   /** a long-text (textarea) field: the preview offers expand-ability */
   readonly multiline?: boolean
+  /** the model value's type: entity typename, 'enum', or the primitive */
+  readonly valueType?: string
   /** entity refs standing behind `value`, renderable by cvc-tag as-is */
   readonly entities?: EntityTagRef[]
   /** entity refs standing behind `before` */
@@ -139,6 +141,16 @@ function formatValue(
   }
   if (value !== null && typeof value === 'object') return JSON.stringify(value)
   return String(value)
+}
+
+function valueTypeOf(value: unknown, typename?: string): string {
+  const single = Array.isArray(value) ? value[0] : value
+  const base =
+    typename ??
+    (typeof single === 'string' && ENUM_SHAPE.test(single)
+      ? 'enum'
+      : typeof single)
+  return Array.isArray(value) ? `${base}[]` : base
 }
 
 function isEmpty(value: unknown): boolean {
@@ -220,6 +232,7 @@ export function collectFieldValues(
           .split('.')
           .pop() || undefined,
       multiline: typeof f.type === 'string' && TEXTAREA_TYPES.has(f.type),
+      valueType: valueTypeOf(value ?? originalValue, typename),
       before: changed ? beforeStr : undefined,
       entities: toRefs(value),
       beforeEntities: changed ? toRefs(originalValue) : undefined,

@@ -18,6 +18,7 @@ import {
   evidenceToModelFields,
   evidenceFormModelToInput,
 } from '@app/forms/utilities/evidence-to-model-fields'
+import { print } from 'graphql'
 import { EvidenceItemRevisableFieldsGQL } from '@app/forms/config/evidence-revise/evidence-revise.query.gql.generated'
 import {
   SubmitEvidenceItemGQL,
@@ -159,6 +160,15 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
     } else {
     }
   }
+
+  // the submission preview's Copy GraphQL: the request as it would be
+  // sent right now
+  graphqlPreview = () => ({
+    query: print(this.submitEvidenceGQL.document),
+    variables: {
+      input: this.model() ? evidenceFormModelToInput(this.model()!) : undefined,
+    },
+  })
 
   onSubmit(model: EvidenceSubmitModel) {
     const input = evidenceFormModelToInput(model)

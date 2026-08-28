@@ -78,6 +78,12 @@ export class CvcFormSubmissionStatusDisplayComponent {
    */
   @Input() submissionNoun?: string
 
+  /**
+   * Builds the mutation request the form would submit right now, for the
+   * submission preview's Copy GraphQL affordance
+   */
+  @Input() graphqlPreview?: () => { query: string; variables: unknown }
+
   constructor() {
     if (this.syntheticErrors) {
       this.state.set(syntheticSubmissionState())
