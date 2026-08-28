@@ -151,17 +151,14 @@ export class CvcFusionSelectForm {
             },
             fieldGroup: [
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 12,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'fivePrimePartnerStatus',
                     type: 'base-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 12 },
                       label: "5' Partner Status",
                       tooltip:
                         "Select Known if the specific 5' Gene partner is known, Unknown if not. Select Multiple if there are multiple potential 5' Gene partners",
@@ -174,7 +171,9 @@ export class CvcFusionSelectForm {
                   {
                     key: 'fivePrimeGeneId',
                     type: 'feature-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 12 },
                       label: "5' Fusion Partner",
                       placeholder: 'Select Gene',
                       tooltip: "Select the 5' Gene partner in the Fusion",
@@ -194,17 +193,14 @@ export class CvcFusionSelectForm {
                 ],
               },
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 12,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'threePrimePartnerStatus',
                     type: 'base-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 12 },
                       required: true,
                       placeholder: "3' Partner Status",
                       label: "3' Partner Status",
@@ -217,7 +213,9 @@ export class CvcFusionSelectForm {
                   {
                     key: 'threePrimeGeneId',
                     type: 'feature-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 12 },
                       label: "3' Fusion Partner",
                       placeholder: 'Select Gene',
                       tooltip: "Select the 3' Gene partner in the Fusion",
@@ -237,17 +235,14 @@ export class CvcFusionSelectForm {
                 ],
               },
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 24,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'organizationId',
                     type: 'org-submit-button',
+                    wrappers: ['col'],
                     props: {
+                      col: { span: 24 },
                       submitLabel: 'Create Fusion',
                       align: 'right',
                     },

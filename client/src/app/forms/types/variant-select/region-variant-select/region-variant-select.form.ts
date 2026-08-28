@@ -111,34 +111,28 @@ export class CvcRegionVariantSelectForm {
             },
             fieldGroup: [
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 24,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'name',
                     type: 'region-variant-name-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 24 },
                       required: true,
                     },
                   },
                 ],
               },
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 24,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'organizationId',
                     type: 'org-submit-button',
+                    wrappers: ['col'],
                     props: {
+                      col: { span: 24 },
                       submitLabel: 'Create Region Variant',
                       align: 'right',
                     },

@@ -1,4 +1,3 @@
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
@@ -60,28 +59,29 @@ const formFieldConfig: FormlyFieldConfig[] = [
         ],
       },
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            spanIndexed: [24, 12, 12],
-          },
-        },
+        wrappers: ['row'],
         fieldGroup: [
           {
             key: 'comment',
             type: 'textarea',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 24 },
               label: 'Comment',
               required: true,
             },
           },
           {
             type: 'cvc-cancel-button',
+            wrappers: ['col'],
+            props: { col: { span: 12 } },
           },
           {
             key: 'organizationId',
             type: 'org-submit-button',
+            wrappers: ['col'],
             props: {
+              col: { span: 12 },
               submitLabel: 'Submit Variant Group Revision',
               align: 'right',
             },

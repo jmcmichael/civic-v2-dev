@@ -1,5 +1,4 @@
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { FormRowOptions } from '@app/forms/wrappers/form-row/form-row.wrapper'
 
 export const sortByKey = (items: FormlyFieldConfig[]): FormlyFieldConfig[] =>
   [...items].sort((a, b) => String(a.key).localeCompare(String(b.key)))
@@ -9,18 +8,26 @@ export const sortByLabel = (items: FormlyFieldConfig[]): FormlyFieldConfig[] =>
     String(a.props!.label).localeCompare(String(b.props!.label))
   )
 
+// operator/value pairs: operator col span 8, value col span 16
+const STATIC_SPANS = [8, 16]
+
 export const withStatic = (items: FormlyFieldConfig[]): FormlyFieldConfig[] =>
   items.map((i) => ({
     ...i,
     type: 'formly-group',
-    wrappers: ['form-row'],
+    wrappers: ['row'],
     props: {
       ...i.props,
-      formRowOptions: <FormRowOptions>{
-        spanIndexed: [8, 16],
-        gutter: [8, 0],
-      },
+      row: { gutter: [8, 0] },
     },
+    fieldGroup: i.fieldGroup?.map((child, index) => ({
+      ...child,
+      wrappers: child.wrappers ?? ['col', 'form-field'],
+      props: {
+        ...child.props,
+        col: { span: STATIC_SPANS[index] ?? 24 },
+      },
+    })),
   }))
 
 export const withRecursive = (

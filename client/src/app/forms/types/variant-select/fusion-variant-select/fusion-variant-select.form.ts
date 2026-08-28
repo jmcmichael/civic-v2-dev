@@ -159,23 +159,21 @@ export class CvcFusionVariantSelectForm {
             },
             fieldGroup: [
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 12,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'referenceBuild',
                     type: 'reference-build-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 12 },
                       required: true,
                     },
                   },
                   {
                     key: 'ensemblVersion',
                     type: 'base-input',
+                    wrappers: ['col', 'form-field'],
                     validators: {
                       nccnVersionNumber: {
                         expression: (c: AbstractControl) =>
@@ -185,6 +183,7 @@ export class CvcFusionVariantSelectForm {
                       },
                     },
                     props: {
+                      col: { span: 12 },
                       label: 'Ensembl Version',
                       description:
                         'Enter a valid Ensembl database version (e.g. 75)',
@@ -194,17 +193,14 @@ export class CvcFusionVariantSelectForm {
                 ],
               },
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 6,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'fivePrimeTranscript',
                     type: 'base-input',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 6 },
                       label: "5' Transcript",
                       required: !fivePrimeDisabled,
                       disabled: fivePrimeDisabled,
@@ -222,6 +218,7 @@ export class CvcFusionVariantSelectForm {
                   {
                     key: 'fivePrimeExonEnd',
                     type: 'base-input',
+                    wrappers: ['col', 'form-field'],
                     validators: {
                       isNumeric: {
                         expression: isNumeric,
@@ -229,6 +226,7 @@ export class CvcFusionVariantSelectForm {
                       },
                     },
                     props: {
+                      col: { span: 6 },
                       label: "5' End Exon",
                       required: !fivePrimeDisabled,
                       disabled: fivePrimeDisabled,
@@ -239,6 +237,7 @@ export class CvcFusionVariantSelectForm {
                   {
                     key: 'fivePrimeOffset',
                     type: 'base-input',
+                    wrappers: ['col', 'form-field'],
                     validators: {
                       isNumeric: {
                         expression: isNumeric,
@@ -246,6 +245,7 @@ export class CvcFusionVariantSelectForm {
                       },
                     },
                     props: {
+                      col: { span: 6 },
                       label: "5' Exon Offset",
                       tooltip:
                         'A value representing the offset from the segment boundary.',
@@ -256,7 +256,9 @@ export class CvcFusionVariantSelectForm {
                   {
                     key: 'fivePrimeOffsetDirection',
                     type: 'base-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 6 },
                       label: "5' Exon Offset Direction",
                       tooltip:
                         'Negative values offset towards the 5’ end of the transcript and positive values offset towards the 3’ end of the transcript.',
@@ -275,17 +277,14 @@ export class CvcFusionVariantSelectForm {
                 ],
               },
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 6,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'threePrimeTranscript',
                     type: 'base-input',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 6 },
                       required: !threePrimeDisabled,
                       disabled: threePrimeDisabled,
                       label: "3' Transcript",
@@ -303,6 +302,7 @@ export class CvcFusionVariantSelectForm {
                   {
                     key: 'threePrimeExonStart',
                     type: 'base-input',
+                    wrappers: ['col', 'form-field'],
                     validators: {
                       isNumeric: {
                         expression: isNumeric,
@@ -310,6 +310,7 @@ export class CvcFusionVariantSelectForm {
                       },
                     },
                     props: {
+                      col: { span: 6 },
                       label: "3' Start Exon",
                       tooltip:
                         "The exon number counted from the 5' end of the 3' partner transcript (the first exon of the 3' partner involved in the fusion transcript)",
@@ -320,6 +321,7 @@ export class CvcFusionVariantSelectForm {
                   {
                     key: 'threePrimeOffset',
                     type: 'base-input',
+                    wrappers: ['col', 'form-field'],
                     validators: {
                       isNumeric: {
                         expression: isNumeric,
@@ -327,6 +329,7 @@ export class CvcFusionVariantSelectForm {
                       },
                     },
                     props: {
+                      col: { span: 6 },
                       label: "3' Exon Offset",
                       disabled: threePrimeDisabled,
                       required: false,
@@ -337,7 +340,9 @@ export class CvcFusionVariantSelectForm {
                   {
                     key: 'threePrimeOffsetDirection',
                     type: 'base-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 6 },
                       label: "3' Exon Offset Direction",
                       tooltip:
                         'Negative values offset towards the 5’ end of the transcript and positive values offset towards the 3’ end of the transcript.',
@@ -356,17 +361,14 @@ export class CvcFusionVariantSelectForm {
                 ],
               },
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 24,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'organizationId',
                     type: 'org-submit-button',
+                    wrappers: ['col'],
                     props: {
+                      col: { span: 24 },
                       submitLabel: 'Create Fusion Variant',
                       align: 'right',
                     },

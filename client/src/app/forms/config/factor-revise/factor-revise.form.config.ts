@@ -2,7 +2,6 @@ import { factorReviseFormInitialModel } from '@app/forms/models/factor-revise.mo
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
@@ -28,17 +27,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                span: 24,
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
                 key: 'name',
                 type: 'base-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   placeholder: 'Enter a name for this Factor',
                   description: 'Enter the name of the Factor',
                   label: 'Name',
@@ -48,7 +44,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'fullName',
                 type: 'base-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   placeholder: 'Enter a full name for this Factor',
                   description:
                     'Enter a full or long-form name of the Factor if applicable',
@@ -59,7 +57,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'ncitId',
                 type: 'base-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   placeholder: 'NCI Thesaurus Code',
                   description: 'Enter the NCI Thesaurus Code for this Factor',
                   label: 'NCI Thesaurus Code',
@@ -69,7 +69,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'aliases',
                 type: 'tag-multi-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   label: 'Aliases',
                   description:
                     'List any aliases commonly used to refer to this Factor',
@@ -79,8 +81,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'description',
                 type: 'base-textarea',
-                wrappers: ['form-field'],
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   tooltip:
                     'User-defined summary of the clinical relevance of this Factor.',
                   placeholder: 'Enter a Factor Summary',
@@ -92,25 +95,22 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'sourceIds',
                 type: 'source-multi-select',
-                wrappers: ['form-field'],
-                props: {},
+                wrappers: ['col', 'form-field'],
+                props: { col: { span: 24 } },
               },
             ],
           },
         ],
       },
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            spanIndexed: [24, 12, 12],
-          },
-        },
+        wrappers: ['row'],
         fieldGroup: [
           {
             key: 'comment',
             type: 'base-textarea',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 24 },
               label: 'Comment',
               placeholder: 'Please enter a comment describing your revisions.',
               required: true,
@@ -119,11 +119,15 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           {
             type: 'cvc-cancel-button',
+            wrappers: ['col'],
+            props: { col: { span: 12 } },
           },
           {
             key: 'organizationId',
             type: 'org-submit-button',
+            wrappers: ['col'],
             props: {
+              col: { span: 12 },
               submitLabel: 'Submit Factor Revisions',
               align: 'right',
             },
