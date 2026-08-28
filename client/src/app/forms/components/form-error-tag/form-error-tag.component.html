@@ -8,7 +8,7 @@
       nz-popover
       nzPopoverTrigger="click"
       nzPopoverPlacement="topRight"
-      nzPopoverTitle="Submission Errors"
+      [nzPopoverTitle]="errorTitle"
       [nzPopoverContent]="errorList"
       nzPopoverOverlayClassName="form-error-popover"
       [nzAction]="detailsAction"></nz-alert>
@@ -40,7 +40,7 @@
     nz-popover
     nzPopoverTrigger="click"
     nzPopoverPlacement="bottomRight"
-    nzPopoverTitle="Submission Errors"
+    [nzPopoverTitle]="errorTitle"
     [nzPopoverContent]="errorList"
     nzPopoverOverlayClassName="form-error-popover">
     <span
@@ -61,27 +61,36 @@
   </button>
 </ng-template>
 
+<ng-template #errorTitle>
+  Submission Errors
+  <span class="error-count">({{ errors().length }})</span>
+</ng-template>
+
 <ng-template #errorList>
   <div class="popover-head">
-    <span class="error-count">
-      {{ errors().length }} {{ errors().length === 1 ? 'error' : 'errors' }}
-    </span>
-    <span
-      class="copy-all"
-      nz-typography
-      nzCopyable
-      [nzCopyText]="detailsText()">
-      Copy all
-    </span>
+    <button
+      nz-button
+      nzSize="small"
+      (click)="copyAll()">
+      <span
+        nz-icon
+        [nzType]="copied() ? 'check' : 'copy'"></span>
+      {{ copied() ? 'Copied' : 'Copy all' }}
+    </button>
+    <button
+      nz-button
+      nzSize="small"
+      (click)="expandAll.set(!expandAll())">
+      {{ expandAll() ? 'Hide all details' : 'Show all details' }}
+    </button>
   </div>
   <!-- borderless + our flattening CSS, not collapse's ghost mode: that
        attribute trips postcss-strip-unused's button-ghost driver -->
   <nz-collapse [nzBordered]="false">
     @for (err of errors(); track $index) {
       <nz-collapse-panel
-        #panel
         [nzHeader]="panelHeader"
-        [nzActive]="errors().length === 1">
+        [nzActive]="expandAll() || errors().length === 1">
         <ng-template #panelHeader>
           <span class="panel-head">
             <nz-tag
@@ -93,11 +102,6 @@
               <nz-tag class="code-chip">{{ err.code }}</nz-tag>
             }
             <span class="head-message">{{ err.message }}</span>
-            <span class="details-toggle">
-              <!-- active, not the nzActive input: the linked signal tracks
-                   toggles the input cannot see -->
-              {{ panel.active() ? 'hide' : 'show' }} details
-            </span>
           </span>
         </ng-template>
         <div class="error-detail">

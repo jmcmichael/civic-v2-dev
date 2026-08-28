@@ -54,7 +54,14 @@
 
 // popover content is appended to the overlay container, outside :host
 ::ng-deep .form-error-popover {
-  max-width: 560px;
+  // wide enough that the collapse panels and JSON tree don't clip
+  max-width: 680px;
+
+  .ant-popover-title .error-count {
+    margin-left: 4px;
+    font-weight: normal;
+    opacity: 0.65;
+  }
 
   .issue-list li {
     display: flex;
@@ -78,18 +85,9 @@
 
   .popover-head {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    gap: 8px;
+    justify-content: flex-end;
     margin-bottom: 4px;
-
-    .error-count {
-      font-size: 12px;
-      opacity: 0.65;
-    }
-
-    .copy-all {
-      font-size: 12px;
-    }
   }
 
   // flatten the borderless collapse to a ghost look inside the popover
@@ -114,15 +112,6 @@
     align-items: baseline;
     min-width: 0;
     max-width: 100%;
-
-    .details-toggle {
-      flex: none;
-      margin-left: auto;
-      padding-left: 8px;
-      font-size: 12px;
-      color: @primary-color;
-      white-space: nowrap;
-    }
 
     // sized to clear the widest label (Network) so the chips align as a
     // column across panels
@@ -171,6 +160,7 @@
     ngx-json-viewer {
       display: block;
       margin-top: 8px;
+      overflow-x: auto;
       font-size: 12px;
     }
 
