@@ -158,7 +158,10 @@ const POPOVER_PAGE = 10
       vertical-align: top;
     }
     .count-tag.has-popover {
-      cursor: help;
+      // hover reveals the count breakdown; nothing to click or select, so
+      // the arrow rather than help — matches the collection tag
+      cursor: default;
+      user-select: none;
     }
     .count-popover {
       display: flex;
