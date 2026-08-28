@@ -72,6 +72,12 @@ export class CvcFormSubmissionStatusDisplayComponent {
   @Input() successMessage?: TemplateRef<void>
   @Input() redirectUrl?: string
 
+  /**
+   * What a submit produces, for the footer alert copy ("revision may be
+   * submitted"); falls back to the lowercased entityType
+   */
+  @Input() submissionNoun?: string
+
   constructor() {
     if (this.syntheticErrors) {
       this.state.set(syntheticSubmissionState())

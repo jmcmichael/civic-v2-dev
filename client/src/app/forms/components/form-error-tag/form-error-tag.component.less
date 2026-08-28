@@ -47,9 +47,29 @@
   }
 }
 
+// the ready state has nothing to detail: no popover, no pointer
+.form-ready-alert {
+  cursor: default;
+}
+
 // popover content is appended to the overlay container, outside :host
 ::ng-deep .form-error-popover {
   max-width: 560px;
+
+  .issue-list li {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+
+    .issue-label {
+      font-weight: 600;
+    }
+
+    .issue-reason {
+      font-size: 12px;
+      opacity: 0.75;
+    }
+  }
 
   .ant-popover-inner-content {
     max-height: 60vh;
@@ -90,19 +110,34 @@
   }
 
   .panel-head {
-    display: inline-flex;
+    display: flex;
     align-items: baseline;
     min-width: 0;
     max-width: 100%;
 
+    .details-toggle {
+      flex: none;
+      margin-left: auto;
+      padding-left: 8px;
+      font-size: 12px;
+      color: @primary-color;
+      white-space: nowrap;
+    }
+
+    // sized to clear the widest label (Network) so the chips align as a
+    // column across panels
     .category-chip {
       flex: none;
+      min-width: 68px;
+      text-align: center;
       text-transform: capitalize;
     }
 
-    code {
+    // the error's shortname/code, in a default grey tag
+    .code-chip {
       flex: none;
-      margin-right: 6px;
+      font-family:
+        'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
       font-size: 12px;
     }
 

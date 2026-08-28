@@ -13,7 +13,8 @@
   }">
   <cvc-form-error-tag
     class="submit-error-tag"
-    variant="alert" />
+    variant="alert"
+    [readiness]="{ valid: formValid(), issues: fieldIssues() }" />
   <button
     type="submit"
     nz-button

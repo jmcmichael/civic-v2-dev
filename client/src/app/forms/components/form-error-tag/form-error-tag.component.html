@@ -1,5 +1,5 @@
-@if (primary()) {
-  @if (variant() === 'alert') {
+@if (variant() === 'alert') {
+  @if (primary()) {
     <nz-alert
       class="form-error-alert"
       nzType="error"
@@ -12,91 +12,129 @@
       [nzPopoverContent]="errorList"
       nzPopoverOverlayClassName="form-error-popover"
       [nzAction]="detailsAction"></nz-alert>
-  } @else {
-    <nz-tag
-      class="form-error-tag"
-      nz-popover
-      nzPopoverTrigger="click"
-      nzPopoverPlacement="bottomRight"
-      nzPopoverTitle="Submission Errors"
-      [nzPopoverContent]="errorList"
-      nzPopoverOverlayClassName="form-error-popover">
-      <span
-        nz-icon
-        nzType="close-circle"
-        nzTheme="fill"></span>
-      <span class="tag-label">{{ label() }}</span>
-    </nz-tag>
+  } @else if (readiness(); as r) {
+    @if (r.valid) {
+      <nz-alert
+        class="form-error-alert form-ready-alert"
+        nzType="success"
+        nzShowIcon
+        [nzMessage]="okLabel()"></nz-alert>
+    } @else {
+      <nz-alert
+        class="form-error-alert"
+        nzType="info"
+        nzShowIcon
+        [nzMessage]="issueLabel()"
+        nz-popover
+        nzPopoverTrigger="click"
+        nzPopoverPlacement="topRight"
+        nzPopoverTitle="Fields Blocking Submission"
+        [nzPopoverContent]="issueList"
+        nzPopoverOverlayClassName="form-error-popover"
+        [nzAction]="detailsAction"></nz-alert>
+    }
   }
-
-  <!-- a visible affordance only: its click bubbles to the host alert's
-       popover trigger -->
-  <ng-template #detailsAction>
-    <button
-      nz-button
-      nzSize="small">
-      Details
-    </button>
-  </ng-template>
-
-  <ng-template #errorList>
-    <div class="popover-head">
-      <span class="error-count">
-        {{ errors().length }} {{ errors().length === 1 ? 'error' : 'errors' }}
-      </span>
-      <span
-        class="copy-all"
-        nz-typography
-        nzCopyable
-        [nzCopyText]="detailsText()">
-        Copy all
-      </span>
-    </div>
-    <!-- borderless + our flattening CSS, not collapse's ghost mode: that
-         attribute trips postcss-strip-unused's button-ghost driver -->
-    <nz-collapse [nzBordered]="false">
-      @for (err of errors(); track $index) {
-        <nz-collapse-panel
-          [nzHeader]="panelHeader"
-          [nzActive]="errors().length === 1">
-          <ng-template #panelHeader>
-            <span class="panel-head">
-              <nz-tag
-                class="category-chip"
-                [nzColor]="categoryColor(err.category)">
-                {{ err.category }}
-              </nz-tag>
-              @if (err.code) {
-                <code>{{ err.code }}</code>
-              }
-              <span class="head-message">{{ err.message }}</span>
-            </span>
-          </ng-template>
-          <div class="error-detail">
-            <p class="detail-message">{{ err.message }}</p>
-            @for (m of err.meta; track m.label) {
-              <div class="meta-row">
-                <span class="meta-label">{{ m.label }}</span>
-                <span class="meta-value">{{ m.value }}</span>
-              </div>
-            }
-            @if (err.json !== undefined) {
-              <ngx-json-viewer
-                [json]="err.json"
-                [expanded]="false"></ngx-json-viewer>
-            } @else if (err.log) {
-              <pre class="error-log">{{ err.log }}</pre>
-            }
-            <span
-              class="copy-one"
-              nz-typography
-              nzCopyable
-              [nzCopyText]="errorBlock(err)">
-              Copy error details
-            </span>
-          </div>
-        </nz-collapse-panel>
-      }
-    </nz-collapse>
-  </ng-template>
+} @else if (primary()) {
+  <nz-tag
+    class="form-error-tag"
+    nz-popover
+    nzPopoverTrigger="click"
+    nzPopoverPlacement="bottomRight"
+    nzPopoverTitle="Submission Errors"
+    [nzPopoverContent]="errorList"
+    nzPopoverOverlayClassName="form-error-popover">
+    <span
+      nz-icon
+      nzType="close-circle"
+      nzTheme="fill"></span>
+    <span class="tag-label">{{ label() }}</span>
+  </nz-tag>
 }
+
+<!-- a visible affordance only: its click bubbles to the host alert's
+     popover trigger -->
+<ng-template #detailsAction>
+  <button
+    nz-button
+    nzSize="small">
+    Details
+  </button>
+</ng-template>
+
+<ng-template #errorList>
+  <div class="popover-head">
+    <span class="error-count">
+      {{ errors().length }} {{ errors().length === 1 ? 'error' : 'errors' }}
+    </span>
+    <span
+      class="copy-all"
+      nz-typography
+      nzCopyable
+      [nzCopyText]="detailsText()">
+      Copy all
+    </span>
+  </div>
+  <!-- borderless + our flattening CSS, not collapse's ghost mode: that
+       attribute trips postcss-strip-unused's button-ghost driver -->
+  <nz-collapse [nzBordered]="false">
+    @for (err of errors(); track $index) {
+      <nz-collapse-panel
+        #panel
+        [nzHeader]="panelHeader"
+        [nzActive]="errors().length === 1">
+        <ng-template #panelHeader>
+          <span class="panel-head">
+            <nz-tag
+              class="category-chip"
+              [nzColor]="categoryColor(err.category)">
+              {{ err.category }}
+            </nz-tag>
+            @if (err.code) {
+              <nz-tag class="code-chip">{{ err.code }}</nz-tag>
+            }
+            <span class="head-message">{{ err.message }}</span>
+            <span class="details-toggle">
+              <!-- active, not the nzActive input: the linked signal tracks
+                   toggles the input cannot see -->
+              {{ panel.active() ? 'hide' : 'show' }} details
+            </span>
+          </span>
+        </ng-template>
+        <div class="error-detail">
+          <p class="detail-message">{{ err.message }}</p>
+          @for (m of err.meta; track m.label) {
+            <div class="meta-row">
+              <span class="meta-label">{{ m.label }}</span>
+              <span class="meta-value">{{ m.value }}</span>
+            </div>
+          }
+          @if (err.json !== undefined) {
+            <ngx-json-viewer
+              [json]="err.json"
+              [expanded]="false"></ngx-json-viewer>
+          } @else if (err.log) {
+            <pre class="error-log">{{ err.log }}</pre>
+          }
+          <span
+            class="copy-one"
+            nz-typography
+            nzCopyable
+            [nzCopyText]="errorBlock(err)">
+            Copy error details
+          </span>
+        </div>
+      </nz-collapse-panel>
+    }
+  </nz-collapse>
+</ng-template>
+
+<ng-template #issueList>
+  <ul class="error-list issue-list">
+    @for (issue of readiness()?.issues; track $index) {
+      <li>
+        <span class="issue-label">{{ issue.label }}</span>
+        <span class="issue-reason">{{ issue.reason }}</span>
+      </li>
+    }
+  </ul>
+</ng-template>

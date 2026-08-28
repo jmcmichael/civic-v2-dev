@@ -17,6 +17,10 @@ import { auditTime, EMPTY, filter, map, merge, Observable } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
+import {
+  collectFieldIssues,
+  FormFieldIssue,
+} from '@app/forms/utilities/form-field-issues'
 import { NzButtonSize } from 'ng-zorro-antd/button'
 
 interface CvcOrgSubmitButtonProps extends CvcColWrapperProps {
@@ -45,6 +49,7 @@ export class CvcOrgSubmitButtonComponent
 
   readonly mostRecentOrg: Signal<Maybe<ViewerOrganizationFragment>>
   formValid!: Signal<boolean>
+  fieldIssues!: Signal<FormFieldIssue[]>
 
   defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
     props: {
@@ -62,15 +67,18 @@ export class CvcOrgSubmitButtonComponent
 
   ngOnInit(): void {
     // form & field attach after construction, hence the injector-scoped toSignal
-    this.formValid = toSignal(
-      merge(
-        this.form.statusChanges as Observable<unknown>,
-        (this.field.options?.fieldChanges ?? EMPTY) as Observable<unknown>
-      ).pipe(
-        auditTime(0),
-        map(() => this.form.valid)
-      ),
-      { initialValue: this.form.valid, injector: this.injector }
+    const formChange$ = merge(
+      this.form.statusChanges as Observable<unknown>,
+      (this.field.options?.fieldChanges ?? EMPTY) as Observable<unknown>
+    ).pipe(auditTime(0))
+    this.formValid = toSignal(formChange$.pipe(map(() => this.form.valid)), {
+      initialValue: this.form.valid,
+      injector: this.injector,
+    })
+    // feeds the footer alert's pre-submit readiness state
+    this.fieldIssues = toSignal(
+      formChange$.pipe(map(() => collectFieldIssues(this.field))),
+      { initialValue: collectFieldIssues(this.field), injector: this.injector }
     )
 
     // keep the field's value synced to the viewer's most recent org

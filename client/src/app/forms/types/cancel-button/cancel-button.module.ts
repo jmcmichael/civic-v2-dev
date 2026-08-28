@@ -22,6 +22,6 @@ const typeConfig: ConfigOption = {
     FormlyModule.forChild(typeConfig),
     NzButtonModule,
   ],
-  exports: [CvcCancelButton]
+  exports: [CvcCancelButton],
 })
 export class CvcCancelButtonModule {}
