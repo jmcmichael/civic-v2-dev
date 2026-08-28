@@ -13,6 +13,7 @@ import {
 } from '@app/generated/civic.apollo.types'
 import {
   CVC_ATTRIBUTE_COLUMNS,
+  CvcEnumOption,
   entityTableConfig,
   enumFilterOptions,
   SORT_DESCEND_FIRST,
@@ -27,6 +28,20 @@ const RATING_OPTIONS = [1, 2, 3, 4, 5].map((stars) => ({
   label: `${stars} stars`,
   value: stars,
 }))
+
+/**
+ * The status funnel's choices, hand-ordered from the baseline outward (the
+ * generated enum would alphabetize). Shared with the assertions table, whose
+ * status filter is this same enum.
+ */
+export const EVIDENCE_STATUS_FILTER_OPTIONS: CvcEnumOption<EvidenceStatusFilter>[] =
+  [
+    { label: 'Non-Rejected', value: EvidenceStatusFilter.NonRejected },
+    { label: 'Accepted', value: EvidenceStatusFilter.Accepted },
+    { label: 'Submitted', value: EvidenceStatusFilter.Submitted },
+    { label: 'Rejected', value: EvidenceStatusFilter.Rejected },
+    { label: 'All', value: EvidenceStatusFilter.All },
+  ]
 
 /**
  * The query variables a host page scopes the table with. Every embed passes
@@ -111,6 +126,19 @@ export function evidenceTableConfig(
             return match ? +match[1] : null
           },
         },
+        // the status funnel shares its variable with the scope: cleared, the
+        // scope's baseline (NON_REJECTED unless the host sets one) stands.
+        // Meaningless when the host pins explicit ids, so omitted there.
+        ...(scope.ids?.length
+          ? {}
+          : {
+              extraFilter: {
+                kind: 'enum' as const,
+                var: 'status' as const,
+                showIcons: false,
+                options: EVIDENCE_STATUS_FILTER_OPTIONS,
+              },
+            }),
       },
       {
         key: 'molecularProfile',

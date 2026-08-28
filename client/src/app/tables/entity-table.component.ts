@@ -688,6 +688,22 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
       }
     }
 
+    // null and '' mean "cleared". A cleared filter must be an *absent*
+    // variable rather than an explicit null — a null still reaches the
+    // resolver and filters for rows whose column is null — unless the scope
+    // carries a baseline for the same variable, which then stands: a filter
+    // sharing a variable with the scope (the status funnels) overrides the
+    // baseline while set and restores it when cleared.
+    const applyFilterVar = (name: string, value: unknown) => {
+      if (value === null || value === '' || value === undefined) {
+        if (spec.scope[name as keyof typeof spec.scope] === undefined) {
+          vars[name] = undefined
+        }
+      } else {
+        vars[name] = value
+      }
+    }
+
     for (const column of spec.columns) {
       if (!column.filter) continue
       const raw = this.filterValues().get(column.key)
@@ -695,18 +711,15 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
         column.filter.kind === 'text' && column.filter.transform
           ? column.filter.transform(raw as Maybe<string>)
           : raw
-      // null and '' mean "cleared", and a cleared filter must be an *absent*
-      // variable rather than an explicit null — a null still reaches the
-      // resolver and filters for rows whose column is null
-      vars[column.filter.var] =
-        value === null || value === '' ? undefined : value
+      applyFilterVar(column.filter.var, value)
     }
 
     for (const column of spec.columns) {
       if (!column.extraFilter) continue
-      const value = this.filterValues().get(extraKey(column.key))
-      vars[column.extraFilter.var] =
-        value === null || value === '' ? undefined : value
+      applyFilterVar(
+        column.extraFilter.var,
+        this.filterValues().get(extraKey(column.key))
+      )
     }
 
     return vars
