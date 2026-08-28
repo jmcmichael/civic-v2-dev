@@ -67,6 +67,9 @@ export class CvcRowWrapper extends FieldWrapper<
   // vertical gutter, matching the gap between stacked cols within a row;
   // a zero vertical gutter opts out (single-line forms like mp-finder)
   @HostBinding('style.margin-top') get topMargin(): string {
+    // the footer row renders alone in the card's actions strip, whose own
+    // padding owns the spacing there
+    if (this.props.formFooter) return '0'
     const g = this.gutter
     if (Array.isArray(g)) return g[1] > 0 ? g[1] + 'px' : '0'
     return g > 0 ? g + 'px' : '0'

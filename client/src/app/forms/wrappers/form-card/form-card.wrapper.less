@@ -56,6 +56,27 @@ nz-card.full-page {
   // 12px sides, not 16: aligns the buttons with the field borders above
   padding: 6px 12px;
 
+  // the compact theme collapses .ant-btn-lg to the 32px default, making
+  // nzSize="large" a no-op — restore ant's stock large metrics for the
+  // footer's buttons only
+  .ant-btn-lg {
+    height: 40px;
+    padding: 6.4px 15px;
+    font-size: 16px;
+  }
+
+  // never wrap the footer row: ant-row wraps cols on their hypothetical
+  // (max-content) size before flex shrink applies, so the alert's unclamped
+  // text threw the submit col onto its own line; nowrap + min-width lets
+  // the alert shrink instead
+  .ant-row {
+    flex-wrap: nowrap;
+
+    .ant-col {
+      min-width: 0;
+    }
+  }
+
   > li {
     margin: 0;
     text-align: left;
