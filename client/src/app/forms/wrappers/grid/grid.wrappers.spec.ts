@@ -1,10 +1,7 @@
 import { Component } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms'
-import {
-  FormlyFieldConfig,
-  FormlyModule,
-} from '@ngx-formly/core'
+import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
 import { describe, expect, it } from 'vitest'
 import { CvcGridWrappersModule } from './grid.wrappers.module'
 
@@ -87,6 +84,24 @@ describe('row + col wrappers', () => {
     ])
     const col = fixture.nativeElement.querySelector('nz-col')
     expect(col.classList).toContain('ant-col-24')
+  })
+
+  it('cols receive gutter padding across the wrapper boundary', () => {
+    // NzColDirective injects its row host-scoped, which the col wrapper's
+    // component boundary blocks; the wrapper re-provides the ancestor row.
+    // without it the row gets negative margins but cols get no padding
+    const fixture = mount([
+      {
+        wrappers: ['row'],
+        props: { row: { gutter: [16, 0] } },
+        fieldGroup: [
+          { key: 'a', wrappers: ['col'], props: { col: { span: 12 } } },
+        ],
+      },
+    ])
+    const col: HTMLElement = fixture.nativeElement.querySelector('nz-col')
+    // zorro sets the logical padding-inline property, half the gutter per side
+    expect(col.getAttribute('style')).toContain('padding-inline: 8px')
   })
 
   it('applies responsive breakpoint classes from props.col', () => {

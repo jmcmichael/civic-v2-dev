@@ -1,9 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core'
-import {
-  FieldWrapper,
-  FormlyFieldConfig,
-  FormlyFieldProps,
-} from '@ngx-formly/core'
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
+import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
+// the zorro flavor adds hideLabel/hideRequiredMarker, which form-field reads
+import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
+import { NzRowDirective } from 'ng-zorro-antd/grid'
 
 // zorro 22 removed the grid EmbeddedProperty export; shape retained here
 type EmbeddedProperty = {
@@ -54,6 +53,16 @@ export interface CvcColWrapperProps extends FormlyFieldProps {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
+  // NzColDirective resolves its row with inject(..., { host: true }), which
+  // stops at this wrapper's boundary and silently drops the gutter padding;
+  // re-provide the ancestor row so the col can reach it
+  viewProviders: [
+    {
+      provide: NzRowDirective,
+      useFactory: () =>
+        inject(NzRowDirective, { optional: true, skipSelf: true }),
+    },
+  ],
 })
 export class CvcColWrapper extends FieldWrapper<
   FormlyFieldConfig<CvcColWrapperProps>
