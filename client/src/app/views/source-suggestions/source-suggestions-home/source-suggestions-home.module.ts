@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { SourceSuggestionsHomePage } from './source-suggestions-home.page'
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header'
@@ -9,6 +10,7 @@ import { CvcSourceSuggestionsTableModule } from '@app/components/source-suggesti
 @NgModule({
   declarations: [SourceSuggestionsHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     NzPageHeaderModule,
     NzIconModule,

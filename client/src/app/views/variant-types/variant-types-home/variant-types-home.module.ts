@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { VariantTypesHomePage } from './variant-types-home.page'
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header'
@@ -14,6 +15,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 @NgModule({
   declarations: [VariantTypesHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     NzPageHeaderModule,
     NzIconModule,

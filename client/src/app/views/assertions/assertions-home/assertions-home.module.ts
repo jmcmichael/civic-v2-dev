@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { AssertionsHomePage } from './assertions-home.page'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
@@ -17,6 +18,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 @NgModule({
   declarations: [AssertionsHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     LetDirective,
     PushPipe,

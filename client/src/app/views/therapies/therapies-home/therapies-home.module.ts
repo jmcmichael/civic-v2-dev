@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header'
@@ -14,6 +15,7 @@ import { CvcTherapiesTableModule } from '@app/components/therapies/therapies-tab
 @NgModule({
   declarations: [TherapiesHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     NzIconModule,
     NzPageHeaderModule,

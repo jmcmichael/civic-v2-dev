@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CvcDiseasesTableModule } from '@app/components/diseases/diseases-table/diseases-table.module'
 import { CvcSectionNavigationModule } from '@app/components/shared/section-navigation/section-navigation.module'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
@@ -14,6 +15,7 @@ import { DiseasesHomePage } from './diseases-home.page'
 @NgModule({
   declarations: [DiseasesHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
 
     NzIconModule,

@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header'
 import { NzIconModule } from 'ng-zorro-antd/icon'
@@ -15,6 +16,7 @@ import { CvcUserLeaderboardsModule } from '@app/components/users/user-leaderboar
 @NgModule({
   declarations: [UsersHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     NzPageHeaderModule,
     NzIconModule,

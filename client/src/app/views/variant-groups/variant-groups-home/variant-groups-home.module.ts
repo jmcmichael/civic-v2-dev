@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { VariantGroupsHomePage } from './variant-groups-home.page'
 import { NzGridModule } from 'ng-zorro-antd/grid'
@@ -16,6 +17,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 @NgModule({
   declarations: [VariantGroupsHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     RouterModule,
     LetDirective,
