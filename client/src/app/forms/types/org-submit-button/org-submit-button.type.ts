@@ -26,6 +26,7 @@ import {
   describeFieldIssues,
   FormFieldIssue,
   FormFieldValue,
+  serializeFieldConfig,
 } from '@app/forms/utilities/form-field-issues'
 import { readCachedEntityName } from '@app/tags/cached-entity'
 import { Apollo } from 'apollo-angular'
@@ -80,6 +81,9 @@ export class CvcOrgSubmitButtonComponent
    * formly has attached the form.
    */
   tooltipTitle!: Signal<string>
+
+  // the preview's Copy Form Config
+  readonly formConfig = () => serializeFieldConfig(this.field)
 
   defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
     props: {

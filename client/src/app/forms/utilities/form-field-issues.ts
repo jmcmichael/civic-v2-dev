@@ -162,6 +162,47 @@ function isEmpty(value: unknown): boolean {
   )
 }
 
+/**
+ * A JSON-safe projection of a formly config tree, for the preview's Copy
+ * Form Config: keys, types (component classes by name), wrappers, and the
+ * serializable props — functions and unserializable values drop out.
+ */
+export function serializeFieldConfig(field: FormlyFieldConfig): unknown {
+  let root = field
+  while (root.parent) root = root.parent
+  const safeProps = (props?: Record<string, unknown>) => {
+    if (!props) return undefined
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(props)) {
+      if (v === undefined || typeof v === 'function') continue
+      try {
+        JSON.stringify(v)
+        out[k] = v
+      } catch {
+        // circular or otherwise unserializable prop
+      }
+    }
+    return Object.keys(out).length ? out : undefined
+  }
+  const project = (f: FormlyFieldConfig): Record<string, unknown> => {
+    const out: Record<string, unknown> = {}
+    if (f.key !== undefined) out['key'] = f.key
+    if (f.type) {
+      out['type'] =
+        typeof f.type === 'string'
+          ? f.type
+          : ((f.type as { name?: string }).name ?? 'component')
+    }
+    if (f.wrappers?.length) out['wrappers'] = f.wrappers
+    if (f.hide) out['hide'] = f.hide
+    const props = safeProps(f.props as Record<string, unknown> | undefined)
+    if (props) out['props'] = props
+    if (f.fieldGroup) out['fieldGroup'] = f.fieldGroup.map(project)
+    return out
+  }
+  return project(root)
+}
+
 export interface CollectFieldValuesOptions {
   readonly resolve?: EntityNameResolver
   /**
