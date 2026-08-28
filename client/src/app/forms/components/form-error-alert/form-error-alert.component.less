@@ -40,11 +40,6 @@
   }
 }
 
-// the ready state has nothing to detail: no popover, no pointer
-.form-ready-alert {
-  cursor: default;
-}
-
 // popover content is appended to the overlay container, outside :host
 ::ng-deep .form-error-popover {
   // wide enough that the collapse panels and JSON tree don't clip
@@ -75,6 +70,10 @@
   .ant-popover-inner-content {
     max-height: 60vh;
     overflow: auto;
+  }
+
+  .model-summary .ant-descriptions-item-label {
+    width: 180px;
   }
 
   .issue-list {

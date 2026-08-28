@@ -1,7 +1,11 @@
 import { FormControl, Validators } from '@angular/forms'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { describe, expect, it } from 'vitest'
-import { collectFieldIssues, describeFieldIssues } from './form-field-issues'
+import {
+  collectFieldIssues,
+  collectFieldValues,
+  describeFieldIssues,
+} from './form-field-issues'
 
 function link(root: FormlyFieldConfig): FormlyFieldConfig {
   const visit = (f: FormlyFieldConfig) =>
@@ -56,6 +60,46 @@ describe('collectFieldIssues', () => {
       ],
     })
     expect(collectFieldIssues(root)).toEqual([])
+  })
+
+  it('collects labeled, non-empty leaf values for the submission preview', () => {
+    const root = link({
+      fieldGroup: [
+        {
+          key: 'significance',
+          props: { label: 'Significance' },
+          formControl: new FormControl('SENSITIVITYRESPONSE'),
+        },
+        {
+          key: 'phenotypeIds',
+          props: { label: 'Phenotypes' },
+          formControl: new FormControl([21, 34]),
+        },
+        {
+          key: 'flagged',
+          props: { label: 'Flagged' },
+          formControl: new FormControl(false),
+        },
+        // unlabeled, empty and hidden fields stay out of the preview
+        { key: 'clientMutationId', formControl: new FormControl('abc') },
+        {
+          key: 'comment',
+          props: { label: 'Comment' },
+          formControl: new FormControl(''),
+        },
+        {
+          key: 'therapyIds',
+          hide: true,
+          props: { label: 'Therapies' },
+          formControl: new FormControl([5]),
+        },
+      ],
+    })
+    expect(collectFieldValues(root)).toEqual([
+      { label: 'Significance', value: 'SENSITIVITYRESPONSE' },
+      { label: 'Phenotypes', value: '21, 34' },
+      { label: 'Flagged', value: 'No' },
+    ])
   })
 })
 
