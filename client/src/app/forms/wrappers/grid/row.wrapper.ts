@@ -62,12 +62,13 @@ export class CvcRowWrapper extends FieldWrapper<
 
   @HostBinding('style.display') display = 'block'
 
-  // stacked rows space themselves by half their vertical gutter, matching
-  // the horizontal gutter between cols; a zero vertical gutter opts out
-  // (single-line forms like mp-finder)
+  // at a row boundary nz-row's negative vertical margins cancel the col
+  // paddings, so this host margin is the ENTIRE visible gap — the full
+  // vertical gutter, matching the gap between stacked cols within a row;
+  // a zero vertical gutter opts out (single-line forms like mp-finder)
   @HostBinding('style.margin-top') get topMargin(): string {
     const g = this.gutter
-    if (Array.isArray(g)) return g[1] > 0 ? g[1] / 2 + 'px' : '0'
+    if (Array.isArray(g)) return g[1] > 0 ? g[1] + 'px' : '0'
     return g > 0 ? g + 'px' : '0'
   }
 }
