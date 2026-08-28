@@ -12,11 +12,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { CvcPageInfo } from './connection.types'
 import { NzTableComponent } from 'ng-zorro-antd/table'
-import { Subject, asyncScheduler } from 'rxjs'
+import { Subject, animationFrameScheduler, asyncScheduler } from 'rxjs'
 import {
   debounceTime,
   filter,
   map,
+  observeOn,
   take,
   tap,
   throttleTime,
@@ -94,6 +95,14 @@ export class CvcTableScrollObserverDirective {
       this.viewport()?.scrollToIndex(request.index)
     })
 
+    // a refetch (filter/sort change) can land a page with the same rendered
+    // range as before — no range emission, no resize — so new page info is
+    // itself a probe trigger for the underfill loop
+    effect(() => {
+      this.pageInfo()
+      this.probe$.next()
+    })
+
     // the viewport only exists once nz-table's own template has rendered, so
     // bind to it after that render rather than in the constructor
     afterNextRender(() => {
@@ -162,9 +171,13 @@ export class CvcTableScrollObserverDirective {
     // was in flight, so the loop cannot stall between pages
     this.probe$
       .pipe(
+        // probes fire in the same tick as what they announce — a range change
+        // or new page info — before the rows are actually laid out, so a
+        // synchronous measurement reads the PREVIOUS page's geometry and a
+        // post-refetch underfill goes undetected. Measure a frame later.
+        observeOn(animationFrameScheduler),
         filter(() => viewport.getViewportSize() > 0),
-        map(() => viewport.measureScrollOffset('bottom')),
-        filter((offset) => offset < this.targetHeight()),
+        filter(() => this.needsFill(viewport)),
         throttleTime(LOAD_THROTTLE_MS, asyncScheduler, {
           leading: true,
           trailing: true,
@@ -221,6 +234,30 @@ export class CvcTableScrollObserverDirective {
     viewport.renderedRangeStream
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe(remeasure)
+  }
+
+  /**
+   * Whether a probe should fetch: near the bottom, or underfilled.
+   *
+   * The near-bottom test alone cannot see underfill — on a viewport whose
+   * content is shorter than itself, `measureScrollOffset('bottom')` returns
+   * the leftover gap, which GROWS with the degree of underfill and so fails a
+   * `< targetHeight` check in exactly the state that most needs a fetch. (A
+   * post-refetch page landing 35 rows into a tall settled viewport is the
+   * reproduction; the first-load loop only ever passed by racing the
+   * auto-height directives while the viewport still measured small.) The
+   * underfill test is gated on the rendered range covering the whole data set
+   * so a filled, buffered viewport can never read as underfilled.
+   */
+  private needsFill(viewport: CdkVirtualScrollViewport): boolean {
+    if (viewport.measureScrollOffset('bottom') < this.targetHeight())
+      return true
+    const range = viewport.getRenderedRange()
+    return (
+      range.start === 0 &&
+      range.end >= viewport.getDataLength() &&
+      viewport.measureRenderedContentSize() < viewport.getViewportSize()
+    )
   }
 
   private requestFetch(): void {
