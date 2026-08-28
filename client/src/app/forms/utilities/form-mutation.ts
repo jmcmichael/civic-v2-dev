@@ -66,7 +66,9 @@ function safeStringify(value: unknown): string {
   }
 }
 
-function toSubmissionErrors(error: unknown): FormSubmissionError[] {
+// exported for the synthetic-error dev harness, which feeds real error
+// instances through the same ladder as live failures
+export function toSubmissionErrors(error: unknown): FormSubmissionError[] {
   // server-side validation and execution errors, one entry each
   if (CombinedGraphQLErrors.is(error)) {
     return error.errors.map((e) => {
