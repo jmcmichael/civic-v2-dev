@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { FormlyModule } from '@ngx-formly/core'
 import { NzButtonModule } from 'ng-zorro-antd/button'
+import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { CvcFormErrorAlertComponent } from '@app/forms/components/form-error-alert/form-error-alert.component'
 import { CvcOrgSubmitButtonComponent } from './org-submit-button.type'
@@ -20,6 +21,7 @@ const typeConfig = {
     ReactiveFormsModule,
     FormlyModule.forChild(typeConfig),
     NzButtonModule,
+    NzIconModule,
     NzTooltipModule,
     CvcFormErrorAlertComponent,
   ],

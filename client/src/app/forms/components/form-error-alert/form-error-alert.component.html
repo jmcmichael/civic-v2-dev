@@ -24,7 +24,7 @@
         class="form-error-alert"
         nzType="info"
         nzShowIcon
-        [nzMessage]="issueLabel()"
+        [nzMessage]="issueMessage"
         nz-popover
         nzPopoverTrigger="click"
         nzPopoverPlacement="topRight"
@@ -95,6 +95,18 @@
     mode="collapse"
     [errors]="errors()"
     [expandAll]="expandAll()" />
+</ng-template>
+
+<!-- a single issue bolds its field name; several defer to the popover -->
+<ng-template #issueMessage>
+  @if (readiness()?.issues; as issues) {
+    @if (issues.length === 1) {
+      <strong>{{ issues[0].label }}:</strong>
+      {{ issues[0].reason }}.
+    } @else {
+      {{ issueLabel() }}
+    }
+  }
 </ng-template>
 
 <ng-template #issueList>

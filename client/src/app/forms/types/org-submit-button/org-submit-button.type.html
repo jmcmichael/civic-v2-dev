@@ -20,10 +20,17 @@
     nz-button
     [disabled]="!formValid()"
     nzType="primary"
+    [nzDanger]="submitError()"
     [nzSize]="props.size ?? 'default'"
     nz-tooltip
     [nzTooltipTrigger]="mostRecentOrg() ? 'hover' : null"
     [nzTooltipTitle]="'For ' + mostRecentOrg()?.name">
+    @if (submitError()) {
+      <span
+        nz-icon
+        nzType="close-circle"
+        nzTheme="fill"></span>
+    }
     {{ props.submitLabel }}
   </button>
 </div>
