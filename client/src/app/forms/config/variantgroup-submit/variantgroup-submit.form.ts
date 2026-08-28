@@ -4,7 +4,6 @@ import {
 } from '@app/forms/utilities/form-mutation'
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { VariantGroupSubmitModel } from '@app/forms/models/variant-group-submit.model'
 import { variantGroupFormModelToInput } from '@app/forms/utilities/variant-group-to-model-fields'
 import {
@@ -36,10 +35,7 @@ export class CvcVariantgroupSubmitForm {
   newVariantGroupId: Maybe<number>
   newVariantGroupUrl: Maybe<string>
 
-  constructor(
-    private submitVariantGroupGQL: SubmitVariantGroupGQL,
-    private networkErrorService: NetworkErrorsService
-  ) {
+  constructor(private submitVariantGroupGQL: SubmitVariantGroupGQL) {
     this.form = new UntypedFormGroup({})
     this.model = { fields: {} }
     this.fields = variantgroupSuggestFields

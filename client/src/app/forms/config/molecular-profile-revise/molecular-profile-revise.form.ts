@@ -20,7 +20,6 @@ import {
 } from './molecular-profile-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { MolecularProfileReviseModel } from '@app/forms/models/molecular-profile-revise.model'
 import {
   molecularProfileFormModelToReviseInput,
@@ -49,8 +48,7 @@ export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: MolecularProfileRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestMolecularProfileRevisionGQL,
-    networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestMolecularProfileRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.options = { formState: { isSimpleMp: undefined } }

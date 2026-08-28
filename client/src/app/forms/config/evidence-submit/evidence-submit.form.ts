@@ -12,7 +12,6 @@ import {
   inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { EvidenceSubmitModel } from '@app/forms/models/evidence-submit.model'
 import { EvidenceState } from '@app/forms/states/evidence.state'
 import {
@@ -84,8 +83,7 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
     private submitEvidenceGQL: SubmitEvidenceItemGQL,
     private existingEvidenceGQL: ExistingEvidenceCountGQL,
     private fullyCuratedSourceGQL: FullyCuratedSourceGQL,
-    private route: ActivatedRoute,
-    networkErrorService: NetworkErrorsService
+    private route: ActivatedRoute
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = evidenceSubmitFields

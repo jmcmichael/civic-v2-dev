@@ -26,7 +26,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { RouterModule } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { NZ_MODAL_DATA, NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
 import { CvcOrgSubmitButtonTypeModule } from '@app/forms/types/org-submit-button/org-submit-button.type.module'
 import { CvcRegionSelectFieldsModule } from './region-select-fields.module'
@@ -73,10 +72,7 @@ export class CvcRegionSelectForm {
 
   mutationState?: FormMutationState
 
-  constructor(
-    private query: SelectOrCreateRegionGQL,
-    private errors: NetworkErrorsService
-  ) {
+  constructor(private query: SelectOrCreateRegionGQL) {
     this.form = new UntypedFormGroup({})
 
     this.model = {

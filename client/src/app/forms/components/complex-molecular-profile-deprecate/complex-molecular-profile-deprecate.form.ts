@@ -24,7 +24,6 @@ import {
 } from '@app/generated/civic.apollo.types'
 import { MolecularProfileDetailGQL } from '@app/views/molecular-profiles/molecular-profiles-detail/molecular-profiles-detail.query.gql.generated'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { ActivatedRoute } from '@angular/router'
 import { map, takeUntil } from 'rxjs/operators'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
@@ -66,7 +65,6 @@ export class ComplexMolecularProfileDeprecateForm implements OnDestroy, OnInit {
     private deprecateComplexMolecularProfileGQL: DeprecateComplexMolecularProfileGQL,
     private molecularProfileDetailGQL: MolecularProfileDetailGQL,
     private evidenceCountsForMolecularProfileGQL: EvidenceCountsForMolecularProfileGQL,
-    private networkErrorService: NetworkErrorsService,
     private route: ActivatedRoute,
     private viewerService: ViewerService
   ) {

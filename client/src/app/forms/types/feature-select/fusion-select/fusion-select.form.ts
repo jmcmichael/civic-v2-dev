@@ -30,7 +30,6 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { RouterModule } from '@angular/router'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { UntilDestroy } from '@ngneat/until-destroy'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { NZ_MODAL_DATA, NzModalModule, NzModalRef } from 'ng-zorro-antd/modal'
 
 type FusionSelectModel = {
@@ -75,10 +74,7 @@ export class CvcFusionSelectForm {
 
   mutationState?: FormMutationState
 
-  constructor(
-    private query: SelectOrCreateFusionGQL,
-    private errors: NetworkErrorsService
-  ) {
+  constructor(private query: SelectOrCreateFusionGQL) {
     this.form = new UntypedFormGroup({})
 
     this.model = {

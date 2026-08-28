@@ -30,7 +30,6 @@ import {
 } from '@app/generated/civic.apollo.types'
 
 import { ViewerService, Viewer } from '@app/core/services/viewer/viewer.service'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 
 @UntilDestroy()
@@ -62,8 +61,7 @@ export class CvcCommentAddForm {
   commentText?: string
   constructor(
     private viewerService: ViewerService,
-    private addCommentGql: AddCommentGQL,
-    private networkErrorService: NetworkErrorsService
+    private addCommentGql: AddCommentGQL
   ) {
     // subscribing to viewer$ and setting local org, mostRecentOrg
     // so that mostRecentOrg can be updated by org-selector's selectOrg events

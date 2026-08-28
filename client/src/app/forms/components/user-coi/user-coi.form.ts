@@ -10,7 +10,6 @@ import {
   ChangeDetectionStrategy,
   inject,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   UpdateCoiGQL,
   UpdateCoiMutation,
@@ -47,10 +46,7 @@ export class CvcUserCoiForm implements OnDestroy {
 
   private destroy$ = new Subject<void>()
 
-  constructor(
-    private updateCoiGql: UpdateCoiGQL,
-    networkErrorService: NetworkErrorsService
-  ) {}
+  constructor(private updateCoiGql: UpdateCoiGQL) {}
 
   updateCoi() {
     if (

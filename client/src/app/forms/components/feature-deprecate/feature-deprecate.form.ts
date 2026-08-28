@@ -24,7 +24,6 @@ import {
 } from '@app/generated/civic.apollo.types'
 import { FeatureDetailGQL } from '@app/views/features/features-detail/features-detail.query.gql.generated'
 import { Observable, Subject } from 'rxjs'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { RouterModule } from '@angular/router'
 import { map, takeUntil, filter } from 'rxjs/operators'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
@@ -106,7 +105,6 @@ export class CvcFeatureDeprecateForm implements OnDestroy, OnInit {
     private deprecateFeatureGQL: DeprecateFeatureGQL,
     private featureDetailGQL: FeatureDetailGQL,
     private variantsForFeatureGQL: VariantsForFeatureGQL,
-    private networkErrorService: NetworkErrorsService,
     private viewerService: ViewerService
   ) {
     this.viewer$ = this.viewerService.viewer$

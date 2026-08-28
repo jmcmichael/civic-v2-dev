@@ -14,7 +14,6 @@ import {
 import { UntypedFormGroup } from '@angular/forms'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { RegionVariantReviseModel } from '@app/forms/models/region-variant-revise.model'
 import {
   RegionVariantRevisableFieldsGQL,
@@ -48,8 +47,7 @@ export class CvcRegionVariantReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: RegionVariantRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestRegionVariantRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestRegionVariantRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = regionVariantReviseFields

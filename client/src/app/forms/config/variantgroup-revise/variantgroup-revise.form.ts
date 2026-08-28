@@ -12,7 +12,6 @@ import {
   inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { AssertionSubmitModel } from '@app/forms/models/assertion-submit.model'
 import { VariantGroupReviseModel } from '@app/forms/models/variant-group-revise.model'
 import {
@@ -52,8 +51,7 @@ export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: VariantGroupRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestVariantGroupRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestVariantGroupRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = variantgroupSuggestFields

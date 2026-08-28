@@ -12,7 +12,6 @@ import {
   inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   assertionReviseFormInitialModel,
   AssertionReviseModel,
@@ -57,8 +56,7 @@ export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: AssertionRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestAssertionRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestAssertionRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = assertionReviseFields

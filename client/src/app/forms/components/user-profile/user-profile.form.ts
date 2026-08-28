@@ -12,7 +12,6 @@ import {
   ChangeDetectionStrategy,
   inject,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   toNullableInput,
   toNullableString,
@@ -74,8 +73,7 @@ export class CvcUserProfileForm implements OnInit, OnDestroy {
 
   constructor(
     private updateProfileGql: UpdateUserProfileGQL,
-    countryIdGql: CountriesGQL,
-    networkErrorService: NetworkErrorsService
+    countryIdGql: CountriesGQL
   ) {
     this.countries$ = countryIdGql
       .fetch()

@@ -9,7 +9,6 @@ import {
   OnInit,
   inject,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import {
@@ -54,8 +53,7 @@ export class CvcFlagAddForm implements OnInit {
 
   constructor(
     private gql: FlagEntityGQL,
-    private viewerService: ViewerService,
-    private networkErrorService: NetworkErrorsService
+    private viewerService: ViewerService
   ) {
     this.viewer$ = this.viewerService.viewer$
     this.viewerService.viewer$

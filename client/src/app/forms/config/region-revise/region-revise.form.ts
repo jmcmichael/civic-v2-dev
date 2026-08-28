@@ -20,7 +20,6 @@ import {
 } from './region-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { RegionReviseModel } from '@app/forms/models/region-revise.model'
 import {
   regionFormModelToReviseInput,
@@ -48,8 +47,7 @@ export class CvcRegionReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: RegionRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestRegionRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestRegionRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = regionReviseFields

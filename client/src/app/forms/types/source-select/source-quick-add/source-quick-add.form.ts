@@ -18,7 +18,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ReactiveFormsModule, UntypedFormGroup } from '@angular/forms'
 import { ApolloQueryResult } from '@apollo/client/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { formatSourceTypeEnum } from '@app/core/utilities/enum-formatters/format-source-type-enum'
 import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
 import { NoStateFormOptions } from '@app/forms/states/base.state'
@@ -93,7 +92,6 @@ export class CvcSourceQuickAddForm implements OnInit, OnChanges {
 
   private readonly checkCitation = inject(QuickAddSourceCheckCitationGQL)
   private readonly addRemoteCitation = inject(QuickAddSourceRemoteCitationGQL)
-  private readonly errors = inject(NetworkErrorsService)
   private readonly destroyRef = inject(DestroyRef)
   private readonly apollo = inject(Apollo)
 
