@@ -17,11 +17,14 @@ function makeState() {
 }
 
 @Component({
-  template: `<cvc-form-error-tag [variant]="variant" />`,
+  template: `<cvc-form-error-tag
+    [variant]="variant"
+    [readiness]="readiness" />`,
   imports: [CvcFormErrorTagComponent],
 })
 class HostComponent {
   variant: 'tag' | 'alert' = 'tag'
+  readiness?: { valid: boolean; issues: { label: string; reason: string }[] }
 }
 
 describe('CvcFormErrorTagComponent', () => {
@@ -55,7 +58,7 @@ describe('CvcFormErrorTagComponent', () => {
     expect(fixture.nativeElement.querySelector('nz-tag')).toBeFalsy()
   })
 
-  it('labels with the first error code and message', () => {
+  it('labels with the first error message, code left to the popover', () => {
     errors.set([
       {
         category: 'graphql',
@@ -65,7 +68,8 @@ describe('CvcFormErrorTagComponent', () => {
     ])
     fixture.detectChanges()
     const tag = fixture.nativeElement.querySelector('nz-tag')
-    expect(tag.textContent).toContain('VALIDATION_FAILED: name is invalid')
+    expect(tag.textContent).toContain('name is invalid')
+    expect(tag.textContent).not.toContain('VALIDATION_FAILED')
   })
 
   it('renders the alert variant for the footer', () => {
@@ -81,7 +85,8 @@ describe('CvcFormErrorTagComponent', () => {
     expect(fixture.nativeElement.querySelector('nz-tag')).toBeFalsy()
     const alert = fixture.nativeElement.querySelector('nz-alert')
     expect(alert).toBeTruthy()
-    expect(alert.textContent).toContain('502: Bad gateway')
+    expect(alert.textContent).toContain('Bad gateway')
+    expect(alert.textContent).not.toContain('502')
   })
 
   it('opens a categorized details popover from the alert', async () => {
@@ -119,6 +124,8 @@ describe('CvcFormErrorTagComponent', () => {
     expect(panels.length).toBe(2)
     expect(panels[0].textContent).toContain('graphql')
     expect(panels[0].textContent).toContain('VALIDATION_FAILED')
+    expect(panels[0].querySelector('nz-tag.code-chip')).toBeTruthy()
+    expect(panels[0].textContent).toContain('show details')
     expect(panels[1].textContent).toContain('network')
     expect(panels[1].textContent).toContain('502')
   })
@@ -150,16 +157,58 @@ describe('CvcFormErrorTagComponent', () => {
     )
   })
 
-  it('counts additional errors beyond the first', () => {
+  it('switches to the failure summary when several errors stand', () => {
     errors.set([
       { category: 'graphql', message: 'first' },
       { category: 'graphql', message: 'second' },
       { category: 'network', message: 'third' },
     ])
     fixture.detectChanges()
+    // no submissionNoun or entityType on the display: the generic noun
     expect(fixture.nativeElement.querySelector('nz-tag').textContent).toContain(
-      '(+2 more)'
+      'Form submission failed, review error details.'
     )
+  })
+
+  it('reports blocking fields while the form is invalid', () => {
+    fixture.componentInstance.variant = 'alert'
+    fixture.componentInstance.readiness = {
+      valid: false,
+      issues: [
+        { label: 'Source', reason: 'required value is missing' },
+        { label: 'Evidence Level', reason: 'required value is missing' },
+      ],
+    }
+    fixture.detectChanges()
+    const info = fixture.nativeElement.querySelector('nz-alert')
+    expect(info.textContent).toContain(
+      '2 fields need attention before submitting.'
+    )
+  })
+
+  it('shows a single blocking issue directly in the alert', () => {
+    fixture.componentInstance.variant = 'alert'
+    fixture.componentInstance.readiness = {
+      valid: false,
+      issues: [{ label: 'Comment', reason: 'required value is missing' }],
+    }
+    fixture.detectChanges()
+    expect(
+      fixture.nativeElement.querySelector('nz-alert').textContent
+    ).toContain('Comment: required value is missing.')
+  })
+
+  it('reports readiness once the form is valid, until a failure lands', () => {
+    fixture.componentInstance.variant = 'alert'
+    fixture.componentInstance.readiness = { valid: true, issues: [] }
+    fixture.detectChanges()
+    expect(fixture.nativeElement.textContent).toContain(
+      'All required fields provided, form may be submitted.'
+    )
+    // a submit failure takes the slot back
+    errors.set([{ category: 'network', message: 'down' }])
+    fixture.detectChanges()
+    expect(fixture.nativeElement.textContent).toContain('down')
   })
 
   it('hides while the display marks the failure dismissed', () => {

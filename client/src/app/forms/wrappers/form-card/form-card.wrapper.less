@@ -53,16 +53,13 @@ nz-card.full-page {
 // link-button styling on its single slot
 :host ::ng-deep .ant-card-actions {
   // spacing lives on the ul: a li bottom margin collapses out of the strip.
-  // 12px sides, not 16: aligns the buttons with the field borders above
-  padding: 6px 12px;
+  // 12px sides, not 16, aligns the buttons with the field borders above;
+  // the same 12px all around keeps the gap uniform on every side
+  padding: 12px;
 
-  // the compact theme collapses .ant-btn-lg to the 32px default, making
-  // nzSize="large" a no-op — restore ant's stock large metrics for the
-  // footer's buttons only
-  .ant-btn-lg {
-    height: 40px;
-    padding: 6.4px 15px;
-    font-size: 16px;
+  // match the alert↔submit gap to the footer's 12px gutter and padding
+  .btn-aligner {
+    gap: 12px;
   }
 
   // never wrap the footer row: ant-row wraps cols on their hypothetical

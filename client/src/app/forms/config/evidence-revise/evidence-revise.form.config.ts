@@ -200,12 +200,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           {
             wrappers: ['row'],
-            props: { formFooter: true },
+            // 12px gutter matches the strip's 12px padding: uniform gaps
+            // around every footer element
+            props: { formFooter: true, row: { gutter: [12, 8] } },
             fieldGroup: [
               {
                 type: 'cvc-cancel-button',
                 wrappers: ['col'],
-                props: { col: { flex: 'none' }, size: 'large' },
+                props: { col: { flex: 'none' } },
               },
               <CvcOrgSubmitButtonFieldConfig>{
                 key: 'organizationId',
@@ -215,7 +217,6 @@ const formFieldConfig: FormlyFieldConfig[] = [
                   col: { flex: 'auto' },
                   submitLabel: 'Submit Evidence Item Revisions',
                   align: 'right',
-                  size: 'large',
                 },
               },
             ],
