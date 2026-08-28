@@ -153,7 +153,9 @@ export class CvcAutoHeightCardDirective implements OnInit, OnDestroy {
         }
         const available =
           window.innerHeight - bodyTop - reserve - Number(this._offset)
-        bodyDiv.style.height = `${available}px`
+        // a cap, not a fill: short forms end at their content (the card's
+        // actions abut it); only content taller than the page scrolls
+        bodyDiv.style.maxHeight = `${available}px`
       } else if (this._target === 'ancestor') {
         // fill the nearest matching ancestor: body height = ancestor height
         // minus the card's head and actions (the offset trims for borders).
