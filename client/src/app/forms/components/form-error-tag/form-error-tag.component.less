@@ -44,6 +44,26 @@
   }
 }
 
+// modal content is appended to the overlay container, outside :host; the
+// template's nodes still carry this component's scoping attribute, but the
+// modal shell around them does not — keep selectors on our own elements
+.error-details {
+  .copy-one,
+  .copy-all {
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+
+  textarea {
+    margin-top: 8px;
+    // ant's @code-family stack (the variable isn't in our theme chain)
+    font-family:
+      'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 12px;
+    white-space: pre;
+  }
+}
+
 // popover content is appended to the overlay container, outside :host
 ::ng-deep .form-error-popover {
   max-width: 420px;

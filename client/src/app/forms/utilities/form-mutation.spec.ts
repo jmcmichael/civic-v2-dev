@@ -61,7 +61,7 @@ describe('FormMutationService', () => {
         ],
       })
     )
-    expect(state.errors()).toEqual([
+    expect(state.errors()).toMatchObject([
       {
         category: 'graphql',
         code: 'VALIDATION_FAILED',
@@ -75,6 +75,9 @@ describe('FormMutationService', () => {
         details: undefined,
       },
     ])
+    // the details modal's log: the serialized GraphQL error
+    expect(state.errors()[0].log).toContain('VALIDATION_FAILED')
+    expect(state.errors()[0].log).toContain('name is invalid')
     expect(state.success()).toBe(false)
     expect(state.isSubmitting()).toBe(false)
   })
@@ -83,22 +86,25 @@ describe('FormMutationService', () => {
     const { service, gql, result$ } = setup()
     const state = service.mutate(gql as any, { input: {} })
     result$.error(new TypeError('Failed to fetch'))
-    expect(state.errors()).toEqual([
+    expect(state.errors()).toMatchObject([
       {
         category: 'network',
         code: 'TypeError',
         message: 'Failed to fetch',
       },
     ])
+    expect(state.errors()[0].log).toContain('Failed to fetch')
   })
 
   it('categorizes other exceptions as browser errors', () => {
     const { service, gql, result$ } = setup()
     const state = service.mutate(gql as any, { input: {} })
     result$.error(new Error('boom'))
-    expect(state.errors()).toEqual([
+    expect(state.errors()).toMatchObject([
       { category: 'browser', code: 'Error', message: 'boom' },
     ])
+    // the stack, when the runtime provides one
+    expect(state.errors()[0].log).toContain('boom')
   })
 
   it('invokes the error callback with every failure category', () => {

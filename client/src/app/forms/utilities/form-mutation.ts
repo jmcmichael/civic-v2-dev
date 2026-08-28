@@ -12,13 +12,15 @@ import { Observable, finalize } from 'rxjs'
  * One submit-time failure, categorized for the form error tag: what kind of
  * failure (`category`), a machine code when one exists (GraphQL extension
  * code, HTTP status), the `message`, and optional `details` for the tag's
- * popover.
+ * popover. `log` carries the full raw error — serialized GraphQL error,
+ * response body, or stack trace — for the error tag's details modal.
  */
 export interface FormSubmissionError {
   readonly category: 'graphql' | 'network' | 'browser'
   readonly code?: string
   readonly message: string
   readonly details?: string[]
+  readonly log?: string
 }
 
 /**
@@ -55,6 +57,8 @@ function toSubmissionErrors(error: unknown): FormSubmissionError[] {
         code: typeof code === 'string' ? code : undefined,
         message: e.message,
         details: e.path ? [`path: ${e.path.join('.')}`] : undefined,
+        // GraphQLError#toJSON serializes message, path, locations, extensions
+        log: JSON.stringify(e, null, 2),
       }
     })
   }
@@ -64,6 +68,9 @@ function toSubmissionErrors(error: unknown): FormSubmissionError[] {
         category: 'network',
         code: String(error.statusCode),
         message: error.message,
+        log: [`HTTP ${error.statusCode}`, error.bodyText, error.stack]
+          .filter(Boolean)
+          .join('\n\n'),
       },
     ]
   }
@@ -77,6 +84,7 @@ function toSubmissionErrors(error: unknown): FormSubmissionError[] {
       category: isTransport ? 'network' : 'browser',
       code: errorLike.name,
       message: errorLike.message,
+      log: errorLike.stack ?? `${errorLike.name}: ${errorLike.message}`,
     },
   ]
 }
