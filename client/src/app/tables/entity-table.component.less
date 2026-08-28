@@ -154,6 +154,15 @@ tr.data-row td:first-of-type {
   padding-left: 6px;
 }
 
+// baseline: a cell never paints over its neighbor — content wider than the
+// column (a link tag on a narrowed column, a cell without its own ellipsis)
+// clips at the cell edge. Cells wanting a nicer cutoff add their own
+// text-overflow on top (.text-cell); popovers/tooltips live in the overlay
+// container and are unaffected.
+tr.data-row td {
+  overflow: hidden;
+}
+
 // an enum filter rendered as an inline select fills its column
 .enum-filter-select {
   width: 100%;
