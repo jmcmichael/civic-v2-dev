@@ -30,12 +30,12 @@ type MutationVars<M extends Mutation<any, any>> = Exclude<
 >
 
 /**
- * Forms-local successor to core's MutatorWithState (see the signal-boundary
- * plan §6). Differences: state is signals rather than BehaviorSubjects, there
- * is no cleanup() to remember (apollo's mutate completes after one emission),
- * and success no longer clears the app-wide network error banner — a
- * per-mutation helper has no business dismissing errors it did not raise.
- * The app-wide consumers migrate to this once it has proven out here.
+ * Successor to core's MutatorWithState, now used app-wide (see the
+ * signal-boundary plan §6). Differences: state is signals rather than
+ * BehaviorSubjects, there is no cleanup() to remember (apollo's mutate
+ * completes after one emission), and success no longer clears the app-wide
+ * network error banner — a per-mutation helper has no business dismissing
+ * errors it did not raise.
  */
 @Injectable({ providedIn: 'root' })
 export class FormMutationService {
@@ -48,7 +48,9 @@ export class FormMutationService {
       Apollo.MutateOptions<MutationData<M>, any>,
       'mutation' | 'variables'
     >,
-    dataCallback?: (data: MutationData<M>) => void
+    dataCallback?: (data: MutationData<M>) => void,
+    // server-side validation errors only — transport failures go to the banner
+    errorCallback?: (errors: string[]) => void
   ): FormMutationState {
     const isSubmitting = signal(true)
     const success = signal(false)
@@ -70,7 +72,9 @@ export class FormMutationService {
         },
         error: (error: unknown) => {
           if (CombinedGraphQLErrors.is(error)) {
-            errors.set(error.errors.map((e) => e.message))
+            const messages = error.errors.map((e) => e.message)
+            errors.set(messages)
+            if (errorCallback) errorCallback(messages)
           } else {
             this.networkErrors.networkError$.next(toErrorLike(error))
           }
