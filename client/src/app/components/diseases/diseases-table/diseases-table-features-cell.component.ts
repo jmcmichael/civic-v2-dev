@@ -30,7 +30,7 @@ import { BrowseDiseaseRowFieldsFragment } from './diseases-table.query.gql.gener
   template: `
     <cvc-tag-overflow
       tagType="feature"
-      [maxDisplayCount]="5"
+      [maxDisplayCount]="3"
       [enablePopover]="!ctx.isScrolling"
       [tags]="tags()" />
   `,
