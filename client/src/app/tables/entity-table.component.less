@@ -158,9 +158,16 @@ tr.data-row td:first-of-type {
 // column (a link tag on a narrowed column, a cell without its own ellipsis)
 // clips at the cell edge. Cells wanting a nicer cutoff add their own
 // text-overflow on top (.text-cell); popovers/tooltips live in the overlay
-// container and are unaffected.
+// container and are unaffected. Fixed cells stay visible: antd draws the
+// pinned-column scroll shadow as a ::after hanging outside the cell, which
+// overflow: hidden would clip.
 tr.data-row td {
   overflow: hidden;
+
+  &.ant-table-cell-fix-left,
+  &.ant-table-cell-fix-right {
+    overflow: visible;
+  }
 }
 
 // an enum filter rendered as an inline select fills its column
