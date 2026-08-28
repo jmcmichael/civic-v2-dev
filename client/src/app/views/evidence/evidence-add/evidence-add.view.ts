@@ -6,7 +6,6 @@ import { map } from 'rxjs/operators'
 @Component({
   selector: 'evidence-add',
   templateUrl: './evidence-add.view.html',
-  styleUrls: ['./evidence-add.view.less'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
