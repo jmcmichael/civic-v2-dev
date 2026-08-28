@@ -14,27 +14,26 @@ import { Maybe } from '@app/generated/civic.apollo.types'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
-  FormlyFieldProps,
   FormlyModule,
 } from '@ngx-formly/core'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzRadioModule } from 'ng-zorro-antd/radio'
 import { NzSelectModule } from 'ng-zorro-antd/select'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
 export type CvcClinvarInputFieldOptions = Partial<
   FieldTypeConfig<CvcClinvarInputFieldProps>
 >
 
-export interface CvcClinvarInputFieldProps extends FormlyFieldProps {
+export interface CvcClinvarInputFieldProps extends CvcColWrapperProps {
   /** rendered inside a repeat-field, which supplies its own label */
   isRepeatItem?: boolean
   /** offer the Unspecified/NA/Not Found/Found radio group */
   showExistenceOptions?: boolean
 }
 
-export interface CvcClinvarInputFieldConfig
-  extends FormlyFieldConfig<CvcClinvarInputFieldProps> {
+export interface CvcClinvarInputFieldConfig extends FormlyFieldConfig<CvcClinvarInputFieldProps> {
   type: 'clinvar-input' | 'clinvar-multi-input' | Type<CvcClinvarInputField>
 }
 
@@ -67,7 +66,6 @@ export class CvcClinvarInputField extends CvcFieldBase<
   Maybe<string[]>,
   FieldTypeConfig<CvcClinvarInputFieldProps>
 > {
-
   defaultOptions: CvcClinvarInputFieldOptions = {
     modelOptions: {
       // update model when focus leaves field

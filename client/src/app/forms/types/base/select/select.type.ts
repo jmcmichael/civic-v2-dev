@@ -9,11 +9,11 @@ import {
   FormlyModule,
 } from '@ngx-formly/core'
 import { FormlySelectModule } from '@ngx-formly/core/select'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzVariant } from 'ng-zorro-antd/core/types'
 import { NzSelectModule, NzSelectSizeType } from 'ng-zorro-antd/select'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
-export interface CvcBaseSelectFieldProps extends FormlyFieldProps {
+export interface CvcBaseSelectFieldProps extends CvcColWrapperProps {
   isMultiSelect: boolean
   size?: NzSelectSizeType
   variant?: NzVariant
@@ -21,8 +21,7 @@ export interface CvcBaseSelectFieldProps extends FormlyFieldProps {
   optionOverflowSize?: number
 }
 
-export interface CvcBaseSelectFieldConfig
-  extends FormlyFieldConfig<CvcBaseSelectFieldProps> {
+export interface CvcBaseSelectFieldConfig extends FormlyFieldConfig<CvcBaseSelectFieldProps> {
   type: 'base-select' | Type<CvcBaseSelectField>
 }
 

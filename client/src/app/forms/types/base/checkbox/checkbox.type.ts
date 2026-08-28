@@ -7,19 +7,18 @@ import {
   FormlyFieldConfig,
   FormlyModule,
 } from '@ngx-formly/core'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
 export type CvcBaseCheckboxFieldOptions = Partial<
   FieldTypeConfig<CvcBaseCheckboxFieldProps>
 >
 
-export interface CvcBaseCheckboxFieldProps extends FormlyFieldProps {
+export interface CvcBaseCheckboxFieldProps extends CvcColWrapperProps {
   indeterminate?: boolean
 }
 
-export interface FormlyCheckboxFieldConfig
-  extends FormlyFieldConfig<CvcBaseCheckboxFieldProps> {
+export interface FormlyCheckboxFieldConfig extends FormlyFieldConfig<CvcBaseCheckboxFieldProps> {
   type: 'base-checkbox' | Type<CvcBaseCheckboxField>
 }
 

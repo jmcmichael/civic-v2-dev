@@ -9,14 +9,14 @@ import {
   FormlyFieldConfig,
   FormlyModule,
 } from '@ngx-formly/core'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzInputModule } from 'ng-zorro-antd/input'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
 export type CvcNccnGuidelineVersionFieldOptions = Partial<
   FieldTypeConfig<CvcNccnGuidelineFieldProps>
 >
 
-export interface CvcNccnGuidelineFieldProps extends FormlyFieldProps {
+export interface CvcNccnGuidelineFieldProps extends CvcColWrapperProps {
   extraType?: CvcFormFieldExtraType
 }
 

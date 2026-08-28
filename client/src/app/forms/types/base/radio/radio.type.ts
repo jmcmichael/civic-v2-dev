@@ -8,19 +8,21 @@ import {
   FormlyFieldConfig,
   FormlyModule,
 } from '@ngx-formly/core'
-import { FormlySelectOption, FormlySelectOptionsPipe } from '@ngx-formly/core/select'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
+import {
+  FormlySelectOption,
+  FormlySelectOptionsPipe,
+} from '@ngx-formly/core/select'
 import { NzSizeLDSType } from 'ng-zorro-antd/core/types'
 import { NzRadioModule } from 'ng-zorro-antd/radio'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
-export interface CvcBaseRadioFieldProps extends FormlyFieldProps {
+export interface CvcBaseRadioFieldProps extends CvcColWrapperProps {
   size: NzSizeLDSType
   type: 'radio' | 'button'
   options: FormlySelectOption[]
 }
 
-export interface CvcBaseRadioFieldConfig
-  extends FormlyFieldConfig<CvcBaseRadioFieldProps> {
+export interface CvcBaseRadioFieldConfig extends FormlyFieldConfig<CvcBaseRadioFieldProps> {
   type: 'base-radio' | Type<CvcBaseRadioField>
 }
 

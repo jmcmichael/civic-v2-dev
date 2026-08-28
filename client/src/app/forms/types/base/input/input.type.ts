@@ -7,19 +7,18 @@ import {
   FormlyFieldConfig,
   FormlyModule,
 } from '@ngx-formly/core'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzVariant } from 'ng-zorro-antd/core/types'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
 import { NzSelectSizeType } from 'ng-zorro-antd/select'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
-export interface CvcBaseInputFieldProps extends FormlyFieldProps {
+export interface CvcBaseInputFieldProps extends CvcColWrapperProps {
   size?: NzSelectSizeType
   variant?: NzVariant
 }
 
-export interface CvcBaseInputFieldConfig
-  extends FormlyFieldConfig<CvcBaseInputFieldProps> {
+export interface CvcBaseInputFieldConfig extends FormlyFieldConfig<CvcBaseInputFieldProps> {
   type: 'base-input' | Type<CvcBaseInputField>
 }
 

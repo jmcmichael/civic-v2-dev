@@ -7,15 +7,14 @@ import {
   FormlyFieldConfig,
   FormlyModule,
 } from '@ngx-formly/core'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzRadioModule } from 'ng-zorro-antd/radio'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
-export interface CvcBaseBooleanRadioFieldProps extends FormlyFieldProps {
+export interface CvcBaseBooleanRadioFieldProps extends CvcColWrapperProps {
   labels: { true: string; false: string }
 }
 
-export interface CvcBaseBooleanRadioFieldConfig
-  extends FormlyFieldConfig<CvcBaseBooleanRadioFieldProps> {
+export interface CvcBaseBooleanRadioFieldConfig extends FormlyFieldConfig<CvcBaseBooleanRadioFieldProps> {
   type: 'base-boolean-radio' | Type<CvcBaseBooleanRadioField>
 }
 

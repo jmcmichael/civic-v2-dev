@@ -13,10 +13,10 @@ import { Maybe } from '@app/generated/civic.apollo.types'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
-  FormlyFieldProps,
   FormlyModule,
 } from '@ngx-formly/core'
 import { NzRateModule } from 'ng-zorro-antd/rate'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
 const optionText: Record<number, string> = {
   1: 'Poor - Claim is not supported well by experimental evidence. Results are not reproducible, or have very small sample size. No follow-up is done to validate novel claims.',
@@ -30,7 +30,7 @@ export type CvcRatingFieldOptions = Partial<
   FieldTypeConfig<CvcRatingFieldProps>
 >
 
-export interface CvcRatingFieldProps extends FormlyFieldProps {
+export interface CvcRatingFieldProps extends CvcColWrapperProps {
   count: number
   hoverText: string[]
   tooltip?: string
