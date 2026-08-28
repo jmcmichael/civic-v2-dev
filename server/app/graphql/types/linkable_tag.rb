@@ -14,6 +14,11 @@ module Types
 
   class LinkableFeature < LinkableTag
     field :flagged, Boolean, null: false
+    field :feature_type, Types::FeatureInstanceTypes, null: false
+
+    def feature_type
+      object.feature_instance_type
+    end
   end
 
   class LinkableVariant < LinkableTag

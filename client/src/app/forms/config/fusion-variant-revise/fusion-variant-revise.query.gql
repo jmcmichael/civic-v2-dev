@@ -1,7 +1,7 @@
 query FusionVariantRevisableFields($variantId: Int!) {
   variant(id: $variantId) {
     id
-    ... on FusionVariant  {
+    ... on FusionVariant {
       ...RevisableFusionVariantFields
     }
   }
@@ -15,6 +15,7 @@ fragment RevisableFusionVariantFields on FusionVariant {
     link
     deprecated
     flagged
+    featureType
     featureInstance {
       ...FeatureInstanceRef
       ... on Fusion {
@@ -37,7 +38,9 @@ fragment RevisableFusionVariantFields on FusionVariant {
   }
 }
 
-mutation SuggestFusionVariantRevision($input: SuggestFusionVariantRevisionInput!) {
+mutation SuggestFusionVariantRevision(
+  $input: SuggestFusionVariantRevisionInput!
+) {
   suggestFusionVariantRevision(input: $input) {
     clientMutationId
     variant {

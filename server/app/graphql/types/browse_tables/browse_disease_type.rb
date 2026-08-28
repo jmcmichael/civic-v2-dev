@@ -18,10 +18,14 @@ module Types::BrowseTables
     field :deprecated, Boolean, null: false
     field :disease_aliases, [ String ], null: true
 
+    # the view's json aggregate carries only {id, name}; the client's
+    # LinkableFeature fragment also needs flagged/deprecated/featureType, so
+    # load the real records — batched across the whole page by the loader
     def features
-      Array(object.features)
-        .sort_by { |f| f["name"] }
-        .map { |f| { name: f["name"], id: f["id"], link: "/features/#{f['id']}" } }
+      ids = Array(object.features).map { |f| f["id"] }
+      Loaders::RecordLoader.for(Feature).load_many(ids).then do |features|
+        features.compact.sort_by(&:name)
+      end
     end
 
     def disease_aliases

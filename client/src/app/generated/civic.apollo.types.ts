@@ -4185,6 +4185,7 @@ export type LinkableDisease = {
 export type LinkableFeature = {
   __typename: 'LinkableFeature';
   deprecated: Scalars['Boolean']['output'];
+  featureType: FeatureInstanceTypes;
   flagged: Scalars['Boolean']['output'];
   id: Scalars['Int']['output'];
   link: Scalars['String']['output'];

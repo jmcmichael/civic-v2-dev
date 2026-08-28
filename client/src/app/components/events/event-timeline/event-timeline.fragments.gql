@@ -52,6 +52,7 @@ fragment eventTimelineNode on Event {
         name
         deprecated
         flagged
+        featureType
       }
     }
     ... on Feature {

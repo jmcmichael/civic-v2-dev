@@ -38,6 +38,7 @@ fragment MolecularProfileDetailFields on MolecularProfile {
       link
       deprecated
       flagged
+      featureType
     }
   }
   molecularProfileAliases
