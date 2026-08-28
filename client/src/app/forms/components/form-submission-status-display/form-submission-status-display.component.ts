@@ -5,10 +5,12 @@ import {
   TemplateRef,
   effect,
   inject,
+  isDevMode,
   signal,
 } from '@angular/core'
 import { Router } from '@angular/router'
 import { FormMutationState } from '@app/forms/utilities/form-mutation'
+import { syntheticSubmissionState } from '@app/forms/utilities/synthetic-submission-errors'
 import { Maybe } from '@app/generated/civic.apollo.types'
 
 @Component({
@@ -36,7 +38,15 @@ export class CvcFormSubmissionStatusDisplayComponent {
 
   private currentTimer?: ReturnType<typeof setTimeout>
 
+  // dev harness: `?syntheticErrors` on any form URL fills the error
+  // indicators with a specimen of every category — most categories cannot
+  // be tripped from outside the client (see synthetic-submission-errors.ts)
+  private readonly syntheticErrors =
+    isDevMode() &&
+    new URLSearchParams(window.location.search).has('syntheticErrors')
+
   @Input() set mutationState(value: Maybe<FormMutationState>) {
+    if (this.syntheticErrors) return
     if (this.currentTimer) {
       clearTimeout(this.currentTimer)
       this.currentTimer = undefined
@@ -63,6 +73,14 @@ export class CvcFormSubmissionStatusDisplayComponent {
   @Input() redirectUrl?: string
 
   constructor() {
+    if (this.syntheticErrors) {
+      this.state.set(syntheticSubmissionState())
+      // formly's init-time model patch reads as an edit to the card
+      // wrapper, which dismisses the indicators — pin them visible
+      effect(() => {
+        if (this.dismissed()) this.dismissed.set(false)
+      })
+    }
     effect(() => {
       if (this.state()?.success() && this.redirectUrl) {
         const url = this.redirectUrl
