@@ -57,10 +57,26 @@
   // wide enough that the collapse panels and JSON tree don't clip
   max-width: 680px;
 
-  .ant-popover-title .error-count {
-    margin-left: 4px;
-    font-weight: normal;
-    opacity: 0.65;
+  .ant-popover-title {
+    .popover-title {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .error-count {
+      margin-left: 4px;
+      font-weight: normal;
+      opacity: 0.65;
+    }
+
+    .title-controls {
+      display: inline-flex;
+      flex: none;
+      gap: 8px;
+      font-weight: normal;
+    }
   }
 
   .issue-list li {
@@ -81,13 +97,6 @@
   .ant-popover-inner-content {
     max-height: 60vh;
     overflow: auto;
-  }
-
-  .popover-head {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    margin-bottom: 4px;
   }
 
   // flatten the borderless collapse to a ghost look inside the popover
