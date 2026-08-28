@@ -2,7 +2,6 @@ import { fusionReviseFormInitialModel } from '@app/forms/models/fusion-revise.mo
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { FeatureInstanceTypes } from '@app/generated/civic.apollo.types'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
@@ -29,17 +28,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                span: 24,
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
                 key: 'aliases',
                 type: 'tag-multi-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   label: 'Aliases',
                   description:
                     'List any aliases commonly used to refer to this Fusion',
@@ -49,8 +45,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'description',
                 type: 'base-textarea',
-                wrappers: ['form-field'],
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   tooltip:
                     'User-defined summary of the clinical relevance of this Fusion.',
                   placeholder: 'Enter a Fusion Summary',
@@ -62,14 +59,15 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'sourceIds',
                 type: 'source-multi-select',
-                wrappers: ['form-field'],
-                props: {},
+                wrappers: ['col', 'form-field'],
+                props: { col: { span: 24 } },
               },
               {
                 key: 'knownPartnerGeneIds',
                 type: 'feature-multi-select',
-                wrappers: ['form-field'],
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   label: 'Known Gene Partners',
                   featureType: FeatureInstanceTypes.Gene,
                   canChangeFeatureType: false,
@@ -90,17 +88,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         ],
       },
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            spanIndexed: [24, 12, 12],
-          },
-        },
+        wrappers: ['row'],
         fieldGroup: [
           {
             key: 'comment',
             type: 'base-textarea',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 24 },
               label: 'Comment',
               placeholder: 'Please enter a comment describing your revisions.',
               required: true,
@@ -109,11 +104,15 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           {
             type: 'cvc-cancel-button',
+            wrappers: ['col'],
+            props: { col: { span: 12 } },
           },
           {
             key: 'organizationId',
             type: 'org-submit-button',
+            wrappers: ['col'],
             props: {
+              col: { span: 12 },
               submitLabel: 'Submit Fusion Revisions',
               align: 'right',
             },

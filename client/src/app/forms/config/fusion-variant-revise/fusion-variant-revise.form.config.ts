@@ -3,7 +3,6 @@ import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-de
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { CvcOrgSubmitButtonFieldConfig } from '@app/forms/types/org-submit-button/org-submit-button.type'
 import {
   directionSelectOptions,
@@ -37,17 +36,14 @@ function formFieldConfig(
           },
           fieldGroup: [
             {
-              wrappers: ['form-row'],
-              props: <CvcFormRowWrapperProps>{
-                formRowOptions: {
-                  span: 12,
-                },
-              },
+              wrappers: ['row'],
               fieldGroup: [
                 {
                   key: 'aliases',
                   type: 'tag-multi-input',
+                  wrappers: ['col', 'form-field'],
                   props: {
+                    col: { span: 12 },
                     label: 'Aliases',
                     description:
                       'List any aliases commonly used to refer to this Variant',
@@ -57,20 +53,18 @@ function formFieldConfig(
                 {
                   key: 'variantTypeIds',
                   type: 'variant-type-multi-select',
+                  wrappers: ['col', 'form-field'],
+                  props: { col: { span: 12 } },
                 },
               ],
             },
             {
-              wrappers: ['form-row'],
-              props: <CvcFormRowWrapperProps>{
-                formRowOptions: {
-                  span: 24,
-                },
-              },
+              wrappers: ['row'],
               fieldGroup: [
                 {
-                  wrappers: ['form-card'],
+                  wrappers: ['col', 'form-card'],
                   props: <CvcFormCardWrapperProps>{
+                    col: { span: 24 },
                     formCardOptions: {
                       title: `Fusion Coordinates`,
                       size: 'small',
@@ -78,16 +72,13 @@ function formFieldConfig(
                   },
                   fieldGroup: [
                     {
-                      wrappers: ['form-row'],
-                      props: {
-                        formRowOptions: {
-                          span: 12,
-                        },
-                      },
+                      wrappers: ['row'],
                       fieldGroup: [
                         {
                           key: 'referenceBuild',
                           type: 'reference-build-select',
+                          wrappers: ['col', 'form-field'],
+                          props: { col: { span: 12 } },
                           expressions: {
                             'props.required': (field) =>
                               Boolean(field.model.fivePrimeTranscript) ||
@@ -97,6 +88,7 @@ function formFieldConfig(
                         {
                           key: 'ensemblVersion',
                           type: 'base-input',
+                          wrappers: ['col', 'form-field'],
                           validators: {
                             nccnVersionNumber: {
                               expression: (c: AbstractControl) =>
@@ -106,6 +98,7 @@ function formFieldConfig(
                             },
                           },
                           props: {
+                            col: { span: 12 },
                             label: 'Ensembl Version',
                             description:
                               'Enter a valid Ensembl database version (e.g. 75)',
@@ -119,17 +112,14 @@ function formFieldConfig(
                       ],
                     },
                     {
-                      wrappers: ['form-row'],
-                      props: {
-                        formRowOptions: {
-                          span: 6,
-                        },
-                      },
+                      wrappers: ['row'],
                       fieldGroup: [
                         {
                           key: 'fivePrimeTranscript',
                           type: 'base-input',
+                          wrappers: ['col', 'form-field'],
                           props: {
+                            col: { span: 6 },
                             label: "5' Transcript",
                             disabled: fivePrimeDisabled,
                             tooltip:
@@ -150,6 +140,7 @@ function formFieldConfig(
                         {
                           key: 'fivePrimeExonEnd',
                           type: 'base-input',
+                          wrappers: ['col', 'form-field'],
                           validators: {
                             isNumeric: {
                               expression: isNumeric,
@@ -157,6 +148,7 @@ function formFieldConfig(
                             },
                           },
                           props: {
+                            col: { span: 6 },
                             label: "5' End Exon",
                             disabled: fivePrimeDisabled,
                             tooltip:
@@ -170,6 +162,7 @@ function formFieldConfig(
                         {
                           key: 'fivePrimeOffset',
                           type: 'base-input',
+                          wrappers: ['col', 'form-field'],
                           validators: {
                             isNumeric: {
                               expression: isNumeric,
@@ -177,6 +170,7 @@ function formFieldConfig(
                             },
                           },
                           props: {
+                            col: { span: 6 },
                             label: "5' Exon Offset",
                             tooltip:
                               'A value representing the offset from the segment boundary.',
@@ -187,7 +181,9 @@ function formFieldConfig(
                         {
                           key: 'fivePrimeOffsetDirection',
                           type: 'base-select',
+                          wrappers: ['col', 'form-field'],
                           props: {
+                            col: { span: 6 },
                             label: "5' Exon Offset Direction",
                             tooltip:
                               'Negative values offset towards the 5’ end of the transcript and positive values offset towards the 3’ end of the transcript.',
@@ -206,17 +202,14 @@ function formFieldConfig(
                       ],
                     },
                     {
-                      wrappers: ['form-row'],
-                      props: {
-                        formRowOptions: {
-                          span: 6,
-                        },
-                      },
+                      wrappers: ['row'],
                       fieldGroup: [
                         {
                           key: 'threePrimeTranscript',
                           type: 'base-input',
+                          wrappers: ['col', 'form-field'],
                           props: {
+                            col: { span: 6 },
                             disabled: threePrimeDisabled,
                             label: "3' Transcript",
                             tooltip:
@@ -237,6 +230,7 @@ function formFieldConfig(
                         {
                           key: 'threePrimeExonStart',
                           type: 'base-input',
+                          wrappers: ['col', 'form-field'],
                           validators: {
                             isNumeric: {
                               expression: isNumeric,
@@ -244,6 +238,7 @@ function formFieldConfig(
                             },
                           },
                           props: {
+                            col: { span: 6 },
                             label: "3' Start Exon",
                             tooltip:
                               "The exon number counted from the 5' end of the 3' partner transcript (the first exon of the 3' partner involved in the fusion transcript)",
@@ -257,6 +252,7 @@ function formFieldConfig(
                         {
                           key: 'threePrimeOffset',
                           type: 'base-input',
+                          wrappers: ['col', 'form-field'],
                           validators: {
                             isNumeric: {
                               expression: isNumeric,
@@ -264,6 +260,7 @@ function formFieldConfig(
                             },
                           },
                           props: {
+                            col: { span: 6 },
                             label: "3' Exon Offset",
                             disabled: threePrimeDisabled,
                             required: false,
@@ -274,7 +271,9 @@ function formFieldConfig(
                         {
                           key: 'threePrimeOffsetDirection',
                           type: 'base-select',
+                          wrappers: ['col', 'form-field'],
                           props: {
+                            col: { span: 6 },
                             label: "3' Exon Offset Direction",
                             tooltip:
                               'Negative values offset towards the 5’ end of the transcript and positive values offset towards the 3’ end of the transcript.',
@@ -299,17 +298,14 @@ function formFieldConfig(
           ],
         },
         {
-          wrappers: ['form-row'],
-          props: <CvcFormRowWrapperProps>{
-            formRowOptions: {
-              spanIndexed: [24, 12, 12],
-            },
-          },
+          wrappers: ['row'],
           fieldGroup: [
             {
               key: 'comment',
               type: 'base-textarea',
+              wrappers: ['col', 'form-field'],
               props: {
+                col: { span: 24 },
                 label: 'Comment',
                 placeholder:
                   'Please enter a comment describing your revisions.',
@@ -319,11 +315,15 @@ function formFieldConfig(
             },
             {
               type: 'cvc-cancel-button',
+              wrappers: ['col'],
+              props: { col: { span: 12 } },
             },
             <CvcOrgSubmitButtonFieldConfig>{
               key: 'organizationId',
               type: 'org-submit-button',
+              wrappers: ['col'],
               props: {
+                col: { span: 12 },
                 submitLabel: 'Submit Variant Revisions',
                 align: 'right',
               },

@@ -15,7 +15,6 @@ import { NzFormLayoutType } from 'ng-zorro-antd/form'
 import { EntityFieldSignalMap } from '@app/forms/states/base.state'
 import { Apollo } from 'apollo-angular'
 import { readCachedVariant } from '@app/forms/types/variant-select/cached-variant'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { EnumToTitlePipe } from '@app/core/pipes/enum-to-title-pipe'
 
 type VariantSubmitModel = {
@@ -69,17 +68,14 @@ export class VariantSubmitForm {
 
     this.config = [
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            span: 12,
-          },
-        },
+        wrappers: ['row'],
         fieldGroup: [
           {
             key: 'featureId',
             type: 'feature-select',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 12 },
               placeholder: `Select New Variant's Feature`,
               layout: {
                 showExtra: false,
@@ -90,7 +86,9 @@ export class VariantSubmitForm {
           <CvcVariantSelectFieldOptions>{
             key: 'variantId',
             type: 'variant-select',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 12 },
               placeholder: 'Enter New Variant Name',
               requireFeature: true,
               layout: {

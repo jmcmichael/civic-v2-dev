@@ -5,7 +5,6 @@ import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-de
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { CvcOrgSubmitButtonFieldConfig } from '@app/forms/types/org-submit-button/org-submit-button.type'
 import { isEnsemblTranscript } from '@app/forms/types/variant-select/fusion-variant-select/fusion-variant-select.form'
 
@@ -30,21 +29,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                responsiveIndexed: [
-                  { xs: 24, md: 12, lg: 8 },
-                  { xs: 24, md: 12, lg: 8 },
-                  { xs: 24, lg: 8 },
-                ],
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
                 key: 'featureId',
                 type: 'feature-select',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, md: 12, lg: 8 },
                   description: 'Enter an Entrez Gene for this Variant',
                   required: true,
                   canChangeFeatureType: false,
@@ -53,7 +45,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'name',
                 type: 'base-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, md: 12, lg: 8 },
                   placeholder: 'Enter a name for this Variant',
                   description:
                     "Enter the name of the Variant according to the <a href='https://civic.readthedocs.io/en/latest/model/variants/name.html#curating-variant-names' target='blank'>Variant Curation SOP</a>",
@@ -65,7 +59,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'aliases',
                 type: 'tag-multi-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 8 },
                   label: 'Aliases',
                   description:
                     'List any aliases commonly used to refer to this Variant',
@@ -75,21 +71,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
             ],
           },
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                responsiveIndexed: [
-                  { xs: 24, lg: 12, xl: 6, xxl: 8 },
-                  { xs: 24, lg: 12, xl: 6, xxl: 8 },
-                  { xs: 24, xl: 12, xxl: 8 },
-                ],
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
                 key: 'hgvsDescriptions',
                 type: 'tag-multi-input',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 12, xl: 6, xxl: 8 },
                   label: 'HGVS Descriptions',
                   description:
                     'Enter any HGVS nomenclature descriptions of this Variant',
@@ -101,28 +90,27 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'variantTypeIds',
                 type: 'variant-type-multi-select',
+                wrappers: ['col', 'form-field'],
+                props: { col: { xs: 24, lg: 12, xl: 6, xxl: 8 } },
               },
               {
                 key: 'clinvarIds',
                 type: 'clinvar-multi-input',
-                wrappers: ['form-field'],
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, xl: 12, xxl: 8 },
                   label: 'ClinVar IDs',
                 },
               },
             ],
           },
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                span: 24,
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
-                wrappers: ['form-card'],
+                wrappers: ['col', 'form-card'],
                 props: <CvcFormCardWrapperProps>{
+                  col: { span: 24 },
                   formCardOptions: {
                     title: `Coordinates`,
                     size: 'small',
@@ -130,20 +118,18 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 },
                 fieldGroup: [
                   {
-                    wrappers: ['form-row'],
-                    props: <CvcFormRowWrapperProps>{
-                      formRowOptions: {
-                        responsive: { xs: 24, md: 12, lg: 8, xxl: 6 },
-                      },
-                    },
+                    wrappers: ['row'],
                     fieldGroup: [
                       {
                         key: 'referenceBuild',
                         type: 'reference-build-select',
+                        wrappers: ['col', 'form-field'],
+                        props: { col: { xs: 24, md: 12, lg: 8, xxl: 6 } },
                       },
                       {
                         key: 'ensemblVersion',
                         type: 'base-input',
+                        wrappers: ['col', 'form-field'],
                         validators: {
                           nccnVersionNumber: {
                             expression: (c: AbstractControl) =>
@@ -153,6 +139,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                           },
                         },
                         props: {
+                          col: { xs: 24, md: 12, lg: 8, xxl: 6 },
                           label: 'Ensembl Version',
                           description:
                             'Enter a valid Ensembl database version (e.g. 75)',
@@ -161,6 +148,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       {
                         key: 'referenceBases',
                         type: 'base-input',
+                        wrappers: ['col', 'form-field'],
                         validators: {
                           nccnVersionNumber: {
                             expression: (c: AbstractControl) =>
@@ -170,6 +158,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                           },
                         },
                         props: {
+                          col: { xs: 24, md: 12, lg: 8, xxl: 6 },
                           label: 'Reference Bases',
                           description:
                             'The nucleotide(s) of the reference genome affected by the variant. Only used for SNVs and Indels (otherwise leave blank)',
@@ -178,6 +167,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       {
                         key: 'variantBases',
                         type: 'base-input',
+                        wrappers: ['col', 'form-field'],
                         validators: {
                           nccnVersionNumber: {
                             expression: (c: AbstractControl) =>
@@ -187,6 +177,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                           },
                         },
                         props: {
+                          col: { xs: 24, md: 12, lg: 8, xxl: 6 },
                           label: 'Variant Bases',
                           description:
                             'The nucleotide(s) of the variant allele. Only used for SNVs and Indels (otherwise leave blank)',
@@ -195,7 +186,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       {
                         key: 'chromosome',
                         type: 'base-select',
+                        wrappers: ['col', 'form-field'],
                         props: {
+                          col: { xs: 24, md: 12, lg: 8, xxl: 6 },
                           label: 'Chromosome',
                           options: Chromosomes,
                           description:
@@ -205,6 +198,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       {
                         key: 'start',
                         type: 'base-input',
+                        wrappers: ['col', 'form-field'],
                         validators: {
                           isNumeric: {
                             expression: (c: AbstractControl) =>
@@ -214,6 +208,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                           },
                         },
                         props: {
+                          col: { xs: 24, md: 12, lg: 8, xxl: 6 },
                           label: 'Start',
                           description:
                             'Enter the left/first coordinate of this variant. Must be ≤ the Stop coordinate. Coordinate must be compatible with the selected reference build.',
@@ -222,6 +217,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       {
                         key: 'stop',
                         type: 'base-input',
+                        wrappers: ['col', 'form-field'],
                         validators: {
                           isNumeric: {
                             expression: (c: AbstractControl) =>
@@ -231,6 +227,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                           },
                         },
                         props: {
+                          col: { xs: 24, md: 12, lg: 8, xxl: 6 },
                           label: 'Stop',
                           description:
                             'Provide the right/second coordinate of this variant. Must be ≥ the Start coordinate. Coordinate must be compatible with the selected reference build.',
@@ -239,7 +236,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       {
                         key: 'representativeTranscript',
                         type: 'base-input',
+                        wrappers: ['col', 'form-field'],
                         props: {
+                          col: { xs: 24, md: 12, lg: 8, xxl: 6 },
                           label: 'Representative Transcript',
                           description:
                             'Specify a transcript ID, including version number (e.g. ENST00000348159.4, the canonical transcript defined by Ensembl).',
@@ -261,17 +260,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         ],
       },
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            spanIndexed: [24, 12, 12],
-          },
-        },
+        wrappers: ['row'],
         fieldGroup: [
           {
             key: 'comment',
             type: 'base-textarea',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 24 },
               label: 'Comment',
               placeholder: 'Please enter a comment describing your revisions.',
               required: true,
@@ -280,11 +276,15 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           {
             type: 'cvc-cancel-button',
+            wrappers: ['col'],
+            props: { col: { span: 12 } },
           },
           <CvcOrgSubmitButtonFieldConfig>{
             key: 'organizationId',
             type: 'org-submit-button',
+            wrappers: ['col'],
             props: {
+              col: { span: 12 },
               submitLabel: 'Submit Variant Revisions',
               align: 'right',
             },

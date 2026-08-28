@@ -3,7 +3,6 @@ import { CvcOrgSubmitButtonFieldConfig } from '@app/forms/types/org-submit-butto
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
@@ -29,22 +28,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                responsiveIndexed: [
-                  { md: 24, lg: 16 },
-                  { md: 24, lg: 8 },
-                  { xs: 24 },
-                ],
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
                 key: 'description',
                 type: 'textarea',
-                wrappers: ['form-field'],
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { md: 24, lg: 16 },
                   placeholder: 'Enter a Molecular Profile Description',
                   label: 'Molecular Profile Description',
                   description:
@@ -56,8 +47,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'aliases',
                 type: 'tag-multi-input',
-                wrappers: ['form-field'],
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { md: 24, lg: 8 },
                   label: 'Aliases',
                 },
                 expressions: {
@@ -76,36 +68,37 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 key: 'sourceIds',
                 type: 'source-multi-select',
-                wrappers: ['form-field'],
-                props: {},
+                wrappers: ['col', 'form-field'],
+                props: { col: { xs: 24 } },
               },
             ],
           },
         ],
       },
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            spanIndexed: [24, 12, 12],
-          },
-        },
+        wrappers: ['row'],
         fieldGroup: [
           {
             key: 'comment',
             type: 'base-textarea',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 24 },
               label: 'Comment',
               required: true,
             },
           },
           {
             type: 'cvc-cancel-button',
+            wrappers: ['col'],
+            props: { col: { span: 12 } },
           },
           <CvcOrgSubmitButtonFieldConfig>{
             key: 'organizationId',
             type: 'org-submit-button',
+            wrappers: ['col'],
             props: {
+              col: { span: 12 },
               submitLabel: 'Submit Revisions',
               align: 'right',
             },

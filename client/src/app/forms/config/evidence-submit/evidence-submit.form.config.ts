@@ -18,7 +18,6 @@ import { CvcEntityTypeSelectFieldConfig } from '@app/forms/types/type-select/typ
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
-import { CvcFormRowWrapperProps } from '@app/forms/wrappers/form-row/form-row.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
@@ -45,17 +44,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
         fieldGroup: [
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                span: 24,
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
                 key: 'molecularProfileId',
                 type: 'molecular-profile-select',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   required: true,
                   tooltip:
                     'A single variant (Simple Molecular Profile) or a combination of variants (Complex Molecular Profile) relevant to the curated evidence.',
@@ -65,94 +61,114 @@ const formFieldConfig: FormlyFieldConfig[] = [
               <CvcSourceSelectFieldConfig>{
                 key: 'sourceId',
                 type: 'source-select',
-                props: { required: true },
+                wrappers: ['col', 'form-field'],
+                props: {
+                  col: { span: 24 },
+                  required: true,
+                },
               },
             ],
           },
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                responsive: { xs: 24, lg: 12, xl: 8, xxl: 6 },
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               <CvcEntityTypeSelectFieldConfig>{
                 key: 'evidenceType',
                 type: 'type-select',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
                   required: true,
                 },
               },
               <CvcDirectionSelectFieldOptions>{
                 key: 'evidenceDirection',
                 type: 'direction-select',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
                   required: true,
                 },
               },
               <CvcSignificanceSelectFieldOptions>{
                 key: 'significance',
                 type: 'significance-select',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
                   required: true,
                 },
               },
               <CvcDiseaseSelectFieldOptions>{
                 key: 'diseaseId',
                 type: 'disease-select',
-                props: {},
+                wrappers: ['col', 'form-field'],
+                props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
+                },
               },
               <CvcTherapySelectFieldOptions>{
                 key: 'therapyIds',
                 type: 'therapy-multi-select',
-                props: {},
+                wrappers: ['col', 'form-field'],
+                props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
+                },
               },
               <CvcInteractionSelectFieldOptions>{
                 key: 'therapyInteractionType',
                 type: 'interaction-select',
-                props: {},
+                wrappers: ['col', 'form-field'],
+                props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
+                },
               },
               <CvcLevelSelectFieldOptions>{
                 key: 'evidenceLevel',
                 type: 'level-select',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
                   required: true,
                 },
               },
               <CvcRatingFieldOptions>{
                 key: 'rating',
                 type: 'rating',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
                   required: true,
                 },
               },
               <CvcOriginSelectFieldOptions>{
                 key: 'variantOrigin',
                 type: 'origin-select',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
                   required: true,
                 },
               },
               <CvcPhenotypeSelectFieldOptions>{
                 key: 'phenotypeIds',
                 type: 'phenotype-multi-select',
-                props: {},
+                wrappers: ['col', 'form-field'],
+                props: {
+                  col: { xs: 24, lg: 12, xl: 8, xxl: 6 },
+                },
               },
             ],
           },
           {
-            wrappers: ['form-row'],
-            props: <CvcFormRowWrapperProps>{
-              formRowOptions: {
-                span: 24,
-              },
-            },
+            wrappers: ['row'],
             fieldGroup: [
               {
                 key: 'description',
                 type: 'base-textarea',
+                wrappers: ['col', 'form-field'],
                 props: {
+                  col: { span: 24 },
                   tooltip:
                     'Your original description of evidence from published literature detailing the association or lack of association between a variant and its predictive, prognostic, diagnostic, predisposing, functional or oncogenic value. Reference other CIViC entities using curies, e.g., civic.eid:123 (Evidence Item) or civic.aid:123 (Assertion).',
                   placeholder: 'Enter an Evidence Statement',
@@ -167,17 +183,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
         ],
       },
       {
-        wrappers: ['form-row'],
-        props: <CvcFormRowWrapperProps>{
-          formRowOptions: {
-            spanIndexed: [24, 12, 12],
-          },
-        },
+        wrappers: ['row'],
         fieldGroup: [
           {
             key: 'comment',
             type: 'base-textarea',
+            wrappers: ['col', 'form-field'],
             props: {
+              col: { span: 24 },
               label: 'Comment',
               required: false,
               minLength: 10,
@@ -185,11 +198,15 @@ const formFieldConfig: FormlyFieldConfig[] = [
           },
           {
             type: 'cvc-cancel-button',
+            wrappers: ['col'],
+            props: { col: { span: 12 } },
           },
           <CvcOrgSubmitButtonFieldConfig>{
             key: 'organizationId',
             type: 'org-submit-button',
+            wrappers: ['col'],
             props: {
+              col: { span: 12 },
               submitLabel: 'Submit Evidence Item',
               align: 'right',
             },

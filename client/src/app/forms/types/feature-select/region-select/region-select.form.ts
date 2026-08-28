@@ -100,17 +100,14 @@ export class CvcRegionSelectForm {
             },
             fieldGroup: [
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 24,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'cytogeneticRegionId',
                     type: 'cytogenetic-region-select',
+                    wrappers: ['col', 'form-field'],
                     props: {
+                      col: { span: 24 },
                       label: 'Region',
                       placeholder: 'Select Region',
                       tooltip: 'Select Region',
@@ -122,17 +119,14 @@ export class CvcRegionSelectForm {
                 ],
               },
               {
-                wrappers: ['form-row'],
-                props: {
-                  formRowOptions: {
-                    span: 24,
-                  },
-                },
+                wrappers: ['row'],
                 fieldGroup: [
                   {
                     key: 'organizationId',
                     type: 'org-submit-button',
+                    wrappers: ['col'],
                     props: {
+                      col: { span: 24 },
                       submitLabel: 'Create Region',
                       align: 'right',
                     },
