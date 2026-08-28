@@ -32,6 +32,7 @@ fragment revisionPopover on Revision {
         link
         deprecated
         flagged
+        featureType
       }
     }
     ... on Feature {

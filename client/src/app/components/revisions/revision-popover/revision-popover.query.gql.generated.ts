@@ -11,11 +11,11 @@ export type RevisionPopoverQueryVariables = Types.Exact<{
 
 
 export type RevisionPopoverQuery = { __typename: 'Query', revision?: { __typename: 'Revision', id: number, name: string, link: string, status: Types.RevisionStatus, createdAt: any, creationActivity?: { __typename: 'SuggestRevisionSetActivity', user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole }, parsedNote: Array<
-        | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-        | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-        | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-        | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-        | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+        | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+        | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+        | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+        | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+        | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
         | { __typename: 'CommentTextSegment', text: string }
         | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> }
       > } | undefined, subject:
@@ -24,32 +24,32 @@ export type RevisionPopoverQuery = { __typename: 'Query', revision?: { __typenam
       | { __typename: 'EvidenceItem', flagged: boolean, status: Types.EvidenceStatus, id: number, link: string, name: string }
       | { __typename: 'ExonCoordinate', id: number, link: string, name: string }
       | { __typename: 'Factor', id: number, link: string, name: string }
-      | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'Feature', deprecated: boolean, flagged: boolean, id: number, link: string, name: string }
       | { __typename: 'Flag', id: number, link: string, name: string }
       | { __typename: 'Fusion', id: number, link: string, name: string }
-      | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'Gene', id: number, link: string, name: string }
-      | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'MolecularProfile', id: number, link: string, name: string }
       | { __typename: 'Region', id: number, link: string, name: string }
-      | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'Revision', id: number, link: string, name: string }
       | { __typename: 'RevisionSet', id: number, link: string, name: string }
       | { __typename: 'Source', id: number, link: string, name: string }
       | { __typename: 'SourcePopover', id: number, link: string, name: string }
       | { __typename: 'SourceSuggestion', id: number, link: string, name: string }
-      | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'VariantCoordinate', id: number, link: string, name: string }
       | { __typename: 'VariantGroup', flagged: boolean, id: number, link: string, name: string }
     , linkoutData: { __typename: 'LinkoutData', name: string } } | undefined };
 
 export type RevisionPopoverFragment = { __typename: 'Revision', id: number, name: string, link: string, status: Types.RevisionStatus, createdAt: any, creationActivity?: { __typename: 'SuggestRevisionSetActivity', user: { __typename: 'User', id: number, displayName: string, role: Types.UserRole }, parsedNote: Array<
-      | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-      | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-      | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-      | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
-      | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } | undefined }
+      | { __typename: 'CommentTagSegment', entityId: number, displayName: string, tagType: Types.TaggableEntity, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+      | { __typename: 'CommentTagSegmentDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+      | { __typename: 'CommentTagSegmentFlagged', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+      | { __typename: 'CommentTagSegmentFlaggedAndDeprecated', entityId: number, displayName: string, tagType: Types.TaggableEntity, flagged: boolean, deprecated: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
+      | { __typename: 'CommentTagSegmentFlaggedAndWithStatus', entityId: number, displayName: string, tagType: Types.TaggableEntity, status: Types.EvidenceStatus, flagged: boolean, link: string, revisionSetId?: number | undefined, feature?: { __typename: 'LinkableFeature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } | undefined }
       | { __typename: 'CommentTextSegment', text: string }
       | { __typename: 'User', id: number, username: string, displayName: string, name?: string | undefined, role: Types.UserRole, profileImagePath?: string | undefined, organizations: Array<{ __typename: 'Organization', id: number, name: string }> }
     > } | undefined, subject:
@@ -58,22 +58,22 @@ export type RevisionPopoverFragment = { __typename: 'Revision', id: number, name
     | { __typename: 'EvidenceItem', flagged: boolean, status: Types.EvidenceStatus, id: number, link: string, name: string }
     | { __typename: 'ExonCoordinate', id: number, link: string, name: string }
     | { __typename: 'Factor', id: number, link: string, name: string }
-    | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+    | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
     | { __typename: 'Feature', deprecated: boolean, flagged: boolean, id: number, link: string, name: string }
     | { __typename: 'Flag', id: number, link: string, name: string }
     | { __typename: 'Fusion', id: number, link: string, name: string }
-    | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+    | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
     | { __typename: 'Gene', id: number, link: string, name: string }
-    | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+    | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
     | { __typename: 'MolecularProfile', id: number, link: string, name: string }
     | { __typename: 'Region', id: number, link: string, name: string }
-    | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+    | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
     | { __typename: 'Revision', id: number, link: string, name: string }
     | { __typename: 'RevisionSet', id: number, link: string, name: string }
     | { __typename: 'Source', id: number, link: string, name: string }
     | { __typename: 'SourcePopover', id: number, link: string, name: string }
     | { __typename: 'SourceSuggestion', id: number, link: string, name: string }
-    | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+    | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, link: string, name: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
     | { __typename: 'VariantCoordinate', id: number, link: string, name: string }
     | { __typename: 'VariantGroup', flagged: boolean, id: number, link: string, name: string }
   , linkoutData: { __typename: 'LinkoutData', name: string } };
@@ -107,6 +107,7 @@ export const RevisionPopoverFragmentDoc = gql`
         link
         deprecated
         flagged
+        featureType
       }
     }
     ... on Feature {

@@ -1607,9 +1607,10 @@ export type LinkableDiseaseFieldPolicy = {
 	link?: FieldPolicy<any> | FieldReadFunction<any>,
 	name?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type LinkableFeatureKeySpecifier = ('deprecated' | 'flagged' | 'id' | 'link' | 'name' | LinkableFeatureKeySpecifier)[];
+export type LinkableFeatureKeySpecifier = ('deprecated' | 'featureType' | 'flagged' | 'id' | 'link' | 'name' | LinkableFeatureKeySpecifier)[];
 export type LinkableFeatureFieldPolicy = {
 	deprecated?: FieldPolicy<any> | FieldReadFunction<any>,
+	featureType?: FieldPolicy<any> | FieldReadFunction<any>,
 	flagged?: FieldPolicy<any> | FieldReadFunction<any>,
 	id?: FieldPolicy<any> | FieldReadFunction<any>,
 	link?: FieldPolicy<any> | FieldReadFunction<any>,

@@ -25,6 +25,7 @@ fragment revisionLinkoutData on LinkoutData {
           name
           deprecated
           flagged
+          featureType
         }
       }
       addedObjects {
@@ -42,6 +43,7 @@ fragment revisionLinkoutData on LinkoutData {
           name
           deprecated
           flagged
+          featureType
         }
       }
       removedObjects {
@@ -59,6 +61,7 @@ fragment revisionLinkoutData on LinkoutData {
           name
           deprecated
           flagged
+          featureType
         }
       }
       keptObjects {
@@ -76,6 +79,7 @@ fragment revisionLinkoutData on LinkoutData {
           name
           deprecated
           flagged
+          featureType
         }
       }
       suggestedObjects {
@@ -93,6 +97,7 @@ fragment revisionLinkoutData on LinkoutData {
           name
           deprecated
           flagged
+          featureType
         }
       }
     }

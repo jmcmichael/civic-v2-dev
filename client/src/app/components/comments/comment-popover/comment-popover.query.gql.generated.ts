@@ -26,7 +26,7 @@ export type CommentPopoverQuery = { __typename: 'Query', comment?: { __typename:
       | { __typename: 'Revision', id: number, name: string, link: string }
       | { __typename: 'Source', deprecated: boolean, sourceType: Types.SourceSource, id: number, name: string, link: string }
       | { __typename: 'SourcePopover', id: number, name: string, link: string }
-      | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'VariantGroup', id: number, name: string, link: string }
      } | undefined };
 
@@ -47,7 +47,7 @@ export type CommentPopoverFragment = { __typename: 'Comment', id: number, name: 
     | { __typename: 'Revision', id: number, name: string, link: string }
     | { __typename: 'Source', deprecated: boolean, sourceType: Types.SourceSource, id: number, name: string, link: string }
     | { __typename: 'SourcePopover', id: number, name: string, link: string }
-    | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean } }
+    | { __typename: 'Variant', deprecated: boolean, flagged: boolean, id: number, name: string, link: string, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
     | { __typename: 'VariantGroup', id: number, name: string, link: string }
    };
 
@@ -77,6 +77,7 @@ export const CommentPopoverFragmentDoc = gql`
         link
         deprecated
         flagged
+        featureType
       }
       flagged
     }

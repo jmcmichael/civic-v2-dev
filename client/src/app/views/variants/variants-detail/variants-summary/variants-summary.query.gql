@@ -14,6 +14,7 @@ fragment VariantSummaryFields on VariantInterface {
     link
     deprecated
     flagged
+    featureType
   }
   variantAliases
   variantTypes {
@@ -68,24 +69,23 @@ fragment VariantSummaryFields on VariantInterface {
     ...DetailedClinicalSignificanceCounts
   }
   ... on GeneVariant {
-    ... GeneVariantSummaryFields
+    ...GeneVariantSummaryFields
   }
   ... on FactorVariant {
-    ... FactorVariantSummaryFields
+    ...FactorVariantSummaryFields
   }
   ... on FusionVariant {
-    ... FusionVariantSummaryFields
+    ...FusionVariantSummaryFields
   }
   ... on RegionVariant {
-    ... RegionVariantSummaryFields
+    ...RegionVariantSummaryFields
   }
 }
-
 
 fragment FactorVariantSummaryFields on FactorVariant {
   ncitId
   ncitDetails {
-    ... NcitDetails
+    ...NcitDetails
   }
 }
 

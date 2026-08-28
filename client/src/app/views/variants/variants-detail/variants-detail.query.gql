@@ -26,6 +26,7 @@ fragment VariantDetailFields on VariantInterface {
     link
     deprecated
     flagged
+    featureType
   }
   variantAliases
   flags(state: OPEN) {

@@ -7201,6 +7201,7 @@ type LinkableDisease {
 
 type LinkableFeature {
   deprecated: Boolean!
+  featureType: FeatureInstanceTypes!
   flagged: Boolean!
   id: Int!
   link: String!

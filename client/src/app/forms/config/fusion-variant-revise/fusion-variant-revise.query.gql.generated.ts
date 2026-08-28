@@ -13,7 +13,7 @@ export type FusionVariantRevisableFieldsQueryVariables = Types.Exact<{
 
 export type FusionVariantRevisableFieldsQuery = { __typename: 'Query', variant?:
     | { __typename: 'FactorVariant', id: number }
-    | { __typename: 'FusionVariant', id: number, name: string, variantAliases: Array<string>, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureInstance:
+    | { __typename: 'FusionVariant', id: number, name: string, variantAliases: Array<string>, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes, featureInstance:
           | { __typename: 'Factor', id: number }
           | { __typename: 'Fusion', fivePrimePartnerStatus: Types.FusionPartnerStatus, threePrimePartnerStatus: Types.FusionPartnerStatus, id: number }
           | { __typename: 'Gene', id: number }
@@ -24,7 +24,7 @@ export type FusionVariantRevisableFieldsQuery = { __typename: 'Query', variant?:
     | { __typename: 'Variant', id: number }
    | undefined };
 
-export type RevisableFusionVariantFieldsFragment = { __typename: 'FusionVariant', name: string, variantAliases: Array<string>, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureInstance:
+export type RevisableFusionVariantFieldsFragment = { __typename: 'FusionVariant', name: string, variantAliases: Array<string>, feature: { __typename: 'Feature', id: number, name: string, link: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes, featureInstance:
       | { __typename: 'Factor', id: number }
       | { __typename: 'Fusion', fivePrimePartnerStatus: Types.FusionPartnerStatus, threePrimePartnerStatus: Types.FusionPartnerStatus, id: number }
       | { __typename: 'Gene', id: number }
@@ -47,6 +47,7 @@ export const RevisableFusionVariantFieldsFragmentDoc = gql`
     link
     deprecated
     flagged
+    featureType
     featureInstance {
       ...FeatureInstanceRef
       ... on Fusion {

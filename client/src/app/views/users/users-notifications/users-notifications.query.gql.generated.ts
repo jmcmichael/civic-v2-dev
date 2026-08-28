@@ -50,22 +50,22 @@ export type UserNotificationsQuery = { __typename: 'Query', notifications: { __t
             | { __typename: 'EvidenceItem', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
             | { __typename: 'ExonCoordinate', name: string, id: number, link: string }
             | { __typename: 'Factor', name: string, id: number, link: string }
-            | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+            | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
             | { __typename: 'Feature', deprecated: boolean, flagged: boolean, id: number, link: string, name: string }
             | { __typename: 'Flag', name: string, id: number, link: string }
             | { __typename: 'Fusion', name: string, id: number, link: string }
-            | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+            | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
             | { __typename: 'Gene', name: string, id: number, link: string }
-            | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+            | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
             | { __typename: 'MolecularProfile', deprecated: boolean, flagged: boolean, name: string, id: number, link: string }
             | { __typename: 'Region', name: string, id: number, link: string }
-            | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+            | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
             | { __typename: 'Revision', revisionSetId: number, name: string, id: number, link: string }
             | { __typename: 'RevisionSet', name: string, id: number, link: string }
             | { __typename: 'Source', citation?: string | undefined, sourceType: Types.SourceSource, deprecated: boolean, name: string, id: number, link: string }
             | { __typename: 'SourcePopover', name: string, id: number, link: string }
             | { __typename: 'SourceSuggestion', name: string, id: number, link: string }
-            | { __typename: 'Variant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+            | { __typename: 'Variant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
             | { __typename: 'VariantCoordinate', name: string, id: number, link: string }
             | { __typename: 'VariantGroup', flagged: boolean, name: string, id: number, link: string }
            | undefined, originatingObject?:
@@ -148,22 +148,22 @@ export type NotificationNodeFragment = { __typename: 'Notification', id: number,
       | { __typename: 'EvidenceItem', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
       | { __typename: 'ExonCoordinate', name: string, id: number, link: string }
       | { __typename: 'Factor', name: string, id: number, link: string }
-      | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'Feature', deprecated: boolean, flagged: boolean, id: number, link: string, name: string }
       | { __typename: 'Flag', name: string, id: number, link: string }
       | { __typename: 'Fusion', name: string, id: number, link: string }
-      | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'Gene', name: string, id: number, link: string }
-      | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'MolecularProfile', deprecated: boolean, flagged: boolean, name: string, id: number, link: string }
       | { __typename: 'Region', name: string, id: number, link: string }
-      | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'Revision', revisionSetId: number, name: string, id: number, link: string }
       | { __typename: 'RevisionSet', name: string, id: number, link: string }
       | { __typename: 'Source', citation?: string | undefined, sourceType: Types.SourceSource, deprecated: boolean, name: string, id: number, link: string }
       | { __typename: 'SourcePopover', name: string, id: number, link: string }
       | { __typename: 'SourceSuggestion', name: string, id: number, link: string }
-      | { __typename: 'Variant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+      | { __typename: 'Variant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
       | { __typename: 'VariantCoordinate', name: string, id: number, link: string }
       | { __typename: 'VariantGroup', flagged: boolean, name: string, id: number, link: string }
      | undefined, originatingObject?:
@@ -221,22 +221,22 @@ export type UpdateNotificationStatusMutation = { __typename: 'Mutation', updateN
           | { __typename: 'EvidenceItem', status: Types.EvidenceStatus, flagged: boolean, name: string, id: number, link: string }
           | { __typename: 'ExonCoordinate', name: string, id: number, link: string }
           | { __typename: 'Factor', name: string, id: number, link: string }
-          | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+          | { __typename: 'FactorVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
           | { __typename: 'Feature', deprecated: boolean, flagged: boolean, id: number, link: string, name: string }
           | { __typename: 'Flag', name: string, id: number, link: string }
           | { __typename: 'Fusion', name: string, id: number, link: string }
-          | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+          | { __typename: 'FusionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
           | { __typename: 'Gene', name: string, id: number, link: string }
-          | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+          | { __typename: 'GeneVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
           | { __typename: 'MolecularProfile', deprecated: boolean, flagged: boolean, name: string, id: number, link: string }
           | { __typename: 'Region', name: string, id: number, link: string }
-          | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+          | { __typename: 'RegionVariant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
           | { __typename: 'Revision', revisionSetId: number, name: string, id: number, link: string }
           | { __typename: 'RevisionSet', name: string, id: number, link: string }
           | { __typename: 'Source', citation?: string | undefined, sourceType: Types.SourceSource, deprecated: boolean, name: string, id: number, link: string }
           | { __typename: 'SourcePopover', name: string, id: number, link: string }
           | { __typename: 'SourceSuggestion', name: string, id: number, link: string }
-          | { __typename: 'Variant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean } }
+          | { __typename: 'Variant', deprecated: boolean, flagged: boolean, name: string, id: number, link: string, feature: { __typename: 'Feature', id: number, link: string, name: string, deprecated: boolean, flagged: boolean, featureType: Types.FeatureInstanceTypes } }
           | { __typename: 'VariantCoordinate', name: string, id: number, link: string }
           | { __typename: 'VariantGroup', flagged: boolean, name: string, id: number, link: string }
          | undefined, originatingObject?:

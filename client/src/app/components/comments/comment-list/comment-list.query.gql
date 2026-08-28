@@ -105,6 +105,7 @@ fragment parsedCommentFragment on CommentBodySegment {
       link
       deprecated
       flagged
+      featureType
     }
     __typename
   }
@@ -121,6 +122,7 @@ fragment parsedCommentFragment on CommentBodySegment {
       link
       deprecated
       flagged
+      featureType
     }
     __typename
   }
@@ -138,6 +140,7 @@ fragment parsedCommentFragment on CommentBodySegment {
       link
       deprecated
       flagged
+      featureType
     }
     __typename
   }
@@ -155,6 +158,7 @@ fragment parsedCommentFragment on CommentBodySegment {
       link
       deprecated
       flagged
+      featureType
     }
     __typename
   }
@@ -171,6 +175,7 @@ fragment parsedCommentFragment on CommentBodySegment {
       link
       deprecated
       flagged
+      featureType
     }
     __typename
   }

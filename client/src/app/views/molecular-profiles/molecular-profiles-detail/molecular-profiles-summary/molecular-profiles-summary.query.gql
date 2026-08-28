@@ -31,7 +31,7 @@ fragment MolecularProfileSummaryFields on MolecularProfile {
       role
     }
   }
-  variantDeprecationActivity{
+  variantDeprecationActivity {
     createdAt
     user {
       id
@@ -39,7 +39,7 @@ fragment MolecularProfileSummaryFields on MolecularProfile {
       role
     }
   }
-  complexMolecularProfileDeprecationActivity{
+  complexMolecularProfileDeprecationActivity {
     createdAt
     user {
       id
@@ -85,6 +85,7 @@ fragment VariantMolecularProfileCardFields on VariantInterface {
     link
     deprecated
     flagged
+    featureType
   }
   molecularProfiles(first: 3) {
     totalCount
@@ -97,16 +98,16 @@ fragment VariantMolecularProfileCardFields on VariantInterface {
     }
   }
   ... on GeneVariant {
-    ... GeneVariantSummaryFields
+    ...GeneVariantSummaryFields
   }
   ... on FactorVariant {
-    ... FactorVariantSummaryFields
+    ...FactorVariantSummaryFields
   }
   ... on FusionVariant {
-    ... FusionVariantSummaryFields
+    ...FusionVariantSummaryFields
   }
   ... on RegionVariant {
-    ... RegionVariantSummaryFields
+    ...RegionVariantSummaryFields
   }
   variantAliases
   variantTypes {

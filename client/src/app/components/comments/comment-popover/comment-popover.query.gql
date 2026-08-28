@@ -29,6 +29,7 @@ fragment commentPopover on Comment {
         link
         deprecated
         flagged
+        featureType
       }
       flagged
     }
