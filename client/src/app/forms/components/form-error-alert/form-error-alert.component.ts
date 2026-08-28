@@ -12,6 +12,7 @@ import {
   CvcErrorListComponent,
   submissionErrorsText,
 } from '@app/components/app/error-list/error-list.component'
+import { CvcTagComponent } from '@app/tags/entity-tag.component'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import {
   FormFieldIssue,
@@ -57,6 +58,7 @@ export interface FormReadiness {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CvcErrorListComponent,
+    CvcTagComponent,
     NzAlertModule,
     NzButtonModule,
     NzDescriptionsModule,
@@ -176,7 +178,7 @@ export class CvcFormErrorAlertComponent {
       }
       default:
         text = JSON.stringify(
-          Object.fromEntries(rows.map((r) => [r.label, r.value])),
+          Object.fromEntries(rows.map((r) => [r.key ?? r.label, r.value])),
           null,
           2
         )

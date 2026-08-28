@@ -1,12 +1,10 @@
 import { AbstractControl } from '@angular/forms'
-import { CamelCaseToWordPipe } from '@app/core/pipes/camel-case-to-words-pipe'
 import {
   formatEvidenceEnum,
   InputEnum,
 } from '@app/core/utilities/enum-formatters/format-evidence-enum'
+import { EntityTagRef, isTaggableTypename } from '@app/tags/entity-tag-specs'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-
-const camelToWords = new CamelCaseToWordPipe()
 
 /** One reason the form cannot be submitted yet, for the readiness popover */
 export interface FormFieldIssue {
@@ -55,10 +53,14 @@ export function collectFieldIssues(field: FormlyFieldConfig): FormFieldIssue[] {
 export interface FormFieldValue {
   readonly label: string
   readonly value: string
-  /** entity typename, TitleCased enum key, or the primitive type */
-  readonly type?: string
+  /** the field's model key — the graphql variable it submits as */
+  readonly key?: string
   /** the pre-edit value, present only for revised fields */
   readonly before?: string
+  /** entity refs standing behind `value`, renderable by cvc-tag as-is */
+  readonly entities?: EntityTagRef[]
+  /** entity refs standing behind `before` */
+  readonly beforeEntities?: EntityTagRef[]
 }
 
 /** Resolves a cached entity's display name; undefined leaves the raw id */
@@ -128,26 +130,6 @@ function isEmpty(value: unknown): boolean {
   )
 }
 
-function typeLabel(
-  f: FormlyFieldConfig,
-  value: unknown,
-  typename?: string
-): string {
-  if (typename) return camelToWords.transform(typename)
-  const single = Array.isArray(value) ? value[0] : value
-  if (typeof single === 'string' && ENUM_SHAPE.test(single)) {
-    // the concrete enum type lives in form state, out of reach; the model
-    // key is its faithful stand-in (evidenceType → Evidence Type)
-    const key = String(f.key ?? '')
-      .split('.')
-      .pop()!
-    return camelToWords.transform(key.charAt(0).toUpperCase() + key.slice(1))
-  }
-  if (typeof single === 'boolean') return 'boolean'
-  if (typeof single === 'number') return 'number'
-  return 'text'
-}
-
 export interface CollectFieldValuesOptions {
   readonly resolve?: EntityNameResolver
   /**
@@ -192,17 +174,34 @@ export function collectFieldValues(
     if (isEmpty(value) && !revised) return
     const typename =
       typeof f.type === 'string' ? ENTITY_SELECT_TYPENAMES[f.type] : undefined
+    const toRefs = (v: unknown): EntityTagRef[] | undefined => {
+      if (!typename || !isTaggableTypename(typename) || isEmpty(v)) {
+        return undefined
+      }
+      const ids = (Array.isArray(v) ? v : [v]).filter(
+        (x): x is number => typeof x === 'number'
+      )
+      return ids.length
+        ? ids.map((id) => ({ __typename: typename, id }))
+        : undefined
+    }
     const formatted = isEmpty(value)
       ? '—'
       : formatValue(value, typename, resolve)
-    const before = revised
+    const beforeStr = revised
       ? formatValue(originalValue, typename, resolve)
       : undefined
+    const changed = beforeStr !== undefined && beforeStr !== formatted
     values.push({
       label: f.props.label,
       value: formatted,
-      type: typeLabel(f, value ?? originalValue, typename),
-      before: before !== formatted ? before : undefined,
+      key:
+        String(f.key ?? '')
+          .split('.')
+          .pop() || undefined,
+      before: changed ? beforeStr : undefined,
+      entities: toRefs(value),
+      beforeEntities: changed ? toRefs(originalValue) : undefined,
     })
   }
   visit(root)

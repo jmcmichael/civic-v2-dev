@@ -1,4 +1,5 @@
 @import 'themes/field-states.less';
+@import 'themes/overrides/descriptions-overrides.less';
 
 :host {
   display: inline-block;
@@ -69,9 +70,13 @@
   .model-summary {
     width: 600px;
 
-    // one line per field: the label column stays narrow
+    // one line per field: the label column stays narrow. The shared
+    // descriptions-overrides (imported above) cannot reach this overlay —
+    // its rules hang off :host — so its label treatment repeats here
     .ant-descriptions-item-label {
       width: 150px;
+      font-weight: 550;
+      text-align: right;
     }
 
     .ant-descriptions-view {
@@ -91,9 +96,12 @@
     align-items: baseline;
     min-width: 0;
 
-    .type-chip {
+    // the graphql variable this field submits as
+    .key-chip {
       flex: none;
       margin-inline-end: 0;
+      font-family:
+        'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
       font-size: 11px;
       line-height: 18px;
     }
@@ -108,6 +116,12 @@
       .before-value {
         text-decoration: line-through;
         opacity: 0.6;
+
+        // tags cannot strike through their content; fade carries the
+        // before/after reading on its own
+        cvc-tag {
+          text-decoration: none;
+        }
       }
 
       .change-arrow {
