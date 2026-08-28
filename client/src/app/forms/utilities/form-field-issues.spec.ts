@@ -72,6 +72,7 @@ describe('collectFieldIssues', () => {
         },
         {
           key: 'phenotypeIds',
+          type: 'phenotype-multi-select',
           props: { label: 'Phenotypes' },
           formControl: new FormControl([21, 34]),
         },
@@ -95,9 +96,13 @@ describe('collectFieldIssues', () => {
         },
       ],
     })
-    expect(collectFieldValues(root)).toEqual([
-      { label: 'Significance', value: 'SENSITIVITYRESPONSE' },
-      { label: 'Phenotypes', value: '21, 34' },
+    // entity names resolve through the callback (cache-miss falls back to
+    // #id); enum values render their display labels
+    const resolve = (typename: string, id: number) =>
+      typename === 'Phenotype' && id === 21 ? 'Poor appetite' : undefined
+    expect(collectFieldValues(root, resolve)).toEqual([
+      { label: 'Significance', value: 'Sensitivity / Response' },
+      { label: 'Phenotypes', value: 'Poor appetite, #34' },
       { label: 'Flagged', value: 'No' },
     ])
   })

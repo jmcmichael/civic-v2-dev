@@ -1,4 +1,8 @@
 import { AbstractControl } from '@angular/forms'
+import {
+  formatEvidenceEnum,
+  InputEnum,
+} from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 /** One reason the form cannot be submitted yet, for the readiness popover */
@@ -65,9 +69,60 @@ export interface FormFieldValue {
   readonly value: string
 }
 
-function formatValue(value: unknown): string {
+/** Resolves a cached entity's display name; undefined leaves the raw id */
+export type EntityNameResolver = (
+  typename: string,
+  id: number
+) => string | undefined
+
+// entity-select field types → the GraphQL typename their values reference;
+// each select declares the same typename in its entitySelectConfig, but
+// that lives on the component instance, out of the field config's reach
+const ENTITY_SELECT_TYPENAMES: Record<string, string> = {
+  'acmg-code-multi-select': 'AcmgCode',
+  'acmg-code-select': 'AcmgCode',
+  'assertion-select': 'Assertion',
+  'clingen-code-multi-select': 'ClingenCode',
+  'clingen-code-select': 'ClingenCode',
+  'cytogenetic-region-select': 'CytogeneticRegion',
+  'disease-select': 'Disease',
+  'evidence-multi-select': 'EvidenceItem',
+  'evidence-select': 'EvidenceItem',
+  'feature-multi-select': 'Feature',
+  'feature-select': 'Feature',
+  'molecular-profile-select': 'MolecularProfile',
+  'nccn-guideline-select': 'NccnGuideline',
+  'phenotype-multi-select': 'Phenotype',
+  'phenotype-select': 'Phenotype',
+  'source-multi-select': 'Source',
+  'source-select': 'Source',
+  'therapy-multi-select': 'Therapy',
+  'therapy-select': 'Therapy',
+  'user-select': 'User',
+  'variant-multi-select': 'Variant',
+  'variant-select': 'Variant',
+  'variant-type-multi-select': 'VariantType',
+  'variant-type-select': 'VariantType',
+}
+
+// GraphQL enum values are SCREAMING_CASE (or single-letter levels)
+const ENUM_SHAPE = /^[A-Z][A-Z_]*$/
+
+function formatValue(
+  value: unknown,
+  typename?: string,
+  resolve?: EntityNameResolver
+): string {
   if (typeof value === 'boolean') return value ? 'Yes' : 'No'
-  if (Array.isArray(value)) return value.map((v) => formatValue(v)).join(', ')
+  if (Array.isArray(value)) {
+    return value.map((v) => formatValue(v, typename, resolve)).join(', ')
+  }
+  if (typename && typeof value === 'number') {
+    return resolve?.(typename, value) ?? `#${value}`
+  }
+  if (typeof value === 'string' && ENUM_SHAPE.test(value)) {
+    return formatEvidenceEnum(value as InputEnum)
+  }
   if (value !== null && typeof value === 'object') return JSON.stringify(value)
   return String(value)
 }
@@ -75,9 +130,14 @@ function formatValue(value: unknown): string {
 /**
  * The model as the form's own labeled leaves see it, for the ready alert's
  * submission preview: every visible, enabled leaf field with a label and a
- * non-empty value, in field order.
+ * non-empty value, in field order. Entity ids resolve to display names via
+ * `resolve` (falling back to `#id`), and enum values render their display
+ * labels.
  */
-export function collectFieldValues(field: FormlyFieldConfig): FormFieldValue[] {
+export function collectFieldValues(
+  field: FormlyFieldConfig,
+  resolve?: EntityNameResolver
+): FormFieldValue[] {
   let root = field
   while (root.parent) root = root.parent
   const values: FormFieldValue[] = []
@@ -99,7 +159,12 @@ export function collectFieldValues(field: FormlyFieldConfig): FormFieldValue[] {
     ) {
       return
     }
-    values.push({ label: f.props.label, value: formatValue(value) })
+    const typename =
+      typeof f.type === 'string' ? ENTITY_SELECT_TYPENAMES[f.type] : undefined
+    values.push({
+      label: f.props.label,
+      value: formatValue(value, typename, resolve),
+    })
   }
   visit(root)
   return values

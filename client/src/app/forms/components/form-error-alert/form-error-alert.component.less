@@ -40,6 +40,54 @@
   }
 }
 
+// the submission preview: descriptions fill the popover content area
+// edge to edge; long values clip on one line
+::ng-deep .form-preview-popover {
+  max-width: 520px;
+
+  .ant-popover-title .popover-title {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+
+    .title-controls {
+      display: inline-flex;
+      flex: none;
+      font-weight: normal;
+    }
+  }
+
+  .ant-popover-inner-content {
+    padding: 0;
+    max-height: 60vh;
+    overflow: auto;
+  }
+
+  // the popover frame provides the outer border and radius; fixed layout
+  // at full width keeps the clipped cells from collapsing the table
+  .model-summary {
+    width: 480px;
+
+    .ant-descriptions-view {
+      border: 0;
+      border-radius: 0;
+
+      table {
+        width: 100%;
+        table-layout: fixed;
+      }
+    }
+  }
+
+  .ant-descriptions-item-content .value-clip {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 // popover content is appended to the overlay container, outside :host
 ::ng-deep .form-error-popover {
   // wide enough that the collapse panels and JSON tree don't clip
@@ -70,10 +118,6 @@
   .ant-popover-inner-content {
     max-height: 60vh;
     overflow: auto;
-  }
-
-  .model-summary .ant-descriptions-item-label {
-    width: 180px;
   }
 
   .issue-list {
