@@ -20,7 +20,6 @@ import {
 } from './gene-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { GeneReviseModel } from '@app/forms/models/gene-revise.model'
 import {
   geneFormModelToReviseInput,
@@ -48,8 +47,7 @@ export class CvcGeneReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: GeneRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestGeneRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestGeneRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = geneReviseFields

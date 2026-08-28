@@ -20,7 +20,6 @@ import {
 } from './fusion-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   fusionFormModelToReviseInput,
   fusionToModelFields,
@@ -58,8 +57,7 @@ export class CvcFusionReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: FusionRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestFusionRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestFusionRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = fusionReviseFields

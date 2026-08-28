@@ -12,7 +12,6 @@ import {
   inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { EvidenceReviseModel } from '@app/forms/models/evidence-revise.model'
 import { EvidenceState } from '@app/forms/states/evidence.state'
 import {
@@ -52,8 +51,7 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: EvidenceItemRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestEvidenceItemRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestEvidenceItemRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = evidenceReviseFields

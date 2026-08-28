@@ -24,7 +24,6 @@ import {
 } from '@app/generated/civic.apollo.types'
 import { VariantDetailGQL } from '@app/views/variants/variants-detail/variants-detail.query.gql.generated'
 import { Observable, Subject } from 'rxjs'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { ActivatedRoute } from '@angular/router'
 import { map, takeUntil, filter } from 'rxjs/operators'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
@@ -73,7 +72,6 @@ export class VariantDeprecateForm implements OnDestroy, OnInit {
     private deprecateVariantGQL: DeprecateVariantGQL,
     private variantDetailGQL: VariantDetailGQL,
     private mpsForVariantGQL: MolecularProfilesForVariantGQL,
-    private networkErrorService: NetworkErrorsService,
     private route: ActivatedRoute,
     private viewerService: ViewerService
   ) {

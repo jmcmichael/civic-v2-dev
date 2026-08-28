@@ -30,7 +30,6 @@ import {
 } from '@app/generated/civic.apollo.types'
 
 import { ViewerService, Viewer } from '@app/core/services/viewer/viewer.service'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 
 @Component({
   selector: 'cvc-update-source-suggestion-form',
@@ -66,7 +65,6 @@ export class CvcUpdateSourceSuggestionForm implements OnDestroy {
   commentText?: string
   constructor(
     private viewerService: ViewerService,
-    private networkErrorService: NetworkErrorsService,
     private updateSuggestionStatusGql: UpdateSourceSuggestionGQL
   ) {
     // subscribing to viewer$ and setting local org, mostRecentOrg

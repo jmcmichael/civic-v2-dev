@@ -9,7 +9,6 @@ import {
   ChangeDetectionStrategy,
   inject,
 } from '@angular/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import { FlagFragment } from '@app/components/flags/flag-list-and-filter/flag-list-and-filter.gql.generated'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
@@ -52,8 +51,7 @@ export class CvcFlagResolveForm implements OnInit {
 
   constructor(
     private gql: ResolveFlagGQL,
-    private viewerService: ViewerService,
-    private networkErrorService: NetworkErrorsService
+    private viewerService: ViewerService
   ) {
     this.viewer$ = this.viewerService.viewer$
   }

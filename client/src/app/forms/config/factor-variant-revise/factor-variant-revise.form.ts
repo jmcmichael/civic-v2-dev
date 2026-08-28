@@ -14,7 +14,6 @@ import {
 import { UntypedFormGroup } from '@angular/forms'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { FactorVariantReviseModel } from '@app/forms/models/factor-variant-revise.model'
 import {
   FactorVariantRevisableFieldsGQL,
@@ -48,8 +47,7 @@ export class CvcFactorVariantReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: FactorVariantRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestFactorVariantRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestFactorVariantRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = factorVariantReviseFields

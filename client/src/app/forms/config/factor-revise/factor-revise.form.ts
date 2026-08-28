@@ -20,7 +20,6 @@ import {
 } from './factor-revise.query.gql.generated'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   factorFormModelToReviseInput,
   factorToModelFields,
@@ -58,8 +57,7 @@ export class CvcFactorReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: FactorRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestFactorRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestFactorRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.fields = factorReviseFields

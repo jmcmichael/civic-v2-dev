@@ -14,7 +14,6 @@ import {
 import { UntypedFormGroup } from '@angular/forms'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig } from '@ngx-formly/core'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { FusionVariantReviseModel } from '@app/forms/models/fusion-variant-revise.model'
 import {
   FusionVariantRevisableFieldsGQL,
@@ -49,8 +48,7 @@ export class CvcFusionVariantReviseForm implements OnInit, AfterViewInit {
 
   constructor(
     private revisableFieldsGQL: FusionVariantRevisableFieldsGQL,
-    private submitRevisionsGQL: SuggestFusionVariantRevisionGQL,
-    private networkErrorService: NetworkErrorsService
+    private submitRevisionsGQL: SuggestFusionVariantRevisionGQL
   ) {
     this.form = new UntypedFormGroup({})
   }

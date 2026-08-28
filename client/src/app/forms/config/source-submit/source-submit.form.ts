@@ -9,7 +9,6 @@ import {
   inject,
 } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   SourceSuggestionChecksGQL,
   SourceSuggestionChecksQuery,
@@ -58,8 +57,7 @@ export class CvcSourceSubmitForm implements OnInit {
 
   constructor(
     private submitSourceGQL: SubmitSourceGQL,
-    private sourceChecksGQL: SourceSuggestionChecksGQL,
-    networkErrorService: NetworkErrorsService
+    private sourceChecksGQL: SourceSuggestionChecksGQL
   ) {
     this.form = new UntypedFormGroup({})
     this.model = { fields: {} }

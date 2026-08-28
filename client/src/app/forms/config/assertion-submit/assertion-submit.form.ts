@@ -4,7 +4,6 @@ import {
 } from '@app/forms/utilities/form-mutation'
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import {
   assertionSubmitFormInitialModel,
   AssertionSubmitModel,
@@ -40,10 +39,7 @@ export class CvcAssertionSubmitForm {
   newAssertionId?: number
   newAssertionUrl?: string
 
-  constructor(
-    private submitAssertionGQL: SubmitAssertionGQL,
-    private networkErrorService: NetworkErrorsService
-  ) {
+  constructor(private submitAssertionGQL: SubmitAssertionGQL) {
     this.form = new UntypedFormGroup({})
     this.model = assertionSubmitFormInitialModel
     this.fields = assertionSubmitFields
