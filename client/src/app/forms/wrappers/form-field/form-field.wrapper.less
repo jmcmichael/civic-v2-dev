@@ -75,15 +75,15 @@
   }
 }
 
-// Fields inside a form-row drop their own vertical margin — the row wrapper
-// owns that spacing (form-row.wrapper.html sets it on its container).
+// Fields inside a row drop their own vertical margin — the row wrapper
+// owns that spacing (row.wrapper.ts host margin + nz-row row-gap).
 //
 // This must stay at the top level. Nested inside `:host > nz-form-item` it
 // still worked, but only by accident: Angular expands :host-context into a
 // selector list, and while the first alternative was unmatchable, the second
-// (`.form-row-wrapped [_nghost] > nz-form-item`) is what actually zeroed the
+// (`.cvc-form-row [_nghost] > nz-form-item`) is what actually zeroed the
 // margin. Written here it emits only the alternative that does the work.
-:host-context(.form-row-wrapped) > nz-form-item {
+:host-context(.cvc-form-row) > nz-form-item {
   margin-top: 0;
   margin-bottom: 0;
 }
