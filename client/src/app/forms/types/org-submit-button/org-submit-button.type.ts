@@ -25,6 +25,8 @@ import {
   FormFieldIssue,
   FormFieldValue,
 } from '@app/forms/utilities/form-field-issues'
+import { readCachedEntityName } from '@app/tags/cached-entity'
+import { Apollo } from 'apollo-angular'
 import { NzButtonSize } from 'ng-zorro-antd/button'
 
 interface CvcOrgSubmitButtonProps extends CvcColWrapperProps {
@@ -50,6 +52,7 @@ export class CvcOrgSubmitButtonComponent
   implements OnInit
 {
   private injector = inject(Injector)
+  private apollo = inject(Apollo)
   private statusDisplay = inject(CvcFormSubmissionStatusDisplayComponent, {
     optional: true,
   })
@@ -96,11 +99,16 @@ export class CvcOrgSubmitButtonComponent
       formChange$.pipe(map(() => collectFieldIssues(this.field))),
       { initialValue: collectFieldIssues(this.field), injector: this.injector }
     )
-    // feeds the ready alert's submission preview
-    this.fieldValues = toSignal(
-      formChange$.pipe(map(() => collectFieldValues(this.field))),
-      { initialValue: collectFieldValues(this.field), injector: this.injector }
-    )
+    // feeds the ready alert's submission preview; entity names resolve
+    // from the cache the form's own tags populated
+    const collect = () =>
+      collectFieldValues(this.field, (typename, id) =>
+        readCachedEntityName(this.apollo, typename, id)
+      )
+    this.fieldValues = toSignal(formChange$.pipe(map(collect)), {
+      initialValue: collect(),
+      injector: this.injector,
+    })
 
     // keep the field's value synced to the viewer's most recent org
     this.viewerService.viewer$

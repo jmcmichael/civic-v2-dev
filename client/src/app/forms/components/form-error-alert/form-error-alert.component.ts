@@ -21,8 +21,10 @@ import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions'
+import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzSpaceCompactComponent } from 'ng-zorro-antd/space'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
@@ -58,8 +60,10 @@ export interface FormReadiness {
     NzAlertModule,
     NzButtonModule,
     NzDescriptionsModule,
+    NzDropdownModule,
     NzIconModule,
     NzPopoverModule,
+    NzSpaceCompactComponent,
     NzTagModule,
     NzTooltipModule,
     NzTypographyModule,
@@ -142,6 +146,46 @@ export class CvcFormErrorAlertComponent {
   // popover header controls: expand/collapse every panel, copy the details
   protected readonly expandAll = signal(false)
   protected readonly copied = signal(false)
+
+  // the preview header's grouped copy button
+  protected readonly modelCopied = signal(false)
+
+  protected copyModel(format: 'json' | 'csv' | 'md-text' | 'md-table'): void {
+    const rows = this.readiness()?.summary ?? []
+    let text: string
+    switch (format) {
+      case 'csv': {
+        const cell = (s: string) => `"${s.replace(/"/g, '""')}"`
+        text = [
+          'Field,Value',
+          ...rows.map((r) => `${cell(r.label)},${cell(r.value)}`),
+        ].join('\n')
+        break
+      }
+      case 'md-text':
+        text = rows.map((r) => `**${r.label}:** ${r.value}`).join('\n')
+        break
+      case 'md-table': {
+        const cell = (s: string) => s.replace(/\|/g, '\\|').replace(/\n/g, ' ')
+        text = [
+          '| Field | Value |',
+          '| --- | --- |',
+          ...rows.map((r) => `| ${cell(r.label)} | ${cell(r.value)} |`),
+        ].join('\n')
+        break
+      }
+      default:
+        text = JSON.stringify(
+          Object.fromEntries(rows.map((r) => [r.label, r.value])),
+          null,
+          2
+        )
+    }
+    navigator.clipboard?.writeText(text).then(() => {
+      this.modelCopied.set(true)
+      setTimeout(() => this.modelCopied.set(false), 2000)
+    })
+  }
 
   protected copyAll(): void {
     navigator.clipboard
