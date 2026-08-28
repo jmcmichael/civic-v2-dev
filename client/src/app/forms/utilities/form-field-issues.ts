@@ -57,6 +57,8 @@ export interface FormFieldValue {
   readonly key?: string
   /** the pre-edit value, present only for revised fields */
   readonly before?: string
+  /** a long-text (textarea) field: the preview offers expand-ability */
+  readonly multiline?: boolean
   /** entity refs standing behind `value`, renderable by cvc-tag as-is */
   readonly entities?: EntityTagRef[]
   /** entity refs standing behind `before` */
@@ -98,6 +100,9 @@ const ENTITY_SELECT_TYPENAMES: Record<string, string> = {
   'variant-type-multi-select': 'VariantType',
   'variant-type-select': 'VariantType',
 }
+
+// long-text field types whose preview rows offer expand-ability
+const TEXTAREA_TYPES = new Set(['base-textarea', 'textarea'])
 
 // GraphQL enum values are SCREAMING_CASE (or single-letter levels)
 const ENUM_SHAPE = /^[A-Z][A-Z_]*$/
@@ -199,6 +204,7 @@ export function collectFieldValues(
         String(f.key ?? '')
           .split('.')
           .pop() || undefined,
+      multiline: typeof f.type === 'string' && TEXTAREA_TYPES.has(f.type),
       before: changed ? beforeStr : undefined,
       entities: toRefs(value),
       beforeEntities: changed ? toRefs(originalValue) : undefined,

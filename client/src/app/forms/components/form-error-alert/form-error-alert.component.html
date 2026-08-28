@@ -25,7 +25,7 @@
         [nzPopoverTitle]="previewTitle"
         [nzPopoverContent]="modelSummary"
         nzPopoverOverlayClassName="form-preview-popover"
-        [nzAction]="detailsAction"></nz-alert>
+        [nzAction]="previewAction"></nz-alert>
     } @else {
       <nz-alert
         class="form-error-alert"
@@ -116,9 +116,29 @@
   }
 </ng-template>
 
+<ng-template #previewAction>
+  <button
+    nz-button
+    nzType="link"
+    nzSize="small">
+    Preview
+  </button>
+</ng-template>
+
 <ng-template #previewTitle>
   <div class="popover-title">
-    <span class="title-text">Submission Preview</span>
+    <span class="title-text">
+      @if (cardTitle(); as t) {
+        <i
+          nz-icon
+          nzTheme="twotone"
+          [nzTwotoneColor]="t.entityType | entityColor"
+          [nzType]="t.icon"></i>
+        {{ t.name }} {{ nounTitle }} Preview
+      } @else {
+        Submission Preview
+      }
+    </span>
     <span class="title-controls">
       <nz-space-compact nzSize="small">
         <button
@@ -182,53 +202,66 @@
     @for (v of readiness()?.summary; track v.label) {
       <nz-descriptions-item [nzTitle]="v.label">
         <span class="value-cell">
-          @if (v.key) {
-            <nz-tag class="key-chip">{{ v.key }}</nz-tag>
-          }
-          <span
-            class="value-clip"
-            nz-tooltip
-            [nzTooltipTitle]="fullValue"
-            nzTooltipPlacement="left">
-            @if (v.before) {
-              <span class="before-value">
-                @if (v.beforeEntities) {
-                  @for (ref of v.beforeEntities; track ref.id) {
-                    <cvc-tag [ref]="ref" />
-                  }
-                } @else {
-                  {{ v.before }}
-                }
-              </span>
-              <span
-                class="change-arrow"
-                nz-icon
-                nzType="arrow-right"></span>
-            }
-            @if (v.entities) {
-              @for (ref of v.entities; track ref.id) {
-                <cvc-tag [ref]="ref" />
+          @if (v.before) {
+            <span class="before-value">
+              @if (v.beforeEntities) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    entityRefs;
+                    context: { $implicit: v.beforeEntities }
+                  " />
+              } @else {
+                {{ v.before }}
               }
-            } @else {
-              {{ v.value }}
-            }
-          </span>
-        </span>
-        <ng-template #fullValue>
-          <span class="preview-value-tip">
-            @if (v.before) {
-              {{ v.before }} →
-            }
-            {{ v.value }}
+            </span>
             <span
-              nz-typography
-              nzCopyable
-              [nzCopyText]="v.value"></span>
-          </span>
-        </ng-template>
+              class="change-arrow"
+              nz-icon
+              nzType="arrow-right"></span>
+          }
+          @if (v.entities) {
+            <span class="entity-values">
+              <ng-container
+                *ngTemplateOutlet="
+                  entityRefs;
+                  context: { $implicit: v.entities }
+                " />
+            </span>
+          } @else {
+            <!-- long-text fields (statement, comment) clip to one line
+                 with a hand-rolled expand toggle: typography's ellipsis
+                 machinery fights the cell layout in the overlay -->
+            <span
+              class="value-text"
+              [class.plain]="!isRowExpanded(v.label)">
+              {{ v.value }}
+            </span>
+            @if (v.multiline) {
+              <a
+                class="expand-toggle"
+                (click)="toggleRow(v.label)">
+                {{ isRowExpanded(v.label) ? 'Collapse' : 'Expand' }}
+              </a>
+            }
+          }
+        </span>
       </nz-descriptions-item>
     }
   </nz-descriptions>
+</ng-template>
+
+<!-- a handful of entities render as tags; a crowd collapses to the
+     +N collection tag, expanding on hover -->
+<ng-template
+  #entityRefs
+  let-refs>
+  @if (refs.length > 3) {
+    <cvc-collection-tag [refs]="refs" />
+  } @else {
+    @for (ref of refs; track ref.id) {
+      <cvc-tag [ref]="ref" />
+    }
+  }
 </ng-template>
 
 <ng-template #issueList>
