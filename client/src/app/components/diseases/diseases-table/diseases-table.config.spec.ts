@@ -202,7 +202,7 @@ describe('diseasesTableConfig', () => {
     it('renders DOID as an external link-out to disease-ontology.org', () => {
       const link = specCell(spec, 'doid', 'external-link')
       expect(link.href(ROW)).toBe('https://disease-ontology.org/?id=DOID:1909')
-      expect(link.text?.(ROW)).toBe('DOID:1909')
+      expect(link.text?.(ROW)).toBe('1909')
     })
 
     // href gated on doid, not just diseaseUrl: the external-link kind falls
