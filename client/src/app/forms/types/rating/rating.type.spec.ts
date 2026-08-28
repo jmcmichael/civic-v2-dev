@@ -22,11 +22,13 @@ describe('CvcRatingField', () => {
     h.destroy()
   })
 
-  // nz-rate reports a cleared widget as 0, which is not a rating anyone means
+  // nz-rate reports a cleared widget as 0, which is not a rating anyone
+  // means; the field's parser normalizes it and formly writes the parsed
+  // value back to the control
   it('treats a zero from the star widget as no rating at all', async () => {
     const h = await setup({ rating: 3 })
     await h.settle()
-    h.field(CvcRatingField)['onRatingChange'](0)
+    h.control().setValue(0)
     await h.settle()
     expect(h.control().value).toBeUndefined()
     h.destroy()

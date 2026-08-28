@@ -58,6 +58,8 @@ export class CvcRatingField extends CvcFieldBase<
   FieldTypeConfig<CvcRatingFieldProps>
 > {
   defaultOptions: CvcRatingFieldOptions = {
+    // nz-rate clears itself by emitting 0, which is not a rating
+    parsers: [(value) => (value === 0 ? undefined : value)],
     props: {
       label: 'Evidence Rating',
       count: 5,
@@ -73,11 +75,6 @@ export class CvcRatingField extends CvcFieldBase<
     this.props.hoverText = Object.values(optionText)
 
     effect(() => this.describe(this.value()), { injector: this.injector })
-  }
-
-  /** nz-rate clears itself by emitting 0, which is not a rating */
-  protected onRatingChange(rating: number): void {
-    this.formControl.setValue(rating === 0 ? undefined : rating)
   }
 
   private describe(rating: Maybe<number>): void {

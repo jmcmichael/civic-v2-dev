@@ -9,6 +9,7 @@ import {
   inject,
 } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
+import { AbstractControl } from '@angular/forms'
 import { ViewerService } from '@app/core/services/viewer/viewer.service'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import { Maybe } from '@app/generated/civic.apollo.types'
@@ -100,11 +101,15 @@ export class CvcOrgSubmitButtonComponent
       { initialValue: collectFieldIssues(this.field), injector: this.injector }
     )
     // feeds the ready alert's submission preview; entity names resolve
-    // from the cache the form's own tags populated
+    // from the cache the form's own tags populated, and the originals map
+    // remembers pre-edit values for revised fields
+    const originals = new Map<AbstractControl, unknown>()
     const collect = () =>
-      collectFieldValues(this.field, (typename, id) =>
-        readCachedEntityName(this.apollo, typename, id)
-      )
+      collectFieldValues(this.field, {
+        resolve: (typename, id) =>
+          readCachedEntityName(this.apollo, typename, id),
+        originals,
+      })
     this.fieldValues = toSignal(formChange$.pipe(map(collect)), {
       initialValue: collect(),
       injector: this.injector,

@@ -1,9 +1,12 @@
 import { AbstractControl } from '@angular/forms'
+import { CamelCaseToWordPipe } from '@app/core/pipes/camel-case-to-words-pipe'
 import {
   formatEvidenceEnum,
   InputEnum,
 } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import { FormlyFieldConfig } from '@ngx-formly/core'
+
+const camelToWords = new CamelCaseToWordPipe()
 
 /** One reason the form cannot be submitted yet, for the readiness popover */
 export interface FormFieldIssue {
@@ -52,6 +55,10 @@ export function collectFieldIssues(field: FormlyFieldConfig): FormFieldIssue[] {
 export interface FormFieldValue {
   readonly label: string
   readonly value: string
+  /** entity typename, TitleCased enum key, or the primitive type */
+  readonly type?: string
+  /** the pre-edit value, present only for revised fields */
+  readonly before?: string
 }
 
 /** Resolves a cached entity's display name; undefined leaves the raw id */
@@ -112,19 +119,61 @@ function formatValue(
   return String(value)
 }
 
+function isEmpty(value: unknown): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    value === '' ||
+    (Array.isArray(value) && value.length === 0)
+  )
+}
+
+function typeLabel(
+  f: FormlyFieldConfig,
+  value: unknown,
+  typename?: string
+): string {
+  if (typename) return camelToWords.transform(typename)
+  const single = Array.isArray(value) ? value[0] : value
+  if (typeof single === 'string' && ENUM_SHAPE.test(single)) {
+    // the concrete enum type lives in form state, out of reach; the model
+    // key is its faithful stand-in (evidenceType → Evidence Type)
+    const key = String(f.key ?? '')
+      .split('.')
+      .pop()!
+    return camelToWords.transform(key.charAt(0).toUpperCase() + key.slice(1))
+  }
+  if (typeof single === 'boolean') return 'boolean'
+  if (typeof single === 'number') return 'number'
+  return 'text'
+}
+
+export interface CollectFieldValuesOptions {
+  readonly resolve?: EntityNameResolver
+  /**
+   * Caller-owned pre-edit snapshot, keyed by control: pristine controls
+   * keep updating their entry (async model loads patch values without
+   * dirtying), so once a control goes dirty the entry holds the loaded
+   * original — the `before` of a revised field
+   */
+  readonly originals?: Map<AbstractControl, unknown>
+}
+
 /**
  * The model as the form's own labeled leaves see it, for the ready alert's
  * submission preview: every visible, enabled leaf field with a label and a
- * non-empty value, in field order. Entity ids resolve to display names via
- * `resolve` (falling back to `#id`), and enum values render their display
- * labels.
+ * non-empty value (or a revised-to-empty one), in field order. Entity ids
+ * resolve to display names via `resolve` (falling back to `#id`), enum
+ * values render their display labels, and fields whose control is dirty
+ * carry their pre-edit value as `before`.
  */
 export function collectFieldValues(
   field: FormlyFieldConfig,
-  resolve?: EntityNameResolver
+  options?: CollectFieldValuesOptions
 ): FormFieldValue[] {
   let root = field
   while (root.parent) root = root.parent
+  const { resolve, originals } = options ?? {}
   const values: FormFieldValue[] = []
   const visit = (f: FormlyFieldConfig): void => {
     if (f.hide) return
@@ -133,22 +182,27 @@ export function collectFieldValues(
       return
     }
     const control = f.formControl
-    const value = control?.value
-    if (
-      !f.props?.label ||
-      !control?.enabled ||
-      value === null ||
-      value === undefined ||
-      value === '' ||
-      (Array.isArray(value) && value.length === 0)
-    ) {
-      return
+    if (!f.props?.label || !control?.enabled) return
+    const value = control.value
+    if (originals && (control.pristine || !originals.has(control))) {
+      originals.set(control, value)
     }
+    const originalValue = originals?.get(control)
+    const revised = !!originals && control.dirty && !isEmpty(originalValue)
+    if (isEmpty(value) && !revised) return
     const typename =
       typeof f.type === 'string' ? ENTITY_SELECT_TYPENAMES[f.type] : undefined
+    const formatted = isEmpty(value)
+      ? '—'
+      : formatValue(value, typename, resolve)
+    const before = revised
+      ? formatValue(originalValue, typename, resolve)
+      : undefined
     values.push({
       label: f.props.label,
-      value: formatValue(value, typename, resolve),
+      value: formatted,
+      type: typeLabel(f, value ?? originalValue, typename),
+      before: before !== formatted ? before : undefined,
     })
   }
   visit(root)
