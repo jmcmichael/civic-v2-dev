@@ -35,7 +35,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         props: <CvcFormCardWrapperProps>{
           formCardOptions: { title: 'Revise Evidence Item' },
           formInstructions:
-            'Provide support for your suggested revisions before submitting.',
+            'Provide support for your suggested revisions before submitting. Summarize your changes and cite supporting sources in the comment field — clear rationale helps editors review and accept revisions quickly.',
         },
         fieldGroup: [
           {
