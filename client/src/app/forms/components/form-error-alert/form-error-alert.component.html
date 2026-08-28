@@ -56,34 +56,41 @@
 <ng-template #detailsAction>
   <button
     nz-button
+    nzType="link"
     nzSize="small">
     Details
   </button>
 </ng-template>
 
+<!-- nz-popover has no nzExtra slot; the title template hosts the header
+     controls itself -->
 <ng-template #errorTitle>
-  Submission Errors
-  <span class="error-count">({{ errors().length }})</span>
+  <div class="popover-title">
+    <span class="title-text">
+      Submission Errors
+      <span class="error-count">({{ errors().length }})</span>
+    </span>
+    <span class="title-controls">
+      <button
+        nz-button
+        nzSize="small"
+        (click)="copyAll()">
+        <span
+          nz-icon
+          [nzType]="copied() ? 'check' : 'copy'"></span>
+        {{ copied() ? 'Copied' : 'Copy all' }}
+      </button>
+      <button
+        nz-button
+        nzSize="small"
+        (click)="expandAll.set(!expandAll())">
+        {{ expandAll() ? 'Hide all details' : 'Show all details' }}
+      </button>
+    </span>
+  </div>
 </ng-template>
 
 <ng-template #errorList>
-  <div class="popover-head">
-    <button
-      nz-button
-      nzSize="small"
-      (click)="copyAll()">
-      <span
-        nz-icon
-        [nzType]="copied() ? 'check' : 'copy'"></span>
-      {{ copied() ? 'Copied' : 'Copy all' }}
-    </button>
-    <button
-      nz-button
-      nzSize="small"
-      (click)="expandAll.set(!expandAll())">
-      {{ expandAll() ? 'Hide all details' : 'Show all details' }}
-    </button>
-  </div>
   <!-- borderless + our flattening CSS, not collapse's ghost mode: that
        attribute trips postcss-strip-unused's button-ghost driver -->
   <nz-collapse [nzBordered]="false">
