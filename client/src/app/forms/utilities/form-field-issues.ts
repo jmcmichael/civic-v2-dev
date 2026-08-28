@@ -63,6 +63,10 @@ export interface FormFieldValue {
   readonly valueType?: string
   /** the current value's meaning, as the field displays it */
   readonly description?: string
+  /** the raw enum value, for attribute-tag rendering and values mode */
+  readonly enumValue?: string
+  /** a star rating, for evidence-rating rendering in tags mode */
+  readonly rating?: number
   /** entity refs standing behind `value`, renderable by cvc-tag as-is */
   readonly entities?: EntityTagRef[]
   /** entity refs standing behind `before` */
@@ -266,6 +270,12 @@ export function collectFieldValues(
         typeof f.type === 'string' && TEXTAREA_TYPES.has(f.type)
           ? undefined
           : f.props.description?.replace(/<[^>]*>/g, '') || undefined,
+      enumValue:
+        !typename && typeof value === 'string' && ENUM_SHAPE.test(value)
+          ? value
+          : undefined,
+      rating:
+        f.type === 'rating' && typeof value === 'number' ? value : undefined,
       valueType: valueTypeOf(value ?? originalValue, typename),
       before: changed ? beforeStr : undefined,
       entities: toRefs(value),

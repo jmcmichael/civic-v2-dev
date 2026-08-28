@@ -1,4 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common'
+import { FormsModule } from '@angular/forms'
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,6 +14,8 @@ import {
   CvcErrorListComponent,
   submissionErrorsText,
 } from '@app/components/app/error-list/error-list.component'
+import { CvcAttributeTagModule } from '@app/components/shared/attribute-tag/attribute-tag.module'
+import { CvcEvidenceRatingModule } from '@app/components/evidence/evidence-rating/evidence-rating.module'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcFormCardWrapper } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcCollectionTagComponent } from '@app/tags/collection-tag.component'
@@ -23,6 +26,7 @@ import {
   FormFieldValue,
 } from '@app/forms/utilities/form-field-issues'
 import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
+import { EntityTagRef } from '@app/tags/entity-tag-specs'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions'
@@ -30,6 +34,7 @@ import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverModule } from 'ng-zorro-antd/popover'
 import { NzSpaceModule } from 'ng-zorro-antd/space'
+import { NzSwitchModule } from 'ng-zorro-antd/switch'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
@@ -63,8 +68,11 @@ export interface FormReadiness {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    FormsModule,
     NgTemplateOutlet,
+    CvcAttributeTagModule,
     CvcCollectionTagComponent,
+    CvcEvidenceRatingModule,
     CvcErrorListComponent,
     CvcPipesModule,
     CvcTagComponent,
@@ -75,6 +83,7 @@ export interface FormReadiness {
     NzIconModule,
     NzPopoverModule,
     NzSpaceModule,
+    NzSwitchModule,
     NzTagModule,
     NzTooltipModule,
     NzTypographyModule,
@@ -168,6 +177,14 @@ export class CvcFormErrorAlertComponent {
   // popover header controls: expand/collapse every panel, copy the details
   protected readonly expandAll = signal(false)
   protected readonly copied = signal(false)
+
+  // the preview's entity display: tags, or raw model ids with the
+  // resolved names trailing in secondary style
+  protected readonly previewMode = signal<'tags' | 'values'>('tags')
+
+  protected entityIds(refs: EntityTagRef[]): string {
+    return refs.map((r) => r.id).join(', ')
+  }
 
   // long-text preview rows expand in place
   private readonly expandedRows = signal<ReadonlySet<string>>(new Set())
