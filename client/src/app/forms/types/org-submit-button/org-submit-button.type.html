@@ -19,6 +19,7 @@
     nz-button
     [disabled]="!formValid()"
     nzType="primary"
+    [nzSize]="props.size ?? 'default'"
     nz-tooltip
     [nzTooltipTrigger]="mostRecentOrg() ? 'hover' : null"
     [nzTooltipTitle]="'For ' + mostRecentOrg()?.name">

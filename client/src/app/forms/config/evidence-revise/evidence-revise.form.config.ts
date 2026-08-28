@@ -205,7 +205,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
               {
                 type: 'cvc-cancel-button',
                 wrappers: ['col'],
-                props: { col: { flex: 'none' } },
+                props: { col: { flex: 'none' }, size: 'large' },
               },
               <CvcOrgSubmitButtonFieldConfig>{
                 key: 'organizationId',
@@ -215,6 +215,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                   col: { flex: 'auto' },
                   submitLabel: 'Submit Evidence Item Revisions',
                   align: 'right',
+                  size: 'large',
                 },
               },
             ],

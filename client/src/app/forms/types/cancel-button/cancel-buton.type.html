@@ -1,3 +1,10 @@
-<button class="cancel-button" (click)="cancelClicked()" nz-button type="button" nzType="default" nzDanger >
+<button
+  class="cancel-button"
+  (click)="cancelClicked()"
+  nz-button
+  type="button"
+  nzType="default"
+  [nzSize]="props.size ?? 'default'"
+  nzDanger>
   Cancel
 </button>
