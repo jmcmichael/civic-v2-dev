@@ -182,8 +182,8 @@
     @for (v of readiness()?.summary; track v.label) {
       <nz-descriptions-item [nzTitle]="v.label">
         <span class="value-cell">
-          @if (v.type) {
-            <nz-tag class="type-chip">{{ v.type }}</nz-tag>
+          @if (v.key) {
+            <nz-tag class="key-chip">{{ v.key }}</nz-tag>
           }
           <span
             class="value-clip"
@@ -191,13 +191,27 @@
             [nzTooltipTitle]="fullValue"
             nzTooltipPlacement="left">
             @if (v.before) {
-              <span class="before-value">{{ v.before }}</span>
+              <span class="before-value">
+                @if (v.beforeEntities) {
+                  @for (ref of v.beforeEntities; track ref.id) {
+                    <cvc-tag [ref]="ref" />
+                  }
+                } @else {
+                  {{ v.before }}
+                }
+              </span>
               <span
                 class="change-arrow"
                 nz-icon
                 nzType="arrow-right"></span>
             }
-            {{ v.value }}
+            @if (v.entities) {
+              @for (ref of v.entities; track ref.id) {
+                <cvc-tag [ref]="ref" />
+              }
+            } @else {
+              {{ v.value }}
+            }
           </span>
         </span>
         <ng-template #fullValue>

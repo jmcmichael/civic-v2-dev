@@ -97,24 +97,27 @@ describe('collectFieldIssues', () => {
       ],
     })
     // entity names resolve through the callback (cache-miss falls back to
-    // #id); enum values render their display labels; types come from the
-    // typename map, the enum's model key, or the primitive
+    // #id); enum values render their display labels; the key is the
+    // graphql variable, and entity fields carry tag-renderable refs
     const resolve = (typename: string, id: number) =>
       typename === 'Phenotype' && id === 21 ? 'Poor appetite' : undefined
-    expect(collectFieldValues(root, { resolve })).toEqual([
+    expect(collectFieldValues(root, { resolve })).toMatchObject([
       {
         label: 'Significance',
         value: 'Sensitivity / Response',
-        type: 'Significance',
-        before: undefined,
+        key: 'significance',
+        entities: undefined,
       },
       {
         label: 'Phenotypes',
         value: 'Poor appetite, #34',
-        type: 'Phenotype',
-        before: undefined,
+        key: 'phenotypeIds',
+        entities: [
+          { __typename: 'Phenotype', id: 21 },
+          { __typename: 'Phenotype', id: 34 },
+        ],
       },
-      { label: 'Flagged', value: 'No', type: 'boolean', before: undefined },
+      { label: 'Flagged', value: 'No', key: 'flagged' },
     ])
   })
 
@@ -145,9 +148,16 @@ describe('collectFieldIssues', () => {
     // a user edit dirties the control; the snapshot stops following
     disease.setValue(7)
     disease.markAsDirty()
-    expect(collectFieldValues(root, { originals })).toEqual([
-      { label: 'Disease', value: '#7', type: 'Disease', before: '#4' },
-      { label: 'Rating', value: '4', type: 'number', before: undefined },
+    expect(collectFieldValues(root, { originals })).toMatchObject([
+      {
+        label: 'Disease',
+        value: '#7',
+        key: 'diseaseId',
+        before: '#4',
+        entities: [{ __typename: 'Disease', id: 7 }],
+        beforeEntities: [{ __typename: 'Disease', id: 4 }],
+      },
+      { label: 'Rating', value: '4', key: 'rating', before: undefined },
     ])
   })
 })
