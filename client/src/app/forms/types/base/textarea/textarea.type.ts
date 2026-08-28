@@ -8,8 +8,8 @@ import {
   FormlyFieldConfig,
   FormlyModule,
 } from '@ngx-formly/core'
-import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 import { NzInputModule } from 'ng-zorro-antd/input'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
 // AutoSizeType left zorro 22 with textarea[nzAutosize]; the shape is kept
 // for field configs
@@ -19,13 +19,12 @@ export type CvcTextareaFieldOptions = Partial<
   FieldTypeConfig<CvcTextAreaFieldProps>
 >
 
-export interface CvcTextAreaFieldProps extends FormlyFieldProps {
+export interface CvcTextAreaFieldProps extends CvcColWrapperProps {
   rows?: number
   autosize: string | boolean | AutoSizeType
 }
 
-export interface FormlyTextAreaFieldConfig
-  extends FormlyFieldConfig<CvcTextAreaFieldProps> {
+export interface FormlyTextAreaFieldConfig extends FormlyFieldConfig<CvcTextAreaFieldProps> {
   type: 'base-textarea' | Type<CvcTextareaField>
 }
 

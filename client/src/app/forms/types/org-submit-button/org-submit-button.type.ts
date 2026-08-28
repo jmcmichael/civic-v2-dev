@@ -12,17 +12,13 @@ import { ViewerService } from '@app/core/services/viewer/viewer.service'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
-import {
-  FieldType,
-  FieldTypeConfig,
-  FormlyFieldConfig,
-  FormlyFieldProps,
-} from '@ngx-formly/core'
+import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { auditTime, EMPTY, filter, map, merge, Observable } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
-interface CvcOrgSubmitButtonProps extends FormlyFieldProps {
+interface CvcOrgSubmitButtonProps extends CvcColWrapperProps {
   submitLabel: string
   align?: 'left' | 'right' | 'center'
 }

@@ -5,16 +5,16 @@ import { Maybe } from '@app/generated/civic.apollo.types'
 import {
   FieldTypeConfig,
   FormlyFieldConfig,
-  FormlyFieldProps,
   FormlyModule,
 } from '@ngx-formly/core'
 import { NzInputModule } from 'ng-zorro-antd/input'
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number'
 import { NzSelectModule } from 'ng-zorro-antd/select'
+import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 
 export type CvcTagInputOptions = Partial<FieldTypeConfig<CvcTagInputProps>>
 
-export interface CvcTagInputProps extends FormlyFieldProps {
+export interface CvcTagInputProps extends CvcColWrapperProps {
   isMultiInput?: boolean
 }
 
