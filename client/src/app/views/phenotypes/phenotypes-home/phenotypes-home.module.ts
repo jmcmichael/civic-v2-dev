@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CvcPhenotypesTableModule } from '@app/components/phenotypes/phenotypes-table/phenotypes-table.module'
 import { CvcSectionNavigationModule } from '@app/components/shared/section-navigation/section-navigation.module'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
@@ -14,6 +15,7 @@ import { PhenotypesHomePage } from './phenotypes-home.page'
 @NgModule({
   declarations: [PhenotypesHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     NzPageHeaderModule,
     NzIconModule,

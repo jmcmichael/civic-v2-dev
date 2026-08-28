@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { VariantsHomePage } from './variants-home.page'
 import { CvcSectionNavigationModule } from '@app/components/shared/section-navigation/section-navigation.module'
@@ -19,6 +20,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 @NgModule({
   declarations: [VariantsHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     RouterModule,
     LetDirective,

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CvcFeaturesTableModule } from '@app/components/features/features-table/features-table.module'
 import { CvcSectionNavigationModule } from '@app/components/shared/section-navigation/section-navigation.module'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
@@ -14,6 +15,7 @@ import { FeaturesHomePage } from './features-home.page'
 @NgModule({
   declarations: [FeaturesHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     NzButtonModule,
     NzIconModule,

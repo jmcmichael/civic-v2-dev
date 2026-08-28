@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core'
+import { CvcPageFillDirective } from '@app/directives/page-fill/page-fill.directive'
 import { CommonModule } from '@angular/common'
 import { SourcesHomePage } from './sources-home.page'
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header'
@@ -16,6 +17,7 @@ import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 @NgModule({
   declarations: [SourcesHomePage],
   imports: [
+    CvcPageFillDirective,
     CommonModule,
     RouterModule,
     LetDirective,
