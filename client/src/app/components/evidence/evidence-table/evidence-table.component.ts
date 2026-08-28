@@ -16,13 +16,15 @@ import {
   Maybe,
   OrganizationFilter,
 } from '@app/generated/civic.apollo.types'
-import { CvcEntityTableComponent } from '@app/tables'
+import {
+  CvcColumnFilterExtraDirective,
+  CvcEntityTableComponent,
+} from '@app/tables'
 import { NzCardModule } from 'ng-zorro-antd/card'
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
 import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzRadioModule } from 'ng-zorro-antd/radio'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { evidenceTableConfig } from './evidence-table.config'
 import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
@@ -34,8 +36,9 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
  * molecular-profile pages), while the table itself is configuration — see
  * `evidence-table.config.ts`.
  *
- * The legacy card-extra scope menu survives in the toolbar slot: an
- * evidence-status radio plus, on organization pages, the include-subgroups
+ * Status filters through the id column's own funnel (`extraFilter` in the
+ * config — the standard filter menu). What remains host-projected, beside
+ * the EID filter box, is the organization pages' include-subgroups
  * checkbox. `includeSubgroups` also reads the `?includeSubgroups=` query
  * param the organizations pages set, via a `linkedSignal` so a user's later
  * toggle overrides the param until it next changes.
@@ -45,6 +48,7 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
 @Component({
   selector: 'cvc-evidence-table',
   imports: [
+    CvcColumnFilterExtraDirective,
     CvcEntityTableComponent,
     CvcTableDownloaderComponent,
     FormsModule,
@@ -53,7 +57,6 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
     NzDropdownModule,
     NzGridModule,
     NzIconModule,
-    NzRadioModule,
     NzTableModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,15 +66,15 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
       [spec]="spec()"
       [titleTemplate]="cvcTitleTemplate()"
       [height]="height()">
-      <span
-        cvcTableToolbarExtra
-        style="display: inline-flex; align-items: center; gap: 8px">
-        @if (!idsScoped()) {
+      <!-- status filters through the id column's own funnel; only the
+           org pages' subgroups choice needs a host-projected menu -->
+      <ng-template cvcColumnFilterExtra="id">
+        @if (organizationId()) {
           <nz-filter-trigger
             data-testid="evidence-scope-trigger"
             [nzVisible]="scopeMenuVisible"
             (nzVisibleChange)="scopeMenuVisible = $event"
-            [nzActive]="scopeActive()"
+            [nzActive]="includeSubgroups()"
             [nzDropdownMenu]="scopeMenu">
             <span
               nz-icon
@@ -79,7 +82,7 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
               nzTheme="fill"></span>
           </nz-filter-trigger>
         }
-      </span>
+      </ng-template>
       <cvc-table-downloader
         cvcTableCtrlButton
         [vars]="table.queryVars()"
@@ -89,49 +92,16 @@ import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
     <nz-dropdown-menu #scopeMenu>
       <nz-card data-testid="evidence-scope-menu">
         <nz-row>
-          <nz-radio-group
-            [ngModel]="statusFilter()"
-            (ngModelChange)="onStatusChange($event)">
+          <nz-col nzSpan="2">
             <label
-              nz-radio-button
-              [nzValue]="statusFilters.NonRejected"
-              >Non-Rejected</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.Accepted"
-              >Accepted</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.Submitted"
-              >Submitted</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.Rejected"
-              >Rejected</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.All"
-              >All</label
-            >
-          </nz-radio-group>
+              nz-checkbox
+              [ngModel]="includeSubgroups()"
+              (ngModelChange)="onSubgroupsChange($event)"></label>
+          </nz-col>
+          <nz-col nzSpan="22">
+            <span>Include evidence submitted by child organizations</span>
+          </nz-col>
         </nz-row>
-        @if (organizationId()) {
-          <nz-row>
-            <nz-col nzSpan="2">
-              <label
-                nz-checkbox
-                [ngModel]="includeSubgroups()"
-                (ngModelChange)="onSubgroupsChange($event)"></label>
-            </nz-col>
-            <nz-col nzSpan="22">
-              <span>Include evidence submitted by child organizations</span>
-            </nz-col>
-          </nz-row>
-        }
       </nz-card>
     </nz-dropdown-menu>
   `,
@@ -159,27 +129,13 @@ export class CvcEvidenceTableComponent {
    * pass `cvcHeight="150"`) */
   readonly cvcHeight = input<Maybe<string>>()
 
-  protected readonly statusFilters = EvidenceStatusFilter
   protected scopeMenuVisible = false
-
-  /** the scope menu's choice; reseeds when the host's `[status]` changes */
-  protected readonly statusFilter = linkedSignal<EvidenceStatusFilter>(
-    () => this.status() ?? EvidenceStatusFilter.NonRejected
-  )
 
   private readonly queryParams = toSignal(this.route.queryParamMap)
 
   /** query-param seeded, user-toggleable thereafter */
   protected readonly includeSubgroups = linkedSignal<boolean>(
     () => this.queryParams()?.get('includeSubgroups') === 'true'
-  )
-
-  protected readonly idsScoped = computed(() => (this.ids()?.length ?? 0) > 0)
-
-  protected readonly scopeActive = computed(
-    () =>
-      this.statusFilter() !== EvidenceStatusFilter.NonRejected ||
-      this.includeSubgroups()
   )
 
   protected readonly height = computed(() => {
@@ -210,16 +166,11 @@ export class CvcEvidenceTableComponent {
         molecularProfileId: this.molecularProfileId(),
         ids: this.ids(),
         organization: this.organization(),
-        status: this.statusFilter(),
+        status: this.status() ?? EvidenceStatusFilter.NonRejected,
       },
       { displayMolecularProfile: this.displayMolecularProfile() }
     )
   )
-
-  protected onStatusChange(status: EvidenceStatusFilter): void {
-    this.statusFilter.set(status)
-    this.scopeMenuVisible = false
-  }
 
   protected onSubgroupsChange(include: boolean): void {
     this.includeSubgroups.set(include)

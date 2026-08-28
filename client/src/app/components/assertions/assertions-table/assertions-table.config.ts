@@ -19,6 +19,7 @@ import {
   enumFilterOptions,
   SORT_DESCEND_FIRST,
 } from '@app/tables'
+import { EVIDENCE_STATUS_FILTER_OPTIONS } from '@app/components/evidence/evidence-table/evidence-table.config'
 import { AssertionsBrowseGQL } from './assertions-table.query.gql.generated'
 
 /** an AID typed with or without its prefix; anything else matches nothing */
@@ -191,6 +192,19 @@ export function assertionsTableConfig(
             return match ? +match[1] : null
           },
         },
+        // the status funnel shares its variable with the scope: cleared, the
+        // scope's baseline (NON_REJECTED unless the host sets one) stands.
+        // Meaningless when the host pins explicit ids, so omitted there.
+        ...(scope.ids?.length
+          ? {}
+          : {
+              extraFilter: {
+                kind: 'enum' as const,
+                var: 'status' as const,
+                showIcons: false,
+                options: EVIDENCE_STATUS_FILTER_OPTIONS,
+              },
+            }),
       },
       {
         key: 'molecularProfile',

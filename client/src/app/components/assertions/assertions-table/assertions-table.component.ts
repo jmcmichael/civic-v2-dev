@@ -10,7 +10,6 @@ import { toSignal } from '@angular/core/rxjs-interop'
 import { FormsModule } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 import { CvcTableDownloaderComponent } from '@app/components/shared/table-downloader/table-downloader.component'
-import { formatEvidenceEnum } from '@app/core/utilities/enum-formatters/format-evidence-enum'
 import {
   EvidenceStatusFilter,
   Maybe,
@@ -26,7 +25,6 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
 import { NzDropdownModule } from 'ng-zorro-antd/dropdown'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
-import { NzRadioModule } from 'ng-zorro-antd/radio'
 import { NzTableModule } from 'ng-zorro-antd/table'
 import { assertionsTableConfig } from './assertions-table.config'
 import { AssertionsBrowseGQL } from './assertions-table.query.gql.generated'
@@ -56,14 +54,13 @@ const FILTER_PARAMS: ReadonlyArray<
  * title, `[status]` on the curation queue and query-search), while the table
  * itself is configuration — see `assertions-table.config.ts`.
  *
- * The legacy card-extra scope menu survives in the toolbar slot: the
- * evidence-status radio plus, on organization pages, an include-subgroups
- * checkbox (worded for submitted vs approved assertions depending on which
- * org input scoped the table — one shared flag feeds both wrappers, as it
- * always has). The status radio is a `linkedSignal` seeded from `[status]`,
- * which fixes two legacy bugs at once: the radio claiming Non-Rejected while
- * the queue queried SUBMITTED, and `refresh()` silently reverting the host's
- * scope on any filter keystroke.
+ * Status filters through the id column's own funnel (`extraFilter` in the
+ * config — the standard filter menu); the host's `[status]` input seeds the
+ * scope baseline the cleared funnel falls back to. What remains
+ * host-projected is the organization pages' include-subgroups checkbox
+ * (worded for submitted vs approved assertions depending on which org input
+ * scoped the table — one shared flag feeds both wrappers, as it always
+ * has).
  *
  * The legacy `cvcTitleTemplate` and `variantId` inputs had no consumers and
  * are dropped.
@@ -80,7 +77,6 @@ const FILTER_PARAMS: ReadonlyArray<
     NzDropdownModule,
     NzGridModule,
     NzIconModule,
-    NzRadioModule,
     NzTableModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -97,15 +93,15 @@ const FILTER_PARAMS: ReadonlyArray<
         cvcTableCtrlButton
         [vars]="table.queryVars()"
         tableName="assertions" />
-      <!-- the status/subgroups scope menu lives beside the AID filter box,
-           in the id column's filter cell -->
+      <!-- status filters through the id column's own funnel; only the
+           org pages' subgroups choice needs a host-projected menu -->
       <ng-template cvcColumnFilterExtra="id">
-        @if (!idsScoped()) {
+        @if (organizationId() || approvingOrganizationId()) {
           <nz-filter-trigger
             data-testid="assertions-scope-trigger"
             [nzVisible]="scopeMenuVisible"
             (nzVisibleChange)="scopeMenuVisible = $event"
-            [nzActive]="scopeActive()"
+            [nzActive]="includeSubgroups()"
             [nzDropdownMenu]="scopeMenu">
             <span
               nz-icon
@@ -118,37 +114,6 @@ const FILTER_PARAMS: ReadonlyArray<
 
     <nz-dropdown-menu #scopeMenu>
       <nz-card data-testid="assertions-scope-menu">
-        <nz-row>
-          <nz-radio-group
-            [ngModel]="statusFilter()"
-            (ngModelChange)="onStatusChange($event)">
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.NonRejected"
-              >Non-Rejected</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.Accepted"
-              >Accepted</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.Submitted"
-              >Submitted</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.Rejected"
-              >Rejected</label
-            >
-            <label
-              nz-radio-button
-              [nzValue]="statusFilters.All"
-              >All</label
-            >
-          </nz-radio-group>
-        </nz-row>
         @if (organizationId()) {
           <nz-row>
             <nz-col nzSpan="2">
@@ -198,13 +163,7 @@ export class CvcAssertionsTableComponent {
    * embed passes `cvcHeight="400"`) */
   readonly cvcHeight = input<Maybe<string>>()
 
-  protected readonly statusFilters = EvidenceStatusFilter
   protected scopeMenuVisible = false
-
-  /** the scope menu's choice; reseeds when the host's `[status]` changes */
-  protected readonly statusFilter = linkedSignal<EvidenceStatusFilter>(
-    () => this.status() ?? EvidenceStatusFilter.NonRejected
-  )
 
   private readonly queryParams = toSignal(this.route.queryParamMap)
 
@@ -228,14 +187,6 @@ export class CvcAssertionsTableComponent {
     )
     return filters.length ? { filters } : undefined
   })()
-
-  protected readonly idsScoped = computed(() => (this.ids()?.length ?? 0) > 0)
-
-  protected readonly scopeActive = computed(
-    () =>
-      this.statusFilter() !== EvidenceStatusFilter.NonRejected ||
-      this.includeSubgroups()
-  )
 
   protected readonly height = computed(() => {
     const height = this.cvcHeight()
@@ -267,59 +218,35 @@ export class CvcAssertionsTableComponent {
       ids: this.ids(),
       organization: this.organization(),
       approvingOrganizations: this.approvingOrganizations(),
-      status: this.statusFilter(),
+      status: this.status() ?? EvidenceStatusFilter.NonRejected,
     })
   )
 
   /**
    * The scope menu's state, described for the table's filter popover — the
-   * table itself cannot see scope. Rows appear only when scope departs from
-   * the host page's own seed (so the pending queue's SUBMITTED baseline is
-   * not "an applied filter" there, but a user's change of it is).
+   * table itself cannot see scope. Status is a real column filter now, so
+   * only the subgroups choice remains host-held.
    */
   protected readonly scopeFilterRows = computed(() => {
-    const rows = []
-    const seeded = this.status() ?? EvidenceStatusFilter.NonRejected
-    if (this.statusFilter() !== seeded) {
-      rows.push({
-        key: 'scope:status',
-        field: 'Status',
-        comparison: 'is' as const,
-        display: formatEvidenceEnum(
-          // EvidenceStatusFilter predates the InputEnum union; same shape
-          this.statusFilter() as unknown as Parameters<
-            typeof formatEvidenceEnum
-          >[0]
-        ),
-      })
-    }
-    if (this.includeSubgroups()) {
-      rows.push({
+    if (!this.includeSubgroups()) return []
+    return [
+      {
         key: 'scope:subgroups',
         field: 'Child organizations',
         comparison: 'is' as const,
         display: 'included',
-      })
-    }
-    return rows
+      },
+    ]
   })
 
   protected onScopeFilterRemove(key: string): void {
-    if (key === 'scope:status') {
-      this.statusFilter.set(this.status() ?? EvidenceStatusFilter.NonRejected)
-    } else if (key === 'scope:subgroups') {
+    if (key === 'scope:subgroups') {
       this.includeSubgroups.set(false)
     }
   }
 
   protected onScopeFiltersCleared(): void {
-    this.statusFilter.set(this.status() ?? EvidenceStatusFilter.NonRejected)
     this.includeSubgroups.set(false)
-  }
-
-  protected onStatusChange(status: EvidenceStatusFilter): void {
-    this.statusFilter.set(status)
-    this.scopeMenuVisible = false
   }
 
   protected onSubgroupsChange(include: boolean): void {
