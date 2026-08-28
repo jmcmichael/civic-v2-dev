@@ -37,14 +37,23 @@
 
 // Each chip is a miniature of the field box it describes: the same
 // background, border and label colour the form-field wrapper paints in
-// vertical layout. No marker bar — the chip's own border carries the state,
-// and only `required` establishes a bar on a real label, so showing one on
-// some chips and not others read as inconsistent.
+// vertical layout, and the same marker bar the labels carry (drawn like
+// the label's ::before — a 1px bordered 1em bar in the label colour,
+// which is the chip's text colour).
 .legend-item {
   margin-inline-end: 0;
   font-size: 12px;
   line-height: 18px;
   cursor: help;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    height: 1em;
+    border: 1px solid currentColor;
+    margin-right: 4px;
+    vertical-align: -0.125em;
+  }
 
   &.required {
     color: @field-required-label-color;
@@ -57,6 +66,11 @@
     color: @field-default-label-color;
     background-color: @field-default-bg-color;
     border-color: @field-default-border-color;
+
+    // optional field labels carry no marker bar
+    &::before {
+      content: none;
+    }
   }
 
   &.ok {
