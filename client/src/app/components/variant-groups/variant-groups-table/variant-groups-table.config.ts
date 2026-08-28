@@ -31,7 +31,7 @@ export function variantGroupsTableConfig(
     columns: [
       {
         key: 'name',
-        label: 'Name',
+        label: 'Variant Group',
         width: '250px',
         fixed: 'left',
         cell: {
@@ -39,7 +39,7 @@ export function variantGroupsTableConfig(
           content: new PolymorpheusComponent(CvcVariantGroupNameCellComponent),
         },
         sort: { column: VariantGroupsSortColumns.Name },
-        filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
+        filter: { kind: 'text', var: 'name', placeholder: 'Filter Variant Group Names' },
       },
       {
         key: 'variantNames',

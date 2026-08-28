@@ -45,7 +45,7 @@ export function clinicalTrialsTableConfig(
       },
       {
         key: 'name',
-        label: 'Name',
+        label: 'Clinical Trial',
         width: '600px',
         cell: {
           kind: 'text',
@@ -54,7 +54,7 @@ export function clinicalTrialsTableConfig(
           tooltip: true,
         },
         sort: { column: ClinicalTrialSortColumns.Name },
-        filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
+        filter: { kind: 'text', var: 'name', placeholder: 'Filter Clinical Trial Names' },
       },
       {
         key: 'sourceCount',

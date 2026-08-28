@@ -147,7 +147,6 @@ describe('featuresTableConfig', () => {
     ).toEqual([
       ['name', 'featureName'],
       ['fullName', 'featureFullName'],
-      ['featureInstanceType', 'featureType'],
       ['featureAliases', 'featureAlias'],
       ['diseases', 'diseaseName'],
       ['therapies', 'therapyName'],
@@ -207,11 +206,10 @@ describe('featuresTableConfig', () => {
     expect(column('variantCount').sort?.default).toBe('descend')
   })
 
-  it('offers every feature type in the type filter', () => {
-    const filter = column('featureInstanceType').filter
-    expect(filter?.kind).toBe('enum')
-    if (filter?.kind !== 'enum') return
-    expect(filter.options.map((option) => option.value)).toEqual(
+  it('offers every feature type in the feature column funnel', () => {
+    const filter = column('name').extraFilter
+    expect(filter?.var).toBe('featureType')
+    expect(filter?.options.map((option) => option.value)).toEqual(
       Object.values(FeatureInstanceTypes)
     )
   })
@@ -242,12 +240,9 @@ describe('featuresTableConfig', () => {
       )
     })
 
-    it('titlecases the full name and feature type', () => {
+    it('titlecases the full name', () => {
       expect(specCell(spec, 'fullName', 'text').text(ROW)).toBe(
         'B-raf Proto-oncogene'
-      )
-      expect(specCell(spec, 'featureInstanceType', 'text').text(ROW)).toBe(
-        'Gene'
       )
     })
 

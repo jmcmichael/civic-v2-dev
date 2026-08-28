@@ -36,7 +36,7 @@ export function diseasesTableConfig(
     columns: [
       {
         key: 'name',
-        label: 'Name',
+        label: 'Disease',
         width: '200px',
         fixed: 'left',
         cell: {
@@ -53,7 +53,7 @@ export function diseasesTableConfig(
           popoverPlacement: 'right',
         },
         sort: { column: DiseasesSortColumns.Name },
-        filter: { kind: 'text', var: 'name', placeholder: 'Filter Name' },
+        filter: { kind: 'text', var: 'name', placeholder: 'Filter Disease Names' },
       },
       {
         key: 'doid',
