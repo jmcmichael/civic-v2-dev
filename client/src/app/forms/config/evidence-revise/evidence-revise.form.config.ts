@@ -34,6 +34,8 @@ const formFieldConfig: FormlyFieldConfig[] = [
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
           formCardOptions: { title: 'Revise Evidence Item' },
+          formInstructions:
+            'Update any of the fields below, then describe your changes in the comment and submit. Your suggested revision will be reviewed by CIViC editors.',
         },
         fieldGroup: [
           {
@@ -194,14 +196,14 @@ const formFieldConfig: FormlyFieldConfig[] = [
           {
             type: 'cvc-cancel-button',
             wrappers: ['col'],
-            props: { col: { span: 12 } },
+            props: { col: { flex: 'none' } },
           },
           <CvcOrgSubmitButtonFieldConfig>{
             key: 'organizationId',
             type: 'org-submit-button',
             wrappers: ['col'],
             props: {
-              col: { span: 12 },
+              col: { flex: 'auto' },
               submitLabel: 'Submit Evidence Item Revisions',
               align: 'right',
             },

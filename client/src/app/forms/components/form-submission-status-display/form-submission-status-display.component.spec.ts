@@ -1,14 +1,24 @@
 import { Component, signal } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
+import {
+  ReactiveFormsModule,
+  UntypedFormControl,
+  UntypedFormGroup,
+} from '@angular/forms'
+import { By } from '@angular/platform-browser'
 import { Router } from '@angular/router'
-import { FormMutationState } from '@app/forms/utilities/form-mutation'
+import {
+  FormMutationState,
+  FormSubmissionError,
+} from '@app/forms/utilities/form-mutation'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { CvcFormSubmissionStatusDisplayComponent } from './form-submission-status-display.component'
 import { CvcFormSubmissionStatusDisplayModule } from './form-submission-status-display.module'
 
 function makeState() {
   const isSubmitting = signal(false)
   const success = signal(false)
-  const errors = signal<string[]>([])
+  const errors = signal<FormSubmissionError[]>([])
   const state: FormMutationState = { isSubmitting, success, errors }
   return { state, isSubmitting, success, errors }
 }
@@ -19,14 +29,17 @@ function makeState() {
       [mutationState]="state"
       entityType="Evidence Item"
       [redirectUrl]="redirectUrl">
-      <span class="projected">form body</span>
+      <form [formGroup]="fg">
+        <span class="projected">form body</span>
+      </form>
     </cvc-form-submission-status-display>
   `,
-  imports: [CvcFormSubmissionStatusDisplayModule],
+  imports: [CvcFormSubmissionStatusDisplayModule, ReactiveFormsModule],
 })
 class HostComponent {
   state?: FormMutationState
   redirectUrl?: string
+  fg = new UntypedFormGroup({ a: new UntypedFormControl('') })
 }
 
 describe('CvcFormSubmissionStatusDisplayComponent', () => {
@@ -57,17 +70,20 @@ describe('CvcFormSubmissionStatusDisplayComponent', () => {
     expect(el.querySelector('nz-alert')).toBeFalsy()
   })
 
-  it('lists submit errors', () => {
+  it('keeps projecting the form on errors — the error tag displays them', () => {
     const { state, errors } = makeState()
     host.state = state
     fixture.detectChanges()
-    errors.set(['name is invalid', 'id is taken'])
-    fixture.detectChanges()
-    const items = fixture.nativeElement.querySelectorAll('li')
-    expect(Array.from(items).map((li: any) => li.textContent.trim())).toEqual([
-      'name is invalid',
-      'id is taken',
+    errors.set([
+      {
+        category: 'graphql',
+        message: 'name is invalid',
+      },
     ])
+    fixture.detectChanges()
+    const el: HTMLElement = fixture.nativeElement
+    expect(el.querySelector('.projected')).toBeTruthy()
+    expect(el.querySelector('nz-alert')).toBeFalsy()
   })
 
   it('swaps the form for the success alert', () => {
@@ -79,6 +95,21 @@ describe('CvcFormSubmissionStatusDisplayComponent', () => {
     const el: HTMLElement = fixture.nativeElement
     expect(el.textContent).toContain('Evidence Item Submitted')
     expect(el.querySelector('.projected')).toBeFalsy()
+  })
+
+  it('a fresh submit state re-arms dismissed indicators', () => {
+    const { state, errors } = makeState()
+    host.state = state
+    fixture.detectChanges()
+    errors.set([{ category: 'graphql', message: 'rejected' }])
+    fixture.detectChanges()
+    const display = fixture.debugElement.query(
+      By.directive(CvcFormSubmissionStatusDisplayComponent)
+    ).componentInstance as CvcFormSubmissionStatusDisplayComponent
+    display.dismissed.set(true)
+    display.mutationState = makeState().state
+    fixture.detectChanges()
+    expect(display.dismissed()).toBe(false)
   })
 
   it('redirects 2.5s after success when a redirectUrl is set', () => {

@@ -20,7 +20,20 @@ import { Maybe } from '@app/generated/civic.apollo.types'
 export class CvcFormSubmissionStatusDisplayComponent {
   private router = inject(Router)
 
-  protected readonly state = signal<Maybe<FormMutationState>>(undefined)
+  /**
+   * Public so descendants can read submit state where it is displayed:
+   * cvc-form-error-tag and the form-card wrapper inject this ancestor from
+   * the card header and the footer button bar.
+   */
+  readonly state = signal<Maybe<FormMutationState>>(undefined)
+
+  /**
+   * True once the projected form is edited while a submit failure stands;
+   * the error indicators hide until the next submit. The form-card wrapper
+   * sets it — formly hands the wrapper the form this component cannot see.
+   */
+  readonly dismissed = signal(false)
+
   private currentTimer?: ReturnType<typeof setTimeout>
 
   @Input() set mutationState(value: Maybe<FormMutationState>) {
@@ -57,6 +70,11 @@ export class CvcFormSubmissionStatusDisplayComponent {
           this.router.navigateByUrl(url)
         }, 2500)
       }
+    })
+    // a new submit state or a fresh error list re-arms the indicators
+    effect(() => {
+      this.state()?.errors()
+      this.dismissed.set(false)
     })
   }
 }

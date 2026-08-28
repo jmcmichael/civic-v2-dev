@@ -46,7 +46,7 @@ export class ComplexMolecularProfileDeprecateForm implements OnDestroy, OnInit {
   success: boolean = false
 
   get errorMessages(): string[] {
-    return this.mutationState?.errors() ?? []
+    return (this.mutationState?.errors() ?? []).map((e) => e.message)
   }
   get mutationLoading(): boolean {
     return this.mutationState?.isSubmitting() ?? false

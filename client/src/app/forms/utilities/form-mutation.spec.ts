@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing'
 import { CombinedGraphQLErrors } from '@apollo/client/errors'
-import { NetworkErrorsService } from '@app/core/services/network-errors.service'
 import { Subject } from 'rxjs'
 import { describe, expect, it, vi } from 'vitest'
 import { FormMutationService } from './form-mutation'
@@ -8,14 +7,11 @@ import { FormMutationService } from './form-mutation'
 type FakeResult = { data?: Record<string, unknown> }
 
 function setup() {
-  const networkError$ = { next: vi.fn() }
-  TestBed.configureTestingModule({
-    providers: [{ provide: NetworkErrorsService, useValue: { networkError$ } }],
-  })
+  TestBed.configureTestingModule({})
   const service = TestBed.inject(FormMutationService)
   const result$ = new Subject<FakeResult>()
   const gql = { mutate: vi.fn(() => result$.asObservable()) }
-  return { service, gql, result$, networkError$ }
+  return { service, gql, result$ }
 }
 
 describe('FormMutationService', () => {
@@ -50,28 +46,71 @@ describe('FormMutationService', () => {
     })
   })
 
-  it('surfaces GraphQL errors as messages without touching the banner', () => {
-    const { service, gql, result$, networkError$ } = setup()
+  it('categorizes GraphQL errors with code and path details', () => {
+    const { service, gql, result$ } = setup()
     const state = service.mutate(gql as any, { input: {} })
     result$.error(
       new CombinedGraphQLErrors({
-        errors: [{ message: 'name is invalid' }, { message: 'id is taken' }],
+        errors: [
+          {
+            message: 'name is invalid',
+            extensions: { code: 'VALIDATION_FAILED' },
+            path: ['addThing', 'name'],
+          },
+          { message: 'id is taken' },
+        ],
       })
     )
-    expect(state.errors()).toEqual(['name is invalid', 'id is taken'])
+    expect(state.errors()).toEqual([
+      {
+        category: 'graphql',
+        code: 'VALIDATION_FAILED',
+        message: 'name is invalid',
+        details: ['path: addThing.name'],
+      },
+      {
+        category: 'graphql',
+        code: undefined,
+        message: 'id is taken',
+        details: undefined,
+      },
+    ])
     expect(state.success()).toBe(false)
     expect(state.isSubmitting()).toBe(false)
-    expect(networkError$.next).not.toHaveBeenCalled()
   })
 
-  it('invokes the error callback for GraphQL errors only', () => {
+  it('categorizes a failed fetch as a network error', () => {
+    const { service, gql, result$ } = setup()
+    const state = service.mutate(gql as any, { input: {} })
+    result$.error(new TypeError('Failed to fetch'))
+    expect(state.errors()).toEqual([
+      {
+        category: 'network',
+        code: 'TypeError',
+        message: 'Failed to fetch',
+      },
+    ])
+  })
+
+  it('categorizes other exceptions as browser errors', () => {
+    const { service, gql, result$ } = setup()
+    const state = service.mutate(gql as any, { input: {} })
+    result$.error(new Error('boom'))
+    expect(state.errors()).toEqual([
+      { category: 'browser', code: 'Error', message: 'boom' },
+    ])
+  })
+
+  it('invokes the error callback with every failure category', () => {
     const { service, gql, result$ } = setup()
     const onError = vi.fn()
     service.mutate(gql as any, { input: {} }, undefined, undefined, onError)
     result$.error(
       new CombinedGraphQLErrors({ errors: [{ message: 'rejected' }] })
     )
-    expect(onError).toHaveBeenCalledWith(['rejected'])
+    expect(onError).toHaveBeenCalledWith([
+      expect.objectContaining({ category: 'graphql', message: 'rejected' }),
+    ])
 
     const transport$ = new Subject<FakeResult>()
     const transportGql = { mutate: vi.fn(() => transport$.asObservable()) }
@@ -83,27 +122,9 @@ describe('FormMutationService', () => {
       undefined,
       onTransportError
     )
-    transport$.error(new Error('socket hangup'))
-    expect(onTransportError).not.toHaveBeenCalled()
-  })
-
-  it('routes transport failures to the network error banner', () => {
-    const { service, gql, result$, networkError$ } = setup()
-    const state = service.mutate(gql as any, { input: {} })
-    result$.error(new Error('socket hangup'))
-    expect(state.errors()).toEqual([])
-    expect(networkError$.next).toHaveBeenCalledTimes(1)
-    expect(networkError$.next).not.toHaveBeenCalledWith(undefined)
-  })
-
-  it('never clears the banner on success', () => {
-    // the core MutatorWithState pushed undefined into networkError$ on every
-    // successful mutation, dismissing unrelated app-wide errors; the forms
-    // version must not
-    const { service, gql, result$, networkError$ } = setup()
-    service.mutate(gql as any, { input: {} })
-    result$.next({ data: {} })
-    result$.complete()
-    expect(networkError$.next).not.toHaveBeenCalled()
+    transport$.error(new TypeError('Failed to fetch'))
+    expect(onTransportError).toHaveBeenCalledWith([
+      expect.objectContaining({ category: 'network' }),
+    ])
   })
 })

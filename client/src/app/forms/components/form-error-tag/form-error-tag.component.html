@@ -1,0 +1,49 @@
+@if (primary()) {
+  @if (variant() === 'alert') {
+    <nz-alert
+      class="form-error-alert"
+      nzType="error"
+      nzShowIcon
+      [nzMessage]="label()"
+      nz-popover
+      nzPopoverTrigger="click"
+      nzPopoverPlacement="topRight"
+      nzPopoverTitle="Submission Errors"
+      [nzPopoverContent]="errorList"
+      nzPopoverOverlayClassName="form-error-popover"></nz-alert>
+  } @else {
+    <nz-tag
+      class="form-error-tag"
+      nz-popover
+      nzPopoverTrigger="click"
+      nzPopoverPlacement="bottomRight"
+      nzPopoverTitle="Submission Errors"
+      [nzPopoverContent]="errorList"
+      nzPopoverOverlayClassName="form-error-popover">
+      <span
+        nz-icon
+        nzType="close-circle"
+        nzTheme="fill"></span>
+      <span class="tag-label">{{ label() }}</span>
+    </nz-tag>
+  }
+
+  <ng-template #errorList>
+    <ul class="error-list">
+      @for (err of errors(); track $index) {
+        <li>
+          <div class="error-head">
+            <span class="error-category">{{ err.category }}</span>
+            @if (err.code) {
+              <code>{{ err.code }}</code>
+            }
+          </div>
+          <div class="error-message">{{ err.message }}</div>
+          @for (detail of err.details; track $index) {
+            <div class="error-detail">{{ detail }}</div>
+          }
+        </li>
+      }
+    </ul>
+  </ng-template>
+}

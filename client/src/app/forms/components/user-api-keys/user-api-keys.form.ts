@@ -80,7 +80,7 @@ export class CvcUserApiKeysForm implements OnDestroy {
     return this.success ? this.pendingMessage : ''
   }
   get errorMessages(): string[] {
-    return this.mutationState?.errors() ?? []
+    return (this.mutationState?.errors() ?? []).map((e) => e.message)
   }
   get loading(): boolean {
     return this.mutationState?.isSubmitting() ?? false

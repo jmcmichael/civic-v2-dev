@@ -1,0 +1,77 @@
+@import 'themes/field-states.less';
+
+:host {
+  display: inline-block;
+  max-width: 100%;
+  min-width: 0;
+}
+
+// painted with the same variables as the form-field error state and the
+// legend's Error chip, so every error indicator in a form matches
+.form-error-tag {
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  margin-inline-end: 0;
+  cursor: pointer;
+  color: @field-error-label-color;
+  background-color: @field-error-bg-color;
+  border-color: @field-error-border-color;
+
+  // in a tight flex row (the footer button bar) the label gives way first
+  .tag-label {
+    margin-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// the footer variant: a one-line alert sized to sit beside the submit button
+.form-error-alert {
+  max-width: 100%;
+  cursor: pointer;
+
+  ::ng-deep .ant-alert {
+    padding-block: 4px;
+  }
+
+  ::ng-deep .ant-alert-message {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// popover content is appended to the overlay container, outside :host
+::ng-deep .form-error-popover {
+  max-width: 420px;
+
+  .error-list {
+    margin: 0;
+    padding-left: 16px;
+
+    li + li {
+      margin-top: 8px;
+    }
+  }
+
+  .error-head {
+    font-weight: 600;
+
+    .error-category {
+      text-transform: capitalize;
+    }
+
+    code {
+      margin-left: 6px;
+      font-size: 12px;
+    }
+  }
+
+  .error-detail {
+    font-size: 12px;
+    opacity: 0.75;
+  }
+}

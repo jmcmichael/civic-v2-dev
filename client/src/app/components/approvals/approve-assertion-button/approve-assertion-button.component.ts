@@ -15,6 +15,7 @@ import { Viewer, ViewerService } from '@app/core/services/viewer/viewer.service'
 import {
   FormMutationService,
   FormMutationState,
+  FormSubmissionError,
 } from '@app/forms/utilities/form-mutation'
 import { ApprovalListGQL } from '@app/components/approvals/approval-list/approval-list.query.gql.generated'
 import {
@@ -185,11 +186,11 @@ export class CvcApproveAssertionButtonComponent {
       })
       this.modal.closeAll()
     }
-    const onError = (errs: string[]) => {
+    const onError = (errs: FormSubmissionError[]) => {
       this.onApproved.emit({
         action: this.mode(),
         success: false,
-        errors: errs,
+        errors: errs.map((e) => e.message),
       })
       this.modal.closeAll()
     }

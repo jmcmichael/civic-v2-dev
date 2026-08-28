@@ -1,12 +1,23 @@
 .btn-aligner {
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  // the indicator fills the space the button leaves, ellipsizing when tight
+  cvc-form-error-tag {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  button {
+    flex: 0 0 auto;
+  }
   &.btn-right {
-    text-align: right;
+    justify-content: flex-end;
   }
   &.btn-left {
-    text-align: left;
+    justify-content: flex-start;
   }
   &.btn-center {
-    text-align: center;
+    justify-content: center;
   }
 }

@@ -40,7 +40,7 @@ export class CvcFlagAddForm implements OnInit {
   success: boolean = false
 
   get errorMessages(): string[] {
-    return this.mutationState?.errors() ?? []
+    return (this.mutationState?.errors() ?? []).map((e) => e.message)
   }
   get loading(): boolean {
     return this.mutationState?.isSubmitting() ?? false
