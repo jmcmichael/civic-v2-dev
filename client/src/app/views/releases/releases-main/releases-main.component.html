@@ -24,7 +24,6 @@
         <p
           nz-typography
           nzEllipsis
-          nzExpandable
           [nzEllipsisRows]="2">
           The CIViC server produces nightly and monthly releases that include a
           subset of all primary entity records.
@@ -160,13 +159,20 @@
                         Molecular Profiles TSV
                       </cvc-link-tag>
                     </td>
-                    <td *ngIf="release.acceptedEvidenceTsv || release.acceptedAndSubmittedEvidenceTsv; else noData">
-                      <cvc-link-tag *ngIf="release.acceptedEvidenceTsv"
+                    <td
+                      *ngIf="
+                        release.acceptedEvidenceTsv ||
+                          release.acceptedAndSubmittedEvidenceTsv;
+                        else noData
+                      ">
+                      <cvc-link-tag
+                        *ngIf="release.acceptedEvidenceTsv"
                         [href]="release.acceptedEvidenceTsv.path"
                         iconName="download">
                         Accepted EID TSV
                       </cvc-link-tag>
-                      <cvc-link-tag *ngIf="release.acceptedAndSubmittedEvidenceTsv"
+                      <cvc-link-tag
+                        *ngIf="release.acceptedAndSubmittedEvidenceTsv"
                         [href]="release.acceptedAndSubmittedEvidenceTsv.path"
                         iconName="download">
                         Accepted & Submitted EID TSV
@@ -179,18 +185,26 @@
                         Variant Groups TSV
                       </cvc-link-tag>
                     </td>
-                    <td *ngIf="release.acceptedAssertionTsv || release.acceptedAndSubmittedAssertionTsv; else noData">
-                      <cvc-link-tag *ngIf="release.acceptedAssertionTsv"
+                    <td
+                      *ngIf="
+                        release.acceptedAssertionTsv ||
+                          release.acceptedAndSubmittedAssertionTsv;
+                        else noData
+                      ">
+                      <cvc-link-tag
+                        *ngIf="release.acceptedAssertionTsv"
                         [href]="release.acceptedAssertionTsv.path"
                         iconName="download">
                         Accepted AID TSV
                       </cvc-link-tag>
-                      <cvc-link-tag *ngIf="release.acceptedAndSubmittedAssertionTsv"
+                      <cvc-link-tag
+                        *ngIf="release.acceptedAndSubmittedAssertionTsv"
                         [href]="release.acceptedAndSubmittedAssertionTsv.path"
                         iconName="download">
                         Accepted & Submitted AID TSV
                       </cvc-link-tag>
                     </td>
+                  </tr>
                 </tbody>
               </nz-table>
             </nz-card>
