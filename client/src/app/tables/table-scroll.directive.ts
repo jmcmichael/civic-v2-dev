@@ -12,7 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { CvcPageInfo } from './connection.types'
 import { NzTableComponent } from 'ng-zorro-antd/table'
-import { asyncScheduler } from 'rxjs'
+import { Subject, asyncScheduler } from 'rxjs'
 import {
   debounceTime,
   filter,
@@ -112,6 +112,16 @@ export class CvcTableScrollObserverDirective {
     return this.host.cdkVirtualScrollViewport
   }
 
+  /**
+   * Fires whenever the fill state may have changed without a scroll: the
+   * viewport was (re)measured, or a page of rows landed. Scrolling can never
+   * fetch on a tall viewport whose content is shorter than itself — there is
+   * nothing to scroll — so these probes carry the fill-to-viewport loop:
+   * fetch, rows land, probe, still short, fetch again, until the content
+   * outgrows the viewport or the connection runs out.
+   */
+  private readonly probe$ = new Subject<void>()
+
   private connect(viewport: CdkVirtualScrollViewport): void {
     this.keepViewportMeasured(viewport)
 
@@ -146,6 +156,26 @@ export class CvcTableScrollObserverDirective {
         this.scrollPhase.emit('bottom')
         this.requestFetch()
       })
+
+    // the underfill loop: no scroll phase is emitted — nothing is scrolling
+    // — and the trailing throttle re-checks a probe that arrived while one
+    // was in flight, so the loop cannot stall between pages
+    this.probe$
+      .pipe(
+        filter(() => viewport.getViewportSize() > 0),
+        map(() => viewport.measureScrollOffset('bottom')),
+        filter((offset) => offset < this.targetHeight()),
+        throttleTime(LOAD_THROTTLE_MS, asyncScheduler, {
+          leading: true,
+          trailing: true,
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.requestFetch())
+
+    viewport.renderedRangeStream
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.probe$.next())
   }
 
   /**
@@ -175,6 +205,8 @@ export class CvcTableScrollObserverDirective {
       requestAnimationFrame(() => {
         scheduled = false
         viewport.checkViewportSize()
+        // a grown viewport may now be underfilled
+        this.probe$.next()
       })
     }
 
