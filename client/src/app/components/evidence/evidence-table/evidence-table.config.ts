@@ -148,7 +148,7 @@ export function evidenceTableConfig(
         cell: {
           kind: 'entity-tag',
           ref: (row) => row.molecularProfile,
-          truncateLabel: '200px',
+          truncateLabel: '250px',
         },
         sort: { column: EvidenceSortColumns.MolecularProfileName },
         filter: {
@@ -160,11 +160,11 @@ export function evidenceTableConfig(
       {
         key: 'disease',
         label: 'Disease',
-        width: '250px',
+        width: '300px',
         cell: {
           kind: 'entity-tag',
           ref: (row) => row.disease,
-          truncateLabel: '200px',
+          truncateLabel: '250px',
         },
         sort: { column: EvidenceSortColumns.DiseaseName },
         filter: {
@@ -176,7 +176,7 @@ export function evidenceTableConfig(
       {
         key: 'therapies',
         label: 'Therapies',
-        width: '400px',
+        width: '350px',
         cell: {
           kind: 'entity-tag',
           ref: (row) => row.therapies,
