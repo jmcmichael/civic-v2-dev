@@ -5,6 +5,7 @@ import {
   OnInit,
   Signal,
   Type,
+  computed,
   inject,
 } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
@@ -16,6 +17,7 @@ import { FieldType, FieldTypeConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { auditTime, EMPTY, filter, map, merge, Observable } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
+import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 import {
   collectFieldIssues,
@@ -46,6 +48,17 @@ export class CvcOrgSubmitButtonComponent
   implements OnInit
 {
   private injector = inject(Injector)
+  private statusDisplay = inject(CvcFormSubmissionStatusDisplayComponent, {
+    optional: true,
+  })
+
+  // an outstanding submit failure paints the button danger until the next
+  // edit dismisses it (mirroring the footer alert's visibility)
+  readonly submitError = computed(() => {
+    const display = this.statusDisplay
+    if (!display || display.dismissed()) return false
+    return (display.state()?.errors().length ?? 0) > 0
+  })
 
   readonly mostRecentOrg: Signal<Maybe<ViewerOrganizationFragment>>
   formValid!: Signal<boolean>
