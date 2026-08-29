@@ -50,9 +50,25 @@
     .cvc-descriptions-item-label();
   }
 
-  .ant-descriptions-view table {
-    width: 100%;
-    table-layout: fixed;
+  // the popover frame supplies the outer border and radius: the table runs
+  // edge to edge in a content area whose padding is zeroed
+  .ant-descriptions-view {
+    border: 0;
+    border-radius: 0;
+
+    table {
+      width: 100%;
+      table-layout: fixed;
+    }
+  }
+}
+
+// a popover whose entire content is one of these tables
+.popover-descriptions-frame() {
+  .ant-popover-inner-content {
+    padding: 0;
+    max-height: 60vh;
+    overflow: auto;
   }
 }
 
@@ -86,22 +102,11 @@
     }
   }
 
-  .ant-popover-inner-content {
-    padding: 0;
-    max-height: 60vh;
-    overflow: auto;
-  }
+  .popover-descriptions-frame();
 
   .model-summary {
     width: 720px;
     .popover-descriptions();
-
-    // the popover frame provides the outer border and radius: this table
-    // runs edge to edge in a content area whose padding is zeroed above
-    .ant-descriptions-view {
-      border: 0;
-      border-radius: 0;
-    }
   }
 
   .ant-descriptions-item-content .value-cell {
@@ -201,10 +206,15 @@
     max-height: 60vh;
     overflow: auto;
   }
+}
 
-  // narrower than the preview: a field name and what it still needs. The
-  // content area keeps its padding here — the error list shares this
-  // popover — so the table keeps its own border
+// the blocking-issues report: its own overlay rather than the error
+// popover's, whose padding the error list still needs
+::ng-deep .form-issues-popover {
+  max-width: 560px;
+  .popover-descriptions-frame();
+
+  // narrower than the preview: a field name and what it still needs
   .issue-summary {
     width: 440px;
     max-width: 100%;

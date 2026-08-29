@@ -224,7 +224,7 @@ describe('CvcFormErrorAlertComponent', () => {
     fixture.detectChanges()
     // popover content mounts into the overlay container, outside the host
     const rows = document.querySelectorAll(
-      '.form-error-popover .issue-summary .ant-descriptions-row'
+      '.form-issues-popover .issue-summary .ant-descriptions-row'
     )
     expect(rows.length).toBe(2)
     expect(rows[0].textContent).toContain('Source')
