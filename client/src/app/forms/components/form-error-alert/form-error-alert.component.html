@@ -316,13 +316,19 @@
   }
 </ng-template>
 
+<!-- the same one-row-per-field report as the submission preview, so the
+     two popovers read as one family: the field names, and what each still
+     needs -->
 <ng-template #issueList>
-  <ul class="issue-list">
+  <nz-descriptions
+    class="issue-summary"
+    nzSize="small"
+    nzBordered
+    [nzColumn]="1">
     @for (issue of readiness()?.issues; track $index) {
-      <li>
-        <span class="issue-label">{{ issue.label }}</span>
-        <span class="issue-reason">{{ issue.reason }}</span>
-      </li>
+      <nz-descriptions-item [nzTitle]="issue.label">
+        {{ issue.reason }}
+      </nz-descriptions-item>
     }
-  </ul>
+  </nz-descriptions>
 </ng-template>

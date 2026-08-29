@@ -41,6 +41,21 @@
   }
 }
 
+// both popovers report one bordered row per field; the label column stays
+// narrow and takes the shared descriptions treatment, which cannot reach
+// the overlay through :host
+.popover-descriptions() {
+  .ant-descriptions-item-label {
+    width: 150px;
+    .cvc-descriptions-item-label();
+  }
+
+  .ant-descriptions-view table {
+    width: 100%;
+    table-layout: fixed;
+  }
+}
+
 // the submission preview: descriptions fill the popover content area
 // edge to edge; long values clip on one line
 ::ng-deep .form-preview-popover {
@@ -77,28 +92,15 @@
     overflow: auto;
   }
 
-  // the popover frame provides the outer border and radius; fixed layout
-  // at full width keeps the clipped cells from collapsing the table
   .model-summary {
     width: 720px;
+    .popover-descriptions();
 
-    // one line per field: the label column stays narrow. The shared
-    // descriptions-overrides (imported above) cannot reach this overlay —
-    // its rules hang off :host — so its label treatment repeats here
-    .ant-descriptions-item-label {
-      width: 150px;
-      font-weight: 550;
-      text-align: right;
-    }
-
+    // the popover frame provides the outer border and radius: this table
+    // runs edge to edge in a content area whose padding is zeroed above
     .ant-descriptions-view {
       border: 0;
       border-radius: 0;
-
-      table {
-        width: 100%;
-        table-layout: fixed;
-      }
     }
   }
 
@@ -200,23 +202,12 @@
     overflow: auto;
   }
 
-  .issue-list {
-    margin: 0;
-    padding-left: 16px;
-
-    li {
-      display: flex;
-      gap: 8px;
-      align-items: baseline;
-
-      .issue-label {
-        font-weight: 600;
-      }
-
-      .issue-reason {
-        font-size: 12px;
-        opacity: 0.75;
-      }
-    }
+  // narrower than the preview: a field name and what it still needs. The
+  // content area keeps its padding here — the error list shares this
+  // popover — so the table keeps its own border
+  .issue-summary {
+    width: 440px;
+    max-width: 100%;
+    .popover-descriptions();
   }
 }

@@ -1,5 +1,16 @@
 @import 'themes/global-variables.less';
 
+@descriptions-label-weight: 550;
+
+// The label treatment, as a mixin. Descriptions rendered into the overlay
+// container — popover and modal content — sit outside the host element, so
+// the `:host ::ng-deep` rules below cannot reach them; those stylesheets
+// call this rather than restating it.
+.cvc-descriptions-item-label() {
+  font-weight: @descriptions-label-weight;
+  text-align: right;
+}
+
 :host ::ng-deep nz-descriptions {
   // for horizontal layouts, right-align labels
   &[nzLayout='horizontal'] {
@@ -10,7 +21,7 @@
 
   // slightly embolden description key values
   .ant-descriptions-item-label {
-    font-weight: 550;
+    font-weight: @descriptions-label-weight;
   }
 
   // reduce title margins, add padding to align with key values

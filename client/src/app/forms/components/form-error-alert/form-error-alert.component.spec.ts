@@ -208,6 +208,29 @@ describe('CvcFormErrorAlertComponent', () => {
     )
   })
 
+  it('reports each blocking field as its own row in the popover', async () => {
+    fixture.componentInstance.variant = 'alert'
+    fixture.componentInstance.readiness = {
+      valid: false,
+      issues: [
+        { label: 'Source', reason: 'required value is missing' },
+        { label: 'Evidence Level', reason: 'required value is missing' },
+      ],
+    }
+    fixture.detectChanges()
+    fixture.nativeElement.querySelector('nz-alert').click()
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    // popover content mounts into the overlay container, outside the host
+    const rows = document.querySelectorAll(
+      '.form-error-popover .issue-summary .ant-descriptions-row'
+    )
+    expect(rows.length).toBe(2)
+    expect(rows[0].textContent).toContain('Source')
+    expect(rows[0].textContent).toContain('required value is missing')
+  })
+
   it('shows a single blocking issue directly in the alert', () => {
     fixture.componentInstance.variant = 'alert'
     fixture.componentInstance.readiness = {
