@@ -1,3 +1,4 @@
+import { EnumToTitlePipe } from '@app/core/pipes/enum-to-title-pipe'
 import { evidenceEnumDisplay } from '@app/core/pipes/evidence-enum-display-type'
 import {
   EvidenceDirection,
@@ -20,6 +21,8 @@ import {
 } from '@app/tables'
 import { EvidenceBrowseGQL } from './evidence-table.query.gql.generated'
 
+const enumToTitle = new EnumToTitlePipe()
+
 /** an EID typed with or without its prefix; anything else matches nothing */
 const EID_PATTERN = /^(?:EID)?(\d+)$/i
 
@@ -33,15 +36,19 @@ const RATING_OPTIONS = [1, 2, 3, 4, 5].map((stars) => ({
  * The status funnel's choices, hand-ordered from the baseline outward (the
  * generated enum would alphabetize). Shared with the assertions table, whose
  * status filter is this same enum.
+ *
+ * Labelled through `enumToTitle` rather than by hand: `enumFilterOptions()`
+ * cannot label this one — `EvidenceStatusFilter` is a browse-input enum, not
+ * one of the domain enums `formatEvidenceEnum` closes over.
  */
 export const EVIDENCE_STATUS_FILTER_OPTIONS: CvcEnumOption<EvidenceStatusFilter>[] =
   [
-    { label: 'Non-Rejected', value: EvidenceStatusFilter.NonRejected },
-    { label: 'Accepted', value: EvidenceStatusFilter.Accepted },
-    { label: 'Submitted', value: EvidenceStatusFilter.Submitted },
-    { label: 'Rejected', value: EvidenceStatusFilter.Rejected },
-    { label: 'All', value: EvidenceStatusFilter.All },
-  ]
+    EvidenceStatusFilter.NonRejected,
+    EvidenceStatusFilter.Accepted,
+    EvidenceStatusFilter.Submitted,
+    EvidenceStatusFilter.Rejected,
+    EvidenceStatusFilter.All,
+  ].map((value) => ({ label: enumToTitle.transform(value), value }))
 
 /**
  * The query variables a host page scopes the table with. Every embed passes

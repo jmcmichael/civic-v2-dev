@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { CvcCommentBodyModule } from '@app/components/comments/comment-body/comment-body.module'
+import { formatSourceSuggestionStatusEnum } from '@app/core/utilities/enum-formatters/format-source-suggestion-status-enum'
 import { SourceSuggestionStatus } from '@app/generated/civic.apollo.types'
 import { CvcCellContext } from '@app/tables'
 import { injectContext } from '@taiga-ui/polymorpheus'
@@ -12,12 +13,6 @@ const STATUS_COLORS: Record<SourceSuggestionStatus, string> = {
   [SourceSuggestionStatus.Curated]: 'green',
   [SourceSuggestionStatus.New]: 'orange',
   [SourceSuggestionStatus.Rejected]: 'volcano',
-}
-
-const STATUS_LABELS: Record<SourceSuggestionStatus, string> = {
-  [SourceSuggestionStatus.Curated]: 'Curated',
-  [SourceSuggestionStatus.New]: 'New',
-  [SourceSuggestionStatus.Rejected]: 'Rejected',
 }
 
 /**
@@ -46,7 +41,7 @@ const STATUS_LABELS: Record<SourceSuggestionStatus, string> = {
           <cvc-comment-body [commentBodySegments]="note" />
         </ng-template>
       }
-      {{ labels[ctx.row.status] }}
+      {{ label(ctx.row.status) }}
     </nz-tag>
   `,
 })
@@ -55,7 +50,7 @@ export class CvcSourceSuggestionStatusCellComponent {
     injectContext<CvcCellContext<BrowseSourceSuggestionRowFieldsFragment>>()
 
   protected readonly colors = STATUS_COLORS
-  protected readonly labels = STATUS_LABELS
+  protected readonly label = formatSourceSuggestionStatusEnum
 
   protected get note() {
     return this.ctx.row.lastStatusUpdateActivity?.parsedNote ?? []
