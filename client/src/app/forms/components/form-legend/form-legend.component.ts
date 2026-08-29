@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
+import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
@@ -9,6 +10,12 @@ interface CvcFieldLegendItem {
   readonly state: 'required' | 'optional' | 'ok' | 'error'
   readonly label: string
   readonly hint: string
+  /**
+   * The ant glyph for states that have one. The two resting states draw a
+   * bare circle in CSS instead — ant has no such glyph — filled for
+   * `required`, open for `optional`, exactly as the field labels do.
+   */
+  readonly icon?: 'check-circle' | 'exclamation-circle'
 }
 
 /**
@@ -26,7 +33,7 @@ interface CvcFieldLegendItem {
   selector: 'cvc-form-legend',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NzTagModule, NzTooltipModule, NzTypographyModule],
+  imports: [NzIconModule, NzTagModule, NzTooltipModule, NzTypographyModule],
   templateUrl: './form-legend.component.html',
   styleUrl: './form-legend.component.less',
 })
@@ -41,11 +48,13 @@ export class CvcFormLegendComponent {
         state: 'ok',
         label: 'OK',
         hint: 'Filled in and accepted',
+        icon: 'check-circle',
       },
       {
         state: 'error',
         label: 'Error',
         hint: 'Required and empty, or filled in incorrectly',
+        icon: 'exclamation-circle',
       },
     ],
     [

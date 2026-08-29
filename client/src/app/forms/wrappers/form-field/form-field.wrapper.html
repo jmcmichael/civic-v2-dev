@@ -12,13 +12,49 @@
       [ngClass]="{ disabled: props.disabled, error: showError }"
       [nzRequired]="props.required"
       [nzFor]="id"
-      [nzTooltipTitle]="props.tooltip"
       [nzNoColon]="true">
+      @switch (markerState) {
+        @case ('valid') {
+          <span
+            class="field-marker"
+            nz-icon
+            nzType="check-circle"
+            nzTheme="outline"></span>
+        }
+        @case ('error') {
+          <span
+            class="field-marker"
+            nz-icon
+            nzType="exclamation-circle"
+            nzTheme="outline"></span>
+        }
+        @case ('required') {
+          <span class="field-marker marker-circle filled"></span>
+        }
+        @case ('optional') {
+          <span class="field-marker marker-circle"></span>
+        }
+      }
       <span
         class="label"
         nz-typography
         nzEllipsis
         [nzContent]="props.label"></span>
+      <!--
+        Our own help icon rather than nz-form-label's `nzTooltipTitle`: that
+        one hardcodes the tooltip to `top`, which drops the overlay onto the
+        label it is explaining. This one we can place.
+      -->
+      @if (props.tooltip) {
+        <span
+          class="field-help"
+          nz-icon
+          nzType="question-circle"
+          nzTheme="outline"
+          nz-tooltip
+          nzTooltipPlacement="right"
+          [nzTooltipTitle]="props.tooltip"></span>
+      }
     </nz-form-label>
   }
   <nz-form-control

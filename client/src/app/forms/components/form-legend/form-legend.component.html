@@ -13,9 +13,20 @@
         <nz-tag
           [class]="'legend-item ' + item.state"
           nz-tooltip
-          [nzTooltipTitle]="item.hint"
-          >{{ item.label }}</nz-tag
-        >
+          [nzTooltipTitle]="item.hint">
+          @if (item.icon) {
+            <span
+              class="legend-marker"
+              nz-icon
+              [nzType]="item.icon"
+              nzTheme="outline"></span>
+          } @else if (item.state === 'required') {
+            <span class="legend-marker marker-circle filled"></span>
+          } @else {
+            <span class="legend-marker marker-circle"></span>
+          }
+          {{ item.label }}
+        </nz-tag>
       }
     </div>
   }

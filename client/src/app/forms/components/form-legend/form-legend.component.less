@@ -37,22 +37,34 @@
 
 // Each chip is a miniature of the field box it describes: the same
 // background, border and label colour the form-field wrapper paints in
-// vertical layout, and the same marker bar the labels carry (drawn like
-// the label's ::before — a 1px bordered 1em bar in the label colour,
-// which is the chip's text colour).
+// vertical layout, and the same state marker the labels carry — ant's
+// circled glyph for OK and Error, a plain ring for Required, nothing for
+// Optional. The marker takes the chip's text colour, so it cannot drift
+// from the label it stands for.
 .legend-item {
   margin-inline-end: 0;
   font-size: 12px;
   line-height: 18px;
   cursor: help;
 
-  &::before {
-    content: '';
-    display: inline-block;
-    height: 1em;
-    border: 1px solid currentColor;
+  .legend-marker {
     margin-right: 4px;
     vertical-align: -0.125em;
+  }
+
+  // ant insets its circled glyphs to 7/8 of the em box; the bare circle
+  // matches so all four markers read as one set. Filled where a value is
+  // required, open where it is optional.
+  .marker-circle {
+    display: inline-block;
+    width: 0.875em;
+    height: 0.875em;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+
+    &.filled {
+      background-color: currentColor;
+    }
   }
 
   &.required {
@@ -66,11 +78,6 @@
     color: @field-default-label-color;
     background-color: @field-default-bg-color;
     border-color: @field-default-border-color;
-
-    // optional field labels carry no marker bar
-    &::before {
-      content: none;
-    }
   }
 
   &.ok {

@@ -14,14 +14,13 @@
 // unscoped.
 .label-state(@state; @label-color; @icon-color) {
   &.@{state} > nz-form-label ::ng-deep label {
-    &:before {
-      border-color: @label-color;
+    .field-marker {
+      color: @label-color;
     }
     span.label {
       color: @label-color;
     }
-    // zorro 21+ renders the label tooltip icon as <nz-icon>, not <span>
-    .anticon path {
+    .field-help path {
       color: @icon-color;
     }
   }
@@ -46,25 +45,50 @@
       span.label {
         color: @field-default-label-color;
       }
-      ::ng-deep .anticon {
+      ::ng-deep .field-help {
         margin-left: 0.5em;
         path {
           color: @field-default-icon-color;
         }
       }
+
+      // The label's state marker: ant's circled glyphs for valid and error,
+      // and a bare circle for the two resting states — filled where a value
+      // is required, open where it is optional. Sized to the glyphs' own
+      // ring, which ant insets to 7/8 of the em box, so all four read as one
+      // set rather than four sizes.
+      ::ng-deep .field-marker {
+        margin-inline-end: 4px;
+        vertical-align: -0.125em;
+        color: @field-default-label-color;
+      }
+
+      ::ng-deep .marker-circle {
+        display: inline-block;
+        width: 0.875em;
+        height: 0.875em;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+
+        &.filled {
+          background-color: currentColor;
+        }
+      }
     }
 
     &.required > nz-form-label ::ng-deep label {
+      // zorro draws its own '*' here; the state marker replaces it
       &:before {
-        border: 1px solid @field-required-label-color;
-        height: 1em;
-        content: '';
+        display: none;
+      }
+      .field-marker {
+        color: @field-required-label-color;
       }
       span.label {
         color: @field-required-label-color;
         font-weight: 600;
       }
-      .anticon path {
+      .field-help path {
         color: @field-required-icon-color;
       }
     }
@@ -91,6 +115,32 @@
 // vertical layout fields displayed in a block w/ bg color & border styles
 :host(.layout-vertical) {
   > nz-form-item {
+    position: relative;
+
+    // The help icon leaves the label's flow for the box's own top-right
+    // corner. Inline it competed with the label for width, so a long label
+    // ellipsised against the icon rather than against the box edge; the
+    // offsets are the box's own padding, so it sits in the corner proper.
+    //
+    // ant sets `position: relative` on the label, and the label is an
+    // inline-flex box that shrink-wraps its text — so an absolute icon
+    // anchors to the *label* and lands on top of the label's own words.
+    // Making the label static hands the job to nz-form-item, which is the
+    // box the corner belongs to. Nothing else inside the label is absolute:
+    // the required ::before is display:none and the colon ::after is
+    // relative.
+    > nz-form-label ::ng-deep label {
+      position: static;
+    }
+
+    > nz-form-label ::ng-deep .field-help {
+      position: absolute;
+      top: 4px;
+      right: 8px;
+      margin-left: 0;
+      z-index: 1;
+    }
+
     background-color: @field-default-bg-color;
     border: @field-default-border;
     padding: @item-padding;

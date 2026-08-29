@@ -45,6 +45,18 @@ export class CvcFormFieldWrapper
     return this.showError ? 'error' : ''
   }
 
+  /**
+   * Which marker the label carries, mirroring the nz-form-item state classes
+   * and their precedence: a field in error says so even while it is required,
+   * and a required field only reads as valid once the curator has touched it.
+   */
+  get markerState(): 'error' | 'valid' | 'required' | 'optional' {
+    if (this.showError) return 'error'
+    const control = this.field.formControl
+    if (control?.status === 'VALID' && control.touched) return 'valid'
+    return this.props.required ? 'required' : 'optional'
+  }
+
   constructor(private cdr: ChangeDetectorRef) {
     super()
   }

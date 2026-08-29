@@ -9,6 +9,9 @@ import {
   MenuUnfoldOutline,
   FormOutline,
   DashboardOutline,
+  CheckCircleOutline,
+  ExclamationCircleOutline,
+  QuestionCircleOutline,
 } from '@ant-design/icons-angular/icons'
 
 // NZ icons used in base app components
@@ -17,6 +20,11 @@ const icons = [
   MenuUnfoldOutline,
   DashboardOutline,
   FormOutline,
+  // the form-field label and legend markers; registered rather than left to
+  // ant's dynamic loader, which fetches over HTTP at first paint
+  CheckCircleOutline,
+  ExclamationCircleOutline,
+  QuestionCircleOutline,
 ]
 
 import {
