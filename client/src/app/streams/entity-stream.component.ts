@@ -17,6 +17,7 @@ import {
   untracked,
 } from '@angular/core'
 import { debouncedSignal } from '@app/core/utilities/debounced-signal'
+import { CvcScrollShadowsDirective } from '@app/directives/scroll-shadows/scroll-shadows.directive'
 import { Maybe } from '@app/generated/civic.apollo.types'
 import { CvcConnection, CvcEdge } from '@app/tables/connection.types'
 import { PolymorpheusOutlet } from '@taiga-ui/polymorpheus'
@@ -95,6 +96,7 @@ const AUTO_HEIGHT_FALLBACK = '400px'
     NzTypographyModule,
     PolymorpheusOutlet,
     UiScrollModule,
+    CvcScrollShadowsDirective,
     CvcStreamItemComponent,
   ],
 })

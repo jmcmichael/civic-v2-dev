@@ -10,8 +10,13 @@
   <nz-row [nzGutter]="[16, 8]">
     <!-- STREAM COLUMN -->
     <nz-col [nzSpan]="hasSidebar() ? 18 : 24">
+      <!-- the shadows and the border are independent concerns on this
+           element: cvcScrollShadows only toggles two classes from the
+           scroll position of .stream-body, and the stylesheet draws from
+           them. A conflict here wants both sides kept, not one chosen. -->
       <div
         class="stream-container"
+        cvcScrollShadows=".stream-body"
         [class.stream-border]="hasSidebar()">
         <div class="stream-layers">
           <!-- messages layer - TOP -->
