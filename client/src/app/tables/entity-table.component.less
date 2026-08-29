@@ -145,6 +145,19 @@ th ::ng-deep {
     flex: none;
   }
 }
+
+// sort clicks are scoped to the title and caret (scopeSortClicksToLabel);
+// the pointer only invites clicks where they work
+th.ant-table-column-has-sorters {
+  cursor: default;
+
+  ::ng-deep {
+    .ant-table-column-title,
+    .ant-table-column-sorter {
+      cursor: pointer;
+    }
+  }
+}
 th.th-center ::ng-deep .ant-table-column-sorters {
   justify-content: center;
 }
