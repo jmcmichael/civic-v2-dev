@@ -89,8 +89,8 @@ export class CvcTagComponent {
   /** override link rendering; default: spec.linked && context === 'default' */
   readonly linked = input<boolean | undefined>(undefined)
   /**
-   * Override popover display. Default: enabled in the 'default' context, and
-   * never inside a select's option list — see `inSelectOption`.
+   * Override popover display. Default: on everywhere except inside a
+   * select's option list — see `inSelectOption`.
    */
   readonly popover = input<boolean | undefined>(undefined)
   readonly popoverPlacement = input<string>('top')
@@ -166,10 +166,13 @@ export class CvcTagComponent {
   })
 
   // --- lazy popover ---
+  // Placement decides, not context: a tag standing for a chosen entity is
+  // worth exploring wherever it sits, including the select input it was
+  // chosen into. Only the option list suppresses it, and for a reason that
+  // is about the list rather than the tag.
   protected readonly popoverEnabled = computed(
     () =>
-      (this.popover() ??
-        (this.context() === 'default' && !this.inSelectOption)) &&
+      (this.popover() ?? !this.inSelectOption) &&
       hasTagPopover(this.ref().__typename)
   )
   protected readonly popoverComponent =

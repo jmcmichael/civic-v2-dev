@@ -269,6 +269,20 @@ describe('CvcTagComponent', () => {
     expect(TAG_POPOVERS.Disease).toBeTruthy()
   })
 
+  // the other half of the placement rule: a chosen entity is worth exploring
+  // wherever its tag sits, the select's own input included
+  it('keeps the popover for a tag in the select contexts', async () => {
+    setup(seedDisease)
+    await settle()
+    const tag = fixture.debugElement.children[0].componentInstance as any
+
+    for (const context of ['select-item', 'multi-select-item'] as const) {
+      host.context.set(context)
+      fixture.detectChanges()
+      expect(tag.popoverEnabled()).toBe(true)
+    }
+  })
+
   it('emits closed when the tag close icon is clicked', async () => {
     setup(seedDisease)
     host.mode.set('closeable')
