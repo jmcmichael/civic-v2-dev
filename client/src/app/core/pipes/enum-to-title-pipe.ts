@@ -1,4 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core'
+import { enumLabelOverride } from '@app/core/utilities/enum-formatters/format.common'
 
 @Pipe({
   name: 'enumToTitle',
@@ -8,6 +9,10 @@ import { Pipe, PipeTransform } from '@angular/core'
 export class EnumToTitlePipe implements PipeTransform {
   transform(enum_text?: string): string {
     if (enum_text) {
+      const override = enumLabelOverride(enum_text)
+      if (override) {
+        return override
+      }
       if (enum_text === 'POSITIVE') {
         return '+'
       }

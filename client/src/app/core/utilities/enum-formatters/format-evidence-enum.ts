@@ -15,6 +15,7 @@ import {
   RegionVariantName,
   VariantCategories,
 } from '@app/generated/civic.apollo.types'
+import { enumFormatters } from '@app/core/utilities/enum-formatters/format.common'
 
 export type InputEnum =
   | EvidenceSignificance
@@ -35,16 +36,9 @@ export type InputEnum =
 
 export function formatEvidenceEnum(value: InputEnum): string {
   if (typeof value === 'number' || typeof value === 'boolean') return value
-  let str: string[]
-  if (value === 'NA') {
-    str = ['Not Applicable']
-  } else if (value === 'SENSITIVITYRESPONSE') {
-    str = ['Sensitivity', '/', 'Response']
-  } else {
-    str = value.toLowerCase().replace(/_/g, ' ').split(' ')
-    for (var i = 0; i < str.length; i++) {
-      str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1)
-    }
-  }
-  return str.join(' ')
+  // evidence's own quirks; everything else, including the shared label
+  // overrides, is the common title formatter's job
+  if (value === 'NA') return 'Not Applicable'
+  if (value === 'SENSITIVITYRESPONSE') return 'Sensitivity / Response'
+  return enumFormatters.title(value)
 }
