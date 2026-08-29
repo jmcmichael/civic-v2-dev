@@ -161,6 +161,8 @@
                           <cvc-enum-filter-menu
                             [options]="filter.options"
                             [showIcons]="filter.showIcons ?? true"
+                            [multiple]="filter.multiple ?? false"
+                            [open]="enumTrigger.nzVisible"
                             [selected]="filterValue(col.key)"
                             (selectedChange)="
                               onFilterChange(col, $event);
@@ -196,6 +198,8 @@
                     <cvc-enum-filter-menu
                       [options]="extraFilter.options"
                       [showIcons]="extraFilter.showIcons ?? true"
+                      [multiple]="extraFilter.multiple ?? false"
+                      [open]="extraTrigger.nzVisible"
                       [selected]="extraFilterValue(col.key)"
                       (selectedChange)="
                         onExtraFilterChange(col, $event);

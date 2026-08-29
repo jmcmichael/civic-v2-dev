@@ -126,3 +126,92 @@ describe('cvc-enum-filter-menu', () => {
     expect(emitted).toEqual(['NA'])
   })
 })
+
+describe('cvc-enum-filter-menu, multiple', () => {
+  let fixture: ComponentFixture<CvcEnumFilterMenuComponent>
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CvcEnumFilterMenuComponent, NzIconModule.forRoot(TABLE_ICONS)],
+    }).compileComponents()
+    fixture = TestBed.createComponent(CvcEnumFilterMenuComponent)
+  })
+
+  function mount(selected: string[] | null = null): HTMLElement {
+    fixture.componentRef.setInput('options', FLAT)
+    fixture.componentRef.setInput('selected', selected)
+    fixture.componentRef.setInput('showIcons', false)
+    fixture.componentRef.setInput('multiple', true)
+    fixture.componentRef.setInput('open', true)
+    fixture.detectChanges()
+    return fixture.nativeElement as HTMLElement
+  }
+
+  function items(el: HTMLElement): HTMLElement[] {
+    return Array.from(el.querySelectorAll('li[nz-menu-item]'))
+  }
+
+  function emissions(): unknown[] {
+    const seen: unknown[] = []
+    fixture.componentInstance.selectedChange.subscribe((v) => seen.push(v))
+    return seen
+  }
+
+  it('holds the selection until OK, then emits it as an array', () => {
+    const el = mount()
+    const emitted = emissions()
+
+    items(el)[0].click()
+    items(el)[1].click()
+    fixture.detectChanges()
+    expect(emitted).toEqual([])
+
+    el.querySelector<HTMLElement>('[data-testid="filter-apply"]')!.click()
+    expect(emitted).toEqual([['CURATED', 'NEW']])
+  })
+
+  it('toggles a value back off, and an emptied selection clears the filter', () => {
+    const el = mount(['CURATED'])
+    const emitted = emissions()
+
+    items(el)[0].click()
+    fixture.detectChanges()
+    el.querySelector<HTMLElement>('[data-testid="filter-apply"]')!.click()
+
+    expect(emitted).toEqual([null])
+  })
+
+  it('shows the committed values checked when the dropdown opens', () => {
+    const el = mount(['NEW'])
+
+    const checked = items(el).map(
+      (li) =>
+        li.classList.contains('ant-menu-item-selected') ||
+        li.classList.contains('ant-dropdown-menu-item-selected')
+    )
+    expect(checked).toEqual([false, true])
+  })
+
+  it('discards an abandoned draft when the dropdown reopens', () => {
+    const el = mount(['NEW'])
+
+    items(el)[0].click() // adds CURATED to the draft
+    fixture.detectChanges()
+    fixture.componentRef.setInput('open', false)
+    fixture.detectChanges()
+    fixture.componentRef.setInput('open', true)
+    fixture.detectChanges()
+
+    const emitted = emissions()
+    el.querySelector<HTMLElement>('[data-testid="filter-apply"]')!.click()
+    expect(emitted).toEqual([['NEW']])
+  })
+
+  it('offers no OK button in single-select mode', () => {
+    fixture.componentRef.setInput('options', FLAT)
+    fixture.componentRef.setInput('showIcons', false)
+    fixture.detectChanges()
+    const el = fixture.nativeElement as HTMLElement
+    expect(el.querySelector('[data-testid="filter-apply"]')).toBeNull()
+  })
+})

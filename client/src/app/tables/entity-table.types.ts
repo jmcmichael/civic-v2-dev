@@ -523,12 +523,16 @@ export interface CvcEnumFilter<
    */
   control?: 'funnel' | 'select' | 'icon-select'
   /**
-   * The icon-select accepts several values at once (`nzMode="multiple"`),
-   * emitting a non-empty array (empty selections normalize to null). The
-   * filter's `var` must then name one of the server's plural, array-typed
-   * args (`assertionTypes` et al.), whose values OR together — the
-   * singular args reject list-typed variables. Funnel/select controls
-   * ignore this flag.
+   * The control accepts several values at once, emitting a non-empty array
+   * (empty selections normalize to null). The filter's `var` must then name
+   * one of the server's plural, array-typed args (`assertionTypes` et al.),
+   * whose values OR together — the singular args reject list-typed
+   * variables.
+   *
+   * The icon-select renders `nzMode="multiple"` and applies on every change.
+   * The funnel renders checkbox menu items and applies on OK, since a
+   * half-built OR would query for something nobody asked for. The `select`
+   * control ignores the flag.
    */
   multiple?: boolean
   /** the select control's placeholder; unused by the funnel */
