@@ -23,6 +23,7 @@ import {
 import { Apollo } from 'apollo-angular'
 import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzPopoverDirective, NzPopoverModule } from 'ng-zorro-antd/popover'
+import { NzOptionComponent } from 'ng-zorro-antd/select'
 import { NzSpinModule } from 'ng-zorro-antd/spin'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
@@ -87,7 +88,10 @@ export class CvcTagComponent {
   readonly emphasize = input<string | undefined>(undefined)
   /** override link rendering; default: spec.linked && context === 'default' */
   readonly linked = input<boolean | undefined>(undefined)
-  /** override popover display; default: enabled in 'default' context only */
+  /**
+   * Override popover display. Default: enabled in the 'default' context, and
+   * never inside a select's option list — see `inSelectOption`.
+   */
   readonly popover = input<boolean | undefined>(undefined)
   readonly popoverPlacement = input<string>('top')
   readonly showIcon = input<boolean>(true)
@@ -147,10 +151,25 @@ export class CvcTagComponent {
     this.context() === 'select-item' ? 'closeable' : this.mode()
   )
 
+  /**
+   * A tag inside a select's option list is being picked, not explored: its
+   * popover covers the very list it is chosen from.
+   *
+   * Asked of the injector rather than the DOM, and that is load-bearing.
+   * `nz-option` with `nzCustomContent` renders its content into the dropdown
+   * overlay, so at runtime the tag has no `nz-option` ancestor to find with
+   * `closest()` — but its element injector still has one, because injection
+   * follows the template the tag was declared in.
+   */
+  private readonly inSelectOption = !!inject(NzOptionComponent, {
+    optional: true,
+  })
+
   // --- lazy popover ---
   protected readonly popoverEnabled = computed(
     () =>
-      (this.popover() ?? this.context() === 'default') &&
+      (this.popover() ??
+        (this.context() === 'default' && !this.inSelectOption)) &&
       hasTagPopover(this.ref().__typename)
   )
   protected readonly popoverComponent =

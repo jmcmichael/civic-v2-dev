@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { By } from '@angular/platform-browser'
 import { provideRouter } from '@angular/router'
 import { InMemoryCache } from '@apollo/client/cache'
 import { provideSeededApollo } from '@app/testing/apollo-test.providers'
@@ -22,6 +23,7 @@ import { Apollo } from 'apollo-angular'
 import ICON_DATA from '@app/generated/civic.icons.data.json'
 import { civicIcons } from '@app/icons-provider.module'
 import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzSelectModule } from 'ng-zorro-antd/select'
 
 @Component({
   standalone: true,
@@ -96,9 +98,7 @@ describe('CvcTagComponent', () => {
     await settle()
     expect(text()).toContain('#7')
     expect(text()).not.toContain('CACHE-MISS')
-    expect(
-      fixture.nativeElement.querySelector('.tag-skeleton')
-    ).toBeTruthy()
+    expect(fixture.nativeElement.querySelector('.tag-skeleton')).toBeTruthy()
   })
 
   it('updates reactively when the entity is written to the cache after render', async () => {
@@ -227,6 +227,48 @@ describe('CvcTagComponent', () => {
     expect(tag.popoverComponent()).toBeTruthy()
   })
 
+  // The whole fix rests on a DI claim, so the test asserts the claim rather
+  // than the wiring: a tag DECLARED inside nz-option resolves the option
+  // through its element injector even though nzCustomContent renders it into
+  // the dropdown overlay, where no nz-option is an ancestor in the DOM.
+  it('drops the popover for a tag declared inside a select option', async () => {
+    @Component({
+      standalone: true,
+      imports: [CvcTagComponent, NzSelectModule],
+      // open: nz-option only stamps its custom content while the dropdown
+      // is showing, which is the overlay rendering this test exists to cover
+      template: `<nz-select [nzOpen]="true">
+        <nz-option
+          nzCustomContent
+          [nzValue]="7"
+          nzLabel="Melanoma">
+          <cvc-tag [ref]="{ __typename: 'Disease', id: 7 }" />
+        </nz-option>
+      </nz-select>`,
+    })
+    class OptionHost {}
+
+    TestBed.configureTestingModule({
+      imports: [OptionHost, NzIconModule.forRoot(civicIcons)],
+      providers: [provideSeededApollo(seedDisease), provideRouter([])],
+    })
+    const optionFixture = TestBed.createComponent(OptionHost)
+    optionFixture.detectChanges()
+    await optionFixture.whenStable()
+    optionFixture.detectChanges()
+
+    // the tag renders in the cdk overlay, outside the fixture's element, so
+    // reach it through the debug tree rather than the fixture's DOM
+    const tagDebug = optionFixture.debugElement.queryAll(
+      By.directive(CvcTagComponent)
+    )[0]
+    expect(tagDebug).toBeTruthy()
+    const tag = tagDebug.componentInstance as any
+    expect(tag.popoverEnabled()).toBe(false)
+    // Disease does have a popover; placement is the only reason it is off
+    expect(TAG_POPOVERS.Disease).toBeTruthy()
+  })
+
   it('emits closed when the tag close icon is clicked', async () => {
     setup(seedDisease)
     host.mode.set('closeable')
@@ -248,9 +290,7 @@ describe('CvcTagComponent', () => {
     await settle()
     const tag = fixture.debugElement.children[0].componentInstance as any
     expect(tag.checked()).toBe(false)
-    const tagEl = fixture.nativeElement.querySelector(
-      'nz-tag'
-    ) as HTMLElement
+    const tagEl = fixture.nativeElement.querySelector('nz-tag') as HTMLElement
     tagEl.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     fixture.detectChanges()
     expect(tag.checked()).toBe(true)
