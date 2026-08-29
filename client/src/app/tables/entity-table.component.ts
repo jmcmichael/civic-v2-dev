@@ -431,10 +431,8 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
    * edge land exactly. Without measurable geometry (jsdom) the emitted
    * width stores directly.
    *
-   * The header cell also gets a one-shot click trap so the click a drag
-   * synthesizes never reaches ng-zorro's sort trigger on the same th
-   * (upstream: NG-ZORRO/ng-zorro-antd#7562). The cell is resolved from the
-   * host DOM by column key; `thEl` is a test seam.
+   * The cell is resolved from the host DOM by column key for measurement;
+   * `thEl` is a test seam.
    */
   onColumnResize(
     key: string,
@@ -448,7 +446,6 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
         `th[data-column="${CSS.escape(key)}"]`
       ) ??
       undefined
-    if (th) this.suppressNextHeaderClick(th)
     const transferred = resizeColumnWidths(this.measuredColumns(th), key, width)
     this.widthOverrides.update((current) => {
       const next = new Map(current)
@@ -476,23 +473,29 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
   }
 
   /**
-   * Ending a resize drag over the header cell synthesizes a click on it —
-   * ng-zorro's sort trigger, so an un-trapped resize also cycles the sort.
-   * A one-shot capture-phase listener eats that click before ng-zorro's
-   * bubble-phase handler; the click (if any — drops outside the th produce
-   * none) dispatches before timeouts run, so a 0ms removal disarms the trap
-   * before it could swallow a genuine later click.
+   * ng-zorro's sort trigger listens on the whole th; this scopes it to the
+   * label and caret. A capture-phase listener on the host swallows any click
+   * landing in a sortable header cell outside its title/sorter spans —
+   * capture on an ancestor runs before every listener at the target, which
+   * a listener on the th itself cannot guarantee (at the target element,
+   * listeners fire in registration order regardless of the capture flag).
+   *
+   * Beyond blank-area clicks, this eats the clicks a resize drag
+   * synthesizes (upstream: NG-ZORRO/ng-zorro-antd#7562): their target is
+   * the handle, or — when the drag releases over another th descendant —
+   * the th itself, never the title or caret. The cursor is scoped to match
+   * in the stylesheet.
    */
-  private suppressNextHeaderClick(thEl: HTMLElement): void {
-    const suppress = (event: Event) => {
-      event.preventDefault()
-      event.stopImmediatePropagation()
-    }
-    thEl.addEventListener('click', suppress, { capture: true, once: true })
-    setTimeout(
-      () => thEl.removeEventListener('click', suppress, { capture: true }),
-      0
-    )
+  private scopeSortClicksToLabel(event: Event): void {
+    const target = event.target as Element | null
+    const th = target?.closest('th')
+    if (!th?.classList.contains('ant-table-column-has-sorters')) return
+    // the addon wraps the th's whole authored content — resize handle
+    // included — inside the title span, so the handle is carved back out
+    const onSortControl =
+      target?.closest('.ant-table-column-title, .ant-table-column-sorter') &&
+      !target?.closest('nz-resize-handle')
+    if (!onSortControl) event.stopImmediatePropagation()
   }
 
   readonly visibleColumns = computed(() =>
@@ -798,6 +801,18 @@ export class CvcEntityTableComponent<TRow extends { id: number }> {
     effect(() => {
       const settings = this.settings()
       if (settings) untracked(() => this.applySettings(settings))
+    })
+
+    // see scopeSortClicksToLabel; outside the zone — swallowed clicks
+    // should not run change detection, passed ones reach zone-bound
+    // listeners on their own
+    this.zone.runOutsideAngular(() => {
+      const scope = (event: Event) => this.scopeSortClicksToLabel(event)
+      const host = this.hostRef.nativeElement
+      host.addEventListener('click', scope, { capture: true })
+      this.destroyRef.onDestroy(() =>
+        host.removeEventListener('click', scope, { capture: true })
+      )
     })
 
     // project denormalised rows back into the cache before the tags that read

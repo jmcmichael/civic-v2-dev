@@ -420,8 +420,29 @@ describe('cvc-entity-table', () => {
       '[data-testid="column-header"][data-column="rating"]'
     ) as HTMLElement
 
-  it('cycles ascend-first on a header click by default', () => {
+  it('cycles ascend-first on a label click by default', () => {
+    ratingHeader()
+      .querySelector<HTMLElement>('.ant-table-column-title')!
+      .click()
+    fixture.detectChanges()
+
+    expect(table.sortOrderFor(table.columns()[2])).toBe('ascend')
+  })
+
+  // sort clicks are scoped to the title and caret: a click elsewhere in the
+  // header cell — blank area, or the click a resize drag synthesizes on the
+  // th itself — never reaches ng-zorro's th-wide sort trigger
+  it('ignores header-cell clicks outside the label and caret', () => {
     ratingHeader().click()
+    fixture.detectChanges()
+
+    expect(table.sortOrderFor(table.columns()[2])).toBeNull()
+  })
+
+  it('cycles sort on a caret click', () => {
+    ratingHeader()
+      .querySelector<HTMLElement>('.ant-table-column-sorter')!
+      .click()
     fixture.detectChanges()
 
     expect(table.sortOrderFor(table.columns()[2])).toBe('ascend')
@@ -556,22 +577,22 @@ describe('cvc-entity-table', () => {
     })
   })
 
-  it('eats the click a resize drag synthesizes before it can reach the sort', async () => {
+  // the click a resize drag synthesizes targets the handle (or the th
+  // itself); the sort-click scope swallows both, so a resize never cycles
+  // the sort (upstream: NG-ZORRO/ng-zorro-antd#7562)
+  it('never sorts from clicks on the resize handle', async () => {
     fixture.componentInstance.spec.set(buildSpec())
     await settle()
-    const th = document.createElement('th')
-    let sortClicks = 0
-    th.addEventListener('click', () => sortClicks++) // ng-zorro's bubble-phase sort trigger
+    const handle = fixture.nativeElement.querySelector(
+      'th[data-column="name"] nz-resize-handle'
+    ) as HTMLElement
 
-    table.onColumnResize('name', 250, th)
-    th.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    expect(sortClicks).toBe(0)
+    handle.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    fixture.detectChanges()
 
-    // the trap is one-shot and disarms on the next macrotask — later
-    // genuine header clicks sort normally
-    await new Promise((r) => setTimeout(r, 0))
-    th.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    expect(sortClicks).toBe(1)
+    expect(
+      table.sortOrderFor(table.columns().find((c) => c.key === 'name')!)
+    ).toBeNull()
   })
 
   it('exempts icon-only enum-tag columns and the select column from resizing', async () => {
@@ -648,7 +669,9 @@ describe('cvc-entity-table', () => {
     fixture.componentInstance.spec.set(buildSpec({ descendFirstRating: true }))
     fixture.detectChanges()
 
-    ratingHeader().click()
+    ratingHeader()
+      .querySelector<HTMLElement>('.ant-table-column-title')!
+      .click()
     fixture.detectChanges()
 
     expect(table.sortOrderFor(table.columns()[2])).toBe('descend')
