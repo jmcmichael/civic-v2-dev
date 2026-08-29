@@ -1,4 +1,6 @@
 import { formatDate } from '@angular/common'
+import { formatSourceSuggestionStatusEnum } from '@app/core/utilities/enum-formatters/format-source-suggestion-status-enum'
+import { formatSourceTypeEnum } from '@app/core/utilities/enum-formatters/format-source-type-enum'
 import {
   Maybe,
   SourceSource,
@@ -17,22 +19,27 @@ import { CvcSourceSuggestionStatusCellComponent } from './source-suggestions-tab
 import { CvcSourceSuggestionSubmitterCellComponent } from './source-suggestions-table-submitter-cell.component'
 import { BrowseSourceSuggestionsGQL } from './source-suggestions-table.query.gql.generated'
 
-/** title-cased status options; the legacy select showed them lowercased */
+/**
+ * Statuses in workflow order, not the enum's alphabetical one; labelled by
+ * the same formatter the status cell renders with (the legacy select showed
+ * them lowercased).
+ */
 const STATUS_OPTIONS: CvcEnumOption<SourceSuggestionStatus>[] = [
-  { label: 'New', value: SourceSuggestionStatus.New },
-  { label: 'Curated', value: SourceSuggestionStatus.Curated },
-  { label: 'Rejected', value: SourceSuggestionStatus.Rejected },
-]
+  SourceSuggestionStatus.New,
+  SourceSuggestionStatus.Curated,
+  SourceSuggestionStatus.Rejected,
+].map((value) => ({ label: formatSourceSuggestionStatusEnum(value), value }))
 
 /**
  * All three SourceSource members — the legacy select offered only
- * PubMed/ASCO, silently omitting ASH.
+ * PubMed/ASCO, silently omitting ASH. `formatSourceTypeEnum` carries the
+ * capitalization these acronyms need.
  */
 const SOURCE_TYPE_OPTIONS: CvcEnumOption<SourceSource>[] = [
-  { label: 'PubMed', value: SourceSource.Pubmed },
-  { label: 'ASCO', value: SourceSource.Asco },
-  { label: 'ASH', value: SourceSource.Ash },
-]
+  SourceSource.Pubmed,
+  SourceSource.Asco,
+  SourceSource.Ash,
+].map((value) => ({ label: formatSourceTypeEnum(value), value }))
 
 /** The query variables a host page scopes the table with. */
 export interface SourceSuggestionsTableScope {
