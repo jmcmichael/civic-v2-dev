@@ -95,6 +95,15 @@
     }
   }
 
+  // the select paints a text cursor across its whole input; the tag's link
+  // is a link, and says so
+  &.select-item,
+  &.multi-select-item {
+    a.tag-label {
+      cursor: pointer;
+    }
+  }
+
   &.multi-select-item {
     .tag-content {
       // pull content margins to the edges of nz-select's pseudo-tag to

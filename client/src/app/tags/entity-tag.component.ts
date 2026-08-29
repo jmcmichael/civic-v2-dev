@@ -142,8 +142,26 @@ export class CvcTagComponent {
   protected readonly isLinked = computed(
     () =>
       !!this.entity()?.link &&
-      (this.linked() ?? (this.spec().linked && this.context() === 'default'))
+      (this.linked() ?? (this.spec().linked && !this.inSelectOption))
   )
+
+  /**
+   * A tag in a select stands for a value in a form being filled: following
+   * its link in this tab would discard the form, so it opens a new one.
+   * Elsewhere the link is ordinary in-app navigation.
+   */
+  protected readonly linkTarget = computed(() =>
+    this.context() === 'default' ? '_self' : '_blank'
+  )
+
+  /**
+   * A link click is about the entity, not the control around it: without
+   * this, following a selected tag also opens the select's dropdown behind
+   * the new tab.
+   */
+  protected onLinkClick(event: MouseEvent): void {
+    if (this.linkTarget() === '_blank') event.stopPropagation()
+  }
 
   protected readonly tooltip = computed(() => this.entity()?.tooltip)
 

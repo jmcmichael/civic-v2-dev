@@ -41,6 +41,8 @@
     <a
       class="tag-label"
       [routerLink]="entity()!.link"
+      [target]="linkTarget()"
+      (click)="onLinkClick($event)"
       [nz-tooltip]="tooltip()">
       <ng-template [ngTemplateOutlet]="labelTpl" />
     </a>

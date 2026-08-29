@@ -157,25 +157,55 @@ describe('CvcTagComponent', () => {
     expect(tagHost().classList.contains('deprecated')).toBe(true)
   })
 
-  it('suppresses the link in select contexts and for unlinked specs', async () => {
-    setup((cache) => {
-      seedDisease(cache)
+  it('suppresses the link for specs that declare none', async () => {
+    setup((cache) =>
       cache.writeFragment({
         fragment: LinkableNccnGuidelineFragmentDoc,
         data: { __typename: 'NccnGuideline', id: 3, name: 'NCCN v2' },
       })
-    })
-    host.context.set('select-item')
-    fixture.detectChanges()
-    await settle()
-    expect(fixture.nativeElement.querySelector('a.tag-label')).toBeNull()
-
-    host.context.set('default')
+    )
     host.ref.set({ __typename: 'NccnGuideline', id: 3 })
     fixture.detectChanges()
     await settle()
     expect(text()).toContain('NCCN v2')
     expect(fixture.nativeElement.querySelector('a.tag-label')).toBeNull()
+  })
+
+  // following a link in this tab would discard the form the select sits in
+  it('links a tag in the select contexts into a new tab', async () => {
+    setup(seedDisease)
+    await settle()
+
+    const link = () =>
+      fixture.nativeElement.querySelector('a.tag-label') as HTMLAnchorElement
+
+    expect(link()).toBeTruthy()
+    expect(link().getAttribute('target')).toBe('_self')
+
+    for (const context of ['select-item', 'multi-select-item'] as const) {
+      host.context.set(context)
+      fixture.detectChanges()
+      await settle()
+      expect(link()).toBeTruthy()
+      expect(link().getAttribute('target')).toBe('_blank')
+      expect(link().getAttribute('href')).toBe('/diseases/7')
+    }
+  })
+
+  // the click belongs to the entity, not to the select wrapped around it
+  it('keeps a select-item link click off the control around it', async () => {
+    setup(seedDisease)
+    host.context.set('select-item')
+    fixture.detectChanges()
+    await settle()
+
+    const link = fixture.nativeElement.querySelector(
+      'a.tag-label'
+    ) as HTMLAnchorElement
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+    const stop = vi.spyOn(event, 'stopPropagation')
+    link.dispatchEvent(event)
+    expect(stop).toHaveBeenCalled()
   })
 
   it('exposes the schema tooltip for AcmgCode', async () => {
