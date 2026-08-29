@@ -10,11 +10,26 @@
 </ng-template>
 
 <ng-template #modalContent>
-  <!-- modal errors are the serious ones: details open by default -->
-  <cvc-error-list
-    mode="list"
-    [expandAll]="true"
-    [errors]="appErrors.modalErrors()" />
+  <!-- modal errors are the serious ones: details open by default. The list
+       is deferred because this component mounts with the app shell: its
+       ng-zorro modules and json viewer load when a modal actually opens,
+       not on first paint -->
+  @defer (on immediate) {
+    <cvc-error-list
+      mode="list"
+      [expandAll]="true"
+      [errors]="appErrors.modalErrors()" />
+  } @placeholder {
+    <p>Loading error details…</p>
+  } @error {
+    <!-- the details chunk needs the network, and a network failure is the
+         very thing this modal reports: the messages still show without it -->
+    <ul class="error-fallback">
+      @for (e of appErrors.modalErrors(); track $index) {
+        <li>{{ e.message }}</li>
+      }
+    </ul>
+  }
 </ng-template>
 
 <ng-template #modalFooter>

@@ -9,9 +9,9 @@ import {
 import {
   categoryColor,
   categoryName,
-  CvcErrorListComponent,
   submissionErrorsText,
-} from '@app/components/app/error-list/error-list.component'
+} from '@app/components/app/error-list/error-categories'
+import { CvcErrorListComponent } from '@app/components/app/error-list/error-list.component'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import {
   describeFieldIssues,

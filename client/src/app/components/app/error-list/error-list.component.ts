@@ -5,6 +5,10 @@ import {
   linkedSignal,
 } from '@angular/core'
 import { NgTemplateOutlet } from '@angular/common'
+import {
+  categoryColor,
+  errorBlock,
+} from '@app/components/app/error-list/error-categories'
 import { FormSubmissionError } from '@app/core/utilities/submission-errors'
 import { NgxJsonViewerModule } from 'ngx-json-viewer'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -13,46 +17,6 @@ import { NzIconModule } from 'ng-zorro-antd/icon'
 import { NzListModule } from 'ng-zorro-antd/list'
 import { NzTagModule } from 'ng-zorro-antd/tag'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
-
-const CATEGORY_COLORS: Record<FormSubmissionError['category'], string> = {
-  graphql: 'volcano',
-  network: 'orange',
-  apollo: 'purple',
-  cache: 'geekblue',
-  code: 'red',
-}
-
-const CATEGORY_NAMES: Record<FormSubmissionError['category'], string> = {
-  graphql: 'GraphQL',
-  network: 'Network',
-  apollo: 'Apollo',
-  cache: 'Cache',
-  code: 'Code',
-}
-
-export function categoryColor(
-  category: FormSubmissionError['category']
-): string {
-  return CATEGORY_COLORS[category]
-}
-
-export function categoryName(
-  category: FormSubmissionError['category']
-): string {
-  return CATEGORY_NAMES[category]
-}
-
-/** one error as copyable text: header line, meta rows, raw log */
-export function errorBlock(e: FormSubmissionError): string {
-  const head = `[${e.category}${e.code ? ` ${e.code}` : ''}] ${e.message}`
-  const meta = (e.meta ?? []).map((m) => `${m.label}: ${m.value}`)
-  return [head, ...meta, e.log].filter(Boolean).join('\n')
-}
-
-/** every error as copyable text, separated */
-export function submissionErrorsText(errors: FormSubmissionError[]): string {
-  return errors.map((e) => errorBlock(e)).join('\n\n---\n\n')
-}
 
 /**
  * Categorized display of submission errors, shared by every error surface:

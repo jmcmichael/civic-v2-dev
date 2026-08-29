@@ -7,10 +7,8 @@ import {
   viewChild,
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import {
-  categoryName,
-  CvcErrorListComponent,
-} from '@app/components/app/error-list/error-list.component'
+import { categoryName } from '@app/components/app/error-list/error-categories'
+import { CvcErrorListComponent } from '@app/components/app/error-list/error-list.component'
 import { AppErrorsService } from '@app/core/services/app-errors.service'
 import { FormSubmissionError } from '@app/core/utilities/submission-errors'
 import { NzButtonModule } from 'ng-zorro-antd/button'
