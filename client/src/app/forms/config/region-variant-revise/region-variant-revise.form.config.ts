@@ -19,66 +19,78 @@ const formFieldConfig: FormlyFieldConfig[] = [
         },
       },
       {
-        key: 'fields',
+        // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
           formCardOptions: { title: 'Revise Variant' },
         },
         fieldGroup: [
           {
-            wrappers: ['row'],
+            key: 'fields',
             fieldGroup: [
               {
-                key: 'aliases',
-                type: 'tag-multi-input',
-                wrappers: ['col', 'form-field'],
-                props: {
-                  col: { xs: 24, md: 12, lg: 12 },
-                  label: 'Aliases',
-                  description:
-                    'List any aliases commonly used to refer to this Variant',
-                  placeholder: 'Enter Alias and hit return',
-                },
-              },
-              {
-                key: 'variantTypeIds',
-                type: 'variant-type-multi-select',
-                wrappers: ['col', 'form-field'],
-                props: { col: { xs: 24, md: 12, lg: 12 } },
+                wrappers: ['row'],
+                fieldGroup: [
+                  {
+                    key: 'aliases',
+                    type: 'tag-multi-input',
+                    wrappers: ['col', 'form-field'],
+                    props: {
+                      col: { xs: 24, md: 12, lg: 12 },
+                      label: 'Aliases',
+                      description:
+                        'List any aliases commonly used to refer to this Variant',
+                      placeholder: 'Enter Alias and hit return',
+                    },
+                  },
+                  {
+                    key: 'variantTypeIds',
+                    type: 'variant-type-multi-select',
+                    wrappers: ['col', 'form-field'],
+                    props: { col: { xs: 24, md: 12, lg: 12 } },
+                  },
+                ],
               },
             ],
           },
-        ],
-      },
-      {
-        wrappers: ['row'],
-        fieldGroup: [
           {
-            key: 'comment',
-            type: 'base-textarea',
-            wrappers: ['col', 'form-field'],
-            props: {
-              col: { span: 24 },
-              label: 'Comment',
-              placeholder: 'Please enter a comment describing your revisions.',
-              required: true,
-              minLength: 10,
-            },
+            wrappers: ['row'],
+            fieldGroup: [
+              {
+                key: 'comment',
+                type: 'base-textarea',
+                wrappers: ['col', 'form-field'],
+                props: {
+                  col: { span: 24 },
+                  label: 'Comment',
+                  placeholder:
+                    'Please enter a comment describing your revisions.',
+                  required: true,
+                  minLength: 10,
+                },
+              },
+            ],
           },
           {
-            type: 'cvc-cancel-button',
-            wrappers: ['col'],
-            props: { col: { flex: 'none' } },
-          },
-          <CvcOrgSubmitButtonFieldConfig>{
-            key: 'organizationId',
-            type: 'org-submit-button',
-            wrappers: ['col'],
-            props: {
-              col: { flex: 'auto' },
-              submitLabel: 'Submit Variant Revisions',
-              align: 'right',
-            },
+            wrappers: ['row'],
+            props: { formFooter: true },
+            fieldGroup: [
+              {
+                type: 'cvc-cancel-button',
+                wrappers: ['col'],
+                props: { col: { flex: 'none' } },
+              },
+              <CvcOrgSubmitButtonFieldConfig>{
+                key: 'organizationId',
+                type: 'org-submit-button',
+                wrappers: ['col'],
+                props: {
+                  col: { flex: 'auto' },
+                  submitLabel: 'Submit Variant Revisions',
+                  align: 'right',
+                },
+              },
+            ],
           },
         ],
       },
