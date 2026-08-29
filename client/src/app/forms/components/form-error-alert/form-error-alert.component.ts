@@ -13,7 +13,10 @@ import {
   submissionErrorsText,
 } from '@app/components/app/error-list/error-list.component'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
-import { FormFieldIssue } from '@app/forms/utilities/form-field-issues'
+import {
+  describeFieldIssues,
+  FormFieldIssue,
+} from '@app/forms/utilities/form-field-issues'
 import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
 import { NzButtonModule } from 'ng-zorro-antd/button'
@@ -125,12 +128,9 @@ export class CvcFormErrorAlertComponent {
 
   // like the error label: a single issue shows itself, several defer to
   // the popover
-  protected readonly issueLabel = computed(() => {
-    const issues = this.readiness()?.issues ?? []
-    if (issues.length === 0) return 'Form is not ready to submit.'
-    if (issues.length === 1) return `${issues[0].label}: ${issues[0].reason}.`
-    return `${issues.length} fields need attention before submitting.`
-  })
+  protected readonly issueLabel = computed(() =>
+    describeFieldIssues(this.readiness()?.issues ?? [])
+  )
 
   // popover header controls: expand/collapse every panel, copy the details
   protected readonly expandAll = signal(false)

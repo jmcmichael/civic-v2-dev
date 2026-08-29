@@ -21,6 +21,7 @@ import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/f
 import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 import {
   collectFieldIssues,
+  describeFieldIssues,
   FormFieldIssue,
 } from '@app/forms/utilities/form-field-issues'
 import { NzButtonSize } from 'ng-zorro-antd/button'
@@ -63,6 +64,15 @@ export class CvcOrgSubmitButtonComponent
   readonly mostRecentOrg: Signal<Maybe<ViewerOrganizationFragment>>
   formValid!: Signal<boolean>
   fieldIssues!: Signal<FormFieldIssue[]>
+  /**
+   * What the button's tooltip says. A submittable button names the
+   * organization the submission is credited to; a disabled one answers the
+   * question the curator actually has, which is why it is disabled.
+   *
+   * Assigned in ngOnInit because it derives from signals that only exist once
+   * formly has attached the form.
+   */
+  tooltipTitle!: Signal<string>
 
   defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
     props: {
@@ -93,6 +103,11 @@ export class CvcOrgSubmitButtonComponent
       formChange$.pipe(map(() => collectFieldIssues(this.field))),
       { initialValue: collectFieldIssues(this.field), injector: this.injector }
     )
+    this.tooltipTitle = computed(() => {
+      if (!this.formValid()) return describeFieldIssues(this.fieldIssues())
+      const org = this.mostRecentOrg()
+      return org ? `For ${org.name}` : ''
+    })
 
     // keep the field's value synced to the viewer's most recent org
     this.viewerService.viewer$

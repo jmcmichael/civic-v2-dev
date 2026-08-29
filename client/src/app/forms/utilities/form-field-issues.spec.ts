@@ -1,7 +1,7 @@
 import { FormControl, Validators } from '@angular/forms'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { describe, expect, it } from 'vitest'
-import { collectFieldIssues } from './form-field-issues'
+import { collectFieldIssues, describeFieldIssues } from './form-field-issues'
 
 function link(root: FormlyFieldConfig): FormlyFieldConfig {
   const visit = (f: FormlyFieldConfig) =>
@@ -56,5 +56,26 @@ describe('collectFieldIssues', () => {
       ],
     })
     expect(collectFieldIssues(root)).toEqual([])
+  })
+})
+
+describe('describeFieldIssues', () => {
+  it('says the form is not ready when nothing is outstanding', () => {
+    expect(describeFieldIssues([])).toBe('Form is not ready to submit.')
+  })
+
+  it('names the field when a single issue is outstanding', () => {
+    expect(
+      describeFieldIssues([{ label: 'Rating', reason: 'is required' }])
+    ).toBe('Rating: is required.')
+  })
+
+  it('counts them when several are outstanding', () => {
+    expect(
+      describeFieldIssues([
+        { label: 'Rating', reason: 'is required' },
+        { label: 'Summary', reason: 'is required' },
+      ])
+    ).toBe('2 fields need attention before submitting.')
   })
 })

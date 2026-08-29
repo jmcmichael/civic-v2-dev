@@ -15,22 +15,30 @@
     class="submit-error-alert"
     variant="alert"
     [readiness]="{ valid: formValid(), issues: fieldIssues() }" />
-  <button
-    type="submit"
-    nz-button
-    [disabled]="!formValid()"
-    nzType="primary"
-    [nzDanger]="submitError()"
-    [nzSize]="props.size ?? 'default'"
+  <!--
+    The tooltip sits on a wrapper, not the button: a disabled button fires no
+    pointer events, so a tooltip bound to it goes silent in exactly the state
+    the curator most needs it to speak.
+  -->
+  <span
+    class="submit-btn"
     nz-tooltip
-    [nzTooltipTrigger]="mostRecentOrg() ? 'hover' : null"
-    [nzTooltipTitle]="'For ' + mostRecentOrg()?.name">
-    @if (submitError()) {
-      <span
-        nz-icon
-        nzType="close-circle"
-        nzTheme="fill"></span>
-    }
-    {{ props.submitLabel }}
-  </button>
+    [nzTooltipTrigger]="tooltipTitle() ? 'hover' : null"
+    [nzTooltipTitle]="tooltipTitle()">
+    <button
+      type="submit"
+      nz-button
+      [disabled]="!formValid()"
+      nzType="primary"
+      [nzDanger]="submitError()"
+      [nzSize]="props.size ?? 'default'">
+      @if (submitError()) {
+        <span
+          nz-icon
+          nzType="close-circle"
+          nzTheme="fill"></span>
+      }
+      {{ props.submitLabel }}
+    </button>
+  </span>
 </div>

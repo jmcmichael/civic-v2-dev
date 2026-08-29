@@ -26,6 +26,21 @@ function reasonFor(errors: Record<string, unknown>): string {
  * (missing required values, failed validators) and group-level validators
  * alike.
  */
+/**
+ * The one-line readiness sentence for a set of outstanding issues: a single
+ * issue names itself, several defer to the popover that lists them.
+ *
+ * Shared so the footer alert and the disabled submit button cannot drift into
+ * describing the same form two different ways.
+ */
+export function describeFieldIssues(
+  issues: readonly FormFieldIssue[]
+): string {
+  if (issues.length === 0) return 'Form is not ready to submit.'
+  if (issues.length === 1) return `${issues[0].label}: ${issues[0].reason}.`
+  return `${issues.length} fields need attention before submitting.`
+}
+
 export function collectFieldIssues(field: FormlyFieldConfig): FormFieldIssue[] {
   let root = field
   while (root.parent) root = root.parent
