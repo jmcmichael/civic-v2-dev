@@ -1,0 +1,19 @@
+/* The translucent panel that sits on a coloured surface.
+ *
+ * Used by the full-page form card's head and actions strips, and by the
+ * form actions row. Lives here rather than in either component because both
+ * paint the same object and a drift between them reads as a bug.
+ *
+ * Mixin only — no rules — so it is safe to import from a component
+ * stylesheet.
+ */
+
+@panel-fill: rgba(255, 255, 255, 0.6175);
+@panel-edge: rgba(255, 255, 255, 0.75);
+@panel-radius: 3px;
+
+.background-panel(@fill: @panel-fill; @edge: @panel-edge; @radius: @panel-radius) {
+  border-radius: @radius;
+  background: @fill;
+  border: 1px solid @edge;
+}

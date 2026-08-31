@@ -7,11 +7,19 @@ import {
 } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
+import { getEntityColor } from '@app/core/utilities/get-entity-color'
+import { CvcFormTitle } from '@app/forms/messages/form-titles'
 import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
 
 export type FormCardOptions = {
   title?: string
+  /**
+   * The entity this form edits, as an `EntityColors` key. The card head and
+   * actions wash themselves in its color; a card that names no entity keeps
+   * the neutral rule it always had.
+   */
+  entityType?: string
   size?: 'default' | 'small'
   /**
    * Show the field-status legend in the card header. Defaults to true for
@@ -26,17 +34,11 @@ export interface CvcFormCardWrapperProps extends FormlyFieldProps {
   /** one line shown above the form fields, in typography secondary */
   formInstructions?: string
   /**
-   * The full-page card owns the page title (the nz-page-header it replaces
-   * carried it): an action word, the entity's twotone icon, and its name.
-   * The name is only known at runtime, so form components patch it onto
-   * the config before assigning their fields.
+   * The full-page card owns the page title, the nz-page-header it replaced
+   * having carried it. Build it with `formTitle()` — it names a kind, not
+   * an instance, so it is static config and needs no runtime patching.
    */
-  formTitle?: {
-    action: string
-    icon: string
-    entityType: string
-    name: string
-  }
+  formTitle?: CvcFormTitle
 }
 
 const defaultWrapperOptions: FormCardOptions = {
@@ -49,6 +51,7 @@ const defaultWrapperOptions: FormCardOptions = {
   styleUrls: ['./form-card.wrapper.less'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
+  host: { '[style.--cvc-entity-color]': 'entityColor' },
 })
 export class CvcFormCardWrapper
   extends FieldWrapper<FormlyFieldConfig<CvcFormCardWrapperProps>>
@@ -60,6 +63,17 @@ export class CvcFormCardWrapper
   })
 
   wrapperOptions: FormCardOptions = { ...defaultWrapperOptions }
+
+  /**
+   * The entity's color, published to CSS so the head and actions strips can
+   * wash themselves in it. Only the hex travels: the stylesheet derives the
+   * pale end, so the two gradients cannot drift apart.
+   */
+  get entityColor(): string | null {
+    const entityType =
+      this.props.formTitle?.entityType ?? this.wrapperOptions.entityType
+    return entityType ? getEntityColor(entityType) : null
+  }
 
   /** nested sub-cards are rendered small; only the outer card explains states */
   get showLegend(): boolean {

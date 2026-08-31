@@ -6,6 +6,7 @@ import { NzCardModule } from 'ng-zorro-antd/card'
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox'
 import { NzGridModule } from 'ng-zorro-antd/grid'
 import { NzIconModule } from 'ng-zorro-antd/icon'
+import { NzTooltipModule } from 'ng-zorro-antd/tooltip'
 import { NzTypographyModule } from 'ng-zorro-antd/typography'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcAutoHeightCardModule } from '@app/directives/auto-height-card/auto-height-card.module'
@@ -28,6 +29,7 @@ const wrapperConfig: ConfigOption = {
     NzCardModule,
     NzCheckboxModule,
     NzTypographyModule,
+    NzTooltipModule,
     NzIconModule,
     CvcPipesModule,
     CvcAutoHeightCardModule,

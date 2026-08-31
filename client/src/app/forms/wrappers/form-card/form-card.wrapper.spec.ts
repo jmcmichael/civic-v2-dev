@@ -7,10 +7,13 @@ import {
   FormSubmissionError,
 } from '@app/forms/utilities/form-mutation'
 import { CheckCircleTwoTone } from '@ant-design/icons-angular/icons'
+import { civicEvidenceTwotone } from '@app/generated/civic.icons'
+import { toIconDefs } from '@app/icons-provider.module'
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core'
 import { NZ_ICONS } from 'ng-zorro-antd/icon'
 import { describe, expect, it } from 'vitest'
 import { CvcFormCardModule } from './form-card.module'
+import { formTitle, setFormSubject } from '@app/forms/messages/form-titles'
 
 @Component({
   template: `
@@ -59,7 +62,12 @@ function mount(field: FormlyFieldConfig = defaultCardField()): {
         provide: CvcFormSubmissionStatusDisplayComponent,
         useValue: { state: signal(state), dismissed },
       },
-      { provide: NZ_ICONS, useValue: [CheckCircleTwoTone] },
+      // the card title renders a real civic-* twotone; an unregistered
+      // icon throws out of band and is reported as an unhandled error
+      {
+        provide: NZ_ICONS,
+        useValue: [CheckCircleTwoTone, ...toIconDefs([civicEvidenceTwotone])],
+      },
     ],
   })
   const fixture = TestBed.createComponent(HostComponent)
@@ -77,17 +85,21 @@ function headTitle(fixture: ComponentFixture<HostComponent>): string {
 }
 
 describe('CvcFormCardWrapper', () => {
-  it('titles the card from formTitle', () => {
+  it('titles the card from formTitle, action before what it acts on', () => {
     const field = defaultCardField()
-    field.props!.formTitle = {
-      action: 'REVISE',
-      icon: 'check-circle',
-      entityType: 'EvidenceItem',
-      name: 'EID1',
-    }
+    field.props!.formTitle = formTitle('Revise', 'EvidenceItem')
     const { fixture } = mount(field)
-    expect(headTitle(fixture)).toContain('REVISE')
-    expect(headTitle(fixture)).toContain('EID1')
+    // one assertion pins the order: the icon renders ahead of both
+    expect(headTitle(fixture)).toContain('Revise Evidence Item')
+  })
+
+  it('names the subject once a revise form knows it', () => {
+    const field = defaultCardField()
+    field.props!.formTitle = formTitle('Revise', 'EvidenceItem')
+    setFormSubject([field], 'EID116')
+    const { fixture } = mount(field)
+    expect(headTitle(fixture)).toContain('Revise EID116')
+    expect(headTitle(fixture)).not.toContain('Evidence Item')
   })
 
   it('falls back to the configured title without a formTitle', () => {

@@ -1,7 +1,82 @@
 @import 'themes/global-variables.less';
+@import 'themes/background-panel.less';
+
+// ── the entity accent ──────────────────────────────────────────────────
+// The full-page card's head and actions carry the entity's color, which
+// arrives as a hex on a custom property from the wrapper host.
+//
+// The hexes cannot be painted raw. The six a form can wear span oklch
+// lightness .50 (Assertion #7243b5) to .83 (Source #f9ba45), so one recipe
+// reads solid on evidence and invisible on source, and drags the head's
+// near-black title through a different contrast on each.
+//
+// ng-zorro's colorPalette() would give a well-tuned ramp, but it is a Less
+// plugin: it runs at build time on a literal, and ours is a runtime custom
+// property. It also tunes each hue in isolation — across the CIViC six its
+// step 1 runs #efe6f5 to #fffcf0, a five-fold spread in tint strength. So
+// these take the hue, sit at that ramp's step lightness, and CAP chroma, to
+// land every entity at one weight. A cap rather than a clamp: a chroma
+// floor would give the achromatic entities (Greyscale, Rejected) a phantom
+// red, since their hue resolves to 0.
+//
+// The fill sits at L .885, which keeps @heading-color above 11:1 on every
+// entity by construction rather than by luck.
+@entity: ~'var(--cvc-entity-color, #999999)';
+@entity-fill: ~'oklch(from @{entity} 0.885 min(c, 0.065) h)';
+@entity-rule: ~'oklch(from @{entity} 0.700 min(c, 0.150) h)';
+// the footer's own divider, 30% of the way from the head's rule to white:
+// the footer's bevel sits directly beneath it, and the pair reads heavy at
+// the head's weight
+@entity-rule-soft: ~'oklch(from @{entity} 0.790 min(c, 0.150) h)';
+// what the strips' own words are set in: the entity's hue pinned to #222's
+// lightness (L .255), so every entity's text reads at one weight against
+// the fill and none of them reads as colored text
+@entity-ink: ~'oklch(from @{entity} 0.255 min(c, 0.075) h)';
+// the scroll shadow, cast in the entity's own color rather than neutral
+// black: same L-pin, so it lands at one depth on all six. The color arrives
+// from cvcScrollShadowTint rather than from the wrapper's own custom
+// property, so the tint is declared where the directive is used.
+@shadow-tint: ~'var(--cvc-shadow-tint, #999999)';
+@entity-shade: ~'oklch(from @{shadow-tint} 0.380 min(c, 0.130) h / 0.55)';
+// light from above — a hairline inside the footer's top edge
+@bevel-light: rgba(255, 255, 255, 0.9);
+// what a browser without relative color syntax paints instead
+@entity-flat: ~'color-mix(in srgb, var(--cvc-entity-color, #999999) 18%, white)';
+@entity-flat-rule: ~'var(--cvc-entity-color, #bfbfbf)';
+
+// ── the entity strip ───────────────────────────────────────────────────
+// Head and actions carry one flat fill in the entity's color. What sits on
+// them — the title, the legend — carries its own translucent panel instead,
+// so contrast comes from the panel rather than from where a gradient
+// happened to be strongest.
+.entity-strip() {
+  background-color: @entity-flat;
+  background-color: @entity-fill;
+}
+
+// a 1px highlight inside the actions strip's top edge, directly under its
+// divider. The head's equivalent sat at the card's outer edge, away from
+// anything to separate from, and the head's drop shadow already reads as
+// the lit surface it implied.
+.strip-bevel() {
+  background-image: linear-gradient(
+    to bottom,
+    @bevel-light 0,
+    @bevel-light 1px,
+    transparent 1px
+  );
+}
+
+// `.background-panel()` and `@panel-edge` come from themes/background-panel:
+// the form actions row paints the same object, and a drift between the two
+// reads as a bug. Each caller still sets its own padding — the head's panels
+// pad their contents, the footer's controls take the ring alone.
 
 // the full-page card replaces the page background outright: it takes the
-// background's rounded corners and drops the card border
+// background's rounded corners and drops the card border. The strips carry
+// the separation on their own — the head's divider and drop shadow below,
+// the actions' divider and bevel above — so a rim round the whole card only
+// closed a box that reads as open.
 nz-card.full-page {
   border: none;
   border-radius: @border-radius-md;
@@ -18,16 +93,90 @@ nz-card.full-page {
   // head and actions paint above the body content — the field boxes are
   // positioned elements, so the scroll shadows need a real z-index to
   // overlay them
+  // direct children only: the head's extra and the body both host cards of
+  // their own, and popovers opened from here render cards in the overlay
   > .ant-card-head {
     border-radius: @border-radius-md @border-radius-md 0 0;
     position: relative;
     z-index: 10;
     transition: box-shadow 0.2s ease;
 
+    .entity-strip();
+    border-bottom: 1px solid @entity-flat-rule;
+    border-bottom-color: @entity-rule;
+
+    // the legend sits in the head's extra slot, on the fill rather than on
+    // white — the panel keeps it legible over any entity's color without
+    // pinning it to one
+    .ant-card-extra {
+      .background-panel();
+      padding: 4px 8px;
+
+      // the label that introduces the chips takes the head's ink; the chips
+      // keep the state colors they exist to demonstrate
+      .legend-title {
+        color: @entity-ink;
+      }
+    }
+
     // the full-page card's title is the page title, sized a step above the
     // card default (32 and 24 both read oversized live)
     .ant-card-head-title {
       font-size: 20px;
+      // the identity sits the same distance from every edge of the head.
+      // 12px horizontally is the head's own padding; ant leaves the vertical
+      // to (min-height - line-height) / 2, which lands at 8.5px here
+      padding: 12px 0;
+      // the head is one flex row: the title takes what the legend leaves,
+      // and a long entity name is clipped rather than pushing it off
+      display: flex;
+      align-items: center;
+      min-width: 0;
+
+      // the identity — icon and name — sits on the legend's panel, so both
+      // ends of the head read the same way against the fill. It hugs its
+      // contents: a flex child sizes to content unless told to grow.
+      .title-panel {
+        .background-panel();
+        // nz-tag's own proportions, scaled by 20/12 — the title's font size
+        // over the tag's. The tag pads `0 7px` at 12px and takes its height
+        // from the line box; 7 x 1.667 is 12px, and the 20px line box is
+        // already the same 1.667 ratio, so the vertical padding is zero for
+        // the same reason it is on the tag.
+        //
+        // The left side is 2px short of that: the icon is a circle, so its
+        // glyph pulls away from the border at the corners and the gap reads
+        // wider than the flat edge of the text on the right.
+        padding: 0 12px 0 10px;
+        color: @entity-ink;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+
+        // the icon reads a size above the words it labels
+        > i[nz-icon] {
+          font-size: 25px;
+          flex: none;
+          // the panel alone does not lift the glyph off the fill — the icon
+          // is the entity's own color on a wash of the same hue. Chained
+          // drop-shadows trace the glyph itself, where a border would box
+          // the 25px square; the tracing takes the panels' edge so the two
+          // read as one treatment.
+          filter: drop-shadow(1px 0 0 @panel-edge)
+            drop-shadow(-1px 0 0 @panel-edge) drop-shadow(0 1px 0 @panel-edge)
+            drop-shadow(0 -1px 0 @panel-edge);
+        }
+
+        // an entity name with nowhere left to go ends in an ellipsis; the
+        // tooltip carries the whole of it
+        .title-text {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          min-width: 0;
+        }
+      }
 
       // the submit-error tag sits beside the title at tag scale
       .title-error-tag {
@@ -43,15 +192,37 @@ nz-card.full-page {
     position: relative;
     z-index: 10;
     transition: box-shadow 0.2s ease;
+
+    // the head's fill, plus the highlight that separates it from its divider
+    .entity-strip();
+    .strip-bevel();
+    border-top: 1px solid @entity-flat-rule;
+    border-top-color: @entity-rule-soft;
+
+    // each control sits on the panel, inset enough that the ring reads as
+    // its own frame rather than as a second border on the control
+    cvc-cancel-button,
+    .submit-error-alert,
+    .submit-btn {
+      .background-panel();
+      padding: 3px;
+    }
+
+    // the ring needs a box to trace; the host element is inline by default
+    cvc-cancel-button {
+      display: inline-flex;
+    }
   }
 
   // cvcScrollShadows keeps these classes truthful: a subtle shadow marks
   // form content clipped under the header or continuing past the footer
   &.scrolled-from-top > .ant-card-head {
-    box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 6px 8px -6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 6px 8px -6px @entity-shade;
   }
   &.scrolled-from-bottom > .ant-card-actions {
-    box-shadow: 0 -6px 8px -6px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 -6px 8px -6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 -6px 8px -6px @entity-shade;
   }
 }
 

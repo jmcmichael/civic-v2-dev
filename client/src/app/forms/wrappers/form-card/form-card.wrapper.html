@@ -2,6 +2,7 @@
   cvcAutoHeightCard
   [cvcAutoHeightTarget]="fullPage ? 'page' : 'none'"
   cvcScrollShadows
+  [cvcScrollShadowTint]="entityColor"
   [class.full-page]="fullPage"
   [nzTitle]="cardTitle"
   [nzSize]="wrapperOptions.size ?? 'default'"
@@ -21,17 +22,22 @@
 </nz-card>
 
 <ng-template #cardTitle>
-  @if (props.formTitle; as t) {
-    {{ t.action }}
-    <i
-      nz-icon
-      nzTheme="twotone"
-      [nzTwotoneColor]="t.entityType | entityColor"
-      [nzType]="t.icon"></i>
-    {{ t.name }}
-  } @else {
-    {{ wrapperOptions.title ?? '' }}
-  }
+  <span class="title-panel">
+    @if (props.formTitle; as t) {
+      <i
+        nz-icon
+        nzTheme="twotone"
+        [nzTwotoneColor]="t.entityType | entityColor"
+        [nzType]="t.icon"></i>
+      <span
+        class="title-text"
+        [nz-tooltip]="t.subject ? t.action + ' ' + t.subject : null"
+        >{{ t.action }} {{ t.subject ?? t.label }}</span
+      >
+    } @else {
+      {{ wrapperOptions.title ?? '' }}
+    }
+  </span>
   <cvc-form-error-alert
     class="title-error-tag"
     variant="tag" />
