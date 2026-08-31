@@ -1,0 +1,26 @@
+@import 'themes/background-panel.less';
+
+// the panel's radius and edge come from the shared recipe; the component's
+// style bindings override the fill and border colour from its props
+.cvc-form-actions-panel {
+  .background-panel();
+}
+
+// formly interposes formly-group/formly-field elements (and the col wrapper
+// adds its own host) between the row and its nz-cols; without display:
+// contents those boxes are the flex items and every col wraps onto its own
+// line.
+//
+// Stated again here rather than borrowed from the row wrapper: an
+// encapsulation-None stylesheet is emitted when its own component is
+// instantiated, so a form that uses only this row would never get that
+// one's rules.
+.cvc-form-actions-panel > .cvc-form-row > formly-group,
+.cvc-form-actions-panel > .cvc-form-row > formly-group > formly-field,
+.cvc-form-actions-panel
+  > .cvc-form-row
+  > formly-group
+  > formly-field
+  > cvc-col-wrapper {
+  display: contents;
+}

@@ -200,10 +200,15 @@ nz-card.full-page {
     border-top-color: @entity-rule-soft;
 
     // each control sits on the panel, inset enough that the ring reads as
-    // its own frame rather than as a second border on the control
-    cvc-cancel-button,
-    .submit-error-alert,
-    .submit-btn {
+    // its own frame rather than as a second border on the control.
+    //
+    // TRANSITIONAL: a form on the actions row already has one panel around
+    // the whole row, and the two treatments stack into a double ring. The
+    // :not() excludes those rather than fighting this rule's specificity
+    // from the row's own stylesheet; both go when every form has migrated.
+    cvc-cancel-button:not(.cvc-form-actions-panel *),
+    .submit-error-alert:not(.cvc-form-actions-panel *),
+    .submit-btn:not(.cvc-form-actions-panel *) {
       .background-panel();
       padding: 3px;
     }

@@ -203,10 +203,12 @@ const formFieldConfig: FormlyFieldConfig[] = [
             ],
           },
           {
-            wrappers: ['row'],
+            // the pilot for the actions row: one panel around the whole row,
+            // where the other fifteen forms still panel each control
+            wrappers: ['form-actions-row'],
             // 12px gutter matches the strip's 12px padding: uniform gaps
             // around every footer element
-            props: { formFooter: true, row: { gutter: [12, 8] } },
+            props: { formFooter: true, actionsRow: { gutter: [12, 8] } },
             fieldGroup: [
               {
                 type: 'cvc-cancel-button',

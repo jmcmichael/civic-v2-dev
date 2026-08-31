@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
+import { CvcFormActionsRowModule } from './form-actions-row/form-actions-row.module'
 import { CvcFormCardModule } from './form-card/form-card.module'
 import { CvcFormFieldWrapperModule } from './form-field/form-field.module'
 import { CvcFormLayoutWrapperModule } from './form-layout/form-layout.wrapper.module'
@@ -12,6 +13,7 @@ import { CvcQueryStructCardModule } from './query-struct-card/query-struct-card.
   imports: [
     CommonModule,
     CvcFormLayoutWrapperModule,
+    CvcFormActionsRowModule,
     CvcFormCardModule,
     CvcFormFieldWrapperModule,
     CvcGridWrappersModule,
