@@ -24,7 +24,7 @@ import { ConfigOption, FormlyModule } from '@ngx-formly/core'
  * field's answer. Companion to CvcSelectFieldsRegistryModule; both are
  * imported by types/form-types.module.ts.
  */
-const baseFieldTypes: ConfigOption = {
+export const baseFieldTypes: ConfigOption = {
   types: [
     {
       name: 'base-input',

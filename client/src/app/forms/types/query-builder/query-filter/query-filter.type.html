@@ -34,7 +34,7 @@
           nzType="arrow-left"
           nzTheme="outline" />
         @if (showError) {
-          Select an attribute or remove this filter.
+          <formly-validation-message [field]="field" />
         } @else {
           Select an attribute filter.
         }

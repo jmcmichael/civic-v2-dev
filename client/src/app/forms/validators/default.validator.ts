@@ -1,59 +1,57 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms'
 import { FormlyFieldConfig } from '@ngx-formly/core'
+import {
+  CvcValidationKey,
+  fieldMessage,
+  genericRequired,
+} from '@app/forms/messages/field-messages'
+
+/**
+ * The global validator vocabulary. Each entry asks the field-message catalog
+ * first, so a field can speak for itself, and falls back to a sentence that
+ * at least names the field. Everything formly ranks above the global catalog
+ * — an error payload's own `message`, `validation.messages`, a validator's
+ * inline `message` — still wins.
+ */
+function catalogued(
+  key: CvcValidationKey,
+  fallback: (ffc: FormlyFieldConfig) => string
+) {
+  return {
+    name: key,
+    message: (_err: any, ffc: FormlyFieldConfig): string =>
+      fieldMessage(ffc, key) ?? fallback(ffc),
+  }
+}
 
 export const defaultMessages = [
-  {
-    name: 'required',
-    message: 'This field is required.',
-  },
-  {
-    name: 'minLength',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a minimum length of ${ffc.props?.minLength}.`
-    },
-  },
-  {
-    name: 'maxLength',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a maximum length of ${ffc.props?.maxLength}.`
-    },
-  },
-  {
-    name: 'min',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a minimum value of ${ffc.props?.min}.`
-    },
-  },
-  {
-    name: 'max',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field has a maximum value of ${ffc.props?.max}.`
-    },
-  },
-  {
-    name: 'pattern',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `This field's value must fit the pattern ${ffc.props?.pattern}.`
-    },
-  },
-  {
-    name: 'integer',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `Value must be an integer.`
-    },
-  },
-  {
-    name: 'nucleotide',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `Value must only contain A, C, T, G, and/or /.`
-    },
-  },
-  {
-    name: 'clinvar',
-    message: (_err: any, ffc: FormlyFieldConfig): string => {
-      return `Value must be an integer.`
-    },
-  },
+  catalogued('required', genericRequired),
+  catalogued(
+    'minLength',
+    (ffc) => `This field has a minimum length of ${ffc.props?.minLength}.`
+  ),
+  catalogued(
+    'maxLength',
+    (ffc) => `This field has a maximum length of ${ffc.props?.maxLength}.`
+  ),
+  catalogued(
+    'min',
+    (ffc) => `This field has a minimum value of ${ffc.props?.min}.`
+  ),
+  catalogued(
+    'max',
+    (ffc) => `This field has a maximum value of ${ffc.props?.max}.`
+  ),
+  catalogued(
+    'pattern',
+    (ffc) => `This field's value must fit the pattern ${ffc.props?.pattern}.`
+  ),
+  catalogued('integer', () => 'Value must be an integer.'),
+  catalogued(
+    'nucleotide',
+    () => 'Value must only contain A, C, T, G, and/or /.'
+  ),
+  catalogued('clinvar', () => 'ClinVar IDs must be integers.'),
 ]
 
 export const defaultValidators = [
@@ -89,7 +87,8 @@ export const defaultValidators = [
       fc: AbstractControl,
       ffc: FormlyFieldConfig
     ): ValidationErrors | null => {
-      for (var value of fc.value) {
+      if (!Array.isArray(fc.value)) return null
+      for (const value of fc.value) {
         if (!(value === '' || value === undefined || value === null)) {
           if (!/^\d+$/.test(value)) {
             return { clinvar: true }

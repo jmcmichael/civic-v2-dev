@@ -1,8 +1,10 @@
-import { FormControl, Validators } from '@angular/forms'
-import { FormlyFieldConfig } from '@ngx-formly/core'
-import { describe, expect, it } from 'vitest'
+import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { CvcFormlyConfig2 } from '@app/forms/forms.options'
+import { FormlyConfig, FormlyFieldConfig } from '@ngx-formly/core'
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
   collectFieldIssues,
+  createUnrevisedCheck,
   collectFieldValues,
   describeFieldIssues,
 } from './form-field-issues'
@@ -19,7 +21,14 @@ function link(root: FormlyFieldConfig): FormlyFieldConfig {
 }
 
 describe('collectFieldIssues', () => {
-  it('reports required and invalid controls with labels, from any field', () => {
+  let config: FormlyConfig
+
+  beforeEach(() => {
+    config = new FormlyConfig()
+    config.addConfig(CvcFormlyConfig2)
+  })
+
+  it('reports each failing control as the sentence its field shows', () => {
     const root = link({
       fieldGroup: [
         {
@@ -29,7 +38,7 @@ describe('collectFieldIssues', () => {
         },
         {
           key: 'rating',
-          props: { label: 'Rating' },
+          props: { label: 'Rating', max: 5 },
           formControl: new FormControl(9, Validators.max(5)),
         },
         {
@@ -39,10 +48,14 @@ describe('collectFieldIssues', () => {
       ],
     })
     // climbs to the root from a leaf
-    const issues = collectFieldIssues(root.fieldGroup![2])
+    const issues = collectFieldIssues(root.fieldGroup![2], config)
     expect(issues).toEqual([
-      { label: 'Source', reason: 'required value is missing' },
-      { label: 'Rating', reason: 'invalid value (max)' },
+      { label: 'Source', scope: 'field', message: 'Source is required.' },
+      {
+        label: 'Rating',
+        scope: 'field',
+        message: 'This field has a maximum value of 5.',
+      },
     ])
   })
 
@@ -59,7 +72,7 @@ describe('collectFieldIssues', () => {
         { key: 'interaction', formControl: disabled },
       ],
     })
-    expect(collectFieldIssues(root)).toEqual([])
+    expect(collectFieldIssues(root, config)).toEqual([])
   })
 
   it('collects labeled, non-empty leaf values for the submission preview', () => {
@@ -167,18 +180,94 @@ describe('describeFieldIssues', () => {
     expect(describeFieldIssues([])).toBe('Form is not ready to submit.')
   })
 
-  it('names the field when a single issue is outstanding', () => {
-    expect(
-      describeFieldIssues([{ label: 'Rating', reason: 'is required' }])
-    ).toBe('Rating: is required.')
-  })
-
-  it('counts them when several are outstanding', () => {
+  it('speaks for the field when a single issue is outstanding', () => {
     expect(
       describeFieldIssues([
-        { label: 'Rating', reason: 'is required' },
-        { label: 'Summary', reason: 'is required' },
+        { label: 'Rating', scope: 'field', message: 'Rate the evidence.' },
       ])
-    ).toBe('2 fields need attention before submitting.')
+    ).toBe('Rate the evidence.')
+  })
+
+  it('defers to the popover when several are outstanding, whatever their scope', () => {
+    const several = [
+      { label: 'Rating', scope: 'field' as const, message: 'Rate it.' },
+      { label: 'Summary', scope: 'field' as const, message: 'Summarize it.' },
+    ]
+    const expected = 'Multiple issues prevent this form from being submitted.'
+    expect(describeFieldIssues(several)).toBe(expected)
+    expect(
+      describeFieldIssues([
+        several[0],
+        { label: 'Revision', scope: 'form', message: 'Change a field.' },
+      ])
+    ).toBe(expected)
+  })
+})
+
+describe('createUnrevisedCheck', () => {
+  /** a revise form's shape: a keyed `fields` group beside a comment */
+  function reviseForm(fields: Record<string, FormControl>) {
+    const group = new FormGroup(fields)
+    return link({
+      options: { formState: { formMode: 'revise' } },
+      fieldGroup: [
+        { key: 'fields', formControl: group },
+        { key: 'comment', formControl: new FormControl(null) },
+      ],
+    } as FormlyFieldConfig)
+  }
+
+  it('reports an untouched revise form as unrevised', () => {
+    const unrevised = createUnrevisedCheck()
+    const root = reviseForm({ rating: new FormControl(3) })
+    expect(unrevised(root)).toBe(true)
+  })
+
+  it('takes an async model load as the baseline, not a revision', () => {
+    const unrevised = createUnrevisedCheck()
+    const rating = new FormControl<number | null>(null)
+    const root = reviseForm({ rating })
+    expect(unrevised(root)).toBe(true)
+    // formly patches the loaded entity without dirtying
+    rating.setValue(3)
+    expect(unrevised(root)).toBe(true)
+  })
+
+  it('reports a changed field as a revision', () => {
+    const unrevised = createUnrevisedCheck()
+    const rating = new FormControl(3)
+    const root = reviseForm({ rating })
+    expect(unrevised(root)).toBe(true)
+    rating.setValue(4)
+    rating.markAsDirty()
+    expect(unrevised(root)).toBe(false)
+  })
+
+  it('reports a field edited and put back as unrevised, as the server does', () => {
+    const unrevised = createUnrevisedCheck()
+    const rating = new FormControl(3)
+    const root = reviseForm({ rating })
+    unrevised(root)
+    rating.setValue(4)
+    rating.markAsDirty()
+    expect(unrevised(root)).toBe(false)
+    rating.setValue(3)
+    expect(unrevised(root)).toBe(true)
+  })
+
+  it('ignores the comment, which is not a revisable field', () => {
+    const unrevised = createUnrevisedCheck()
+    const root = reviseForm({ rating: new FormControl(3) })
+    const comment = root.fieldGroup![1].formControl!
+    comment.setValue('a comment long enough to pass')
+    comment.markAsDirty()
+    expect(unrevised(root)).toBe(true)
+  })
+
+  it('has nothing to say about submit forms', () => {
+    const unrevised = createUnrevisedCheck()
+    const root = reviseForm({ rating: new FormControl<number | null>(null) })
+    root.options!.formState.formMode = 'add'
+    expect(unrevised(root)).toBe(false)
   })
 })

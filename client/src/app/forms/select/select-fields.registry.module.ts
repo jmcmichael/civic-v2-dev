@@ -88,7 +88,7 @@ const enumFieldTypes = [
   },
 ]
 
-const selectFieldTypes: ConfigOption = {
+export const selectFieldTypes: ConfigOption = {
   types: [
     ...enumFieldTypes,
     {

@@ -3,14 +3,29 @@ import {
   formatEvidenceEnum,
   InputEnum,
 } from '@app/core/utilities/enum-formatters/format-evidence-enum'
+import { genericInvalid } from '@app/forms/messages/field-messages'
+import { resolveFieldMessage } from '@app/forms/messages/resolve-field-message'
+import { CVC_SUBMISSION_MESSAGES } from '@app/forms/messages/submission-messages'
 import { EntityTagRef, isTaggableTypename } from '@app/tags/entity-tag-specs'
-import { FormlyFieldConfig } from '@ngx-formly/core'
+import { FormlyConfig, FormlyFieldConfig } from '@ngx-formly/core'
+import { CvcInputEnum } from '@app/forms/forms.types'
 
 /** One reason the form cannot be submitted yet, for the readiness popover */
 export interface FormFieldIssue {
   readonly label: string
-  readonly reason: string
+  /** the sentence the field itself shows, resolved through formly */
+  readonly message: string
+  /**
+   * What the issue is about: one field, or the submission as a whole (an
+   * unrevised revise form belongs to no field). The popover lists the two
+   * separately, under headings that say which is which.
+   */
+  readonly scope: 'field' | 'form'
 }
+
+// the keyed group holding a form's revisable fields; `comment` and
+// `organizationId` are submission metadata and sit outside it
+const REVISABLE_GROUP_KEY = 'fields'
 
 function fieldLabel(field: FormlyFieldConfig): string {
   if (field.props?.label) return field.props.label
@@ -18,35 +33,34 @@ function fieldLabel(field: FormlyFieldConfig): string {
   return 'form'
 }
 
-function reasonFor(errors: Record<string, unknown>): string {
-  const keys = Object.keys(errors)
-  if (keys.includes('required')) return 'required value is missing'
-  return `invalid value (${keys.join(', ')})`
-}
-
 /**
- * Collects every validation failure in a formly form as label/reason pairs:
- * walks up from any field to the formly root, then down the whole tree,
- * reporting each enabled control that carries its own errors — leaf fields
- * (missing required values, failed validators) and group-level validators
- * alike.
- */
-/**
- * The one-line readiness sentence for a set of outstanding issues: a single
- * issue names itself, several defer to the popover that lists them.
+ * The one-line readiness sentence for a set of outstanding issues: a lone
+ * issue speaks for itself, several defer to the popover that lists them —
+ * stacking sentences in a one-line alert reads worse than the invitation to
+ * open the list.
  *
  * Shared so the footer alert and the disabled submit button cannot drift into
  * describing the same form two different ways.
  */
-export function describeFieldIssues(
-  issues: readonly FormFieldIssue[]
-): string {
-  if (issues.length === 0) return 'Form is not ready to submit.'
-  if (issues.length === 1) return `${issues[0].label}: ${issues[0].reason}.`
-  return `${issues.length} fields need attention before submitting.`
+export function describeFieldIssues(issues: readonly FormFieldIssue[]): string {
+  if (issues.length === 0) return CVC_SUBMISSION_MESSAGES.notReady
+  if (issues.length === 1) return issues[0].message
+  return CVC_SUBMISSION_MESSAGES.multipleIssues
 }
 
-export function collectFieldIssues(field: FormlyFieldConfig): FormFieldIssue[] {
+/**
+ * Every validation failure in a formly form as label/message pairs: walks up
+ * from any field to the formly root, then down the whole tree, reporting each
+ * enabled control that carries its own errors — leaf fields (missing required
+ * values, failed validators) and group-level validators alike.
+ *
+ * Messages resolve through formly's own precedence, so the popover row and
+ * the field's error tip are the same sentence.
+ */
+export function collectFieldIssues(
+  field: FormlyFieldConfig,
+  config: FormlyConfig
+): FormFieldIssue[] {
   let root = field
   while (root.parent) root = root.parent
   const issues: FormFieldIssue[] = []
@@ -56,12 +70,56 @@ export function collectFieldIssues(field: FormlyFieldConfig): FormFieldIssue[] {
     const control = f.formControl
     if (control?.errors && control.enabled && !seen.has(control)) {
       seen.add(control)
-      issues.push({ label: fieldLabel(f), reason: reasonFor(control.errors) })
+      issues.push({
+        label: fieldLabel(f),
+        scope: 'field',
+        message:
+          resolveFieldMessage(f, config) ??
+          genericInvalid(Object.keys(control.errors)),
+      })
     }
     f.fieldGroup?.forEach(visit)
   }
   visit(root)
   return issues
+}
+
+/**
+ * Whether a revise form still carries no revision — every revisable field
+ * holds the value it loaded with, which the server rejects.
+ *
+ * Returns a stateful check because the answer needs a baseline: the loaded
+ * values. The revisable group stays pristine through the async model load
+ * (formly patches values without dirtying), so while it is pristine it *is*
+ * the baseline; once the curator edits it, its value is compared against the
+ * baseline captured last. A field edited and put back therefore reads as
+ * unrevised, which is the answer the server gives.
+ *
+ * Only revise forms have anything to say here; submit and clone forms always
+ * answer false.
+ */
+export function createUnrevisedCheck(): (field: FormlyFieldConfig) => boolean {
+  let group: AbstractControl | undefined
+  let loaded: string | undefined
+  return (field) => {
+    if (field.options?.formState?.formMode !== 'revise') return false
+    if (!group) {
+      let root = field
+      while (root.parent) root = root.parent
+      const find = (f: FormlyFieldConfig): FormlyFieldConfig | undefined =>
+        f.key === REVISABLE_GROUP_KEY
+          ? f
+          : f.fieldGroup?.reduce<FormlyFieldConfig | undefined>(
+              (hit, child) => hit ?? find(child),
+              undefined
+            )
+      group = find(root)?.formControl
+    }
+    if (!group) return false
+    const current = JSON.stringify(group.value ?? null)
+    if (group.pristine || loaded === undefined) loaded = current
+    return current === loaded
+  }
 }
 
 /** One labeled model value, for the submission-preview popover */
@@ -79,9 +137,16 @@ export interface FormFieldValue {
   /** the current value's meaning, as the field displays it */
   readonly description?: string
   /** the raw enum value, for attribute-tag rendering and values mode */
-  readonly enumValue?: string
+  /**
+   * An enum-shaped value, for the preview to render as an attribute tag.
+   * Narrowed from the regex check below rather than proven: the tag is
+   * display-only, and a value outside the union renders as its own string.
+   */
+  readonly enumValue?: CvcInputEnum
   /** a star rating, for evidence-rating rendering in tags mode */
   readonly rating?: number
+  /** the field was cleared — the preview shows it as unspecified */
+  readonly emptied?: boolean
   /** entity refs standing behind `value`, renderable by cvc-tag as-is */
   readonly entities?: EntityTagRef[]
   /** entity refs standing behind `before` */
@@ -264,9 +329,10 @@ export function collectFieldValues(
         ? ids.map((id) => ({ __typename: typename, id }))
         : undefined
     }
-    const formatted = isEmpty(value)
-      ? '—'
-      : formatValue(value, typename, resolve)
+    // an emptied field carries no string of its own; the preview renders
+    // cvc-empty-value for it rather than a bare dash
+    const emptied = isEmpty(value)
+    const formatted = emptied ? '' : formatValue(value, typename, resolve)
     const beforeStr = revised
       ? formatValue(originalValue, typename, resolve)
       : undefined
@@ -287,10 +353,11 @@ export function collectFieldValues(
           : f.props.description?.replace(/<[^>]*>/g, '') || undefined,
       enumValue:
         !typename && typeof value === 'string' && ENUM_SHAPE.test(value)
-          ? value
+          ? (value as CvcInputEnum)
           : undefined,
       rating:
         f.type === 'rating' && typeof value === 'number' ? value : undefined,
+      emptied: emptied || undefined,
       valueType: valueTypeOf(value ?? originalValue, typename),
       before: changed ? beforeStr : undefined,
       entities: toRefs(value),
