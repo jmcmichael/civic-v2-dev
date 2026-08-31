@@ -26,6 +26,7 @@ import {
   molecularProfileToModelFields,
 } from '@app/forms/utilities/molecular-profile-to-model-fields'
 import { molecularProfileReviseFields } from './molecular-profile-revise.form.config'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -68,6 +69,8 @@ export class CvcMolecularProfileReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const molecularProfile = data?.molecularProfile
           if (molecularProfile) {
+            // the card title names what is being revised
+            setFormSubject(this.fields, molecularProfile.name)
             this.options.formState.isSimpleMp = !molecularProfile.isComplex
 
             this.model.set({

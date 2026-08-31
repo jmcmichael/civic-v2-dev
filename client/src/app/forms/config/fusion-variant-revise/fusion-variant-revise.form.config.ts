@@ -1,5 +1,7 @@
+import { withMessages } from '@app/forms/messages/field-messages'
 import { fusionVariantReviseFormInitialModel } from '@app/forms/models/fusion-variant-revise.model'
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -32,7 +34,7 @@ function formFieldConfig(
           // keyless: groups the card contents without nesting the model
           wrappers: ['form-card'],
           props: <CvcFormCardWrapperProps>{
-            formCardOptions: { title: 'Revise Variant' },
+            formTitle: formTitle('Revise', 'Variant'),
           },
           fieldGroup: [
             {
@@ -310,6 +312,7 @@ function formFieldConfig(
                   props: {
                     col: { span: 24 },
                     label: 'Comment',
+                    ...withMessages('reviseComment'),
                     placeholder:
                       'Please enter a comment describing your revisions.',
                     required: true,

@@ -31,6 +31,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button'
 import { CvcForms2Module } from '@app/forms/forms.module'
 import { CvcFormSubmissionStatusDisplayModule } from '@app/forms/components/form-submission-status-display/form-submission-status-display.module'
 import { FusionReviseModel } from '@app/forms/models/fusion-revise.model'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -75,6 +76,8 @@ export class CvcFusionReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const feature = data?.feature
           if (feature) {
+            // the card title names what is being revised
+            setFormSubject(this.fields, feature.name)
             let fields = fusionToModelFields(feature)
             if (fields) {
               this.model.set({

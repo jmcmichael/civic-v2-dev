@@ -31,6 +31,7 @@ import {
   assertionFormModelToReviseInput,
   assertionToModelFields,
 } from '@app/forms/utilities/assertion-to-model-fields'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -89,6 +90,8 @@ export class CvcAssertionReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const assertion = data?.assertion
           if (assertion) {
+            // the card title names what is being revised
+            setFormSubject(this.fields, assertion.name)
             this.model.set({
               id: assertion.id,
               fields: assertionToModelFields(assertion),

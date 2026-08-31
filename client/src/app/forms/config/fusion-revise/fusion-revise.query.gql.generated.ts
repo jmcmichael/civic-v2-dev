@@ -10,14 +10,14 @@ export type FusionRevisableFieldsQueryVariables = Types.Exact<{
 }>;
 
 
-export type FusionRevisableFieldsQuery = { __typename: 'Query', feature?: { __typename: 'Feature', id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
+export type FusionRevisableFieldsQuery = { __typename: 'Query', feature?: { __typename: 'Feature', name: string, id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
       | { __typename: 'Factor', id: number }
       | { __typename: 'Fusion', fivePrimePartnerStatus: Types.FusionPartnerStatus, threePrimePartnerStatus: Types.FusionPartnerStatus, id: number, knownPartnerGenes: Array<{ __typename: 'Gene', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }> }
       | { __typename: 'Gene', id: number }
       | { __typename: 'Region', id: number }
      } | undefined };
 
-export type RevisableFusionFieldsFragment = { __typename: 'Feature', id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
+export type RevisableFusionFieldsFragment = { __typename: 'Feature', name: string, id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
     | { __typename: 'Factor', id: number }
     | { __typename: 'Fusion', fivePrimePartnerStatus: Types.FusionPartnerStatus, threePrimePartnerStatus: Types.FusionPartnerStatus, id: number, knownPartnerGenes: Array<{ __typename: 'Gene', id: number, name: string, link: string, deprecated: boolean, flagged: boolean }> }
     | { __typename: 'Gene', id: number }
@@ -33,6 +33,7 @@ export type SuggestFusionRevisionMutation = { __typename: 'Mutation', suggestFus
 
 export const RevisableFusionFieldsFragmentDoc = gql`
     fragment RevisableFusionFields on Feature {
+  name
   id
   description
   sources {

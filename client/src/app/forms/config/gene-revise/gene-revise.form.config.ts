@@ -1,5 +1,7 @@
+import { withMessages } from '@app/forms/messages/field-messages'
 import { geneReviseFormInitialModel } from '@app/forms/models/gene-revise.model'
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -23,7 +25,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
-          formCardOptions: { title: 'Revise Gene' },
+          formTitle: formTitle('Revise', 'Gene'),
         },
         fieldGroup: [
           {
@@ -66,6 +68,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: {
                   col: { span: 24 },
                   label: 'Comment',
+                  ...withMessages('reviseComment'),
                   placeholder:
                     'Please enter a comment describing your revisions.',
                   required: true,

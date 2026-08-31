@@ -18,7 +18,6 @@ import { pluck } from 'rxjs-etc/operators'
 @Component({
   selector: 'cvc-molecular-profiles-revise',
   templateUrl: './molecular-profiles-revise.view.html',
-  styleUrls: ['./molecular-profiles-revise.view.less'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })

@@ -1,3 +1,4 @@
+import { withMessages } from '@app/forms/messages/field-messages'
 import { evidenceReviseFormInitialModel } from '@app/forms/models/evidence-revise.model'
 import { CvcDirectionSelectFieldOptions } from '@app/forms/types/direction-select/direction-select.type'
 import { CvcDiseaseSelectFieldOptions } from '@app/forms/types/disease-select/disease-select.type'
@@ -12,6 +13,7 @@ import { CvcSourceSelectFieldConfig } from '@app/forms/types/source-select/sourc
 import { CvcTherapySelectFieldOptions } from '@app/forms/types/therapy-select/therapy-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms/types/type-select/type-select.type'
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -33,7 +35,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
-          formCardOptions: { title: 'Revise Evidence Item' },
+          formTitle: formTitle('Revise', 'EvidenceItem'),
           formInstructions:
             'Provide support for your suggested revisions in the Comment field before submitting. Well-supported revisions facilitate the editorial curation process, and improve chances for approval.',
         },
@@ -174,6 +176,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       description:
                         'Data constituting personal or identifying information should not be entered (e.g. <a href="https://www.hipaajournal.com/what-is-protected-health-information/" target="_blank">protected health information (PHI) as defined by HIPAA</a> in the U.S. and/or comparable laws in your jurisdiction).',
                       label: 'Evidence Statement',
+                      ...withMessages('evidenceStatement'),
                       required: true,
                       colSpan: 24,
                     },
@@ -192,6 +195,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: {
                   col: { span: 24 },
                   label: 'Comment',
+                  ...withMessages('reviseComment'),
                   required: true,
                   minLength: 10,
                 },

@@ -5,6 +5,7 @@ query FusionRevisableFields($featureId: Int!) {
 }
 
 fragment RevisableFusionFields on Feature {
+  name
   id
   description
   sources {

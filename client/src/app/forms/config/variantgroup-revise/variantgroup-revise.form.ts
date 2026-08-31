@@ -28,6 +28,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
 import { variantgroupSuggestFields } from './variantgroup-revise.form.config'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -84,6 +85,8 @@ export class CvcVariantgroupReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const variantGroup = data?.variantGroup
           if (variantGroup) {
+            // the card title names what is being revised
+            setFormSubject(this.fields, variantGroup.name)
             this.model.set({
               id: variantGroup.id,
               fields: variantGroupToModelFields(variantGroup),

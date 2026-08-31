@@ -9,9 +9,9 @@ export type RegionRevisableFieldsQueryVariables = Types.Exact<{
 }>;
 
 
-export type RegionRevisableFieldsQuery = { __typename: 'Query', feature?: { __typename: 'Feature', id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> } | undefined };
+export type RegionRevisableFieldsQuery = { __typename: 'Query', feature?: { __typename: 'Feature', name: string, id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> } | undefined };
 
-export type RevisableRegionFieldsFragment = { __typename: 'Feature', id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> };
+export type RevisableRegionFieldsFragment = { __typename: 'Feature', name: string, id: number, description?: string | undefined, featureAliases: Array<string>, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> };
 
 export type SuggestRegionRevisionMutationVariables = Types.Exact<{
   input: Types.SuggestRegionRevisionInput;
@@ -22,6 +22,7 @@ export type SuggestRegionRevisionMutation = { __typename: 'Mutation', suggestReg
 
 export const RevisableRegionFieldsFragmentDoc = gql`
     fragment RevisableRegionFields on Feature {
+  name
   id
   description
   sources {

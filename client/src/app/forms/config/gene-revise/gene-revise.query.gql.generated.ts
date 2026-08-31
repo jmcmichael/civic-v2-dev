@@ -10,14 +10,14 @@ export type GeneRevisableFieldsQueryVariables = Types.Exact<{
 }>;
 
 
-export type GeneRevisableFieldsQuery = { __typename: 'Query', feature?: { __typename: 'Feature', id: number, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
+export type GeneRevisableFieldsQuery = { __typename: 'Query', feature?: { __typename: 'Feature', name: string, id: number, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
       | { __typename: 'Factor', id: number }
       | { __typename: 'Fusion', id: number }
       | { __typename: 'Gene', description?: string | undefined, id: number }
       | { __typename: 'Region', id: number }
      } | undefined };
 
-export type RevisableGeneFieldsFragment = { __typename: 'Feature', id: number, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
+export type RevisableGeneFieldsFragment = { __typename: 'Feature', name: string, id: number, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }>, featureInstance:
     | { __typename: 'Factor', id: number }
     | { __typename: 'Fusion', id: number }
     | { __typename: 'Gene', description?: string | undefined, id: number }
@@ -33,6 +33,7 @@ export type SuggestGeneRevisionMutation = { __typename: 'Mutation', suggestGeneR
 
 export const RevisableGeneFieldsFragmentDoc = gql`
     fragment RevisableGeneFields on Feature {
+  name
   id
   sources {
     id

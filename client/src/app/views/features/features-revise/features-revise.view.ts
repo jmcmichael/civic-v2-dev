@@ -18,7 +18,6 @@ import { pluck } from 'rxjs-etc/operators'
 @Component({
   selector: 'features-revise',
   templateUrl: './features-revise.view.html',
-  styleUrls: ['./features-revise.view.less'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })

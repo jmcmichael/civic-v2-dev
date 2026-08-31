@@ -27,6 +27,7 @@ import {
   fusionVariantFormModelToReviseInput,
   fusionVariantToModelFields,
 } from '@app/forms/utilities/fusion-variant-to-model-fields'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -80,6 +81,9 @@ export class CvcFusionVariantReviseForm implements OnInit, AfterViewInit {
               fivePrimeDisabled,
               threePrimeDisabled
             )
+            // after the reassignment above, or the subject lands on the
+            // config this form is about to replace
+            setFormSubject(this.fields, variant.name)
             this.model.set({
               id: variant.id,
               fields: fusionVariantToModelFields(variant),

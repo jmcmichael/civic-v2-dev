@@ -1,21 +1,6 @@
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { describe, expect, it } from 'vitest'
-import { assertionReviseFields } from './assertion-revise/assertion-revise.form.config'
-import { assertionSubmitFields } from './assertion-submit/assertion-submit.form.config'
-import { evidenceReviseFields } from './evidence-revise/evidence-revise.form.config'
-import { evidenceSubmitFields } from './evidence-submit/evidence-submit.form.config'
-import { factorReviseFields } from './factor-revise/factor-revise.form.config'
-import { factorVariantReviseFields } from './factor-variant-revise/factor-variant-revise.form.config'
-import { fusionReviseFields } from './fusion-revise/fusion-revise.form.config'
-import { fusionVariantReviseFields } from './fusion-variant-revise/fusion-variant-revise.form.config'
-import { geneReviseFields } from './gene-revise/gene-revise.form.config'
-import { geneVariantReviseFields } from './gene-variant-revise/gene-variant-revise.form.config'
-import { molecularProfileReviseFields } from './molecular-profile-revise/molecular-profile-revise.form.config'
-import { regionReviseFields } from './region-revise/region-revise.form.config'
-import { regionVariantReviseFields } from './region-variant-revise/region-variant-revise.form.config'
-import { sourceSuggestFields } from './source-submit/source-submit.form.config'
-import { variantgroupSuggestFields as variantgroupReviseFields } from './variantgroup-revise/variantgroup-revise.form.config'
-import { variantgroupSuggestFields as variantgroupSubmitFields } from './variantgroup-submit/variantgroup-submit.form.config'
+import { CONFIGS, walk } from './form-configs.fixture'
 
 /**
  * The full-page card's structural contract, asserted on every form config.
@@ -31,30 +16,6 @@ import { variantgroupSuggestFields as variantgroupSubmitFields } from './variant
  * this directory; the count assertion below is what makes an omission fail
  * rather than pass silently.
  */
-
-const CONFIGS: ReadonlyArray<readonly [string, FormlyFieldConfig[]]> = [
-  ['assertion-revise', assertionReviseFields],
-  ['assertion-submit', assertionSubmitFields],
-  ['evidence-revise', evidenceReviseFields],
-  ['evidence-submit', evidenceSubmitFields],
-  ['factor-revise', factorReviseFields],
-  ['factor-variant-revise', factorVariantReviseFields],
-  ['fusion-revise', fusionReviseFields],
-  // the only config built by a factory: the fusion ends' disabled flags
-  ['fusion-variant-revise', fusionVariantReviseFields(false, false)],
-  ['gene-revise', geneReviseFields],
-  ['gene-variant-revise', geneVariantReviseFields],
-  ['molecular-profile-revise', molecularProfileReviseFields],
-  ['region-revise', regionReviseFields],
-  ['region-variant-revise', regionVariantReviseFields],
-  ['source-submit', sourceSuggestFields],
-  ['variantgroup-revise', variantgroupReviseFields],
-  ['variantgroup-submit', variantgroupSubmitFields],
-]
-
-function walk(fields: FormlyFieldConfig[]): FormlyFieldConfig[] {
-  return fields.flatMap((f) => [f, ...walk(f.fieldGroup ?? [])])
-}
 
 function cards(fields: FormlyFieldConfig[]): FormlyFieldConfig[] {
   return walk(fields).filter((f) => f.wrappers?.includes('form-card'))

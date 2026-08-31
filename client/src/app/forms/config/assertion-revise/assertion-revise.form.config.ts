@@ -1,3 +1,4 @@
+import { withMessages } from '@app/forms/messages/field-messages'
 import { AssertionFields } from '@app/forms/models/assertion-fields.model'
 import { assertionReviseFormInitialModel } from '@app/forms/models/assertion-revise.model'
 import { CvcAcmgCodeSelectFieldOptions } from '@app/forms/types/acmg-code-select/acmg-code-select.type'
@@ -15,6 +16,7 @@ import { CvcTherapySelectFieldOptions } from '@app/forms/types/therapy-select/th
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms/types/type-select/type-select.type'
 import { assertionRequiresEvidenceItems } from '@app/forms/utilities/assertion-requires-evidence-items'
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -36,7 +38,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
-          formCardOptions: { title: 'Revise Assertion' },
+          formTitle: formTitle('Revise', 'Assertion'),
         },
         fieldGroup: [
           {
@@ -232,6 +234,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                         'A complete, original description of this Assertion. Limited to one paragraph. Reference other CIViC entities using curies, e.g., civic.eid:123 (Evidence Item) or civic.aid:123 (Assertion).',
                       placeholder: 'Enter an Assertion Statement',
                       label: 'Assertion Statement',
+                      ...withMessages('assertionStatement'),
                       required: true,
                       rows: 5,
                     },
@@ -250,6 +253,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: {
                   col: { span: 24 },
                   label: 'Comment',
+                  ...withMessages('reviseComment'),
                   required: true,
                 },
               },

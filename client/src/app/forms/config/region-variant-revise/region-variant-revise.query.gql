@@ -8,6 +8,7 @@ query RegionVariantRevisableFields($variantId: Int!) {
 }
 
 fragment RevisableRegionVariantFields on RegionVariant {
+  name
   variantAliases
   variantTypes {
     id

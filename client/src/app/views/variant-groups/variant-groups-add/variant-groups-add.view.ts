@@ -6,7 +6,6 @@ import { map } from 'rxjs/operators'
 @Component({
   selector: 'cvc-variant-groups-add-view',
   templateUrl: './variant-groups-add.view.html',
-  styleUrls: ['./variant-groups-add.view.less'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })

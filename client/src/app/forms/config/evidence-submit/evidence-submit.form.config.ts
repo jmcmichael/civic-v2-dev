@@ -1,3 +1,4 @@
+import { withMessages } from '@app/forms/messages/field-messages'
 import { evidenceSubmitFormInitialModel } from '@app/forms/models/evidence-submit.model'
 import { CvcDirectionSelectFieldOptions } from '@app/forms/types/direction-select/direction-select.type'
 import { CvcDiseaseSelectFieldOptions } from '@app/forms/types/disease-select/disease-select.type'
@@ -16,6 +17,7 @@ import {
 import { CvcTherapySelectFieldOptions } from '@app/forms/types/therapy-select/therapy-select.type'
 import { CvcEntityTypeSelectFieldConfig } from '@app/forms/types/type-select/type-select.type'
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -38,7 +40,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
-          formCardOptions: { title: 'New Evidence Item' },
+          formTitle: formTitle('Add', 'EvidenceItem'),
           formInstructions:
             'Provide the source and clinical details supporting this evidence, then submit for editor review. Required fields must be complete before the form can be submitted — the Field States legend above tracks each field as you work.',
         },
@@ -178,6 +180,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                       description:
                         'Data constituting personal or identifying information should not be entered (e.g. <a href="https://www.hipaajournal.com/what-is-protected-health-information/" target="_blank">protected health information (PHI) as defined by HIPAA</a> in the U.S. and/or comparable laws in your jurisdiction).',
                       label: 'Evidence Statement',
+                      ...withMessages('evidenceStatement'),
                       required: true,
                     },
                   },

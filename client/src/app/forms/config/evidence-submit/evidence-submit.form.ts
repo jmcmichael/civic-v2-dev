@@ -101,20 +101,6 @@ export class CvcEvidenceSubmitForm implements OnDestroy, AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
-    // the full-page card owns the page title; submit forms have no entity
-    // id, so the name is the entity type itself
-    const cardField = this.fields[0]?.fieldGroup?.find((f) =>
-      f.wrappers?.includes('form-card')
-    )
-    if (cardField?.props) {
-      cardField.props.formTitle = {
-        action: 'ADD',
-        icon: 'civic-evidence',
-        entityType: 'EvidenceItem',
-        name: 'Evidence Item',
-      }
-    }
-
     this.countQueryRef = this.existingEvidenceGQL.watch({
       variables: {
         molecularProfileId: 0,

@@ -5,6 +5,7 @@ query EvidenceItemRevisableFields($evidenceId: Int!) {
 }
 
 fragment RevisableEvidenceFields on EvidenceItem {
+  name
   id
   molecularProfile {
     ...MolecularProfileSelectTypeaheadFields

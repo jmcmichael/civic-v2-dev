@@ -26,6 +26,7 @@ import {
   geneVariantFormModelToReviseInput,
   geneVariantToModelFields,
 } from '@app/forms/utilities/gene-variant-to-model-fields'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -65,6 +66,8 @@ export class CvcGeneVariantReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const variant = data?.variant
           if (variant && variant.__typename == 'GeneVariant') {
+            // the card title names what is being revised
+            setFormSubject(this.fields, variant.name)
             this.model.set({
               id: variant.id,
               fields: geneVariantToModelFields(variant),

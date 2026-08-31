@@ -26,6 +26,7 @@ import {
   regionToModelFields,
 } from '@app/forms/utilities/region-to-model-fields'
 import { regionReviseFields } from './region-revise.form.config'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -65,6 +66,8 @@ export class CvcRegionReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const feature = data?.feature
           if (feature) {
+            // the card title names what is being revised
+            setFormSubject(this.fields, feature.name)
             this.model.set({
               id: feature.id,
               fields: regionToModelFields(feature),

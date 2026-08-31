@@ -1,3 +1,4 @@
+import { withMessages } from '@app/forms/messages/field-messages'
 import { assertionSubmitFormInitialModel } from '@app/forms/models/assertion-submit.model'
 import { AssertionFields } from '@app/forms/models/assertion-fields.model'
 import { CvcFdaCompanionTestCheckboxFieldOptions } from '@app/forms/types/fda-companion-test-checkbox/fda-companion-test-checkbox.type'
@@ -11,6 +12,7 @@ import { CvcPhenotypeSelectFieldOptions } from '@app/forms/types/phenotype-selec
 import { CvcTherapySelectFieldOptions } from '@app/forms/types/therapy-select/therapy-select.type'
 import { assertionRequiresEvidenceItems } from '@app/forms/utilities/assertion-requires-evidence-items'
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FormlyFieldConfig } from '@ngx-formly/core'
@@ -32,7 +34,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
-          formCardOptions: { title: 'New Assertion' },
+          formTitle: formTitle('Add', 'Assertion'),
         },
         fieldGroup: [
           {
@@ -231,6 +233,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                         'A complete, original description of this Assertion. Limited to one paragraph. Reference other CIViC entities using curies, e.g., civic.eid:123 (Evidence Item) or civic.aid:123 (Assertion).',
                       placeholder: 'Enter an Assertion Statement',
                       label: 'Assertion Statement',
+                      ...withMessages('assertionStatement'),
                       required: true,
                       rows: 5,
                     },

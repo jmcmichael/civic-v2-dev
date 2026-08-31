@@ -5,6 +5,7 @@ query MolecularProfileRevisableFields($molecularProfileId: Int!) {
 }
 
 fragment RevisableMolecularProfileFields on MolecularProfile {
+  name
   id
   description
   sources {

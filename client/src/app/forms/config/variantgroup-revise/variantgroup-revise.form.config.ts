@@ -1,3 +1,5 @@
+import { withMessages } from '@app/forms/messages/field-messages'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
@@ -17,7 +19,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: {
-          formCardOptions: { title: 'Revise Variant Group' },
+          formTitle: formTitle('Revise', 'VariantGroup'),
         },
         fieldGroup: [
           {
@@ -71,6 +73,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: {
                   col: { span: 24 },
                   label: 'Comment',
+                  ...withMessages('reviseComment'),
                   required: true,
                 },
               },

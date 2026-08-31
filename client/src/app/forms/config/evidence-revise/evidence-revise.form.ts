@@ -28,6 +28,7 @@ import {
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy'
 import { FormlyFieldConfig, FormlyFormOptions } from '@ngx-formly/core'
 import { evidenceReviseFields } from './evidence-revise.form.config'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -63,19 +64,6 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.url = `/evidence/${this.evidenceId}/revisions`
-    // the full-page card owns the page title; the entity name is only
-    // known here, so patch it onto the card wrapper's config
-    const cardField = this.fields[0]?.fieldGroup?.find((f) =>
-      f.wrappers?.includes('form-card')
-    )
-    if (cardField?.props) {
-      cardField.props.formTitle = {
-        action: 'REVISE',
-        icon: 'civic-evidence',
-        entityType: 'EvidenceItem',
-        name: `EID${this.evidenceId}`,
-      }
-    }
   }
 
   ngAfterViewInit(): void {
@@ -86,6 +74,8 @@ export class CvcEvidenceReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const evidenceItem = data?.evidenceItem
           if (evidenceItem) {
+            // the card title names what is being revised
+            setFormSubject(this.fields, evidenceItem.name)
             this.model.set({
               id: evidenceItem.id,
               fields: evidenceToModelFields(evidenceItem),

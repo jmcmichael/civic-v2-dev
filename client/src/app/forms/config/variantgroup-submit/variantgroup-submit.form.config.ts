@@ -1,3 +1,4 @@
+import { formTitle } from '@app/forms/messages/form-titles'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 
 const formFieldConfig: FormlyFieldConfig[] = [
@@ -18,7 +19,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: {
-          formCardOptions: { title: 'Submit Variant Group' },
+          formTitle: formTitle('Add', 'VariantGroup'),
         },
         fieldGroup: [
           {

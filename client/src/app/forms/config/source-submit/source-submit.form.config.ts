@@ -1,3 +1,4 @@
+import { formTitle } from '@app/forms/messages/form-titles'
 import { FormlyFieldConfig } from '@ngx-formly/core'
 import { CvcInteractionSelectFieldOptions } from '@app/forms/types/interaction-select/interaction-select.type'
 
@@ -19,7 +20,9 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: {
-          formCardOptions: { title: 'Submit Source Suggestion' },
+          formTitle: formTitle('Add', 'Source'),
+          formInstructions:
+            'Suggest a promising source for curation. An editor reviews each suggestion before it enters the queue.',
         },
         fieldGroup: [
           {

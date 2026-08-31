@@ -13,11 +13,11 @@ export type RegionVariantRevisableFieldsQuery = { __typename: 'Query', variant?:
     | { __typename: 'FactorVariant', id: number }
     | { __typename: 'FusionVariant', id: number }
     | { __typename: 'GeneVariant', id: number }
-    | { __typename: 'RegionVariant', id: number, variantAliases: Array<string>, variantTypes: Array<{ __typename: 'VariantType', id: number, name: string, soid: string }> }
+    | { __typename: 'RegionVariant', id: number, name: string, variantAliases: Array<string>, variantTypes: Array<{ __typename: 'VariantType', id: number, name: string, soid: string }> }
     | { __typename: 'Variant', id: number }
    | undefined };
 
-export type RevisableRegionVariantFieldsFragment = { __typename: 'RegionVariant', variantAliases: Array<string>, variantTypes: Array<{ __typename: 'VariantType', id: number, name: string, soid: string }> };
+export type RevisableRegionVariantFieldsFragment = { __typename: 'RegionVariant', name: string, variantAliases: Array<string>, variantTypes: Array<{ __typename: 'VariantType', id: number, name: string, soid: string }> };
 
 export type SuggestRegionVariantRevisionMutationVariables = Types.Exact<{
   input: Types.SuggestRegionVariantRevisionInput;
@@ -28,6 +28,7 @@ export type SuggestRegionVariantRevisionMutation = { __typename: 'Mutation', sug
 
 export const RevisableRegionVariantFieldsFragmentDoc = gql`
     fragment RevisableRegionVariantFields on RegionVariant {
+  name
   variantAliases
   variantTypes {
     id

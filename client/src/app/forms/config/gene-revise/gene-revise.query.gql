@@ -5,6 +5,7 @@ query GeneRevisableFields($featureId: Int!) {
 }
 
 fragment RevisableGeneFields on Feature {
+  name
   id
   sources {
     id

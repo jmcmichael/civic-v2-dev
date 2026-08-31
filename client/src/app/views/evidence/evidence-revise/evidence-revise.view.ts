@@ -18,7 +18,6 @@ import { pluck } from 'rxjs-etc/operators'
 @Component({
   selector: 'cvc-evidence-revise',
   templateUrl: './evidence-revise.view.html',
-  styleUrls: ['./evidence-revise.view.less'],
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })

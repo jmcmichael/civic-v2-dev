@@ -1,5 +1,7 @@
+import { withMessages } from '@app/forms/messages/field-messages'
 import { fusionReviseFormInitialModel } from '@app/forms/models/fusion-revise.model'
 import assignFieldConfigDefaultValues from '@app/forms/utilities/assign-field-default-values'
+import { formTitle } from '@app/forms/messages/form-titles'
 import { CvcFormCardWrapperProps } from '@app/forms/wrappers/form-card/form-card.wrapper'
 import { CvcFormLayoutWrapperProps } from '@app/forms/wrappers/form-layout/form-layout.wrapper'
 import { FeatureInstanceTypes } from '@app/generated/civic.apollo.types'
@@ -24,7 +26,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         // keyless: groups the card contents without nesting the model
         wrappers: ['form-card'],
         props: <CvcFormCardWrapperProps>{
-          formCardOptions: { title: 'Revise Fusion' },
+          formTitle: formTitle('Revise', 'Fusion'),
         },
         fieldGroup: [
           {
@@ -100,6 +102,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: {
                   col: { span: 24 },
                   label: 'Comment',
+                  ...withMessages('reviseComment'),
                   placeholder:
                     'Please enter a comment describing your revisions.',
                   required: true,

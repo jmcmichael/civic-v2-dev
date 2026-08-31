@@ -5,6 +5,7 @@ query RegionRevisableFields($featureId: Int!) {
 }
 
 fragment RevisableRegionFields on Feature {
+  name
   id
   description
   sources {

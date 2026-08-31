@@ -9,9 +9,9 @@ export type MolecularProfileRevisableFieldsQueryVariables = Types.Exact<{
 }>;
 
 
-export type MolecularProfileRevisableFieldsQuery = { __typename: 'Query', molecularProfile?: { __typename: 'MolecularProfile', id: number, description?: string | undefined, molecularProfileAliases: Array<string>, isComplex: boolean, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> } | undefined };
+export type MolecularProfileRevisableFieldsQuery = { __typename: 'Query', molecularProfile?: { __typename: 'MolecularProfile', name: string, id: number, description?: string | undefined, molecularProfileAliases: Array<string>, isComplex: boolean, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> } | undefined };
 
-export type RevisableMolecularProfileFieldsFragment = { __typename: 'MolecularProfile', id: number, description?: string | undefined, molecularProfileAliases: Array<string>, isComplex: boolean, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> };
+export type RevisableMolecularProfileFieldsFragment = { __typename: 'MolecularProfile', name: string, id: number, description?: string | undefined, molecularProfileAliases: Array<string>, isComplex: boolean, sources: Array<{ __typename: 'Source', id: number, sourceType: Types.SourceSource, citation?: string | undefined, citationId: string }> };
 
 export type SuggestMolecularProfileRevisionMutationVariables = Types.Exact<{
   input: Types.SuggestMolecularProfileRevisionInput;
@@ -22,6 +22,7 @@ export type SuggestMolecularProfileRevisionMutation = { __typename: 'Mutation', 
 
 export const RevisableMolecularProfileFieldsFragmentDoc = gql`
     fragment RevisableMolecularProfileFields on MolecularProfile {
+  name
   id
   description
   sources {

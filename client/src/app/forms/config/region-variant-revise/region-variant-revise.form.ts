@@ -26,6 +26,7 @@ import {
   regionVariantFormModelToReviseInput,
   regionVariantToModelFields,
 } from '@app/forms/utilities/region-variant-to-model-fields'
+import { setFormSubject } from '@app/forms/messages/form-titles'
 
 @UntilDestroy()
 @Component({
@@ -65,6 +66,8 @@ export class CvcRegionVariantReviseForm implements OnInit, AfterViewInit {
         next: ({ data }) => {
           const variant = data?.variant
           if (variant && variant.__typename == 'RegionVariant') {
+            // the card title names what is being revised
+            setFormSubject(this.fields, variant.name)
             this.model.set({
               id: variant.id,
               fields: regionVariantToModelFields(variant),

@@ -5,6 +5,7 @@ query AssertionRevisableFields($assertionId: Int!) {
 }
 
 fragment RevisableAssertionFields on Assertion {
+  name
   id
   summary
   description
