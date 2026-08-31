@@ -1,4 +1,5 @@
 @import 'themes/default.less';
+@import 'themes/tag-mixins.less';
 
 :host {
   &.full-width {
@@ -16,36 +17,17 @@
 }
 .default {
   nz-tag {
-    margin: 0;
-    padding: 0 2px 0 0;
-    margin-inline-end: 4px;
-    max-width: 100%;
-    .tag-icon,
+    .cvc-tag-geometry();
+
+    // the oversized variant keeps the icon's box and scales the glyph
+    // inside it, so the tag's height does not move
     .tag-icon-large {
       display: inline-block;
-    }
-    .tag-icon {
-      padding: 3px 2px 3px 4px;
-      margin: -3px 0 -3px 0;
-    }
-    .tag-icon-large {
       padding: 3px 2px 3px 4px;
       margin: -3px 0 -3px 0;
       ::ng-deep svg {
         transform: scale(1.25, 1.25);
       }
-    }
-    .tag-label {
-      display: inline-block;
-      margin: 0;
-      padding: 0;
-      margin: -3px 0 -4px 0;
-      padding: 3px 3px 3px 2px;
-      line-height: 1;
-    }
-    ::ng-deep i.ant-tag-close-icon.anticon-close {
-      transition: none;
-      margin-left: 3px;
     }
   }
 }
@@ -78,10 +60,6 @@
 
 .select-item {
   .default();
-  nz-tag {
-    background: #f5f5f5;
-    border: 1px solid #f0f0f0;
-  }
 }
 
 .multi-select-item {

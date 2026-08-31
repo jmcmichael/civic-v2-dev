@@ -1,0 +1,46 @@
+/* Shared tag geometry
+ *
+ * cvc-tag (entity) and cvc-attribute-tag are different components with
+ * different data, but they are the same object on screen: an icon, a label,
+ * and an nz-tag around them, sitting at the same height in the same select
+ * items and table cells. Their geometry had been maintained twice and had
+ * stayed identical by hand — measured live, both render 20px tall with the
+ * same padding, font, radius and icon offsets.
+ *
+ * The numbers are unobvious enough to be worth stating once. The tag pads
+ * its own children rather than itself so the icon's hit area reaches the
+ * tag's edge, and the negative margins pull the label back over the
+ * padding nz-tag applies, which is what keeps the tag at text height
+ * instead of growing a line box around it.
+ *
+ * Call inside an `nz-tag` block. Anything a single tag type needs on its
+ * own — the entity tag's `.tag-no-icon` spacer, the attribute tag's
+ * `.tag-icon-large` — stays with that component.
+ */
+.cvc-tag-geometry() {
+  margin: 0;
+  padding: 0 2px 0 0;
+  margin-inline-end: 4px;
+  max-width: 100%;
+
+  .tag-icon {
+    display: inline-block;
+    padding: 3px 2px 3px 4px;
+    margin: -3px 0 -3px 0;
+  }
+
+  .tag-label {
+    display: inline-block;
+    font-weight: normal;
+    margin: -3px 0 -4px 0;
+    padding: 3px 3px 3px 2px;
+    line-height: 1;
+  }
+
+  // nz-tag animates the close icon's color; the tag is small enough that
+  // the transition reads as a lag rather than a flourish
+  ::ng-deep i.ant-tag-close-icon.anticon-close {
+    transition: none;
+    margin-left: 3px;
+  }
+}
