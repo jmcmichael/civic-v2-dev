@@ -5,7 +5,7 @@ import { Router } from '@angular/router'
 
 @Component({
   selector: 'cvc-cancel-button',
-  templateUrl: './cancel-buton.type.html',
+  templateUrl: './cancel-button.type.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
