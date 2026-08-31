@@ -322,7 +322,7 @@ function formFieldConfig(
               ],
             },
             {
-              wrappers: ['row'],
+              wrappers: ['form-actions-row'],
               props: { formFooter: true },
               fieldGroup: [
                 {

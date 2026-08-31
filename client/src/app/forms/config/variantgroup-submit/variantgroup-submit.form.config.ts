@@ -82,7 +82,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
             ],
           },
           {
-            wrappers: ['row'],
+            wrappers: ['form-actions-row'],
             props: { formFooter: true },
             fieldGroup: [
               {
