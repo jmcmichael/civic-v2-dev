@@ -22,7 +22,7 @@ const formFieldConfig: FormlyFieldConfig[] = [
         props: {
           formTitle: formTitle('Add', 'Source'),
           formInstructions:
-            'Suggest a promising source for curation. An editor reviews each suggestion before it enters the queue.',
+            'Suggest a source that contains promising evidence. It will appear in the Sources Queue to await curation.',
         },
         fieldGroup: [
           {
