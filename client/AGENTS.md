@@ -126,9 +126,12 @@ Formly 7 on ng-zorro; the modernization plan and per-PR history live in
   `FormSubmissionError[]` and stays form-local — never the app-wide
   network banner. `cvc-form-submission-status-display` wraps the form,
   owns success/redirect and the shared `dismissed` signal; the error
-  indicator is `cvc-form-error-tag` (header tag or footer
-  `variant="alert"`), which injects that ancestor — droppable anywhere
-  inside one, no formly wiring. The first edit after a failure dismisses
+  indicator is `cvc-form-error-alert` (header tag via `variant="tag"`, or
+  footer `variant="alert"`), which injects that ancestor — droppable
+  anywhere inside one, no formly wiring. The alert is its own popover's
+  origin and toggle: ng-zorro's click trigger only ever calls `show()`, so
+  the component tracks visibility itself (`pointerdown` records what the
+  click found, a host `click` closes what was already open). The first edit after a failure dismisses
   the indicators (the form-card wrapper reports it — formly hands the
   wrapper the form the display can't see); a fresh submit re-arms via an
   effect on the errors signal.
@@ -142,8 +145,16 @@ Formly 7 on ng-zorro; the modernization plan and per-PR history live in
   `cvcAutoHeightCard` target `'page'` (measured ancestor bottom reserve —
   never a hand-tuned offset), `'none'` opting nested cards out.
   `cvcScrollShadows` (`directives/scroll-shadows/`) toggles
-  `scrolled-from-top`/`-bottom` for the clip shadows; the head/actions
-  need explicit z-index to cast over the positioned field boxes.
+  `scrolled-from-top`/`-bottom` for the clip shadows and publishes
+  `cvcScrollShadowTint` as `--cvc-shadow-tint`; each host's own stylesheet
+  paints, so a shadow can carry the color of the surface casting it. The
+  head/actions need explicit z-index to cast over the positioned field
+  boxes.
+- **The footer's three controls are not three columns.** `nzActions` holds
+  one row with two `nz-col`s: cancel, and the submit button — which hosts
+  the error alert inside its own `.btn-aligner`. So the cancel↔alert gap
+  comes from the row's column padding and the alert↔submit gap from that
+  aligner's `gap`, two values kept equal by hand.
 - **Formly structure rules**: a keyed group field nests the model
   (`key: 'fields'` → `model.fields.*`), so wrapper-only grouping must be
   keyless; `formly-field` renders a field in ANY template slot (card
