@@ -41,6 +41,16 @@
   }
 }
 
+// The popovers are appended to the overlay container, so their width answers
+// to the viewport, not to the form card: each declares the width it wants and
+// gives way to a window too narrow to hold it.
+@popover-viewport-gutter: 32px;
+@popover-narrow-max: 767px; // antd's md boundary
+
+.popover-viewport-width(@wide) {
+  max-width: ~'min(@{wide}, calc(100vw - @{popover-viewport-gutter}))';
+}
+
 // both popovers report one bordered row per field; the label column stays
 // narrow and takes the shared descriptions treatment, which cannot reach
 // the overlay through :host
@@ -48,6 +58,12 @@
   .ant-descriptions-item-label {
     width: 150px;
     .cvc-descriptions-item-label();
+
+    // on a narrow window the label column costs the message more room than
+    // it earns
+    @media (max-width: @popover-narrow-max) {
+      width: 96px;
+    }
   }
 
   // the popover frame supplies the outer border and radius: the table runs
@@ -75,7 +91,7 @@
 // the submission preview: descriptions fill the popover content area
 // edge to edge; long values clip on one line
 ::ng-deep .form-preview-popover {
-  max-width: 760px;
+  .popover-viewport-width(760px);
 
   .ant-popover-title .popover-title {
     display: flex;
@@ -106,6 +122,7 @@
 
   .model-summary {
     width: 720px;
+    max-width: 100%;
     .popover-descriptions();
   }
 
@@ -178,7 +195,7 @@
 // popover content is appended to the overlay container, outside :host
 ::ng-deep .form-error-popover {
   // wide enough that the collapse panels and JSON tree don't clip
-  max-width: 680px;
+  .popover-viewport-width(680px);
 
   .ant-popover-title {
     .popover-title {
@@ -211,13 +228,27 @@
 // the blocking-issues report: its own overlay rather than the error
 // popover's, whose padding the error list still needs
 ::ng-deep .form-issues-popover {
-  max-width: 560px;
+  .popover-viewport-width(800px);
   .popover-descriptions-frame();
 
-  // narrower than the preview: a field name and what it still needs
+  // wide enough that the longest field message sits on one line beside its
+  // label; the whole point of the popover is reading them at a glance
   .issue-summary {
-    width: 440px;
+    width: 680px;
     max-width: 100%;
     .popover-descriptions();
+  }
+
+  // fields first, then what the submission as a whole still needs
+  .issue-group-title {
+    padding: @padding-xs @default-padding-sm;
+    font-weight: @descriptions-label-weight;
+    color: @text-color-secondary;
+    background: hsv(0, 0, 98%);
+    border-bottom: 1px solid @border-color-split;
+  }
+
+  .issue-groups > .issue-summary:not(:last-child) .ant-descriptions-view {
+    border-bottom: 1px solid @border-color-split;
   }
 }

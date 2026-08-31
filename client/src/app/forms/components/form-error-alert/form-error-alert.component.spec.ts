@@ -26,7 +26,7 @@ class HostComponent {
   variant: 'tag' | 'alert' = 'tag'
   readiness?: {
     valid: boolean
-    issues: { label: string; reason: string }[]
+    issues: { label: string; message: string; scope: 'field' | 'form' }[]
     summary?: { label: string; value: string }[]
   }
 }
@@ -197,14 +197,23 @@ describe('CvcFormErrorAlertComponent', () => {
     fixture.componentInstance.readiness = {
       valid: false,
       issues: [
-        { label: 'Source', reason: 'required value is missing' },
-        { label: 'Evidence Level', reason: 'required value is missing' },
+        {
+          label: 'Source',
+          scope: 'field' as const,
+          message:
+            'Search for and select the source this evidence is drawn from.',
+        },
+        {
+          label: 'Evidence Level',
+          scope: 'field' as const,
+          message: 'Select the level of evidence this source provides.',
+        },
       ],
     }
     fixture.detectChanges()
     const info = fixture.nativeElement.querySelector('nz-alert')
     expect(info.textContent).toContain(
-      '2 fields need attention before submitting.'
+      'Multiple issues prevent this form from being submitted.'
     )
   })
 
@@ -213,8 +222,17 @@ describe('CvcFormErrorAlertComponent', () => {
     fixture.componentInstance.readiness = {
       valid: false,
       issues: [
-        { label: 'Source', reason: 'required value is missing' },
-        { label: 'Evidence Level', reason: 'required value is missing' },
+        {
+          label: 'Source',
+          scope: 'field' as const,
+          message:
+            'Search for and select the source this evidence is drawn from.',
+        },
+        {
+          label: 'Evidence Level',
+          scope: 'field' as const,
+          message: 'Select the level of evidence this source provides.',
+        },
       ],
     }
     fixture.detectChanges()
@@ -226,21 +244,81 @@ describe('CvcFormErrorAlertComponent', () => {
     const rows = document.querySelectorAll(
       '.form-issues-popover .issue-summary .ant-descriptions-row'
     )
+    expect(
+      document.querySelector('.form-issues-popover .ant-popover-title')
+        ?.textContent
+    ).toContain('Fields Requiring Attention')
     expect(rows.length).toBe(2)
     expect(rows[0].textContent).toContain('Source')
-    expect(rows[0].textContent).toContain('required value is missing')
+    expect(rows[0].textContent).toContain(
+      'Search for and select the source this evidence is drawn from.'
+    )
   })
 
-  it('shows a single blocking issue directly in the alert', () => {
+  it('shows a single blocking issue directly in the alert', async () => {
     fixture.componentInstance.variant = 'alert'
     fixture.componentInstance.readiness = {
       valid: false,
-      issues: [{ label: 'Comment', reason: 'required value is missing' }],
+      issues: [
+        {
+          label: 'Comment',
+          scope: 'field' as const,
+          message:
+            'Provide a comment that supports or justifies your suggested revisions.',
+        },
+      ],
     }
     fixture.detectChanges()
     expect(
       fixture.nativeElement.querySelector('nz-alert').textContent
-    ).toContain('Comment: required value is missing.')
+    ).toContain(
+      'Provide a comment that supports or justifies your suggested revisions.'
+    )
+    fixture.nativeElement.querySelector('nz-alert').click()
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    expect(
+      document.querySelector('.form-issues-popover .ant-popover-title')
+        ?.textContent
+    ).toContain('Field Requiring Attention')
+  })
+
+  it('lists field issues above form issues, each under its own heading', async () => {
+    fixture.componentInstance.variant = 'alert'
+    fixture.componentInstance.readiness = {
+      valid: false,
+      issues: [
+        {
+          label: 'Comment',
+          scope: 'field' as const,
+          message:
+            'Provide a comment that supports or justifies your suggested revisions.',
+        },
+        {
+          label: 'Revision',
+          scope: 'form' as const,
+          message: 'Change at least one field to suggest a revision.',
+        },
+      ],
+    }
+    fixture.detectChanges()
+    fixture.nativeElement.querySelector('nz-alert').click()
+    fixture.detectChanges()
+    await fixture.whenStable()
+    fixture.detectChanges()
+    const groups = document.querySelectorAll(
+      '.form-issues-popover .issue-groups > *'
+    )
+    expect(
+      [...groups].map((g) =>
+        g.classList.contains('issue-group-title') ? 'title' : 'rows'
+      )
+    ).toEqual(['title', 'rows', 'title', 'rows'])
+    expect(groups[0].textContent).toBe('Fields')
+    expect(groups[1].textContent).toContain('Comment')
+    expect(groups[2].textContent).toBe('Form')
+    expect(groups[3].textContent).toContain('Revision')
   })
 
   it('reports readiness once the form is valid, until a failure lands', () => {

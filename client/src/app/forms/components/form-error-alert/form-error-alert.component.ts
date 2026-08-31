@@ -14,7 +14,8 @@ import {
   submissionErrorsText,
 } from '@app/components/app/error-list/error-categories'
 import { CvcErrorListComponent } from '@app/components/app/error-list/error-list.component'
-import { CvcAttributeTagModule } from '@app/components/shared/attribute-tag/attribute-tag.module'
+import { CvcAttributeTagComponent } from '@app/forms/components/attribute-tag/attribute-tag.component'
+import { CvcEmptyValueModule } from '@app/forms/components/empty-value/empty-value.module'
 import { CvcEvidenceRatingModule } from '@app/components/evidence/evidence-rating/evidence-rating.module'
 import { CvcPipesModule } from '@app/core/pipes/pipes.module'
 import { CvcFormCardWrapper } from '@app/forms/wrappers/form-card/form-card.wrapper'
@@ -26,6 +27,7 @@ import {
   FormFieldIssue,
   FormFieldValue,
 } from '@app/forms/utilities/form-field-issues'
+import { CVC_SUBMISSION_MESSAGES } from '@app/forms/messages/submission-messages'
 import { FormSubmissionError } from '@app/forms/utilities/form-mutation'
 import { EntityTagRef } from '@app/tags/entity-tag-specs'
 import { NzAlertModule } from 'ng-zorro-antd/alert'
@@ -71,7 +73,8 @@ export interface FormReadiness {
   imports: [
     FormsModule,
     NgTemplateOutlet,
-    CvcAttributeTagModule,
+    CvcAttributeTagComponent,
+    CvcEmptyValueModule,
     CvcCollectionTagComponent,
     CvcEvidenceRatingModule,
     CvcErrorListComponent,
@@ -91,6 +94,10 @@ export interface FormReadiness {
   ],
   templateUrl: './form-error-alert.component.html',
   styleUrl: './form-error-alert.component.less',
+  host: {
+    '(pointerdown)': 'recordPopoverState()',
+    '(click)': 'closePopoverIfItWasOpen()',
+  },
 })
 export class CvcFormErrorAlertComponent {
   readonly variant = input<'tag' | 'alert'>('tag')
@@ -101,11 +108,37 @@ export class CvcFormErrorAlertComponent {
    */
   readonly readiness = input<FormReadiness | undefined>(undefined)
 
+  /**
+   * The footer alert's popover visibility. The whole alert is its trigger,
+   * so it has to toggle — but nz-popover's click trigger only ever calls
+   * `show()`, and a second click on the origin leaves the popover open.
+   *
+   * It takes two listeners because by the time a click reaches this
+   * component the directive has already opened the popover, and the state
+   * that decides the toggle is gone: `pointerdown` records what the click
+   * found, and the click handler closes what was already open. The click
+   * order holds because the directive listens on the alert and these listen
+   * on its host, which the event reaches second.
+   */
+  protected readonly popoverOpen = signal(false)
+  private wasOpenOnPointerDown = false
+
+  protected recordPopoverState(): void {
+    this.wasOpenOnPointerDown = this.popoverOpen()
+  }
+
+  protected closePopoverIfItWasOpen(): void {
+    if (this.wasOpenOnPointerDown) this.popoverOpen.set(false)
+  }
+
   private statusDisplay = inject(CvcFormSubmissionStatusDisplayComponent, {
     optional: true,
   })
   // the card wrapper's formTitle names the entity for the preview heading
   private cardWrapper = inject(CvcFormCardWrapper, { optional: true })
+
+  // the shared submission vocabulary, for the template's headings
+  protected readonly copy = CVC_SUBMISSION_MESSAGES
 
   protected readonly cardTitle = computed(
     () => this.cardWrapper?.props?.formTitle
@@ -141,8 +174,7 @@ export class CvcFormErrorAlertComponent {
     const e = this.primary()
     if (!e) return ''
     if (this.extraCount() > 0) {
-      const noun = this.noun
-      return `${noun.charAt(0).toUpperCase()}${noun.slice(1)} submission failed, review error details.`
+      return CVC_SUBMISSION_MESSAGES.submissionFailed(this.noun)
     }
     return e.message
   })
@@ -153,8 +185,8 @@ export class CvcFormErrorAlertComponent {
     const e = this.primary()
     if (!e) return ''
     return this.extraCount() > 0
-      ? '[Multiple Errors]'
-      : `[${categoryName(e.category)} Error]`
+      ? CVC_SUBMISSION_MESSAGES.multipleErrorsTag
+      : CVC_SUBMISSION_MESSAGES.categoryErrorTag(categoryName(e.category))
   })
   protected readonly tagColor = computed(() => {
     const e = this.primary()
@@ -162,14 +194,42 @@ export class CvcFormErrorAlertComponent {
     return categoryColor(e.category)
   })
 
-  protected readonly okLabel = computed(
-    () => `All required fields provided, ${this.noun} may be submitted.`
+  protected readonly okLabel = computed(() =>
+    CVC_SUBMISSION_MESSAGES.readyToSubmit(this.noun)
   )
 
   // like the error label: a single issue shows itself, several defer to
   // the popover
   protected readonly issueLabel = computed(() =>
     describeFieldIssues(this.readiness()?.issues ?? [])
+  )
+
+  // the popover lists fields first, then whatever the form as a whole still
+  // needs — two different kinds of answer, and a field name column that means
+  // nothing for the second
+  protected readonly fieldIssues = computed(() =>
+    (this.readiness()?.issues ?? []).filter((i) => i.scope === 'field')
+  )
+  protected readonly formIssues = computed(() =>
+    (this.readiness()?.issues ?? []).filter((i) => i.scope === 'form')
+  )
+
+  protected readonly issueGroups = computed(() => [
+    {
+      title: CVC_SUBMISSION_MESSAGES.fieldIssuesTitle,
+      issues: this.fieldIssues(),
+    },
+    {
+      title: CVC_SUBMISSION_MESSAGES.formIssuesTitle,
+      issues: this.formIssues(),
+    },
+  ])
+
+  protected readonly issuesTitle = computed(() =>
+    CVC_SUBMISSION_MESSAGES.issuesRequiringAttention(
+      this.fieldIssues().length,
+      this.formIssues().length
+    )
   )
 
   // popover header controls: expand/collapse every panel, copy the details
@@ -239,7 +299,7 @@ export class CvcFormErrorAlertComponent {
       description: r.description ?? '',
       issues: issues
         .filter((i) => i.label === r.label)
-        .map((i) => i.reason)
+        .map((i) => i.message)
         .join('; '),
     }))
     this.flashCopied('details', JSON.stringify(rows, null, 2))

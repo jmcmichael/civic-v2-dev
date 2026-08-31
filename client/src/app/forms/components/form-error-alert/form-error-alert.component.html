@@ -7,7 +7,9 @@
       [nzMessage]="label()"
       nz-popover
       nzPopoverTrigger="click"
-      nzPopoverPlacement="topRight"
+      nzPopoverPlacement="top"
+      [nzPopoverVisible]="popoverOpen()"
+      (nzPopoverVisibleChange)="popoverOpen.set($event)"
       [nzPopoverTitle]="errorTitle"
       [nzPopoverContent]="errorList"
       nzPopoverOverlayClassName="form-error-popover"
@@ -21,7 +23,9 @@
         [nzMessage]="okLabel()"
         nz-popover
         nzPopoverTrigger="click"
-        nzPopoverPlacement="topRight"
+        nzPopoverPlacement="top"
+        [nzPopoverVisible]="popoverOpen()"
+        (nzPopoverVisibleChange)="popoverOpen.set($event)"
         [nzPopoverTitle]="previewTitle"
         [nzPopoverContent]="modelSummary"
         nzPopoverOverlayClassName="form-preview-popover"
@@ -31,11 +35,13 @@
         class="form-error-alert"
         nzType="info"
         nzShowIcon
-        [nzMessage]="issueMessage"
+        [nzMessage]="issueLabel()"
         nz-popover
         nzPopoverTrigger="click"
-        nzPopoverPlacement="topRight"
-        nzPopoverTitle="Fields Blocking Submission"
+        nzPopoverPlacement="top"
+        [nzPopoverVisible]="popoverOpen()"
+        (nzPopoverVisibleChange)="popoverOpen.set($event)"
+        [nzPopoverTitle]="issuesTitle()"
         [nzPopoverContent]="issueList"
         nzPopoverOverlayClassName="form-issues-popover"
         [nzAction]="detailsAction"></nz-alert>
@@ -58,8 +64,8 @@
   </nz-tag>
 }
 
-<!-- a visible affordance only: its click bubbles to the host alert's
-     popover trigger -->
+<!-- a visible affordance only: its click bubbles to the alert, which is
+     the popover's origin and its own toggle -->
 <ng-template #detailsAction>
   <button
     nz-button
@@ -74,7 +80,7 @@
 <ng-template #errorTitle>
   <div class="popover-title">
     <span class="title-text">
-      Submission Errors
+      {{ copy.errorsTitle }}
       <span class="error-count">({{ errors().length }})</span>
     </span>
     <span class="title-controls">
@@ -104,18 +110,6 @@
     [expandAll]="expandAll()" />
 </ng-template>
 
-<!-- a single issue bolds its field name; several defer to the popover -->
-<ng-template #issueMessage>
-  @if (readiness()?.issues; as issues) {
-    @if (issues.length === 1) {
-      <strong>{{ issues[0].label }}:</strong>
-      {{ issues[0].reason }}.
-    } @else {
-      {{ issueLabel() }}
-    }
-  }
-</ng-template>
-
 <ng-template #previewAction>
   <button
     nz-button
@@ -134,9 +128,9 @@
           nzTheme="twotone"
           [nzTwotoneColor]="t.entityType | entityColor"
           [nzType]="t.icon"></i>
-        {{ t.name }} {{ nounTitle }} Preview
+        {{ nounTitle }} Preview
       } @else {
-        Submission Preview
+        {{ copy.previewTitle }}
       }
     </span>
     <span class="title-controls">
@@ -280,11 +274,17 @@
             <!-- long-text fields (statement, comment) clip to one line
                  with a hand-rolled expand toggle: typography's ellipsis
                  machinery fights the cell layout in the overlay -->
-            <span
-              class="value-text"
-              [class.plain]="!isRowExpanded(v.label)">
-              {{ v.value }}
-            </span>
+            @if (v.emptied) {
+              <cvc-empty-value
+                cvcEmptyCategory="unspecified"
+                cvcDisplayMode="small" />
+            } @else {
+              <span
+                class="value-text"
+                [class.plain]="!isRowExpanded(v.label)">
+                {{ v.value }}
+              </span>
+            }
             @if (v.multiline) {
               <a
                 class="expand-toggle"
@@ -320,15 +320,22 @@
      two popovers read as one family: the field names, and what each still
      needs -->
 <ng-template #issueList>
-  <nz-descriptions
-    class="issue-summary"
-    nzSize="small"
-    nzBordered
-    [nzColumn]="1">
-    @for (issue of readiness()?.issues; track $index) {
-      <nz-descriptions-item [nzTitle]="issue.label">
-        {{ issue.reason }}
-      </nz-descriptions-item>
+  <div class="issue-groups">
+    @for (group of issueGroups(); track group.title) {
+      @if (group.issues.length) {
+        <div class="issue-group-title">{{ group.title }}</div>
+        <nz-descriptions
+          class="issue-summary"
+          nzSize="small"
+          nzBordered
+          [nzColumn]="1">
+          @for (issue of group.issues; track $index) {
+            <nz-descriptions-item [nzTitle]="issue.label">
+              {{ issue.message }}
+            </nz-descriptions-item>
+          }
+        </nz-descriptions>
+      }
     }
-  </nz-descriptions>
+  </div>
 </ng-template>
