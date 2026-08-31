@@ -6,6 +6,7 @@ import { CvcQuerySubfiltersModule } from '@app/forms/types/query-builder/query-s
 import { CvcSearchButtonTypeModule } from '@app/forms/types/search-button/search-button.module'
 import { CvcBaseFieldsRegistryModule } from './base-fields.registry.module'
 import { CvcCancelButtonModule } from './cancel-button/cancel-button.module'
+import { CvcFormNotificationsModule } from './form-notifications/form-notifications.module'
 import { CvcOrgSubmitButtonTypeModule } from './org-submit-button/org-submit-button.type.module'
 import { CvcStructFilterModule } from './query-builder/struct-filter/struct-filter.module'
 
@@ -15,6 +16,7 @@ import { CvcStructFilterModule } from './query-builder/struct-filter/struct-filt
     CvcBaseFieldsRegistryModule,
     CvcSelectFieldsRegistryModule,
     CvcCancelButtonModule,
+    CvcFormNotificationsModule,
     CvcOrgSubmitButtonTypeModule,
     CvcSearchButtonTypeModule,
     CvcQuerySubfiltersModule,

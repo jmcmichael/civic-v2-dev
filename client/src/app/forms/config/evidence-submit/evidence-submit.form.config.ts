@@ -215,12 +215,17 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 wrappers: ['col'],
                 props: { col: { flex: 'none' } },
               },
+              {
+                type: 'cvc-form-notifications',
+                wrappers: ['col'],
+                props: { col: { flex: 'auto' } },
+              },
               <CvcOrgSubmitButtonFieldConfig>{
                 key: 'organizationId',
                 type: 'org-submit-button',
                 wrappers: ['col'],
                 props: {
-                  col: { flex: 'auto' },
+                  col: { flex: 'none' },
                   submitLabel: 'Submit Evidence Item',
                   align: 'right',
                 },

@@ -92,11 +92,16 @@ const formFieldConfig: FormlyFieldConfig[] = [
                 props: { col: { flex: 'none' } },
               },
               {
+                type: 'cvc-form-notifications',
+                wrappers: ['col'],
+                props: { col: { flex: 'auto' } },
+              },
+              {
                 key: 'organizationId',
                 type: 'org-submit-button',
                 wrappers: ['col'],
                 props: {
-                  col: { flex: 'auto' },
+                  col: { flex: 'none' },
                   submitLabel: 'Submit Source Suggestion',
                   align: 'right',
                 },

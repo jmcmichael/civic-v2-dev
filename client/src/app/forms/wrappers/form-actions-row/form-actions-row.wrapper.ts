@@ -1,10 +1,20 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  Injector,
+  OnInit,
+  Signal,
   ViewEncapsulation,
+  inject,
 } from '@angular/core'
-import { FieldWrapper, FormlyFieldConfig } from '@ngx-formly/core'
+import {
+  CvcFormReadiness,
+  createFormReadiness,
+  readinessSnapshot,
+} from '@app/forms/utilities/form-readiness'
+import { FieldWrapper, FormlyConfig, FormlyFieldConfig } from '@ngx-formly/core'
 import { FormlyFieldProps } from '@ngx-formly/ng-zorro-antd/form-field'
+import { Apollo } from 'apollo-angular'
 
 /** How the row paints its panel and spaces its columns. */
 export interface CvcFormActionsRowOptions {
@@ -66,9 +76,35 @@ const defaults: Required<CvcFormActionsRowOptions> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class CvcFormActionsRowWrapper extends FieldWrapper<
-  FormlyFieldConfig<CvcFormActionsRowProps>
-> {
+export class CvcFormActionsRowWrapper
+  extends FieldWrapper<FormlyFieldConfig<CvcFormActionsRowProps>>
+  implements OnInit
+{
+  private injector = inject(Injector)
+  private apollo = inject(Apollo)
+  private formlyConfig = inject(FormlyConfig)
+
+  /**
+   * The footer's submit readiness, derived once for the row rather than
+   * once per control: the notifications column reports it and the submit
+   * button gates on it. Both read it from here by injecting this wrapper.
+   *
+   * Assigned in ngOnInit because it derives from the form, which formly
+   * attaches after construction.
+   */
+  readiness!: CvcFormReadiness
+  /** the same state in the shape `cvc-form-error-alert` takes */
+  readinessValue!: Signal<ReturnType<ReturnType<typeof readinessSnapshot>>>
+
+  ngOnInit(): void {
+    this.readiness = createFormReadiness(this.field, this.form, {
+      injector: this.injector,
+      apollo: this.apollo,
+      formlyConfig: this.formlyConfig,
+    })
+    this.readinessValue = readinessSnapshot(this.readiness)
+  }
+
   /**
    * Not `options`: FieldWrapper already declares one, of formly's own
    * `FormlyFormOptions` type, and shadowing it is a compile error.

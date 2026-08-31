@@ -9,7 +9,6 @@ import {
   inject,
 } from '@angular/core'
 import { toSignal } from '@angular/core/rxjs-interop'
-import { AbstractControl } from '@angular/forms'
 import { ViewerService } from '@app/core/services/viewer/viewer.service'
 import { ViewerOrganizationFragment } from '@app/core/services/viewer/viewer.service.gql.generated'
 import { Maybe } from '@app/generated/civic.apollo.types'
@@ -20,22 +19,17 @@ import {
   FormlyConfig,
   FormlyFieldConfig,
 } from '@ngx-formly/core'
-import { auditTime, EMPTY, filter, map, merge, Observable } from 'rxjs'
+import { filter } from 'rxjs'
 import { isNonNulled } from 'rxjs-etc'
 import { pluck } from 'rxjs-etc/operators'
 import { CvcFormSubmissionStatusDisplayComponent } from '@app/forms/components/form-submission-status-display/form-submission-status-display.component'
 import { CvcColWrapperProps } from '@app/forms/wrappers/grid/col.wrapper'
 import {
-  collectFieldIssues,
-  collectFieldValues,
-  createUnrevisedCheck,
   describeFieldIssues,
   FormFieldIssue,
-  FormFieldValue,
-  serializeFieldConfig,
 } from '@app/forms/utilities/form-field-issues'
-import { CVC_SUBMISSION_MESSAGES } from '@app/forms/messages/submission-messages'
-import { readCachedEntityName } from '@app/tags/cached-entity'
+import { createFormReadiness } from '@app/forms/utilities/form-readiness'
+import { CvcFormActionsRowWrapper } from '@app/forms/wrappers/form-actions-row/form-actions-row.wrapper'
 import { Apollo } from 'apollo-angular'
 import { NzButtonSize } from 'ng-zorro-antd/button'
 
@@ -65,8 +59,6 @@ export class CvcOrgSubmitButtonComponent
   private apollo = inject(Apollo)
   // the registered message catalog, for resolving each issue's sentence
   private formlyConfig = inject(FormlyConfig)
-  // a revise form with nothing changed is complete but not submittable
-  private unrevised = createUnrevisedCheck()
   private statusDisplay = inject(CvcFormSubmissionStatusDisplayComponent, {
     optional: true,
   })
@@ -79,10 +71,14 @@ export class CvcOrgSubmitButtonComponent
     return (display.state()?.errors().length ?? 0) > 0
   })
 
+  // inside an actions row the readiness is the row's, derived once for all
+  // three columns; a submit button used on its own (the quick-add forms in
+  // the select fields) still derives its own
+  private actionsRow = inject(CvcFormActionsRowWrapper, { optional: true })
+
   readonly mostRecentOrg: Signal<Maybe<ViewerOrganizationFragment>>
   formValid!: Signal<boolean>
   fieldIssues!: Signal<FormFieldIssue[]>
-  fieldValues!: Signal<FormFieldValue[]>
   /**
    * What the button's tooltip says. A submittable button names the
    * organization the submission is credited to; a disabled one answers the
@@ -92,9 +88,6 @@ export class CvcOrgSubmitButtonComponent
    * formly has attached the form.
    */
   tooltipTitle!: Signal<string>
-
-  // the preview's Copy Form Config
-  readonly formConfig = () => serializeFieldConfig(this.field)
 
   defaultOptions: Partial<FieldTypeConfig<CvcOrgSubmitButtonProps>> = {
     props: {
@@ -111,50 +104,17 @@ export class CvcOrgSubmitButtonComponent
   }
 
   ngOnInit(): void {
-    // form & field attach after construction, hence the injector-scoped toSignal
-    const formChange$ = merge(
-      this.form.statusChanges as Observable<unknown>,
-      (this.field.options?.fieldChanges ?? EMPTY) as Observable<unknown>
-    ).pipe(auditTime(0))
-    const valid = () => this.form.valid && !this.unrevised(this.field)
-    this.formValid = toSignal(formChange$.pipe(map(valid)), {
-      initialValue: valid(),
-      injector: this.injector,
-    })
-    // feeds the footer alert's pre-submit readiness state; an unrevised
-    // revise form reports as an issue of its own, so the alert and the
-    // button's tooltip say why rather than claiming the form is ready
-    const issues = () => {
-      const found = collectFieldIssues(this.field, this.formlyConfig)
-      return this.unrevised(this.field)
-        ? [
-            ...found,
-            {
-              label: 'Revision',
-              scope: 'form' as const,
-              message: CVC_SUBMISSION_MESSAGES.noRevisions,
-            },
-          ]
-        : found
-    }
-    this.fieldIssues = toSignal(formChange$.pipe(map(issues)), {
-      initialValue: issues(),
-      injector: this.injector,
-    })
-    // feeds the ready alert's submission preview; entity names resolve
-    // from the cache the form's own tags populated, and the originals map
-    // remembers pre-edit values for revised fields
-    const originals = new Map<AbstractControl, unknown>()
-    const collect = () =>
-      collectFieldValues(this.field, {
-        resolve: (typename, id) =>
-          readCachedEntityName(this.apollo, typename, id),
-        originals,
+    // form & field attach after construction, so this cannot run earlier
+    const readiness =
+      this.actionsRow?.readiness ??
+      createFormReadiness(this.field, this.form, {
+        injector: this.injector,
+        apollo: this.apollo,
+        formlyConfig: this.formlyConfig,
       })
-    this.fieldValues = toSignal(formChange$.pipe(map(collect)), {
-      initialValue: collect(),
-      injector: this.injector,
-    })
+    this.formValid = readiness.formValid
+    this.fieldIssues = readiness.fieldIssues
+
     this.tooltipTitle = computed(() => {
       if (!this.formValid()) return describeFieldIssues(this.fieldIssues())
       const org = this.mostRecentOrg()
