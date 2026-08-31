@@ -9,7 +9,9 @@
  */
 @import 'themes/default.less';
 
-@field-default-border-color: @blue-1;
+// a step lighter than required's @blue-4, and a step darker than the fill
+// it sits on: matching the fill made the resting field's edge disappear
+@field-default-border-color: @blue-3;
 @field-default-border: 1px solid @field-default-border-color;
 @field-default-bg-color: @blue-1;
 @field-default-label-color: @blue-7;
