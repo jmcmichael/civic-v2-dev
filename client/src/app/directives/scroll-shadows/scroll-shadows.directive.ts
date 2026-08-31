@@ -15,11 +15,12 @@ import {
  * content continues past the footer edge it gets `scrolled-from-bottom`.
  * The host's stylesheet draws the shadows; this directive only keeps the
  * two classes truthful, on scroll and on any resize of the container or
- * its content.
+ * its content, and carries the tint they should be cast in.
  */
 @Directive({
   selector: '[cvcScrollShadows]',
   standalone: true,
+  host: { '[style.--cvc-shadow-tint]': 'cvcScrollShadowTint()' },
 })
 export class CvcScrollShadowsDirective implements OnInit {
   /**
@@ -27,6 +28,15 @@ export class CvcScrollShadowsDirective implements OnInit {
    * attribute binds '' — treated as the default.
    */
   readonly cvcScrollShadows = input<string>('')
+
+  /**
+   * A CSS color the host's shadows are cast in, published as
+   * `--cvc-shadow-tint`. The paint stays in the host's stylesheet; this only
+   * carries the value there, so a shadow can take the color of the surface
+   * casting it rather than a neutral black. Unset publishes nothing, and the
+   * stylesheet's own fallback stands.
+   */
+  readonly cvcScrollShadowTint = input<string | null>(null)
 
   private host = inject<ElementRef<HTMLElement>>(ElementRef)
   private renderer = inject(Renderer2)
