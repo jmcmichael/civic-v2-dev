@@ -150,11 +150,19 @@ Formly 7 on ng-zorro; the modernization plan and per-PR history live in
   paints, so a shadow can carry the color of the surface casting it. The
   head/actions need explicit z-index to cast over the positioned field
   boxes.
-- **The footer's three controls are not three columns.** `nzActions` holds
-  one row with two `nz-col`s: cancel, and the submit button — which hosts
-  the error alert inside its own `.btn-aligner`. So the cancel↔alert gap
-  comes from the row's column padding and the alert↔submit gap from that
-  aligner's `gap`, two values kept equal by hand.
+- **The footer is `cvc-form-actions-row`** (`wrappers: ['form-actions-row']`
+  on the `formFooter` group): one background panel, one `nz-row`, three
+  `nz-col`s — cancel, `cvc-form-notifications`, submit. `props.actionsRow`
+  carries the panel's padding, fill, border colour and opacity and the
+  column gutter. All sixteen configs use it.
+- **Submit readiness is derived once, by the row.** `createFormReadiness`
+  (`forms/utilities/form-readiness.ts`) returns `formValid`, `fieldIssues`,
+  `fieldValues` and `formConfig` from any field in a form — every collector
+  it calls walks `field.parent` to the root first, so where it is called
+  does not change the answer. The notifications column and the submit button
+  read the row's copy by injecting it, and each derives its own when there
+  is no row: `org-submit-button` is also used by six quick-add forms in the
+  select fields, which have no footer.
 - **Formly structure rules**: a keyed group field nests the model
   (`key: 'fields'` → `model.fields.*`), so wrapper-only grouping must be
   keyless; `formly-field` renders a field in ANY template slot (card
